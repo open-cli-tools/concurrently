@@ -1,11 +1,10 @@
 #!/usr/bin/env node
 
-var fs = require('fs');
-
+var Rx = require('rx');
 var Promise = require('bluebird');
 var program = require('commander');
 var _ = require('lodash');
-
+var chalk = require('chalk');
 var childProcess = Promise.promisifyAll(require('child_process'));
 
 var config = {
@@ -16,7 +15,7 @@ var config = {
 function main() {
     parseArgs();
     config = mergeDefaultsWithArgs(config);
-
+    run(program.args);
 }
 
 function parseArgs() {
@@ -35,7 +34,9 @@ function parseArgs() {
         console.log('');
         console.log('       $ conc --no-kill "grunt watch" "http-server"');
         console.log('');
-        console.log('  For more details, visit https://github.com/kimmobrunfeldt/node-concurrent');
+
+        var url = 'https://github.com/kimmobrunfeldt/node-concurrent';
+        console.log('  For more details, visit ' + url);
         console.log('');
     });
 
@@ -48,20 +49,64 @@ function mergeDefaultsWithArgs(config) {
     };
 }
 
+function logWithPrefix(prefix, text, color) {
+    var spaceCount = Array(prefix.length + 1).join(' ');
+    var lines = text.split('\n');
 
-function run() {
-    //childProcess.execAsync()
-    Promise.map(commands)
-    .then(function() {
+    var newText = _.map(lines, function(line, i) {
+        var coloredLine = color ? color(line) : line;
+        if (i > 0) return spaceCount + coloredLine;
+        return chalk.bold(prefix) + coloredLine;
+    }).join('\n');
 
-    })
-    .any(function() {
-        // If any of the promises resolves / rejects,
-        // stop other processes
-    })
-    .catch(function() {
+    console.log(newText);
+}
 
-    })
+function logError(childProcess, buffer) {
+    var prefix = '[' + childProcess.pid + '] ';
+    logWithPrefix(prefix, buffer.toString(), chalk.red.bold);
+}
+
+function log(childProcess, buffer) {
+    var prefix = '[' + childProcess.pid + '] ';
+    logWithPrefix(prefix, buffer.toString());
+}
+
+function run(commands) {
+    var children = _.map(commands, function(cmd) {
+        var parts = cmd.split(' ');
+        return childProcess.spawn(_.head(parts), _.tail(parts));
+    });
+
+    var outStreams = _.map(children, function(child) {
+        return Rx.Node.fromReadableStream(child.stdout)
+        .map(function(buffer) {
+            return {buffer: buffer, childProcess: child};
+        });
+    });
+
+    var errStreams = _.map(children, function(child) {
+        return Rx.Node.fromReadableStream(child.stderr)
+        .map(function(buffer) {
+            return {buffer: buffer, childProcess: child};
+        });
+    });
+
+    var mergedOut = _.reduce(_.tail(outStreams), function(memo, stream) {
+        return memo.merge(stream);
+    }, _.head(outStreams));
+
+    var mergedErr = _.reduce(_.tail(errStreams), function(memo, stream) {
+        return memo.merge(stream);
+    }, _.head(errStreams));
+
+    mergedOut.subscribe(function(data) {
+        log(data.childProcess, data.buffer);
+    });
+
+    mergedErr.subscribe(function(data) {
+        logError(data.childProcess, data.buffer);
+    });
 }
 
 main();
