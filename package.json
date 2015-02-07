@@ -2,12 +2,9 @@
   "name": "concurrently",
   "version": "0.0.1",
   "description": "Run commands concurrently",
-  "main": "main.js",
-  "scripts": {
-    "test": "mocha"
-  },
+  "main": "src/main.js",
   "bin": {
-    "concurrent": "./main.js"
+    "concurrent": "./src/main.js"
   },
   "repository": {
     "type": "git",
@@ -18,7 +15,8 @@
     "concurrent",
     "parallel",
     "concurrently",
-    "command"
+    "command",
+    "sh"
   ],
   "author": "Kimmo Brunfeldt",
   "license": "MIT",
@@ -27,11 +25,11 @@
   },
   "homepage": "https://github.com/kimmobrunfeldt/concurrently",
   "dependencies": {
-    "bluebird": "^2.9.6",
-    "chalk": "^0.5.1",
-    "commander": "^2.6.0",
-    "lodash": "^3.1.0",
-    "rx": "^2.3.24"
+    "bluebird": "2.9.6",
+    "chalk": "0.5.1",
+    "commander": "2.6.0",
+    "lodash": "3.1.0",
+    "rx": "2.3.24"
   },
   "devDependencies": {
     "chai": "^1.10.0",

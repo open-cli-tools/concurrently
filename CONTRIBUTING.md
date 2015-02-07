@@ -11,19 +11,18 @@ updated.
 
 ## Test
 
-Tests can be run with command
+Tests can be run with command:
 
 ```bash
-    npm run test
+mocha
 ```
 
 You need to have *mocha* installed globally with `npm install -g mocha`.
 
-
 ## Release
 
 * Commit all changes
-* Run `npm run release`, which will create new tag and publish code to GitHub
+* Run `./tools/release.js minor`, which will create new tag and publish code to GitHub and npm
 * Edit GitHub release notes
 
 
