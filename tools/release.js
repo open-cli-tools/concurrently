@@ -22,6 +22,7 @@ var config = {
     bumpType: 'patch',
     files: ['package.json'],
     readmeFile: 'README.md',
+    indentation: 4,
 
     // If true, don't execute anything, just tell what would have been done
     dryRun: false,
