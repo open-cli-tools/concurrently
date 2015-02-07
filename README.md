@@ -8,6 +8,9 @@ Run multiple commands concurrently. Like ```command1 & command2``` but better.
 
 ## Usage
 
+Remember to surround separate commands with quotes, like this:
+```bash
+concurrent "command1 arg" "command2 arg"
 ```
   Usage: concurrent [options] <command ...>
 
