@@ -1,6 +1,6 @@
 # Concurrently
 
-**Version: 0.0.2** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/0.0.1))
+**Version: 0.0.3** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/0.0.2))
 
 Run multiple commands concurrently. Like ```command1 & command2``` but better.
 
