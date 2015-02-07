@@ -8,6 +8,25 @@ Run multiple commands concurrently. Like ```command1 & command2``` but better.
 
 ## Usage
 
+```
+  Usage: concurrent [options] <command ...>
+
+  Options:
+
+    -h, --help             output usage information
+    -V, --version          output the version number
+    -k, --kill-others      kill other processes if one exits or dies
+    --no-color             disable colors from logging
+    -p, --prefix [prefix]  prefix used in logging for each process. Possible values: pid, none, command
+
+  Examples:
+
+   - Kill other processes if one exits or dies
+
+       $ concurrent --kill-others "grunt watch" "http-server"
+
+  For more details, visit https://github.com/kimmobrunfeldt/concurrently
+```
 
 #### Examples
 
