@@ -36,7 +36,7 @@ concurrent "command1 arg" "command2 arg"
 #### Examples
 
 **Run less watch task and watchify with `--kill-others`` option.
-If one of the processes dies, another is killed too.**
+If either one of the processes dies, the other is killed too.**
 
 ```bash
 concurrent -k "lessc main.less bundle.css" "watchify main.js -o bundle.js"
