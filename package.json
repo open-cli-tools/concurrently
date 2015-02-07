@@ -1,32 +1,40 @@
 {
-  "name": "concurrent",
+  "name": "concurrently",
   "version": "0.0.1",
   "description": "Run commands concurrently",
   "main": "main.js",
   "scripts": {
-    "test": "mocha",
     "test": "mocha"
   },
   "bin": {
-    "conc": "./main.js"
+    "concurrent": "./main.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kimmobrunfeldt/node-concurrent.git"
+    "url": "https://github.com/kimmobrunfeldt/concurrently.git"
   },
   "keywords": [
     "bash",
     "concurrent",
-    "parallel"
+    "parallel",
+    "concurrently",
+    "command"
   ],
   "author": "Kimmo Brunfeldt",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kimmobrunfeldt/node-concurrent/issues"
+    "url": "https://github.com/kimmobrunfeldt/concurrently/issues"
   },
-  "homepage": "https://github.com/kimmobrunfeldt/node-concurrent",
+  "homepage": "https://github.com/kimmobrunfeldt/concurrently",
   "dependencies": {
+    "bluebird": "^2.9.6",
+    "chalk": "^0.5.1",
+    "commander": "^2.6.0",
+    "lodash": "^3.1.0",
+    "rx": "^2.3.24"
   },
   "devDependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.1.0"
   }
 }
