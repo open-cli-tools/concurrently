@@ -4,7 +4,7 @@
 
 Run multiple commands concurrently. Like ```command1 & command2``` but better.
 
-![](docs/example.png)
+![](docs/demo.gif)
 
 ## Usage
 
