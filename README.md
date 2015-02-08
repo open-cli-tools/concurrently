@@ -2,9 +2,18 @@
 
 **Version: 0.0.3** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/0.0.2))
 
-Run multiple commands concurrently. Like ```command1 & command2``` but better.
+Run multiple commands concurrently.
+Like `npm run watch-js & npm run watch-less` but better.
 
 ![](docs/demo.gif)
+
+## Install
+
+The tool is written in Node.js, but you can use it to run **any** commands.
+
+```bash
+npm install -g concurrently
+```
 
 ## Usage
 
@@ -12,6 +21,11 @@ Remember to surround separate commands with quotes, like this:
 ```bash
 concurrent "command1 arg" "command2 arg"
 ```
+
+Otherwise **concurrent** would try to run 4 separate commands:
+`command1`, `arg`, `command2`, `arg`.
+
+Help:
 
 ```
   Usage: concurrent [options] <command ...>
@@ -33,31 +47,27 @@ concurrent "command1 arg" "command2 arg"
   For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
 
-#### Examples
+## FAQ
 
-**Run less watch task and watchify with `--kill-others`` option.
-If either one of the processes dies, the other is killed too.**
+* Process exited with code *null*?
 
-```bash
-concurrent -k "lessc main.less bundle.css" "watchify main.js -o bundle.js"
-```
+    From [Node child_process documentation](http://nodejs.org/api/child_process.html#child_process_event_exit), `exit` event:
+    ```
+    This event is emitted after the child process ends. If the process terminated normally, code is the final exit code of the process, otherwise null. If the process terminated due to receipt of a signal, signal is the string name of the signal, otherwise null.
+    ```
 
-## Install
+    So *null* means the process didn't terminate normally. This will make **concurrent**
+    to return non-zero exit code too.
 
-The tool is written in nodejs, but you can use it to run **any** commands.
-
-```bash
-npm install -g concurrently
-```
 
 ## Why
 
 I like [task automation with npm](http://substack.net/task_automation_with_npm_run)
-but the suggested way to run multiple commands concurrently is
+but the usual way to run multiple commands concurrently is
 ```npm run watch-js & npm run watch-css```. That's fine but it's hard to keep
 on track of different outputs. Also if one process fails, others still keep running
 and you won't even notice the difference.
 
-Another option would be to just run all commands in separate terminals.
-No thanks.
+Another option would be to just run all commands in separate terminals. I got
+tired of opening terminals and made **concurrently**.
 
