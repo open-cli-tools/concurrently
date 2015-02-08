@@ -196,7 +196,6 @@ function handleClose(streams, children, childrenInfo) {
                 return code !== 0 || code === null;
             });
             var finalExitCode = someFailed ? 1 : 0;
-            console.log(childrenInfo)
             process.exit(finalExitCode);
         }
     });
