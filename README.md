@@ -7,6 +7,14 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 ![](docs/demo.gif)
 
+When running watch or serve tasks, I'd recommend to use `--kill-others` option:
+
+```bash
+concurrent --kill-others "npm run watch-js" "npm run watch-less"
+```
+
+That way, if for some reason your `watch-less` died, you would notice it easier.
+
 ## Install
 
 The tool is written in Node.js, but you can use it to run **any** commands.
