@@ -52,12 +52,12 @@ Help:
 * Process exited with code *null*?
 
     From [Node child_process documentation](http://nodejs.org/api/child_process.html#child_process_event_exit), `exit` event:
-    ```
-    This event is emitted after the child process ends. If the process
-    terminated normally, code is the final exit code of the process,
-    otherwise null. If the process terminated due to receipt of a signal,
-    signal is the string name of the signal, otherwise null.
-    ```
+
+    > This event is emitted after the child process ends. If the process
+    > terminated normally, code is the final exit code of the process,
+    > otherwise null. If the process terminated due to receipt of a signal,
+    > signal is the string name of the signal, otherwise null.
+
 
     So *null* means the process didn't terminate normally. This will make **concurrent**
     to return non-zero exit code too.
