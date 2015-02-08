@@ -1,6 +1,6 @@
 # Concurrently
 
-**Version: 0.0.3** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/0.0.2))
+**Version: 0.0.4** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/0.0.3))
 
 Run multiple commands concurrently.
 Like `npm run watch-js & npm run watch-less` but better.
