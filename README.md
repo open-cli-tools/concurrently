@@ -32,17 +32,32 @@ Help:
 
   Options:
 
-    -h, --help             output usage information
-    -V, --version          output the version number
-    -k, --kill-others      kill other processes if one exits or dies
-    --no-color             disable colors from logging
-    -p, --prefix [prefix]  prefix used in logging for each process. Possible values: pid, none, command
+    -h, --help                    output usage information
+    -V, --version                 output the version number
+    -k, --kill-others             kill other processes if one exits or dies
+    --no-color                    disable colors from logging
+    -p, --prefix <prefix>         prefix used in logging for each process.
+    Possible values: index, pid, command, none. Default: index
+
+    -r, --raw                     output only raw output of processes, disables prettifying and colors
+    -l, --prefix-length <length>  limit how many characters of the command is displayed in prefix.
+    The option can be used to shorten long commands.
+    Works only if prefix is set to "command". Default: 10
+
 
   Examples:
 
    - Kill other processes if one exits or dies
 
        $ concurrent --kill-others "grunt watch" "http-server"
+
+   - Output nothing more than stdout+stderr of child processes
+
+       $ concurrent --raw "npm run watch-less" "npm run watch-js"
+
+   - Normal output but without colors e.g. when logging to file
+
+       $ concurrent --no-color "grunt watch" "http-server" > log
 
   For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
