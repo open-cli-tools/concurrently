@@ -13,7 +13,7 @@ When running watch or serve tasks, I'd recommend to use `--kill-others` option:
 concurrent --kill-others "npm run watch-js" "npm run watch-less"
 ```
 
-That way, if for some reason your `watch-less` died, you would notice it easier.
+That way, if for some reason e.g. your `watch-less` died, you would notice it easier.
 
 ## Install
 
