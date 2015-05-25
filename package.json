@@ -6,6 +6,9 @@
   "bin": {
     "concurrent": "./src/main.js"
   },
+  "scripts": {
+    "test": "mocha"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/kimmobrunfeldt/concurrently.git"
