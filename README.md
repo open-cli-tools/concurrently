@@ -93,6 +93,8 @@ and you won't even notice the difference.
 Another option would be to just run all commands in separate terminals. I got
 tired of opening terminals and made **concurrently**.
 
+### NPM Issue
+
 Previously I thought this could fix some problems I had with watching scripts and this readme said:
 
 > When running watch or serve tasks, I'd recommend to use `--kill-others` option:
