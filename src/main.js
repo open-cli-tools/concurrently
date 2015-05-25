@@ -5,7 +5,7 @@ var Promise = require('bluebird');
 var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
-var childProcess = Promise.promisifyAll(require('child_process'));
+var spawn = Promise.promisifyAll(require('cross-spawn'));
 require('./lodash-mixins');
 
 
@@ -106,7 +106,7 @@ function run(commands) {
         var parts = cmd.split(' ');
         var child;
         try {
-            child = childProcess.spawn(_.head(parts), _.tail(parts));
+            child = spawn(_.head(parts), _.tail(parts));
         } catch (e) {
             logError('', 'Error occured when executing command: ' + cmd);
             logError('', e.stack);
