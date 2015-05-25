@@ -1,5 +1,7 @@
 # Concurrently
 
+[![Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently)
+
 **Version: 0.1.0** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/0.0.5))
 
 Run multiple commands concurrently.
