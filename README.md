@@ -9,13 +9,7 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 ![](docs/demo.gif)
 
-When running watch or serve tasks, I'd recommend to use `--kill-others` option:
-
-```bash
-concurrent --kill-others "npm run watch-js" "npm run watch-less"
-```
-
-That way, if for some reason e.g. your `watch-less` died, you would notice it easier.
+It also works on Windows. You can tune your npm scripts to work across platforms.
 
 ## Install
 
@@ -99,3 +93,14 @@ and you won't even notice the difference.
 Another option would be to just run all commands in separate terminals. I got
 tired of opening terminals and made **concurrently**.
 
+Previously I thought this could fix some problems I had with watching scripts and this readme said:
+
+> When running watch or serve tasks, I'd recommend to use `--kill-others` option:
+>
+> ```bash
+> concurrent --kill-others "npm run watch-js" "npm run watch-less"
+> ```
+>
+> That way, if for some reason e.g. your `watch-less` died, you would notice it easier.
+
+However NPM didn't work as I hoped it would. See [this issue](https://github.com/kimmobrunfeldt/concurrently/issues/4).
