@@ -205,7 +205,7 @@ function handleClose(streams, children, childrenInfo) {
         var delayedExit = closeStream.delay(config.killDelay);
 
         delayedExit.subscribe(function() {
-            logEvent('[main] ', 'Sending SIGTERM to other processes..');
+            logEvent('--> ', 'Sending SIGTERM to other processes..');
 
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
@@ -279,8 +279,9 @@ function logError(prefix, text) {
 }
 
 function logWithPrefix(prefix, text, color) {
+    var lastChar = text[text.length - 1];
     if (config.raw) {
-        if (text[text.length - 1] !== '\n') {
+        if (lastChar !== '\n') {
             text += '\n';
         }
 
@@ -288,9 +289,13 @@ function logWithPrefix(prefix, text, color) {
         return;
     }
 
-    var lines = text.split('\n');
+    if (lastChar === '\n') {
+        // Remove extra newline from the end to prevent extra newlines in input
+        text = text.slice(0, text.length - 1);
+    }
 
-    var paddedLines = _.map(lines, function(line) {
+    var lines = text.split('\n');
+    var paddedLines = _.map(lines, function(line, i) {
         var coloredLine = color ? colorText(line, color) : line;
         return colorText(prefix, chalk.gray.dim) + coloredLine;
     });
