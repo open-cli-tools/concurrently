@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently)
 
-**Version: 0.1.0** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/0.0.5))
+**Version: 0.1.1** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/0.1.0))
 
 Run multiple commands concurrently.
 Like `npm run watch-js & npm run watch-less` but better.
