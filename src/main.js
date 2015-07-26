@@ -103,7 +103,19 @@ function mergeDefaultsWithArgs(config) {
 function run(commands) {
     var childrenInfo = {};
     var children = _.map(commands, function(cmd, index) {
-        var parts = cmd.split(' ');
+        // We're splitting up the command into space-separated parts.
+        // To permit commands with spaces in the name (or directory name),
+        // double slashes is a usable escape sequence.
+        var parts = cmd.split(/[^\\](\s)/g)
+            .filter(function(part) {
+                // Remove empty strings.
+                return part != ' ';
+            })
+            .map(function(part) {
+                // Remove the escape slashes from the command.
+                return part.trim().replace('\\ ', ' ');
+            });
+
         var child;
         try {
             child = spawn(_.head(parts), _.tail(parts));
