@@ -106,16 +106,12 @@ function run(commands) {
         // We're splitting up the command into space-separated parts.
         // To permit commands with spaces in the name (or directory name),
         // double slashes is a usable escape sequence.
-        var parts = cmd.split(/[^\\](\s)/g)
-            .filter(function(part) {
-                // Remove empty strings.
-                return part != ' ';
-            })
-            .map(function(part) {
-                // Remove the escape slashes from the command.
-                return part.trim().replace('\\ ', ' ');
-            });
-
+        var divide = cmd.search(/[^\\]\s/) + 1;
+        var path = cmd.substr(0, divide).replace('\\ ', ' ');
+        var args = cmd.substr(divide).split(' ').filter(function(part) {
+            return part.trim() != '';
+        });
+        var parts = [path].concat(args);
         var child;
         try {
             child = spawn(_.head(parts), _.tail(parts));
