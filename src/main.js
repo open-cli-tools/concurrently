@@ -104,14 +104,28 @@ function run(commands) {
     var childrenInfo = {};
     var children = _.map(commands, function(cmd, index) {
         // We're splitting up the command into space-separated parts.
-        // To permit commands with spaces in the name (or directory name),
-        // double slashes is a usable escape sequence.
-        var divide = cmd.search(/[^\\]\s/) + 1;
-        var path = cmd.substr(0, divide).replace('\\ ', ' ');
-        var args = cmd.substr(divide).split(' ').filter(function(part) {
-            return part.trim() != '';
-        });
-        var parts = [path].concat(args);
+        // The first item is the command, all remaining items are the
+        // arguments. To permit commands with spaces in the name
+        // (or directory name), double slashes is a usable escape sequence.
+        var escape = cmd.search('\\\s'),
+            divide = cmd.search(/[^\\]\s/),
+            path, args, parts;
+
+        if (escape > -1 && divide === -1) {
+            // Escaped path without arguments.
+            parts = [cmd.replace('\\ ', ' ')];
+        } else if (escape === -1) {
+            // Not an escaped path.
+            parts = cmd.split(' ');
+        } else {
+            // Escaped path with arguments.
+            path = cmd.substr(0, divide + 1).replace('\\ ', ' ');
+            args = cmd.substr(divide + 1).split(' ').filter(function(part) {
+                return part.trim() != '';
+            });
+            parts = [path].concat(args);
+        }
+
         var child;
         try {
             child = spawn(_.head(parts), _.tail(parts));
