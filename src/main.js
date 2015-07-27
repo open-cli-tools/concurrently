@@ -104,6 +104,8 @@ function stripCmdQuotes(cmd) {
     // Removes the quotes surrounding a command.
     if (cmd[0] === '"' || cmd[0] === '\'') {
         return cmd.substr(1, cmd.length - 2);
+    } else {
+        return cmd;
     }
 }
 
@@ -143,7 +145,7 @@ function run(commands) {
         cmd = stripCmdQuotes(cmd);
 
         // Split the command up in the command path and its arguments.
-        parts = separateCmdArgs(cmd);
+        var parts = separateCmdArgs(cmd);
 
         var child;
         try {
