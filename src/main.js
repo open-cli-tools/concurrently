@@ -67,7 +67,8 @@ function parseArgs() {
         )
         .option(
             '-n, --next-signal',
-            'do later'
+            'if string, commands are launched in sequence. Launches the next process\n' +
+            'when the current process logs this value. Possible values: string or false'
         )
         .option(
             '-l, --prefix-length <length>',
