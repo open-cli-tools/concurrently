@@ -124,8 +124,10 @@ function run(commands) {
     var childrenInfo = {};
     var children = [];
 
+    var exitCode = 0;
     var nextFunc;
-    var subscribers = subscribers = [
+
+    var subscribers = [
         new StreamSubscriber(function(event) {
             var prefix = getPrefix(childrenInfo, event.child);
             var str = event.data.toString();
@@ -144,8 +146,40 @@ function run(commands) {
             logError('', 'Error occured when executing command: ' + command);
             logError('', event.data.stack);
         }),
-        new CloseStreamSubscriber(children, childrenInfo)
+        new StreamSubscriber(function(event) {
+            var prefix = getPrefix(childrenInfo, event.child);
+            var child = childrenInfo[event.child.pid];
+            var childExitCode = event.data;
+
+            logEvent(prefix, child.command + ' exited with code ' + childExitCode);
+
+            if (childExitCode !== 0 || childExitCode === null) {
+                exitCode = 1;
+            }
+            child.alive = false;
+
+            var numChildrenAlive = _(childrenInfo)
+                .pick(function(child) {
+                    return child.alive;
+                }).keys().value().length;
+
+            if (numChildrenAlive === 0) {
+                process.exit(exitCode);
+            }
+        })
     ];
+
+    if (config.killOthers) {
+        subscribers.push(new StreamSubscriber(function() {
+            logEvent('--> ', 'Sending SIGTERM to other processes..');
+
+            children.filter(function(child){
+                return childrenInfo[child.pid].alive;
+            }).forEach(function(child) {
+                child.kill();
+            });
+        }, {delay: config.killDelay}));
+    }
 
     forEachGenerator(commands, function(cmd, index, next) {
         nextFunc = config.nextSignal && next;
@@ -165,7 +199,8 @@ function run(commands) {
 
         childrenInfo[child.pid] = {
             command: cmd,
-            index: index
+            index: index,
+            alive: true
         };
         children.push(child);
 
@@ -173,6 +208,7 @@ function run(commands) {
             Rx.Node.fromReadableStream(child.stdout),
             Rx.Node.fromReadableStream(child.stderr),
             Rx.Node.fromEvent(child, 'error'),
+            Rx.Node.fromEvent(child, 'close'),
             Rx.Node.fromEvent(child, 'close')
         ], function(stream) {
             return stream.map(function(data) {
@@ -186,9 +222,11 @@ function run(commands) {
     });
 }
 
-function StreamSubscriber(subscribe) {
+function StreamSubscriber(subscribe, options) {
     var subscription;
     var streams = [];
+
+    options = _.defaults(options || {}, {delay: 0});
 
     this.add = function(stream) {
         if (subscription) {
@@ -196,60 +234,7 @@ function StreamSubscriber(subscribe) {
         }
         streams.push(stream);
         var mergedStreams = Rx.Observable.merge.apply(this, streams);
-        subscription = mergedStreams.subscribe(subscribe);
-    };
-}
-
-function CloseStreamSubscriber(children, childrenInfo) {
-    var aliveChildren = _.clone(children);
-    var exitCodes = [];
-
-    var subscriptions = [];
-    var streams = [];
-
-    this.add = function(stream) {
-        subscriptions.forEach(function(s) {
-            s.dispose();
-        });
-        streams.push(stream);
-        var mergedStreams = Rx.Observable.merge.apply(this, streams);
-
-        subscriptions.push(mergedStreams.subscribe(function(event) {
-            var exitCode = event.data;
-            exitCodes.push(exitCode);
-
-            var prefix = getPrefix(childrenInfo, event.child);
-            var command = childrenInfo[event.child.pid].command;
-            logEvent(prefix, command + ' exited with code ' + exitCode);
-
-            aliveChildren = _.filter(aliveChildren, function(child) {
-                return child.pid !== event.child.pid;
-            });
-
-            if (aliveChildren.length === 0) {
-                // Final exit code is 0 when all processes ran succesfully,
-                // in other cases exit code 1 is used
-                var someFailed = _.some(exitCodes, function(code) {
-                    return code !== 0 || code === null;
-                });
-                var finalExitCode = someFailed ? 1 : 0;
-                process.exit(finalExitCode);
-            }
-        }));
-
-        if (config.killOthers) {
-            // Give other processes some time to stop cleanly before killing them
-            var delayedExit = mergedStreams.delay(config.killDelay);
-
-            subscriptions.push(delayedExit.subscribe(function() {
-                logEvent('--> ', 'Sending SIGTERM to other processes..');
-
-                // Send SIGTERM to alive children
-                _.each(aliveChildren, function(child) {
-                    child.kill();
-                });
-            }));
-        }
+        subscription = mergedStreams.delay(options.delay).subscribe(subscribe);
     };
 }
 
@@ -278,7 +263,7 @@ function shortenText(text, length, cut) {
     if (text.length <= length) {
         return text;
     }
-    cut = _.isString(cut) ? cut : '..';
+    cut = _.isString(cut) ? cut : '..';
 
     var endLength = Math.floor(length / 2);
     var startLength = length - endLength;
