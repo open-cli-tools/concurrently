@@ -66,7 +66,7 @@ function parseArgs() {
             ' disables prettifying and colors'
         )
         .option(
-            '-n, --next-signal',
+            '-n, --next-signal [nextSignal]',
             'if string, commands are launched in sequence. Launches the next process\n' +
             'when the current process logs this value. Possible values: string or false'
         )
