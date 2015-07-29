@@ -28,12 +28,17 @@ var config = {
     color: true,
 
     // If true, the output will only be raw output of processes, nothing more
-    raw: false
+    raw: false,
+
+    // If string, commands are launched in sequence. Launches the next process
+    // when the current process logs this value. Possible values: string or false
+    nextSignal: false
 };
 
 function main() {
     parseArgs();
     config = mergeDefaultsWithArgs(config);
+    config.nextSignal = config.nextSignal ? RegExp(config.nextSignal) : null;
     run(program.args);
 }
 
@@ -59,6 +64,11 @@ function parseArgs() {
             '-r, --raw',
             'output only raw output of processes,' +
             ' disables prettifying and colors'
+        )
+        .option(
+            '-n, --next-signal [nextSignal]',
+            'if string, commands are launched in sequence. Launches the next process\n' +
+            'when the current process logs this value. Possible values: string or false'
         )
         .option(
             '-l, --prefix-length <length>',
@@ -100,9 +110,83 @@ function mergeDefaultsWithArgs(config) {
     return _.merge(config, program);
 }
 
+function forEachGenerator(arr, func) {
+    var i = 0;
+
+    function next() {
+        if (++i > arr.length) return;
+        func(arr[i - 1], i - 1, next);
+    }
+    next();
+}
+
 function run(commands) {
     var childrenInfo = {};
-    var children = _.map(commands, function(cmd, index) {
+    var children = [];
+
+    var exitCode = 0;
+    var nextFunc;
+
+    var subscribers = [
+        new StreamSubscriber(function(event) {
+            var prefix = getPrefix(childrenInfo, event.child);
+            var str = event.data.toString();
+            if (nextFunc && config.nextSignal.test(str)) {
+                nextFunc();
+            } else {
+                log(prefix, str);
+            }
+        }),
+        new StreamSubscriber(function(event) {
+            var prefix = getPrefix(childrenInfo, event.child);
+            log(prefix, event.data.toString());
+        }),
+        new StreamSubscriber(function(event) {
+            var command = childrenInfo[event.child.pid].command;
+            logError('', 'Error occured when executing command: ' + command);
+            logError('', event.data.stack);
+        }),
+        new StreamSubscriber(function(event) {
+            var prefix = getPrefix(childrenInfo, event.child);
+            var child = childrenInfo[event.child.pid];
+            var childExitCode = event.data;
+
+            logEvent(prefix, child.command + ' exited with code ' + childExitCode);
+
+            if (childExitCode !== 0 || childExitCode === null) {
+                exitCode = 1;
+            }
+            child.alive = false;
+
+            var numChildrenAlive = _(childrenInfo)
+                .pick(function(child) {
+                    return child.alive;
+                }).keys().value().length;
+
+            if (numChildrenAlive === 0) {
+                process.exit(exitCode);
+            }
+        })
+    ];
+
+    if (config.killOthers) {
+        subscribers.push(new StreamSubscriber(function() {
+            logEvent('--> ', 'Sending SIGTERM to other processes..');
+
+            children.filter(function(child){
+                return childrenInfo[child.pid].alive;
+            }).forEach(function(child) {
+                child.kill();
+            });
+        }, {delay: config.killDelay}));
+    }
+
+    forEachGenerator(commands, function(cmd, index, next) {
+        nextFunc = config.nextSignal && next;
+        if (!config.nextSignal) {
+            next();
+        }
+
         var parts = cmd.split(' ');
         var child;
         try {
@@ -115,116 +199,43 @@ function run(commands) {
 
         childrenInfo[child.pid] = {
             command: cmd,
-            index: index
+            index: index,
+            alive: true
         };
-        return child;
-    });
+        children.push(child);
 
-    // Transform all process events to rx streams
-    var streams = _.map(children, function(child) {
-        var streamList = [
+        var streamList = _.map([
             Rx.Node.fromReadableStream(child.stdout),
             Rx.Node.fromReadableStream(child.stderr),
             Rx.Node.fromEvent(child, 'error'),
+            Rx.Node.fromEvent(child, 'close'),
             Rx.Node.fromEvent(child, 'close')
-        ];
-
-        var mappedStreams = _.map(streamList, function(stream) {
+        ], function(stream) {
             return stream.map(function(data) {
                 return {child: child, data: data};
             });
         });
 
-        return {
-            stdout: mappedStreams[0],
-            stderr: mappedStreams[1],
-            error: mappedStreams[2],
-            close: mappedStreams[3]
-        };
-    });
-
-    handleStdout(streams, childrenInfo);
-    handleStderr(streams, childrenInfo);
-    handleClose(streams, children, childrenInfo);
-    handleError(streams, childrenInfo);
-}
-
-function handleStdout(streams, childrenInfo) {
-    var stdoutStreams = _.pluck(streams, 'stdout');
-    var stdoutStream = Rx.Observable.merge.apply(this, stdoutStreams);
-
-    stdoutStream.subscribe(function(event) {
-        var prefix = getPrefix(childrenInfo, event.child);
-        log(prefix, event.data.toString());
-    });
-}
-
-function handleStderr(streams, childrenInfo) {
-    var stderrStreams = _.pluck(streams, 'stderr');
-    var stderrStream = Rx.Observable.merge.apply(this, stderrStreams);
-
-    stderrStream.subscribe(function(event) {
-        var prefix = getPrefix(childrenInfo, event.child);
-        log(prefix, event.data.toString());
-    });
-}
-
-function handleClose(streams, children, childrenInfo) {
-    var aliveChildren = _.clone(children);
-    var exitCodes = [];
-
-    var closeStreams = _.pluck(streams, 'close');
-    var closeStream = Rx.Observable.merge.apply(this, closeStreams);
-
-    // TODO: Is it possible that amount of close events !== count of spawned?
-    closeStream.subscribe(function(event) {
-        var exitCode = event.data;
-        exitCodes.push(exitCode);
-
-        var prefix = getPrefix(childrenInfo, event.child);
-        var command = childrenInfo[event.child.pid].command;
-        logEvent(prefix, command + ' exited with code ' + exitCode);
-
-        aliveChildren = _.filter(aliveChildren, function(child) {
-            return child.pid !== event.child.pid;
+        subscribers.forEach(function(s, i) {
+            s.add(streamList[i]);
         });
+    });
+}
 
-        if (aliveChildren.length === 0) {
-            // Final exit code is 0 when all processes ran succesfully,
-            // in other cases exit code 1 is used
-            var someFailed = _.some(exitCodes, function(code) {
-                return code !== 0 || code === null;
-            });
-            var finalExitCode = someFailed ? 1 : 0;
-            process.exit(finalExitCode);
+function StreamSubscriber(subscribe, options) {
+    var subscription;
+    var streams = [];
+
+    options = _.defaults(options || {}, {delay: 0});
+
+    this.add = function(stream) {
+        if (subscription) {
+            subscription.dispose();
         }
-    });
-
-    if (config.killOthers) {
-        // Give other processes some time to stop cleanly before killing them
-        var delayedExit = closeStream.delay(config.killDelay);
-
-        delayedExit.subscribe(function() {
-            logEvent('--> ', 'Sending SIGTERM to other processes..');
-
-            // Send SIGTERM to alive children
-            _.each(aliveChildren, function(child) {
-                child.kill();
-            });
-        });
-    }
-}
-
-function handleError(streams, childrenInfo) {
-    // Output emitted errors from child process
-    var errorStreams = _.pluck(streams, 'error');
-    var processErrorStream = Rx.Observable.merge.apply(this, errorStreams);
-
-    processErrorStream.subscribe(function(event) {
-        var command = childrenInfo[event.child.pid].command;
-        logError('', 'Error occured when executing command: ' + command);
-        logError('', event.data.stack);
-    });
+        streams.push(stream);
+        var mergedStreams = Rx.Observable.merge.apply(this, streams);
+        subscription = mergedStreams.delay(options.delay).subscribe(subscribe);
+    };
 }
 
 function colorText(text, color) {
@@ -252,7 +263,7 @@ function shortenText(text, length, cut) {
     if (text.length <= length) {
         return text;
     }
-    cut = _.isString(cut) ? cut : '..';
+    cut = _.isString(cut) ? cut : '..';
 
     var endLength = Math.floor(length / 2);
     var startLength = length - endLength;
