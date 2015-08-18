@@ -16,6 +16,10 @@ var config = {
     // How much in ms we wait before killing other processes
     killDelay: 1000,
 
+    // Return success or failure of the 'first' child to terminate, the 'last' child,
+    // or succeed only if 'all' children succeed
+    success: 'all',
+
     // Prefix logging with pid
     // Possible values: 'pid', 'none', 'command', 'index'
     prefix: 'index',
@@ -59,6 +63,13 @@ function parseArgs() {
             '-r, --raw',
             'output only raw output of processes,' +
             ' disables prettifying and colors'
+        )
+        .option(
+            '-s, --success <first|last|all>',
+            'Return exit code of zero or one based on the success or failure ' +
+            'of the "first" child to terminate, the "last" child, or succeed ' +
+            ' only if "all" child processes succeed. Default: ' +
+            config.success + '\n'
         )
         .option(
             '-l, --prefix-length <length>',
@@ -172,7 +183,6 @@ function handleStderr(streams, childrenInfo) {
 function handleClose(streams, children, childrenInfo) {
     var aliveChildren = _.clone(children);
     var exitCodes = [];
-
     var closeStreams = _.pluck(streams, 'close');
     var closeStream = Rx.Observable.merge.apply(this, closeStreams);
 
@@ -190,13 +200,7 @@ function handleClose(streams, children, childrenInfo) {
         });
 
         if (aliveChildren.length === 0) {
-            // Final exit code is 0 when all processes ran succesfully,
-            // in other cases exit code 1 is used
-            var someFailed = _.some(exitCodes, function(code) {
-                return code !== 0 || code === null;
-            });
-            var finalExitCode = someFailed ? 1 : 0;
-            process.exit(finalExitCode);
+          exit(exitCodes);
         }
     });
 
@@ -213,6 +217,23 @@ function handleClose(streams, children, childrenInfo) {
             });
         });
     }
+}
+
+function exit(childExitCodes) {
+    var success;
+    switch (config.success) {
+      case 'first':
+        success = _.first(childExitCodes) === 0;
+        break;
+      case 'last':
+        success = _.last(childExitCodes) === 0;
+        break;
+      default:
+        success = _.every(childExitCodes, function(code) {
+          return code === 0;
+        });
+    }
+    process.exit(success? 0 : 1);
 }
 
 function handleError(streams, childrenInfo) {

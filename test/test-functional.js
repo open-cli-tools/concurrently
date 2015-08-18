@@ -56,8 +56,28 @@ describe('concurrently', function() {
             done();
         });
     });
+
+    it('--success=first should return first exit code', function(done) {
+        run('node ./src/main.js -k --success first "echo" "sleep 1000" ', {pipe: DEBUG_TESTS})
+        // When killed, sleep returns null exit code
+        .then(function(exitCode) {
+            assert.strictEqual(exitCode, 0);
+            done();
+        });
+    });
+
+    it('--success=last should return last exit code', function(done) {
+        // When killed, sleep returns null exit code
+        run('node ./src/main.js -k --success last "echo" "sleep 1000" ', {pipe: DEBUG_TESTS})
+        .then(function(exitCode) {
+            assert.notStrictEqual(exitCode, 0);
+            done();
+        });
+    });
+
 });
 
 function resolve(relativePath) {
     return path.join(testDir, relativePath);
 }
+
