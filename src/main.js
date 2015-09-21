@@ -200,7 +200,7 @@ function handleClose(streams, children, childrenInfo) {
         });
 
         if (aliveChildren.length === 0) {
-          exit(exitCodes);
+            exit(exitCodes);
         }
     });
 
@@ -222,16 +222,16 @@ function handleClose(streams, children, childrenInfo) {
 function exit(childExitCodes) {
     var success;
     switch (config.success) {
-      case 'first':
-        success = _.first(childExitCodes) === 0;
-        break;
-      case 'last':
-        success = _.last(childExitCodes) === 0;
-        break;
-      default:
-        success = _.every(childExitCodes, function(code) {
-          return code === 0;
-        });
+        case 'first':
+            success = _.first(childExitCodes) === 0;
+            break;
+        case 'last':
+            success = _.last(childExitCodes) === 0;
+            break;
+        default:
+            success = _.every(childExitCodes, function(code) {
+                return code === 0;
+            });
     }
     process.exit(success? 0 : 1);
 }
