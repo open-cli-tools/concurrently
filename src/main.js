@@ -111,10 +111,53 @@ function mergeDefaultsWithArgs(config) {
     return _.merge(config, program);
 }
 
+function stripCmdQuotes(cmd) {
+    // Removes the quotes surrounding a command.
+    if (cmd[0] === '"' || cmd[0] === '\'') {
+        return cmd.substr(1, cmd.length - 2);
+    } else {
+        return cmd;
+    }
+}
+
+function separateCmdArgs(cmd) {
+    // We're splitting up the command into space-separated parts.
+    // The first item is the command, all remaining items are the
+    // arguments. To permit commands with spaces in the name
+    // (or directory name), double slashes is a usable escape sequence.
+    var escape = cmd.search('\\\s'),
+        divide = cmd.search(/[^\\]\s/),
+        path, args, parts;
+
+    if (escape === -1) {
+        // Not an escaped path. Most common case.
+        parts = cmd.split(' ');
+    } else if (escape > -1 && divide === -1) {
+        // Escaped path without arguments.
+        parts = [cmd.replace('\\ ', ' ')];
+    } else {
+        // Escaped path with arguments.
+        path = cmd.substr(0, divide + 1).replace('\\ ', ' ');
+        args = cmd.substr(divide + 1).split(' ').filter(function(part) {
+            return part.trim() != '';
+        });
+        parts = [path].concat(args);
+    }
+
+    // Parts contains the command as the first item and any arguments
+    // as subsequent items.
+    return parts;
+}
+
 function run(commands) {
     var childrenInfo = {};
     var children = _.map(commands, function(cmd, index) {
-        var parts = cmd.split(' ');
+        // Remove quotes.
+        cmd = stripCmdQuotes(cmd);
+
+        // Split the command up in the command path and its arguments.
+        var parts = separateCmdArgs(cmd);
+
         var child;
         try {
             child = spawn(_.head(parts), _.tail(parts));
