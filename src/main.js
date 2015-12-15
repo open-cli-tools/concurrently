@@ -3,6 +3,7 @@
 var Rx = require('rx');
 var Promise = require('bluebird');
 var program = require('commander');
+var child_process = require('child_process');
 var _ = require('lodash');
 var chalk = require('chalk');
 var spawn = Promise.promisifyAll(require('cross-spawn'));
@@ -258,6 +259,8 @@ function handleClose(streams, children, childrenInfo) {
             _.each(aliveChildren, function(child) {
                 child.kill();
             });
+
+            child_process.spawn('kill', [process.pid]);
         });
     }
 }
