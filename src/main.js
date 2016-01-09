@@ -8,6 +8,7 @@ var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
 var spawn = Promise.promisifyAll(require('cross-spawn'));
+var isWindows = /^win/.test(process.platform);
 
 var config = {
     // Kill other processes if one dies
@@ -264,7 +265,11 @@ function handleClose(streams, children, childrenInfo) {
 
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
-                child.kill();
+                if(!isWindows) {
+                    child.kill();
+                } else {
+                    spawn('taskkill', ["/pid", child.pid, '/f', '/t']);
+                }
             });
         });
     }
