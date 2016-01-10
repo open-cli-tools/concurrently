@@ -177,7 +177,7 @@ function run(commands) {
         // Split the command up in the command path and its arguments.
         var parts = separateCmdArgs(cmd);
 
-        var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
+        var spawnOpts = config.raw ? {stdio: 'inherit', 'detached': true} : {'detached': true};
         var child;
         try {
             child = spawn(_.head(parts), _.tail(parts), spawnOpts);
@@ -266,7 +266,7 @@ function handleClose(streams, children, childrenInfo) {
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
                 if(!isWindows) {
-                    child.kill();
+                    process.kill(-child.pid);
                 } else {
                     spawn('taskkill', ["/pid", child.pid, '/f', '/t']);
                 }
