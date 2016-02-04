@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var Rx = require('rx');
+var moment = require('moment');
 var Promise = require('bluebird');
 var program = require('commander');
 var _ = require('lodash');
@@ -32,7 +33,13 @@ var config = {
     color: true,
 
     // If true, the output will only be raw output of processes, nothing more
-    raw: false
+    raw: false,
+
+    // If true, the output will populated with timestamp
+    showTimestamp: true,
+
+    // if you show timestamp, format the output
+    timestampFormat: 'DD/MM/YYYY HH:mm:ss'
 };
 
 function main() {
@@ -63,6 +70,15 @@ function parseArgs() {
             '-r, --raw',
             'output only raw output of processes,' +
             ' disables prettifying and colors'
+        )
+        .option(
+            '-st, --show-timestamp',
+            'Show timestamp'
+        )
+        .option(
+            '--timestamp-format <format>',
+            'show timestamp output format, its a moment output format. Default: ' +
+            config.timestampFormat + '\n'
         )
         .option(
             '-s, --success <first|last|all>',
@@ -300,16 +316,22 @@ function colorText(text, color) {
 }
 
 function getPrefix(childrenInfo, child) {
+    var prefix = '';
+
     if (config.prefix === 'pid') {
-        return '[' + child.pid + '] ';
+        prefix += '[' + child.pid + '] ';
     } else if (config.prefix === 'command') {
         var command = childrenInfo[child.pid].command;
-        return '[' + shortenText(command, config.prefixLength) + '] ';
+        prefix += '[' + shortenText(command, config.prefixLength) + '] ';
     } else if (config.prefix === 'index') {
-        return '[' + childrenInfo[child.pid].index + '] ';
+        prefix += '[' + childrenInfo[child.pid].index + '] ';
     }
 
-    return '';
+    if (config.showTimestamp) {
+        prefix += '[' + moment().format(config.timestampFormat) + '] ';
+    }
+
+    return prefix;
 }
 
 function shortenText(text, length, cut) {

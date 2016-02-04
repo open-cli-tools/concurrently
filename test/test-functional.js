@@ -80,4 +80,3 @@ describe('concurrently', function() {
 function resolve(relativePath) {
     return path.join(testDir, relativePath);
 }
-
