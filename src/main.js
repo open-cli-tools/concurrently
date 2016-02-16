@@ -38,6 +38,10 @@ var config = {
 };
 
 function main() {
+    if (process.argv[0] === 'concurrent') {
+        console.error('"concurrent" command is deprecated, use "concurrently" instead.');
+    }
+
     parseArgs();
     config = mergeDefaultsWithArgs(config);
     run(program.args);
@@ -62,7 +66,7 @@ function parseArgs() {
             config.prefix + '. Example template "{time}-{pid}"\n'
         )
         .option(
-            '-tf, --timestamp-format <format>',
+            '-t, --timestamp-format <format>',
             'specify the timestamp in moment format. Default: ' +
             config.timestampFormat + '\n'
         )
@@ -92,19 +96,19 @@ function parseArgs() {
             '',
             '   - Kill other processes if one exits or dies',
             '',
-            '       $ concurrent --kill-others "grunt watch" "http-server"',
+            '       $ concurrently --kill-others "grunt watch" "http-server"',
             '',
             '   - Output nothing more than stdout+stderr of child processes',
             '',
-            '       $ concurrent --raw "npm run watch-less" "npm run watch-js"',
+            '       $ concurrently --raw "npm run watch-less" "npm run watch-js"',
             '',
             '   - Normal output but without colors e.g. when logging to file',
             '',
-            '       $ concurrent --no-color "grunt watch" "http-server" > log',
+            '       $ concurrently --no-color "grunt watch" "http-server" > log',
             '',
             '   - Custom prefix',
             '',
-            '       $ concurrent --prefix "{time}-{pid}" "grunt watch" "http-server"',
+            '       $ concurrently --prefix "{time}-{pid}" "grunt watch" "http-server"',
             ''
         ];
         console.log(help.join('\n'));

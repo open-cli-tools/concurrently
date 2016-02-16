@@ -4,7 +4,8 @@
   "description": "Run commands concurrently",
   "main": "src/main.js",
   "bin": {
-    "concurrent": "./src/main.js"
+    "concurrent": "./src/main.js",
+    "concurrently": "./src/main.js"
   },
   "scripts": {
     "test": "mocha"

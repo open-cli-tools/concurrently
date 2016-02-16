@@ -9,7 +9,12 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 ![](docs/demo.gif)
 
-It also works on Windows. You can tune your npm scripts to work across platforms.
+**Features:**
+
+* Cross platform, works also in Windows
+* Output is easy to follow with prefixes
+* With `--kill-others` switch, all commands are killed if one dies
+
 
 ## Install
 
@@ -23,47 +28,55 @@ npm install -g concurrently
 
 Remember to surround separate commands with quotes, like this:
 ```bash
-concurrent "command1 arg" "command2 arg"
+concurrently "command1 arg" "command2 arg"
 ```
 
-Otherwise **concurrent** would try to run 4 separate commands:
+Otherwise **concurrently** would try to run 4 separate commands:
 `command1`, `arg`, `command2`, `arg`.
 
 Help:
 
 ```
-  Usage: concurrent [options] <command ...>
+Usage: concurrently [options] <command ...>
 
-  Options:
+Options:
 
-    -h, --help                    output usage information
-    -V, --version                 output the version number
-    -k, --kill-others             kill other processes if one exits or dies
-    --no-color                    disable colors from logging
-    -p, --prefix <prefix>         prefix used in logging for each process.
-    Possible values: index, pid, command, none. Default: index
+  -h, --help                        output usage information
+  -V, --version                     output the version number
+  -k, --kill-others                 kill other processes if one exits or dies
+  --no-color                        disable colors from logging
+  -p, --prefix <prefix>             prefix used in logging for each process.
+  Possible values: index, pid, time, command, none or a template. Default: index. Example template "{time}-{pid}"
 
-    -r, --raw                     output only raw output of processes, disables prettifying and colors
-    -l, --prefix-length <length>  limit how many characters of the command is displayed in prefix.
-    The option can be used to shorten long commands.
-    Works only if prefix is set to "command". Default: 10
+  -tf, --timestamp-format <format>  specify the timestamp in moment format. Default: YYYY-MM-DD HH:mm:ss.SSS
+
+  -r, --raw                         output only raw output of processes, disables prettifying and concurrently coloring
+  -s, --success <first|last|all>    Return exit code of zero or one based on the success or failure of the "first" child to terminate, the "last" child, or succeed  only if "all" child processes succeed. Default: all
+
+  -l, --prefix-length <length>      limit how many characters of the command is displayed in prefix.
+  The option can be used to shorten long commands.
+  Works only if prefix is set to "command". Default: 10
 
 
-  Examples:
+Examples:
 
-   - Kill other processes if one exits or dies
+ - Kill other processes if one exits or dies
 
-       $ concurrent --kill-others "grunt watch" "http-server"
+     $ concurrently --kill-others "grunt watch" "http-server"
 
-   - Output nothing more than stdout+stderr of child processes
+ - Output nothing more than stdout+stderr of child processes
 
-       $ concurrent --raw "npm run watch-less" "npm run watch-js"
+     $ concurrently --raw "npm run watch-less" "npm run watch-js"
 
-   - Normal output but without colors e.g. when logging to file
+ - Normal output but without colors e.g. when logging to file
 
-       $ concurrent --no-color "grunt watch" "http-server" > log
+     $ concurrently --no-color "grunt watch" "http-server" > log
 
-  For more details, visit https://github.com/kimmobrunfeldt/concurrently
+ - Custom prefix
+
+     $ concurrently --prefix "{time}-{pid}" "grunt watch" "http-server"
+
+For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
 
 ## FAQ
@@ -86,7 +99,7 @@ Help:
 
 I like [task automation with npm](http://substack.net/task_automation_with_npm_run)
 but the usual way to run multiple commands concurrently is
-```npm run watch-js & npm run watch-css```. That's fine but it's hard to keep
+`npm run watch-js & npm run watch-css`. That's fine but it's hard to keep
 on track of different outputs. Also if one process fails, others still keep running
 and you won't even notice the difference.
 
