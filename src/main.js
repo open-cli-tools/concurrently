@@ -4,7 +4,6 @@ var Rx = require('rx');
 var Promise = require('bluebird');
 var moment = require('moment');
 var program = require('commander');
-var Mustache = require('mustache');
 var _ = require('lodash');
 var chalk = require('chalk');
 var spawn = Promise.promisifyAll(require('cross-spawn'));

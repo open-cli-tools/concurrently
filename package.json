@@ -34,7 +34,6 @@
     "cross-spawn": "^0.2.9",
     "lodash": "3.1.0",
     "moment": "^2.11.2",
-    "mustache": "^2.2.1",
     "rx": "2.3.24"
   },
   "devDependencies": {
