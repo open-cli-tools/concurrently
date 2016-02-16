@@ -44,6 +44,8 @@ Help:
     Possible values: index, pid, command, none. Default: index
 
     -r, --raw                     output only raw output of processes, disables prettifying and colors
+    -st, --show-timestamp         show timestamp
+    --timestamp-format <format>   specify the timestamp format. Default: 'DD/MM/YYYY HH:mm:ss'
     -l, --prefix-length <length>  limit how many characters of the command is displayed in prefix.
     The option can be used to shorten long commands.
     Works only if prefix is set to "command". Default: 10
@@ -62,6 +64,15 @@ Help:
    - Normal output but without colors e.g. when logging to file
 
        $ concurrent --no-color "grunt watch" "http-server" > log
+
+   - Run with timestamp
+
+       $ concurrent -st "sleep 1000" "echo" "sleep 1000"
+
+   - Run with timestamp with other output format
+
+       $ concurrent -st --timestamp-format "HH:mm:ss"  "sleep 1000" "echo" "sleep 1000"
+
 
   For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
