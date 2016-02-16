@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently)
 
-**Version: 2.0.0** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/1.0.0))
+**Version: 1.0.0** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/0.1.1))
 
 Run multiple commands concurrently.
 Like `npm run watch-js & npm run watch-less` but better.
@@ -113,7 +113,7 @@ Previously I thought this could fix some problems I had with watching scripts an
 > When running watch or serve tasks, I'd recommend to use `--kill-others` option:
 >
 > ```bash
-> concurrent --kill-others "npm run watch-js" "npm run watch-less"
+> concurrently --kill-others "npm run watch-js" "npm run watch-less"
 > ```
 >
 > That way, if for some reason e.g. your `watch-less` died, you would notice it easier.
