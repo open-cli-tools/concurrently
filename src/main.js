@@ -2,7 +2,9 @@
 
 var Rx = require('rx');
 var Promise = require('bluebird');
+var moment = require('moment');
 var program = require('commander');
+var Mustache = require('mustache');
 var _ = require('lodash');
 var chalk = require('chalk');
 var spawn = Promise.promisifyAll(require('cross-spawn'));
@@ -19,8 +21,11 @@ var config = {
     success: 'all',
 
     // Prefix logging with pid
-    // Possible values: 'pid', 'none', 'command', 'index'
+    // Possible values: 'pid', 'none', 'time', 'command', 'index'
     prefix: 'index',
+
+    // moment format
+    timestampFormat: 'YYYY-MM-DD HH:mm:ss.SSS',
 
     // How many characters to display from start of command in prefix if
     // command is defined. Note that also '..' will be added in the middle
@@ -54,8 +59,13 @@ function parseArgs() {
         .option(
             '-p, --prefix <prefix>',
             'prefix used in logging for each process.\n' +
-            'Possible values: index, pid, command, none. Default: ' +
-            config.prefix + '\n'
+            'Possible values: index, pid, time, command, none or a template. Default: ' +
+            config.prefix + '. Example template "{time}-{pid}"\n'
+        )
+        .option(
+            '-tf, --timestamp-format <format>',
+            'specify the timestamp in moment format. Default: ' +
+            config.timestampFormat + '\n'
         )
         .option(
             '-r, --raw',
@@ -92,6 +102,10 @@ function parseArgs() {
             '   - Normal output but without colors e.g. when logging to file',
             '',
             '       $ concurrent --no-color "grunt watch" "http-server" > log',
+            '',
+            '   - Custom prefix',
+            '',
+            '       $ concurrent --prefix "{time}-{pid}" "grunt watch" "http-server"',
             ''
         ];
         console.log(help.join('\n'));
@@ -288,16 +302,28 @@ function colorText(text, color) {
 }
 
 function getPrefix(childrenInfo, child) {
-    if (config.prefix === 'pid') {
-        return '[' + child.pid + '] ';
-    } else if (config.prefix === 'command') {
-        var command = childrenInfo[child.pid].command;
-        return '[' + shortenText(command, config.prefixLength) + '] ';
-    } else if (config.prefix === 'index') {
-        return '[' + childrenInfo[child.pid].index + '] ';
+    var prefixes = getPrefixes(childrenInfo, child);
+    if (_.contains(_.keys(prefixes), config.prefix)) {
+        return '[' + prefixes[config.prefix] + '] ';
     }
 
-    return '';
+    return _.reduce(prefixes, function(memo, val, key) {
+        var re = new RegExp('{' + key + '}', 'g');
+        return memo.replace(re, val);
+    }, config.prefix) + ' ';
+}
+
+function getPrefixes(childrenInfo, child) {
+    var prefixes = {};
+
+    prefixes.none = '';
+    prefixes.pid = child.pid
+    prefixes.index = childrenInfo[child.pid].index
+    prefixes.time = moment().format(config.timestampFormat);
+
+    var command = childrenInfo[child.pid].command;
+    prefixes.command = shortenText(command, config.prefixLength);
+    return prefixes;
 }
 
 function shortenText(text, length, cut) {
