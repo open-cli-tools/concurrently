@@ -6,8 +6,6 @@ var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
 var spawn = Promise.promisifyAll(require('cross-spawn'));
-require('./lodash-mixins');
-
 
 var config = {
     // Kill other processes if one dies
@@ -62,7 +60,7 @@ function parseArgs() {
         .option(
             '-r, --raw',
             'output only raw output of processes,' +
-            ' disables prettifying and colors'
+            ' disables prettifying and concurrently coloring'
         )
         .option(
             '-s, --success <first|last|all>',
@@ -158,9 +156,10 @@ function run(commands) {
         // Split the command up in the command path and its arguments.
         var parts = separateCmdArgs(cmd);
 
+        var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
         var child;
         try {
-            child = spawn(_.head(parts), _.tail(parts));
+            child = spawn(_.head(parts), _.tail(parts), spawnOpts);
         } catch (e) {
             logError('', 'Error occured when executing command: ' + cmd);
             logError('', e.stack);
@@ -176,48 +175,37 @@ function run(commands) {
 
     // Transform all process events to rx streams
     var streams = _.map(children, function(child) {
-        var streamList = [
-            Rx.Node.fromReadableStream(child.stdout),
-            Rx.Node.fromReadableStream(child.stderr),
-            Rx.Node.fromEvent(child, 'error'),
-            Rx.Node.fromEvent(child, 'close')
-        ];
+        var childStreams = {
+            error: Rx.Node.fromEvent(child, 'error'),
+            close: Rx.Node.fromEvent(child, 'close')
+        };
+        if (!config.raw) {
+            childStreams.stdout = Rx.Node.fromReadableStream(child.stdout);
+            childStreams.stderr = Rx.Node.fromReadableStream(child.stderr);
+        }
 
-        var mappedStreams = _.map(streamList, function(stream) {
-            return stream.map(function(data) {
+        return _.reduce(childStreams, function(memo, stream, key) {
+            memo[key] = stream.map(function(data) {
                 return {child: child, data: data};
             });
-        });
 
-        return {
-            stdout: mappedStreams[0],
-            stderr: mappedStreams[1],
-            error: mappedStreams[2],
-            close: mappedStreams[3]
-        };
+            return memo;
+        }, {});
     });
 
-    handleStdout(streams, childrenInfo);
-    handleStderr(streams, childrenInfo);
     handleClose(streams, children, childrenInfo);
     handleError(streams, childrenInfo);
+    if (!config.raw) {
+        handleOutput(streams, childrenInfo, 'stdout');
+        handleOutput(streams, childrenInfo, 'stderr');
+    }
 }
 
-function handleStdout(streams, childrenInfo) {
-    var stdoutStreams = _.pluck(streams, 'stdout');
-    var stdoutStream = Rx.Observable.merge.apply(this, stdoutStreams);
+function handleOutput(streams, childrenInfo, source) {
+    var sourceStreams = _.pluck(streams, source);
+    var combinedSourceStream = Rx.Observable.merge.apply(this, sourceStreams);
 
-    stdoutStream.subscribe(function(event) {
-        var prefix = getPrefix(childrenInfo, event.child);
-        log(prefix, event.data.toString());
-    });
-}
-
-function handleStderr(streams, childrenInfo) {
-    var stderrStreams = _.pluck(streams, 'stderr');
-    var stderrStream = Rx.Observable.merge.apply(this, stderrStreams);
-
-    stderrStream.subscribe(function(event) {
+    combinedSourceStream.subscribe(function(event) {
         var prefix = getPrefix(childrenInfo, event.child);
         log(prefix, event.data.toString());
     });
@@ -276,7 +264,7 @@ function exit(childExitCodes) {
                 return code === 0;
             });
     }
-    process.exit(success? 0 : 1);
+    process.exit(success ? 0 : 1);
 }
 
 function handleError(streams, childrenInfo) {
