@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var Rx = require('rx');
+var path = require('path');
 var Promise = require('bluebird');
 var moment = require('moment');
 var program = require('commander');
@@ -38,8 +39,10 @@ var config = {
 };
 
 function main() {
-    if (process.argv[0] === 'concurrent') {
-        console.error('"concurrent" command is deprecated, use "concurrently" instead.');
+    var firstBase = path.basename(process.argv[0]);
+    var secondBase = path.basename(process.argv[1]);
+    if (firstBase === 'concurrent' || secondBase === 'concurrent') {
+        console.error('"concurrent" command is deprecated, use "concurrently" instead.\n');
     }
 
     parseArgs();
