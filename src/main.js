@@ -83,10 +83,10 @@ function parseArgs() {
             'Example names: "main,browser,server"\n'
         )
         .option(
-            '-ns, --names-separator <char>',
+            '--name-separator <char>',
             'The character to split <names> on.\n' +
             'Default: "' + config.nameSeparator + '". Example usage: ' +
-            'concurrently -n "styles,scripts|server" -ns "|" <command ...>\n'
+            'concurrently -n "styles,scripts|server" --name-separator "|" <command ...>\n'
         )
         .option(
             '-c, --colors <colors>',
