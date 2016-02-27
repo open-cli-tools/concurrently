@@ -15,7 +15,7 @@ process.chdir(path.join(testDir, '..'));
 describe('concurrently', function() {
     this.timeout(5000);
 
-    it('help should be succesful', function(done) {
+    it('help should be successful', function(done) {
         run('node ./src/main.js --help', {pipe: DEBUG_TESTS})
         .then(function(exitCode) {
             // exit code 0 means success

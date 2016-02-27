@@ -1,6 +1,6 @@
 {
     "name": "concurrently",
-    "version": "2.0.0-dev",
+    "version": "2.1.0-dev",
     "description": "Run commands concurrently",
     "main": "src/main.js",
     "bin": {
@@ -33,7 +33,7 @@
         "chalk": "0.5.1",
         "commander": "2.6.0",
         "cross-spawn": "^0.2.9",
-        "lodash": "3.1.0",
+        "lodash": "^4.5.1",
         "moment": "^2.11.2",
         "rx": "2.3.24"
     },
