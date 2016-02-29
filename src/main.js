@@ -31,7 +31,7 @@ var config = {
     nameSeparator: ',',
 
     // Comma-separated list of chalk color paths to use on prefixes.
-    colors: 'gray.dim',
+    prefixColors: 'gray.dim',
 
     // moment format
     timestampFormat: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -89,13 +89,13 @@ function parseArgs() {
             'concurrently -n "styles,scripts|server" --name-separator "|" <command ...>\n'
         )
         .option(
-            '-c, --colors <colors>',
+            '-c, --prefix-colors <colors>',
             'Comma-separated list of chalk colors to use on prefixes. If there are more commands than colors, the last color will be repeated.\n' +
             'Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough\n' +
             'Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray\n' +
             'Available background colors: bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite\n' +
             'See https://www.npmjs.com/package/chalk for more information.\n' +
-            'Default: "' + config.colors + '". Example: "black.bgWhite,cyan,gray.dim"\n'
+            'Default: "' + config.prefixColors + '". Example: "black.bgWhite,cyan,gray.dim"\n'
         )
         .option(
             '-t, --timestamp-format <format>',
@@ -199,7 +199,7 @@ function separateCmdArgs(cmd) {
 function run(commands) {
     var childrenInfo = {};
     var lastPrefixColor = _.get(chalk, chalk.gray.dim);
-    var colors = config.colors.split(',');
+    var prefixColors = config.prefixColors.split(',');
     var names = config.names.split(config.nameSeparator);
     var children = _.map(commands, function(cmd, index) {
         // Remove quotes.
@@ -218,9 +218,9 @@ function run(commands) {
             process.exit(1);
         }
 
-        if (index < colors.length) {
-            var colorPath = colors[index];
-            lastPrefixColor = _.get(chalk, colorPath);
+        if (index < prefixColors.length) {
+            var prefixColorPath = prefixColors[index];
+            lastPrefixColor = _.get(chalk, prefixColorPath);
         }
 
         var name = index < names.length ? names[index] : '';
