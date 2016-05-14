@@ -21,8 +21,17 @@ var config = {
     success: 'all',
 
     // Prefix logging with pid
-    // Possible values: 'pid', 'none', 'time', 'command', 'index'
+    // Possible values: 'pid', 'none', 'time', 'command', 'index', 'name'
     prefix: 'index',
+
+    // List of custom names to be used in prefix template
+    names: '',
+
+    // What to split the list of custom names on
+    nameSeparator: ',',
+
+    // Comma-separated list of chalk color paths to use on prefixes.
+    prefixColors: 'gray.dim',
 
     // moment format
     timestampFormat: 'YYYY-MM-DD HH:mm:ss.SSS',
@@ -65,8 +74,28 @@ function parseArgs() {
         .option(
             '-p, --prefix <prefix>',
             'prefix used in logging for each process.\n' +
-            'Possible values: index, pid, time, command, none or a template. Default: ' +
-            config.prefix + '. Example template "{time}-{pid}"\n'
+            'Possible values: index, pid, time, command, name, none, or a template. Default: ' +
+            config.prefix + '. Example template: "{time}-{pid}"\n'
+        )
+        .option(
+            '-n, --names <names>',
+            'List of custom names to be used in prefix template.\n' +
+            'Example names: "main,browser,server"\n'
+        )
+        .option(
+            '--name-separator <char>',
+            'The character to split <names> on.\n' +
+            'Default: "' + config.nameSeparator + '". Example usage: ' +
+            'concurrently -n "styles,scripts|server" --name-separator "|" <command ...>\n'
+        )
+        .option(
+            '-c, --prefix-colors <colors>',
+            'Comma-separated list of chalk colors to use on prefixes. If there are more commands than colors, the last color will be repeated.\n' +
+            'Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough\n' +
+            'Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray\n' +
+            'Available background colors: bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite\n' +
+            'See https://www.npmjs.com/package/chalk for more information.\n' +
+            'Default: "' + config.prefixColors + '". Example: "black.bgWhite,cyan,gray.dim"\n'
         )
         .option(
             '-t, --timestamp-format <format>',
@@ -169,6 +198,9 @@ function separateCmdArgs(cmd) {
 
 function run(commands) {
     var childrenInfo = {};
+    var lastPrefixColor = _.get(chalk, chalk.gray.dim);
+    var prefixColors = config.prefixColors.split(',');
+    var names = config.names.split(config.nameSeparator);
     var children = _.map(commands, function(cmd, index) {
         // Remove quotes.
         cmd = stripCmdQuotes(cmd);
@@ -181,14 +213,22 @@ function run(commands) {
         try {
             child = spawn(_.head(parts), _.tail(parts), spawnOpts);
         } catch (e) {
-            logError('', 'Error occured when executing command: ' + cmd);
-            logError('', e.stack);
+            logError('', chalk.gray.dim, 'Error occured when executing command: ' + cmd);
+            logError('', chalk.gray.dim, e.stack);
             process.exit(1);
         }
 
+        if (index < prefixColors.length) {
+            var prefixColorPath = prefixColors[index];
+            lastPrefixColor = _.get(chalk, prefixColorPath);
+        }
+
+        var name = index < names.length ? names[index] : '';
         childrenInfo[child.pid] = {
             command: cmd,
-            index: index
+            index: index,
+            name: name,
+            prefixColor: lastPrefixColor
         };
         return child;
     });
@@ -222,19 +262,20 @@ function run(commands) {
 }
 
 function handleOutput(streams, childrenInfo, source) {
-    var sourceStreams = _.pluck(streams, source);
+    var sourceStreams = _.map(streams, source);
     var combinedSourceStream = Rx.Observable.merge.apply(this, sourceStreams);
 
     combinedSourceStream.subscribe(function(event) {
         var prefix = getPrefix(childrenInfo, event.child);
-        log(prefix, event.data.toString());
+        var prefixColor = childrenInfo[event.child.pid].prefixColor;
+        log(prefix, prefixColor, event.data.toString());
     });
 }
 
 function handleClose(streams, children, childrenInfo) {
     var aliveChildren = _.clone(children);
     var exitCodes = [];
-    var closeStreams = _.pluck(streams, 'close');
+    var closeStreams = _.map(streams, 'close');
     var closeStream = Rx.Observable.merge.apply(this, closeStreams);
 
     // TODO: Is it possible that amount of close events !== count of spawned?
@@ -243,8 +284,9 @@ function handleClose(streams, children, childrenInfo) {
         exitCodes.push(exitCode);
 
         var prefix = getPrefix(childrenInfo, event.child);
+        var prefixColor = childrenInfo[event.child.pid].prefixColor;
         var command = childrenInfo[event.child.pid].command;
-        logEvent(prefix, command + ' exited with code ' + exitCode);
+        logEvent(prefix, prefixColor, command + ' exited with code ' + exitCode);
 
         aliveChildren = _.filter(aliveChildren, function(child) {
             return child.pid !== event.child.pid;
@@ -260,7 +302,7 @@ function handleClose(streams, children, childrenInfo) {
         var delayedExit = closeStream.delay(config.killDelay);
 
         delayedExit.subscribe(function() {
-            logEvent('--> ', 'Sending SIGTERM to other processes..');
+            logEvent('--> ', chalk.gray.dim, 'Sending SIGTERM to other processes..');
 
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
@@ -289,13 +331,13 @@ function exit(childExitCodes) {
 
 function handleError(streams, childrenInfo) {
     // Output emitted errors from child process
-    var errorStreams = _.pluck(streams, 'error');
+    var errorStreams = _.map(streams, 'error');
     var processErrorStream = Rx.Observable.merge.apply(this, errorStreams);
 
     processErrorStream.subscribe(function(event) {
         var command = childrenInfo[event.child.pid].command;
-        logError('', 'Error occured when executing command: ' + command);
-        logError('', event.data.stack);
+        logError('', chalk.gray.dim, 'Error occured when executing command: ' + command);
+        logError('', chalk.gray.dim, event.data.stack);
     });
 }
 
@@ -309,7 +351,7 @@ function colorText(text, color) {
 
 function getPrefix(childrenInfo, child) {
     var prefixes = getPrefixes(childrenInfo, child);
-    if (_.contains(_.keys(prefixes), config.prefix)) {
+    if (_.includes(_.keys(prefixes), config.prefix)) {
         return '[' + prefixes[config.prefix] + '] ';
     }
 
@@ -323,8 +365,9 @@ function getPrefixes(childrenInfo, child) {
     var prefixes = {};
 
     prefixes.none = '';
-    prefixes.pid = child.pid
-    prefixes.index = childrenInfo[child.pid].index
+    prefixes.pid = child.pid;
+    prefixes.index = childrenInfo[child.pid].index;
+    prefixes.name = childrenInfo[child.pid].name;
     prefixes.time = moment().format(config.timestampFormat);
 
     var command = childrenInfo[child.pid].command;
@@ -346,23 +389,23 @@ function shortenText(text, length, cut) {
     return first + cut + last;
 }
 
-function log(prefix, text) {
-    logWithPrefix(prefix, text);
+function log(prefix, prefixColor, text) {
+    logWithPrefix(prefix, prefixColor, text);
 }
 
-function logEvent(prefix, text) {
+function logEvent(prefix, prefixColor, text) {
     if (config.raw) return;
 
-    logWithPrefix(prefix, text, chalk.gray.dim);
+    logWithPrefix(prefix, prefixColor, text, chalk.gray.dim);
 }
 
-function logError(prefix, text) {
+function logError(prefix, prefixColor, text) {
     // This is for now same as log, there might be separate colors for stderr
     // and stdout
-    logWithPrefix(prefix, text, chalk.red.bold);
+    logWithPrefix(prefix, prefixColor, text, chalk.red.bold);
 }
 
-function logWithPrefix(prefix, text, color) {
+function logWithPrefix(prefix, prefixColor, text, color) {
     var lastChar = text[text.length - 1];
     if (config.raw) {
         if (lastChar !== '\n') {
@@ -379,9 +422,11 @@ function logWithPrefix(prefix, text, color) {
     }
 
     var lines = text.split('\n');
+    // Do not bgColor trailing space
+    var coloredPrefix = colorText(prefix.replace(/ $/, ''), prefixColor) + ' ';
     var paddedLines = _.map(lines, function(line, i) {
         var coloredLine = color ? colorText(line, color) : line;
-        return colorText(prefix, chalk.gray.dim) + coloredLine;
+        return coloredPrefix + coloredLine;
     });
 
     console.log(paddedLines.join('\n'));
