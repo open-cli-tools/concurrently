@@ -8,6 +8,7 @@ var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
 var spawn = Promise.promisifyAll(require('cross-spawn'));
+var isWindows = /^win/.test(process.platform);
 
 var config = {
     // Kill other processes if one dies
@@ -208,7 +209,7 @@ function run(commands) {
         // Split the command up in the command path and its arguments.
         var parts = separateCmdArgs(cmd);
 
-        var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
+        var spawnOpts = config.raw ? {stdio: 'inherit', 'detached': true} : {'detached': true};
         var child;
         try {
             child = spawn(_.head(parts), _.tail(parts), spawnOpts);
@@ -306,7 +307,11 @@ function handleClose(streams, children, childrenInfo) {
 
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
-                child.kill();
+                if(!isWindows) {
+                    process.kill(-child.pid);
+                } else {
+                    spawn('taskkill', ["/pid", child.pid, '/f', '/t']);
+                }
             });
         });
     }
