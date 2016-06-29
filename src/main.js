@@ -306,7 +306,7 @@ function handleClose(streams, children, childrenInfo) {
 
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
-                child.kill();
+                child.kill('SIGINT');
             });
         });
     }
