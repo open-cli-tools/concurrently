@@ -44,6 +44,7 @@ Options:
   -h, --help                        output usage information
   -V, --version                     output the version number
   -k, --kill-others                 kill other processes if one exits or dies
+  -a, --kill-all                    kill all the descendants of the other processes if one exits or dies
   --no-color                        disable colors from logging
   --names                           names different processes, i.e --name "web,api,hot-server" to be used in the prefix switch
   -p, --prefix <prefix>             prefix used in logging for each process.

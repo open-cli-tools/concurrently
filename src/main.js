@@ -8,10 +8,13 @@ var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
 var spawn = Promise.promisifyAll(require('cross-spawn'));
+var treeKill = require('tree-kill');
 
 var config = {
     // Kill other processes if one dies
     killOthers: false,
+    // and kill all of their children in the tree as well
+    killAll: false,
 
     // How much in ms we wait before killing other processes
     killDelay: 1000,
@@ -66,6 +69,10 @@ function parseArgs() {
         .option(
             '-k, --kill-others',
             'kill other processes if one exits or dies'
+        )
+        .option(
+            '-a, --kill-all',
+            'kill all the descendants of the other processes if one exits or dies'
         )
         .option(
             '--no-color',
@@ -297,7 +304,7 @@ function handleClose(streams, children, childrenInfo) {
         }
     });
 
-    if (config.killOthers) {
+    if (config.killOthers || config.killAll) {
         // Give other processes some time to stop cleanly before killing them
         var delayedExit = closeStream.delay(config.killDelay);
 
@@ -306,7 +313,7 @@ function handleClose(streams, children, childrenInfo) {
 
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
-                child.kill();
+              config.killAll ? treeKill(child.pid) : child.kill();
             });
         });
     }
