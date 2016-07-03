@@ -8,6 +8,7 @@ var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
 var spawn = Promise.promisifyAll(require('cross-spawn'));
+var kill = require('tree-kill');
 
 var config = {
     // Kill other processes if one dies
@@ -306,7 +307,7 @@ function handleClose(streams, children, childrenInfo) {
 
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
-                child.kill();
+                kill(child.pid);
             });
         });
     }
