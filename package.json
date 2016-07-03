@@ -1,6 +1,6 @@
 {
   "name": "concurrently",
-  "version": "2.1.0-dev",
+  "version": "2.1.0-dev-fork",
   "description": "Run commands concurrently",
   "main": "src/main.js",
   "bin": {
