@@ -41,7 +41,7 @@ describe('concurrently', function() {
     });
 
     it('at least one unsuccessful commands should exit non-zero', function(done) {
-        run('node ./src/main.js "echo" "exit 1" "echo"', {pipe: DEBUG_TESTS})
+        run('node ./src/main.js "echo" "return 1" "echo"', {pipe: DEBUG_TESTS})
         .then(function(exitCode) {
             assert.notStrictEqual(exitCode, 0);
             done();
