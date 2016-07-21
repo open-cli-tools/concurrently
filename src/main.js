@@ -263,6 +263,14 @@ function run(commands) {
         handleOutput(streams, childrenInfo, 'stdout');
         handleOutput(streams, childrenInfo, 'stderr');
     }
+
+    ['SIGINT', 'SIGTERM'].forEach(function(signal) {
+      process.on(signal, function() {
+        children.forEach(function(child) {
+          child.kill(signal);
+        });
+      });
+    });
 }
 
 function handleOutput(streams, childrenInfo, source) {
