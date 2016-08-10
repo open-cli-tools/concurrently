@@ -45,7 +45,7 @@ Options:
   -V, --version                     output the version number
   -k, --kill-others                 kill other processes if one exits or dies
   --no-color                        disable colors from logging
-  --names                           names different processes, i.e --name "web,api,hot-server" to be used in the prefix switch
+  --names                           names different processes, i.e --names "web,api,hot-server" to be used in the prefix switch
   -p, --prefix <prefix>             prefix used in logging for each process.
   Possible values: index, pid, time, command, name, none or a template. Default: index. Example template "{time}-{pid}"
 
