@@ -76,6 +76,11 @@ Examples:
  - Custom prefix
 
      $ concurrently --prefix "{time}-{pid}" "grunt watch" "http-server"
+ 
+ - Prefixed Custom Names
+     
+     $ concurrently --names "gulp, express" --prefix name "gulp" "node index.js"
+
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
