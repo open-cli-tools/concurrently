@@ -321,7 +321,7 @@ function handleClose(streams, children, childrenInfo) {
                 if (isWindows) {
                     spawn('taskkill', ["/pid", child.pid, '/f', '/t']);
                 } else {
-                    child.kill('SIGINT');
+                    child.kill('SIGTERM');
                 }
             });
         });
