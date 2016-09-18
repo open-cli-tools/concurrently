@@ -16,7 +16,7 @@ Like `npm run watch-js & npm run watch-less` but better.
 * Cross platform, works also in Windows
 * Output is easy to follow with prefixes
 * With `--kill-others` switch, all commands are killed if one dies
-
+* Spawns commands with [spawn-default-shell](https://github.com/kimmobrunfeldt/spawn-default-shell)
 
 ## Install
 
@@ -24,6 +24,12 @@ The tool is written in Node.js, but you can use it to run **any** commands.
 
 ```bash
 npm install -g concurrently
+```
+
+or if you are using it from npm scripts:
+
+```bash
+npm install concurrently --save
 ```
 
 ## Usage
@@ -35,6 +41,12 @@ concurrently "command1 arg" "command2 arg"
 
 Otherwise **concurrently** would try to run 4 separate commands:
 `command1`, `arg`, `command2`, `arg`.
+
+In package.json, escape quotes:
+
+```bash
+"start": "concurrently \"command1 arg\" \"command2 arg\"
+```
 
 Help:
 
