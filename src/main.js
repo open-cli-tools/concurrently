@@ -7,7 +7,7 @@ var moment = require('moment');
 var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
-var spawn = Promise.promisifyAll(require('cross-spawn'));
+var defaultShell = require('spawn-default-shell');
 var isWindows = /^win/.test(process.platform);
 
 var config = {
@@ -168,35 +168,6 @@ function stripCmdQuotes(cmd) {
     }
 }
 
-function separateCmdArgs(cmd) {
-    // We're splitting up the command into space-separated parts.
-    // The first item is the command, all remaining items are the
-    // arguments. To permit commands with spaces in the name
-    // (or directory name), double slashes is a usable escape sequence.
-    var escape = cmd.search('\\\s'),
-        divide = cmd.search(/[^\\]\s/),
-        path, args, parts;
-
-    if (escape === -1) {
-        // Not an escaped path. Most common case.
-        parts = cmd.split(' ');
-    } else if (escape > -1 && divide === -1) {
-        // Escaped path without arguments.
-        parts = [cmd.replace('\\ ', ' ')];
-    } else {
-        // Escaped path with arguments.
-        path = cmd.substr(0, divide + 1).replace('\\ ', ' ');
-        args = cmd.substr(divide + 1).split(' ').filter(function(part) {
-            return part.trim() != '';
-        });
-        parts = [path].concat(args);
-    }
-
-    // Parts contains the command as the first item and any arguments
-    // as subsequent items.
-    return parts;
-}
-
 function run(commands) {
     var childrenInfo = {};
     var lastPrefixColor = _.get(chalk, chalk.gray.dim);
@@ -206,16 +177,14 @@ function run(commands) {
         // Remove quotes.
         cmd = stripCmdQuotes(cmd);
 
-        // Split the command up in the command path and its arguments.
-        var parts = separateCmdArgs(cmd);
-
         var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
         if (isWindows) {
             spawnOpts.detached = false;
         }
+
         var child;
         try {
-            child = spawn(_.head(parts), _.tail(parts), spawnOpts);
+            child = defaultShell.spawn(cmd, spawnOpts);
         } catch (e) {
             logError('', chalk.gray.dim, 'Error occured when executing command: ' + cmd);
             logError('', chalk.gray.dim, e.stack);
