@@ -32,7 +32,6 @@
     "bluebird": "2.9.6",
     "chalk": "0.5.1",
     "commander": "2.6.0",
-    "cross-spawn": "^0.2.9",
     "lodash": "^4.5.1",
     "moment": "^2.11.2",
     "rx": "2.3.24",
