@@ -1,49 +1,49 @@
 {
-    "name": "concurrently",
-    "version": "2.2.0-dev",
-    "description": "Run commands concurrently",
-    "main": "src/main.js",
-    "bin": {
-        "concurrent": "./src/main.js",
-        "concurrently": "./src/main.js"
-    },
-    "scripts": {
-        "test": "mocha"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/kimmobrunfeldt/concurrently.git"
-    },
-    "keywords": [
-        "bash",
-        "concurrent",
-        "parallel",
-        "concurrently",
-        "command",
-        "sh"
-    ],
-    "author": "Kimmo Brunfeldt",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/kimmobrunfeldt/concurrently/issues"
-    },
-    "homepage": "https://github.com/kimmobrunfeldt/concurrently",
-    "dependencies": {
-        "bluebird": "2.9.6",
-        "chalk": "0.5.1",
-        "commander": "2.6.0",
-        "cross-spawn": "^0.2.9",
-        "lodash": "^4.5.1",
-        "moment": "^2.11.2",
-        "rx": "2.3.24"
-    },
-    "devDependencies": {
-        "chai": "^1.10.0",
-        "mocha": "^2.1.0",
-        "mustache": "^1.0.0",
-        "semver": "^4.2.0",
-        "shell-quote": "^1.4.3",
-        "shelljs": "^0.3.0",
-        "string": "^3.0.0"
-    }
+  "name": "concurrently",
+  "version": "2.2.0-dev",
+  "description": "Run commands concurrently",
+  "main": "src/main.js",
+  "bin": {
+    "concurrent": "./src/main.js",
+    "concurrently": "./src/main.js"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kimmobrunfeldt/concurrently.git"
+  },
+  "keywords": [
+    "bash",
+    "concurrent",
+    "parallel",
+    "concurrently",
+    "command",
+    "sh"
+  ],
+  "author": "Kimmo Brunfeldt",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kimmobrunfeldt/concurrently/issues"
+  },
+  "homepage": "https://github.com/kimmobrunfeldt/concurrently",
+  "dependencies": {
+    "bluebird": "2.9.6",
+    "chalk": "0.5.1",
+    "commander": "2.6.0",
+    "lodash": "^4.5.1",
+    "moment": "^2.11.2",
+    "rx": "2.3.24",
+    "spawn-default-shell": "^1.0.0"
+  },
+  "devDependencies": {
+    "chai": "^1.10.0",
+    "mocha": "^2.1.0",
+    "mustache": "^1.0.0",
+    "semver": "^4.2.0",
+    "shell-quote": "^1.4.3",
+    "shelljs": "^0.3.0",
+    "string": "^3.0.0"
+  }
 }
