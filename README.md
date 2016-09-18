@@ -48,6 +48,8 @@ In package.json, escape quotes:
 "start": "concurrently \"command1 arg\" \"command2 arg\"
 ```
 
+Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-copy-paste-this-frontend-template/blob/5cd2bde719654941bdfc0a42c6f1b8e69ae79980/package.json#L9).
+
 Help:
 
 ```
