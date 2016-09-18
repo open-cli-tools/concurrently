@@ -2,6 +2,8 @@
 
 [![Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently)
 
+[![NPM Badge](https://nodei.co/npm/concurrently.png?downloads=true)](https://www.npmjs.com/package/concurrently)
+
 **Version: 2.2.0** ([*previous stable*](https://github.com/kimmobrunfeldt/concurrently/tree/2.1.0))
 
 Run multiple commands concurrently.
