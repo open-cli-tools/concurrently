@@ -75,6 +75,53 @@ describe('concurrently', function() {
         });
     });
 
+    ['SIGINT', 'SIGTERM'].forEach(function(signal) {
+      it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
+        var readline = require('readline');
+        var waitingStart = 2;
+        var waitingSignal = 2;
+
+        function waitForSignal(cb) {
+          if (waitingSignal) {
+            setTimeout(waitForSignal, 100);
+          } else {
+            cb();
+          }
+        }
+
+        run('node ./src/main.js "node ./test/support/signal.js" "node ./test/support/signal.js"', {
+          pipe: false,
+          callback: function(child) {
+            var rl = readline.createInterface({
+              input: child.stdout,
+              output: null
+            });
+
+            rl.on('line', function(line) {
+              if (DEBUG_TESTS) {
+                console.log(line);
+              }
+
+              // waiting for startup
+              if (/STARTED/.test(line)) {
+                waitingStart--;
+              }
+              if (!waitingStart) {
+                // both processes are started
+                child.kill(signal);
+              }
+
+              // waiting for signal
+              if (new RegExp(signal).test(line)) {
+                waitingSignal--;
+              }
+            });
+          }
+        }).then(function() {
+          waitForSignal(done);
+        });
+      });
+    });
 });
 
 function resolve(relativePath) {
