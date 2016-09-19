@@ -278,6 +278,7 @@ function handleClose(streams, children, childrenInfo) {
         });
 
         if (aliveChildren.length === 0) {
+            console.log(exitCodes)
             exit(exitCodes);
         }
     });
