@@ -6,6 +6,7 @@ var Promise = require('bluebird');
 var moment = require('moment');
 var program = require('commander');
 var _ = require('lodash');
+var treeKill = require('tree-kill');
 var chalk = require('chalk');
 var defaultShell = require('spawn-default-shell');
 var IS_WINDOWS = /^win/.test(process.platform);
@@ -291,11 +292,7 @@ function handleClose(streams, children, childrenInfo) {
 
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
-                if (IS_WINDOWS) {
-                    defaultShell.spawn('taskkill /pid ' + child.pid + ' /f /t');
-                } else {
-                    child.kill('SIGTERM');
-                }
+                treeKill(child.pid, 'SIGTERM');
             });
         });
     }
