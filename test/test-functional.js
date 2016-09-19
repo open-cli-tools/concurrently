@@ -3,6 +3,7 @@
 var path = require('path');
 var assert = require('assert');
 var run = require('./utils').run;
+var IS_WINDOWS = /^win/.test(process.platform);
 
 // If true, output of commands are shown
 var DEBUG_TESTS = process.env.DEBUG_TESTS === 'true';
@@ -76,6 +77,12 @@ describe('concurrently', function() {
     });
 
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
+      if (IS_WINDOWS) {
+          console.log('IS_WINDOWS=true');
+          console.log('Skipping SIGINT/SIGTERM propagation tests ..');
+          return;
+      }
+
       it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
         var readline = require('readline');
         var waitingStart = 2;
