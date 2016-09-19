@@ -293,7 +293,7 @@ function handleClose(streams, children, childrenInfo) {
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
                 if (isWindows) {
-                    spawn('taskkill', ["/pid", child.pid, '/f', '/t']);
+                    defaultShell.spawn('taskkill /pid ' + child.pid + ' /f /t']);
                 } else {
                     child.kill('SIGTERM');
                 }
