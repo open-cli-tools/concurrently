@@ -1,6 +1,6 @@
 # Concurrently
 
-[![Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently)
+[![Travis Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/kimmobrunfeldt/concurrently?branch=master&svg=true)](https://ci.appveyor.com/project/kimmobrunfeldt/concurrently) *master branch status* 
 
 [![NPM Badge](https://nodei.co/npm/concurrently.png?downloads=true)](https://www.npmjs.com/package/concurrently)
 
