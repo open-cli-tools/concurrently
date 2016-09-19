@@ -35,7 +35,8 @@
     "lodash": "^4.5.1",
     "moment": "^2.11.2",
     "rx": "2.3.24",
-    "spawn-default-shell": "^1.0.0"
+    "spawn-default-shell": "^1.0.0",
+    "tree-kill": "^1.1.0"
   },
   "devDependencies": {
     "chai": "^1.10.0",
