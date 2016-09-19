@@ -5,7 +5,7 @@ var assert = require('assert');
 var run = require('./utils').run;
 
 // If true, output of commands are shown
-var DEBUG_TESTS = false;
+var DEBUG_TESTS = process.env.DEBUG_TESTS === 'true';
 var TEST_DIR = 'dir/';
 
 // Abs path to test directory
