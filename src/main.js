@@ -52,7 +52,7 @@ function main() {
     var firstBase = path.basename(process.argv[0]);
     var secondBase = path.basename(process.argv[1]);
     if (firstBase === 'concurrent' || secondBase === 'concurrent') {
-        console.error('"concurrent" command is deprecated, use "concurrently" instead.\n');
+        console.error('Warning: "concurrent" command is deprecated, use "concurrently" instead.\n');
     }
 
     parseArgs();
@@ -141,7 +141,11 @@ function parseArgs() {
             '',
             '   - Custom prefix',
             '',
-            '       $ concurrently --prefix "{time}-{pid}" "grunt watch" "http-server"',
+            '       $ concurrently --prefix "{time}-{pid}" "npm run watch" "http-server"',
+            '',
+            '   - Custom names and colored prefixes',
+            '',
+            '       $ concurrently --prefix "[{name}]" --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "npm run watch" "http-server"',
             ''
         ];
         console.log(help.join('\n'));

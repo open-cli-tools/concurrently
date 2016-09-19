@@ -1,6 +1,6 @@
 # Concurrently
 
-[![Travis Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/kimmobrunfeldt/concurrently?branch=master&svg=true)](https://ci.appveyor.com/project/kimmobrunfeldt/concurrently) *master branch status* 
+[![Travis Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/kimmobrunfeldt/concurrently?branch=master&svg=true)](https://ci.appveyor.com/project/kimmobrunfeldt/concurrently) *master branch status*
 
 [![NPM Badge](https://nodei.co/npm/concurrently.png?downloads=true)](https://www.npmjs.com/package/concurrently)
 
@@ -53,24 +53,37 @@ Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-co
 Help:
 
 ```
+
 Usage: concurrently [options] <command ...>
 
 Options:
 
-  -h, --help                        output usage information
-  -V, --version                     output the version number
-  -k, --kill-others                 kill other processes if one exits or dies
-  --no-color                        disable colors from logging
-  --names                           names different processes, i.e --names "web,api,hot-server" to be used in the prefix switch
-  -p, --prefix <prefix>             prefix used in logging for each process.
-  Possible values: index, pid, time, command, name, none or a template. Default: index. Example template "{time}-{pid}"
+  -h, --help                       output usage information
+  -V, --version                    output the version number
+  -k, --kill-others                kill other processes if one exits or dies
+  --no-color                       disable colors from logging
+  -p, --prefix <prefix>            prefix used in logging for each process.
+  Possible values: index, pid, time, command, name, none, or a template. Default: index. Example template: "{time}-{pid}"
 
-  -tf, --timestamp-format <format>  specify the timestamp in moment format. Default: YYYY-MM-DD HH:mm:ss.SSS
+  -n, --names <names>              List of custom names to be used in prefix template.
+  Example names: "main,browser,server"
 
-  -r, --raw                         output only raw output of processes, disables prettifying and concurrently coloring
-  -s, --success <first|last|all>    Return exit code of zero or one based on the success or failure of the "first" child to terminate, the "last" child, or succeed  only if "all" child processes succeed. Default: all
+  --name-separator <char>          The character to split <names> on.
+  Default: ",". Example usage: concurrently -n "styles,scripts|server" --name-separator "|" <command ...>
 
-  -l, --prefix-length <length>      limit how many characters of the command is displayed in prefix.
+  -c, --prefix-colors <colors>     Comma-separated list of chalk colors to use on prefixes. If there are more commands than colors, the last color will be repeated.
+  Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough
+  Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray
+  Available background colors: bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
+  See https://www.npmjs.com/package/chalk for more information.
+  Default: "gray.dim". Example: "black.bgWhite,cyan,gray.dim"
+
+  -t, --timestamp-format <format>  specify the timestamp in moment format. Default: YYYY-MM-DD HH:mm:ss.SSS
+
+  -r, --raw                        output only raw output of processes, disables prettifying and concurrently coloring
+  -s, --success <first|last|all>   Return exit code of zero or one based on the success or failure of the "first" child to terminate, the "last" child, or succeed  only if "all" child processes succeed. Default: all
+
+  -l, --prefix-length <length>     limit how many characters of the command is displayed in prefix.
   The option can be used to shorten long commands.
   Works only if prefix is set to "command". Default: 10
 
@@ -91,7 +104,11 @@ Examples:
 
  - Custom prefix
 
-     $ concurrently --prefix "{time}-{pid}" "grunt watch" "http-server"
+     $ concurrently --prefix "{time}-{pid}" "npm run watch" "http-server"
+
+ - Custom names and colored prefixes
+
+     $ concurrently --prefix "[{name}]" --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "npm run watch" "http-server"
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
