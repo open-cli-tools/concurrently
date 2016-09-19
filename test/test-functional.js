@@ -75,6 +75,14 @@ describe('concurrently', function() {
         });
     });
 
+    it('&& exit 1 should return non-zero exit code', function(done) {
+        run('node ./src/main.js "echo 1 && return 1" "echo 2 && return 2" ', {pipe: DEBUG_TESTS})
+        .then(function(exitCode) {
+            assert.strictEqual(exitCode, 1);
+            done();
+        });
+    });
+
     ['SIGINT', 'SIGTERM'].forEach(function(signal) {
       it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
         var readline = require('readline');
@@ -127,4 +135,3 @@ describe('concurrently', function() {
 function resolve(relativePath) {
     return path.join(testDir, relativePath);
 }
-
