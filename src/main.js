@@ -8,7 +8,7 @@ var program = require('commander');
 var _ = require('lodash');
 var chalk = require('chalk');
 var defaultShell = require('spawn-default-shell');
-var isWindows = /^win/.test(process.platform);
+var IS_WINDOWS = /^win/.test(process.platform);
 
 var config = {
     // Kill other processes if one dies
@@ -182,7 +182,7 @@ function run(commands) {
         cmd = stripCmdQuotes(cmd);
 
         var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
-        if (isWindows) {
+        if (IS_WINDOWS) {
             spawnOpts.detached = false;
         }
 
@@ -278,7 +278,6 @@ function handleClose(streams, children, childrenInfo) {
         });
 
         if (aliveChildren.length === 0) {
-            console.log(exitCodes)
             exit(exitCodes);
         }
     });
@@ -292,7 +291,7 @@ function handleClose(streams, children, childrenInfo) {
 
             // Send SIGTERM to alive children
             _.each(aliveChildren, function(child) {
-                if (isWindows) {
+                if (IS_WINDOWS) {
                     defaultShell.spawn('taskkill /pid ' + child.pid + ' /f /t']);
                 } else {
                     child.kill('SIGTERM');
