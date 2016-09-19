@@ -39,7 +39,7 @@ describe('concurrently', function() {
     });
 
     it('at least one unsuccessful commands should exit non-zero', () => {
-        return run('node ./src/main.js "echo test" "return 1" "echo test"', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js "echo test" "nosuchcmd" "echo test"', {pipe: DEBUG_TESTS})
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
@@ -69,8 +69,8 @@ describe('concurrently', function() {
             });
     });
 
-    it('&& return 1 should return non-zero exit code', () => {
-        return run('node ./src/main.js "echo 1 && return 1" "echo 2 && return 2" ', {pipe: DEBUG_TESTS})
+    it('&& nosuchcmd should return non-zero exit code', () => {
+        return run('node ./src/main.js "echo 1 && nosuchcmd" "echo 1 && nosuchcmd" ', {pipe: DEBUG_TESTS})
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 1);
             });
