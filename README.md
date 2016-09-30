@@ -151,3 +151,17 @@ Previously I thought this could fix some problems I had with watching scripts an
 > That way, if for some reason e.g. your `watch-less` died, you would notice it easier.
 
 However NPM didn't work as I hoped it would. See [this issue](https://github.com/kimmobrunfeldt/concurrently/issues/4).
+
+
+## Debugging
+
+A few common debugging commands.
+
+### spawn-default-shell
+
+Which shell and flag does [spawn-default-shell](https://github.com/kimmobrunfeldt/spawn-default-shell/)
+use?
+
+```bash
+npm i spawn-default-shell && node -e "console.log(require('spawn-default-shell/src/get-shell')())"
+```
