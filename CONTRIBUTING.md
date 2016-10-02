@@ -22,7 +22,5 @@ You need to have *mocha* installed globally with `npm install -g mocha`.
 ## Release
 
 * Commit all changes
-* Run `./tools/release.js minor`, which will create new tag and publish code to GitHub and npm
+* Run `./node_modules/.bin/releasor --bump minor`, which will create new tag and publish code to GitHub and npm. See https://github.com/kimmobrunfeldt/releasor for options
 * Edit GitHub release notes
-
-
