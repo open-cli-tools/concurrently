@@ -15,6 +15,9 @@ var config = {
     // Kill other processes if one dies
     killOthers: false,
 
+    // Kill other processes if one exits with non zero status code
+    killOthersOnFail: false,
+
     // How much in ms we wait before killing other processes
     killDelay: 1000,
 
@@ -68,6 +71,10 @@ function parseArgs() {
         .option(
             '-k, --kill-others',
             'kill other processes if one exits or dies'
+        )
+        .option(
+            '--kill-others-on-fail',
+            'kill other processes if one exits with non zero status code'
         )
         .option(
             '--no-color',
@@ -131,6 +138,10 @@ function parseArgs() {
             '   - Kill other processes if one exits or dies',
             '',
             '       $ concurrently --kill-others "grunt watch" "http-server"',
+            '',
+            '   - Kill other processes if one exits with non zero status code',
+            '',
+            '       $ concurrently --kill-others-on-fail "npm run build:client" "npm run build:server"',
             '',
             '   - Output nothing more than stdout+stderr of child processes',
             '',
@@ -271,6 +282,7 @@ function handleClose(streams, children, childrenInfo) {
     // TODO: Is it possible that amount of close events !== count of spawned?
     closeStream.subscribe(function(event) {
         var exitCode = event.data;
+        var nonSuccess = exitCode !== 0;
         exitCodes.push(exitCode);
 
         var prefix = getPrefix(childrenInfo, event.child);
@@ -285,23 +297,30 @@ function handleClose(streams, children, childrenInfo) {
         if (aliveChildren.length === 0) {
             exit(exitCodes);
         }
-
-        if (config.killOthers && !othersKilled) {
-            othersKilled = true
+        if (!othersKilled) {
+          if (config.killOthers) {
             // Give other processes some time to stop cleanly before killing them
             var delayedExit = closeStream.delay(config.killDelay);
 
             delayedExit.subscribe(function() {
-                logEvent('--> ', chalk.gray.dim, 'Sending SIGTERM to other processes..');
-
-                // Send SIGTERM to alive children
-                _.each(aliveChildren, function(child) {
-                    treeKill(child.pid, 'SIGTERM');
-                });
+              killOtherProcesses(aliveChildren);
+              othersKilled = true;
             });
+          } else if (config.killOthersOnFail && nonSuccess) {
+            killOtherProcesses(aliveChildren);
+            othersKilled = true;
+          }
         }
     });
+}
 
+function killOtherProcesses(processes) {
+    logEvent('--> ', chalk.gray.dim, 'Sending SIGTERM to other processes..');
+
+    // Send SIGTERM to alive children
+    _.each(processes, function(child) {
+        treeKill(child.pid, 'SIGTERM');
+    });
 }
 
 function exit(childExitCodes) {
