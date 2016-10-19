@@ -69,6 +69,17 @@ describe('concurrently', function() {
             });
     });
 
+    it('package.json config should return last exit code', () => {
+        // When killed, sleep returns null exit code
+        return run('node ./src/main.js "echo test" "sleep 1000"', {
+            pipe: DEBUG_TESTS,
+            cwd: path.join(__dirname, 'support')
+        })
+            .then(function(exitCode) {
+                assert.notStrictEqual(exitCode, 0);
+            });
+    });
+
     it('&& nosuchcmd should return non-zero exit code', () => {
         return run('node ./src/main.js "echo 1 && nosuchcmd" "echo 1 && nosuchcmd" ', {pipe: DEBUG_TESTS})
             .then(function(exitCode) {

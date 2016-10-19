@@ -56,6 +56,16 @@ function main() {
         console.error('Warning: "concurrent" command is deprecated, use "concurrently" instead.\n');
     }
 
+    try {
+        var packageJSON = require(path.join(process.cwd(), 'package.json'));
+
+        if (packageJSON.concurrently) {
+            config = _.merge(config, packageJSON.concurrently;)
+        }
+    } catch (error) {
+        console.debug(error);
+    }
+
     parseArgs();
     config = mergeDefaultsWithArgs(config);
     run(program.args);
