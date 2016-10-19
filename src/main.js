@@ -59,8 +59,8 @@ function main() {
     try {
         var packageJSON = require(path.join(process.cwd(), 'package.json'));
 
-        if (packageJSON.concurrently) {
-            config = _.merge(config, packageJSON.concurrently;)
+        if (packageJSON && packageJSON.concurrently) {
+            config = _.merge(config, packageJSON.concurrently);
         }
     } catch (error) {
         console.debug(error);

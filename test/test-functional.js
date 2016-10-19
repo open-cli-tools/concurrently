@@ -71,7 +71,7 @@ describe('concurrently', function() {
 
     it('package.json config should return last exit code', () => {
         // When killed, sleep returns null exit code
-        return run('node ./src/main.js "echo test" "sleep 1000"', {
+        return run('node ../../src/main.js "echo test" "sleep 1000"', {
             pipe: DEBUG_TESTS,
             cwd: path.join(__dirname, 'support')
         })
