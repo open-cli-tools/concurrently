@@ -111,6 +111,48 @@ Examples:
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
 
+You can also specify configuration options in your `package.json`:
+
+```
+"concurrently": {
+    // Kill other processes if one dies
+    "killOthers": false,
+
+    // How much in ms we wait before killing other processes
+    "killDelay": 1000,
+
+    // Return success or failure of the "first" child to terminate, the "last" child,
+    // or succeed only if "all" children succeed
+    "success": "all",
+
+    // Prefix logging with pid
+    // Possible values: "pid", "none", "time", "command", "index", "name"
+    "prefix": "index",
+
+    // List of custom names to be used in prefix template
+    "names": "",
+
+    // What to split the list of custom names on
+    "nameSeparator": ",",
+
+    // Comma-separated list of chalk color paths to use on prefixes.
+    "prefixColors": "gray.dim",
+
+    // moment format
+    "timestampFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+
+    // How many characters to display from start of command in prefix if
+    // command is defined. Note that also ".." will be added in the middle
+    "prefixLength": 10,
+
+    // By default, color output
+    "color": true,
+
+    // If true, the output will only be raw output of processes, nothing more
+    "raw": false
+}
+```
+
 ## FAQ
 
 * Process exited with code *null*?
