@@ -391,31 +391,35 @@ function logError(prefix, prefixColor, text) {
     logWithPrefix(prefix, prefixColor, text, chalk.red.bold);
 }
 
-function logWithPrefix(prefix, prefixColor, text, color) {
-    var lastChar = text[text.length - 1];
-    if (config.raw) {
-        if (lastChar !== '\n') {
-            text += '\n';
-        }
+var lastChar;
 
+function logWithPrefix(prefix, prefixColor, text, color) {
+
+     if (config.raw) {  
         process.stdout.write(text);
         return;
     }
 
-    if (lastChar === '\n') {
-        // Remove extra newline from the end to prevent extra newlines in input
-        text = text.slice(0, text.length - 1);
-    }
+    text = text.replace(/\u2026/g,'...'); // Ellipsis
 
     var lines = text.split('\n');
     // Do not bgColor trailing space
     var coloredPrefix = colorText(prefix.replace(/ $/, ''), prefixColor) + ' ';
-    var paddedLines = _.map(lines, function(line, i) {
+    var paddedLines = _.map(lines, function(line, index) {
         var coloredLine = color ? colorText(line, color) : line;
-        return coloredPrefix + coloredLine;
+        if (index !== 0 && index !== (lines.length - 1)) {
+            coloredLine = coloredPrefix + coloredLine;
+        }
+        return coloredLine;
     });
 
-    console.log(paddedLines.join('\n'));
+    if (!lastChar || lastChar == '\n' ){
+        process.stdout.write(coloredPrefix);
+    }
+
+    lastChar = text[text.length - 1];         
+
+    process.stdout.write(paddedLines.join('\n'));    
 }
 
 main();
