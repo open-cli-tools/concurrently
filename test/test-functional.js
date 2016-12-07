@@ -76,6 +76,13 @@ describe('concurrently', function() {
             });
     });
 
+    it('--prefix-colors should handle non-existent colors without failing', () => {
+        return run('node ./src/main.js -c "not.a.color" "echo colors"', {pipe: DEBUG_TESTS})
+            .then(function(exitCode) {
+                assert.strictEqual(exitCode, 0);
+            });
+    });
+
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
       if (IS_WINDOWS) {
           console.log('IS_WINDOWS=true');

@@ -198,7 +198,7 @@ function run(commands) {
 
         if (index < prefixColors.length) {
             var prefixColorPath = prefixColors[index];
-            lastPrefixColor = _.get(chalk, prefixColorPath);
+            lastPrefixColor = _.get(chalk, prefixColorPath, chalk.gray.dim);
         }
 
         var name = index < names.length ? names[index] : '';
