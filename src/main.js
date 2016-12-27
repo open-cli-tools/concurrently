@@ -2,7 +2,6 @@
 
 var Rx = require('rx');
 var path = require('path');
-var Promise = require('bluebird');
 var moment = require('moment');
 var program = require('commander');
 var _ = require('lodash');
