@@ -241,7 +241,7 @@ function run(commands) {
     ['SIGINT', 'SIGTERM'].forEach(function(signal) {
       process.on(signal, function() {
         children.forEach(function(child) {
-          child.kill(signal);
+          treeKill(child.pid, signal);
         });
       });
     });
