@@ -1,6 +1,5 @@
 var childProcess = require('child_process');
 var _ = require('lodash');
-var Promise = require('bluebird');
 var shellQuote = require('shell-quote');
 
 function run(cmd, opts) {
