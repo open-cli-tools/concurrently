@@ -76,7 +76,7 @@ Options:
   See https://www.npmjs.com/package/chalk for more information.
   Default: "gray.dim". Example: "black.bgWhite,cyan,gray.dim"
 
-  -t, --timestamp-format <format>  specify the timestamp in moment format. Default: YYYY-MM-DD HH:mm:ss.SSS
+  -t, --timestamp-format <format>  specify the timestamp in moment/date-fns format. Default: YYYY-MM-DD HH:mm:ss.SSS
 
   -r, --raw                        output only raw output of processes, disables prettifying and concurrently coloring
   -s, --success <first|last|all>   Return exit code of zero or one based on the success or failure of the "first" child to terminate, the "last" child, or succeed  only if "all" child processes succeed. Default: all

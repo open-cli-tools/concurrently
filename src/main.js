@@ -2,7 +2,7 @@
 
 var Rx = require('rx');
 var path = require('path');
-var moment = require('moment');
+var formatDate = require('date-fns/format');
 var program = require('commander');
 var _ = require('lodash');
 var treeKill = require('tree-kill');
@@ -34,7 +34,7 @@ var config = {
     // Comma-separated list of chalk color paths to use on prefixes.
     prefixColors: 'gray.dim',
 
-    // moment format
+    // moment/date-fns format
     timestampFormat: 'YYYY-MM-DD HH:mm:ss.SSS',
 
     // How many characters to display from start of command in prefix if
@@ -100,7 +100,7 @@ function parseArgs() {
         )
         .option(
             '-t, --timestamp-format <format>',
-            'specify the timestamp in moment format. Default: ' +
+            'specify the timestamp in moment/date-fns format. Default: ' +
             config.timestampFormat + '\n'
         )
         .option(
@@ -353,7 +353,7 @@ function getPrefixes(childrenInfo, child) {
     prefixes.pid = child.pid;
     prefixes.index = childrenInfo[child.pid].index;
     prefixes.name = childrenInfo[child.pid].name;
-    prefixes.time = moment().format(config.timestampFormat);
+    prefixes.time = formatDate(Date.now(), config.timestampFormat);
 
     var command = childrenInfo[child.pid].command;
     prefixes.command = shortenText(command, config.prefixLength);

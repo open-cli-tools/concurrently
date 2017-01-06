@@ -34,8 +34,8 @@
   "dependencies": {
     "chalk": "0.5.1",
     "commander": "2.6.0",
+    "date-fns": "^1.23.0",
     "lodash": "^4.5.1",
-    "moment": "^2.17.1",
     "rx": "2.3.24",
     "spawn-default-shell": "^2.0.0",
     "tree-kill": "^1.1.0"
