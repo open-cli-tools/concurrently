@@ -45,7 +45,10 @@ var config = {
     color: true,
 
     // If true, the output will only be raw output of processes, nothing more
-    raw: false
+    raw: false,
+
+    // If true, the output will be grouped together for each command
+    group: false
 };
 
 function main() {
@@ -121,6 +124,12 @@ function parseArgs() {
             'The option can be used to shorten long commands.\n' +
             'Works only if prefix is set to "command". Default: ' +
             config.prefixLength + '\n'
+        )
+        .option(
+            '-g, --group',
+            'group the output written to stdout and stderr by each command.\n' +
+            'Default: ' +
+            config.group + '\n'
         );
 
     program.on('--help', function() {
@@ -246,9 +255,16 @@ function run(commands) {
     });
 }
 
+function combineSourceStreams(context, sourceStreams, shouldGroupOutput) {
+    if (shouldGroupOutput) {
+        return Rx.Observable.concat.apply(this, sourceStreams);
+    }
+    return Rx.Observable.merge.apply(this, sourceStreams);
+}
+
 function handleOutput(streams, childrenInfo, source) {
     var sourceStreams = _.map(streams, source);
-    var combinedSourceStream = Rx.Observable.merge.apply(this, sourceStreams);
+    var combinedSourceStream = combineSourceStreams(this, sourceStreams, config.group);
 
     combinedSourceStream.subscribe(function(event) {
         var prefix = getPrefix(childrenInfo, event.child);
