@@ -7,6 +7,9 @@
     "concurrent": "./src/main.js",
     "concurrently": "./src/main.js"
   },
+  "engines": {
+    "node": ">=4.0.0"
+  },
   "scripts": {
     "test": "mocha"
   },
