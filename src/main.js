@@ -63,7 +63,7 @@ function main() {
 function parseArgs() {
     program
         .version(require('../package.json').version)
-        .usage('[options] <command ...>')
+        .usage('[options] <command ...> [-- <args ...>]')
         .option(
             '-k, --kill-others',
             'kill other processes if one exits or dies'
@@ -121,6 +121,12 @@ function parseArgs() {
             'The option can be used to shorten long commands.\n' +
             'Works only if prefix is set to "command". Default: ' +
             config.prefixLength + '\n'
+        ).option(
+            '-- <args ...>',
+            'pass through the <args> to the first command.\n'
+        ).option(
+            '-a, --all',
+            'pass through the <args> to all the commands.\n'
         );
 
     program.on('--help', function() {
@@ -146,6 +152,10 @@ function parseArgs() {
             '   - Custom names and colored prefixes',
             '',
             '       $ concurrently --prefix "[{name}]" --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "npm run watch" "http-server"',
+            '',
+            '   - Pass through arguments',
+            '',
+            '       $ concurrently "echo hello" -- world',
             ''
         ];
         console.log(help.join('\n'));
@@ -155,7 +165,13 @@ function parseArgs() {
         console.log('');
     });
 
-    program.parse(process.argv);
+    var passthroughArgumentsIndex = process.argv.indexOf('--');
+    if (passthroughArgumentsIndex !== -1) {
+      program.passthroughArguments = process.argv.slice(passthroughArgumentsIndex + 1);
+      program.parse(process.argv.slice(0, passthroughArgumentsIndex));
+    } else {
+      program.parse(process.argv);
+    }
 }
 
 function mergeDefaultsWithArgs(config) {
@@ -180,6 +196,10 @@ function run(commands) {
     var children = _.map(commands, function(cmd, index) {
         // Remove quotes.
         cmd = stripCmdQuotes(cmd);
+
+        if ((index === 0 || config.all) && Array.isArray(config.passthroughArguments)) {
+            cmd += ' ' + config.passthroughArguments.join(' ');
+        }
 
         var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
         if (IS_WINDOWS) {

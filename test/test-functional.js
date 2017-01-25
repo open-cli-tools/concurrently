@@ -83,6 +83,13 @@ describe('concurrently', function() {
             });
     });
 
+    it('can pass through an argument', () => {
+        return run('node ./src/main.js "exit" -- 1', {pipe: DEBUG_TESTS})
+            .then(function(exitCode) {
+                assert.strictEqual(exitCode, 1);
+            });
+    });
+
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
       if (IS_WINDOWS) {
           console.log('IS_WINDOWS=true');
