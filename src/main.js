@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var Rx = require('rx');
+var fs = require('fs');
 var path = require('path');
 var Promise = require('bluebird');
 var moment = require('moment');
@@ -56,16 +57,16 @@ function main() {
         console.error('Warning: "concurrent" command is deprecated, use "concurrently" instead.\n');
     }
 
-    try {
-        var rcConfig = require(path.join(process.cwd(), '.concurrentlyrc'));
+    var rcConfigPath = path.join(process.cwd(), '.concurrentlyrc')
+
+    if (fs.existsSync(rcConfigPath)) {
+        var rcConfig = require();
 
         if (rcConfig) {
             config = _.merge(config, rcConfig);
         }
-    } catch (error) {
-        console.debug(error);
     }
-
+    
     try {
         var packageJSON = require(path.join(process.cwd(), 'package.json'));
 
