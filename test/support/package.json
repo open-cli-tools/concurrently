@@ -1,6 +1,5 @@
 {
   "concurrently": {
-    "killOthers": true,
     "success": "last"
   }
 }

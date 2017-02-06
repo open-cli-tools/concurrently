@@ -80,6 +80,17 @@ describe('concurrently', function() {
             });
     });
 
+    it('.concurrentlyrc config should should kill other commands if one dies', () => {
+        // This test would timeout if kill others option does not work
+        return run('node ../../src/main.js "echo test" "sleep 1000"', {
+            pipe: DEBUG_TESTS,
+            cwd: path.join(__dirname, 'support')
+        })
+            .then(function(exitCode) {
+                assert.notStrictEqual(exitCode, 0);
+            });
+    });
+
     it('&& nosuchcmd should return non-zero exit code', () => {
         return run('node ./src/main.js "echo 1 && nosuchcmd" "echo 1 && nosuchcmd" ', {pipe: DEBUG_TESTS})
             .then(function(exitCode) {

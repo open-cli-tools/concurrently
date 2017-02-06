@@ -57,6 +57,16 @@ function main() {
     }
 
     try {
+        var rcConfig = require(path.join(process.cwd(), '.concurrentlyrc'));
+
+        if (rcConfig) {
+            config = _.merge(config, rcConfig);
+        }
+    } catch (error) {
+        console.debug(error);
+    }
+
+    try {
         var packageJSON = require(path.join(process.cwd(), 'package.json'));
 
         if (packageJSON && packageJSON.concurrently) {
