@@ -4,6 +4,7 @@ var Rx = require('rx');
 var path = require('path');
 var formatDate = require('date-fns/format');
 var program = require('commander');
+var child_process = require('child_process');
 var _ = require('lodash');
 var treeKill = require('tree-kill');
 var chalk = require('chalk');
@@ -293,6 +294,8 @@ function handleClose(streams, children, childrenInfo) {
             _.each(aliveChildren, function(child) {
                 treeKill(child.pid, 'SIGTERM');
             });
+
+            child_process.spawn('kill', [process.pid]);
         });
     }
 }
