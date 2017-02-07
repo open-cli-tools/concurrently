@@ -8,6 +8,7 @@ var _ = require('lodash');
 var treeKill = require('tree-kill');
 var chalk = require('chalk');
 var defaultShell = require('spawn-default-shell');
+var supportsColor = require('supports-color');
 var IS_WINDOWS = /^win/.test(process.platform);
 
 var config = {
@@ -184,6 +185,9 @@ function run(commands) {
         var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
         if (IS_WINDOWS) {
             spawnOpts.detached = false;
+        }
+        if (supportsColor) {
+          spawnOpts.env = Object.assign({FORCE_COLOR: supportsColor.level}, process.env)
         }
 
         var child;
