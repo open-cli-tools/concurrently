@@ -7,7 +7,7 @@ var program = require('commander');
 var _ = require('lodash');
 var treeKill = require('tree-kill');
 var chalk = require('chalk');
-var defaultShell = require('spawn-default-shell');
+var spawn = require('spawn-command');
 var supportsColor = require('supports-color');
 var IS_WINDOWS = /^win/.test(process.platform);
 
@@ -192,7 +192,7 @@ function run(commands) {
 
         var child;
         try {
-            child = defaultShell.spawn(cmd, spawnOpts);
+            child = spawn(cmd, spawnOpts);
         } catch (e) {
             logError('', chalk.gray.dim, 'Error occured when executing command: ' + cmd);
             logError('', chalk.gray.dim, e.stack);

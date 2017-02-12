@@ -37,7 +37,7 @@
     "date-fns": "^1.23.0",
     "lodash": "^4.5.1",
     "rx": "2.3.24",
-    "spawn-default-shell": "^2.0.0",
+    "spawn-command": "^0.0.2-1",
     "supports-color": "^3.2.3",
     "tree-kill": "^1.1.0"
   },
