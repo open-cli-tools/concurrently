@@ -15,6 +15,9 @@ var config = {
     // Kill other processes if one dies
     killOthers: false,
 
+    // Kill other processes if one exits with non zero status code
+    killOthersIfOneFails: false,
+
     // How much in ms we wait before killing other processes
     killDelay: 1000,
 
@@ -68,6 +71,10 @@ function parseArgs() {
         .option(
             '-k, --kill-others',
             'kill other processes if one exits or dies'
+        )
+        .option(
+            '--kill-others-if-one-fails',
+            'kill other processes if one exits with non zero status code'
         )
         .option(
             '--no-color',
@@ -131,6 +138,10 @@ function parseArgs() {
             '   - Kill other processes if one exits or dies',
             '',
             '       $ concurrently --kill-others "grunt watch" "http-server"',
+            '',
+            '   - Kill other processes if one exits with non zero status code',
+            '',
+            '       $ concurrently --kill-others-if-one-fails "npm run build:client" "npm run build:server"',
             '',
             '   - Output nothing more than stdout+stderr of child processes',
             '',
@@ -266,6 +277,7 @@ function handleClose(streams, children, childrenInfo) {
     var exitCodes = [];
     var closeStreams = _.map(streams, 'close');
     var closeStream = Rx.Observable.merge.apply(this, closeStreams);
+    var sigtermSent = false;
 
     // TODO: Is it possible that amount of close events !== count of spawned?
     closeStream.subscribe(function(event) {
@@ -285,20 +297,31 @@ function handleClose(streams, children, childrenInfo) {
             exit(exitCodes);
         }
     });
-
     if (config.killOthers) {
         // Give other processes some time to stop cleanly before killing them
         var delayedExit = closeStream.delay(config.killDelay);
 
         delayedExit.subscribe(function() {
-            logEvent('--> ', chalk.gray.dim, 'Sending SIGTERM to other processes..');
-
-            // Send SIGTERM to alive children
-            _.each(aliveChildren, function(child) {
-                treeKill(child.pid, 'SIGTERM');
-            });
+            killOtherProcesses(aliveChildren);
+        });
+    } else if (config.killOthersIfOneFails) {
+        closeStream.subscribe(function(event) {
+            if (event.data !== 0 && !sigtermSent) {
+                sigtermSent = true;
+                killOtherProcesses(aliveChildren);
+            }
         });
     }
+}
+
+function killOtherProcesses(processes) {
+    logEvent('--> ', chalk.gray.dim, 'Sending SIGTERM to other processes..');
+
+    // Send SIGTERM to alive children
+    _.each(processes, function(child) {
+        treeKill(child.pid, 'SIGTERM');
+    });
+
 }
 
 function exit(childExitCodes) {

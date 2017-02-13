@@ -53,6 +53,61 @@ describe('concurrently', function() {
             });
     });
 
+    it('--kill-others should always kill other commands even if there is --kill-others-if-one-fails option specified', () => {
+        // This test would timeout if kill others option does not work
+        return run('node ./src/main.js --kill-others-if-one-fails --kill-others "sleep 1000" "echo test" "sleep 1000"', {pipe: DEBUG_TESTS})
+            .then(function(exitCode) {
+                assert.notStrictEqual(exitCode, 0);
+            });
+    });
+
+    it('--kill-others-if-one-fails should kill other commands if one exits with non-zero status code', () => {
+        // This test would timeout if `kill-others-if-one-fails` option does not work
+        return run('node ./src/main.js --kill-others-if-one-fails "sleep 1000" "exit 1" "sleep 1000"', {pipe: DEBUG_TESTS})
+            .then(function(exitCode) {
+                assert.notStrictEqual(exitCode, 0);
+            });
+    });
+
+    it('--kill-others-if-one-fails should NOT kill other commands if none of them exits with non-zero status code', (done) => {
+        var readline = require('readline');
+        var exits = 0;
+        var sigtermInOutput = false;
+
+        run('node ./src/main.js --kill-others-if-one-fails "echo killTest1" "echo killTest2" "echo killTest3"', {
+            pipe: false,
+            callback: function(child) {
+                var rl = readline.createInterface({
+                  input: child.stdout,
+                  output: null
+                });
+
+                rl.on('line', function(line) {
+                    if (DEBUG_TESTS) {
+                        console.log(line);
+                    }
+
+                    if (/SIGTERM/.test(line)) {
+                        sigtermInOutput = true;
+                    }
+
+                    // waiting for exits
+                    if (/killTest\d$/.test(line)) {
+                        exits++;
+                    }
+                });
+            }
+        }).then(function() {
+            if(sigtermInOutput) {
+                done(new Error('There was a "SIGTERM" in console output'));
+            } else if (exits !== 3) {
+                done(new Error('There was wrong number of echoes(' + exits + ') from executed commands'));
+            } else {
+                done();
+            }
+        });
+    });
+
     it('--success=first should return first exit code', () => {
         return run('node ./src/main.js -k --success first "echo test" "sleep 1000" ', {pipe: DEBUG_TESTS})
             // When killed, sleep returns null exit code
