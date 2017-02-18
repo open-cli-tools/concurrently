@@ -266,6 +266,7 @@ function handleClose(streams, children, childrenInfo) {
     var exitCodes = [];
     var closeStreams = _.map(streams, 'close');
     var closeStream = Rx.Observable.merge.apply(this, closeStreams);
+    var othersKilled = false
 
     // TODO: Is it possible that amount of close events !== count of spawned?
     closeStream.subscribe(function(event) {
@@ -284,21 +285,23 @@ function handleClose(streams, children, childrenInfo) {
         if (aliveChildren.length === 0) {
             exit(exitCodes);
         }
+
+        if (config.killOthers && !othersKilled) {
+            othersKilled = true
+            // Give other processes some time to stop cleanly before killing them
+            var delayedExit = closeStream.delay(config.killDelay);
+
+            delayedExit.subscribe(function() {
+                logEvent('--> ', chalk.gray.dim, 'Sending SIGTERM to other processes..');
+
+                // Send SIGTERM to alive children
+                _.each(aliveChildren, function(child) {
+                    treeKill(child.pid, 'SIGTERM');
+                });
+            });
+        }
     });
 
-    if (config.killOthers) {
-        // Give other processes some time to stop cleanly before killing them
-        var delayedExit = closeStream.delay(config.killDelay);
-
-        delayedExit.subscribe(function() {
-            logEvent('--> ', chalk.gray.dim, 'Sending SIGTERM to other processes..');
-
-            // Send SIGTERM to alive children
-            _.each(aliveChildren, function(child) {
-                treeKill(child.pid, 'SIGTERM');
-            });
-        });
-    }
 }
 
 function exit(childExitCodes) {
