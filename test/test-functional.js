@@ -46,15 +46,21 @@ describe('concurrently', function() {
     });
 
     it('--kill-others should kill other commands if one dies', () => {
-        // This test would timeout if kill others option does not work
-        return run('node ./src/main.js --kill-others "sleep 1000" "echo test" "sleep 1000"', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js --kill-others "sleep 1" "echo test" "sleep 0.1 && nosuchcmd"', {pipe: DEBUG_TESTS})
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
     });
 
+    it('--kill-others should not kill other commands if none die', () => {
+        return run('node ./src/main.js --kill-others "sleep 1" "echo test" "sleep 1"', {pipe: DEBUG_TESTS})
+            .then(function(exitCode) {
+                assert.strictEqual(exitCode, 0);
+            });
+    })
+
     it('--success=first should return first exit code', () => {
-        return run('node ./src/main.js -k --success first "echo test" "sleep 1000" ', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js -k --success first "echo test" "sleep 0.1 && nosuchcmd"', {pipe: DEBUG_TESTS})
             // When killed, sleep returns null exit code
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
@@ -63,7 +69,7 @@ describe('concurrently', function() {
 
     it('--success=last should return last exit code', () => {
         // When killed, sleep returns null exit code
-        return run('node ./src/main.js -k --success last "echo test" "sleep 1000" ', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js -k --success last "echo test" "sleep 0.1 && nosuchcmd"', {pipe: DEBUG_TESTS})
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
