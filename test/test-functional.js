@@ -52,13 +52,6 @@ describe('concurrently', function() {
             });
     });
 
-    it('--kill-others should not kill other commands if none die', () => {
-        return run('node ./src/main.js --kill-others "sleep 1" "echo test" "sleep 1"', {pipe: DEBUG_TESTS})
-            .then(function(exitCode) {
-                assert.strictEqual(exitCode, 0);
-            });
-    });
-
     it('--kill-others-on-fail should kill other commands if one exits with non-zero status code', () => {
         return run('node ./src/main.js --kill-others-on-fail "sleep 1" "exit 1" "sleep 1"', {pipe: DEBUG_TESTS})
             .then(function(exitCode) {

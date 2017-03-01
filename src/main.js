@@ -299,13 +299,8 @@ function handleClose(streams, children, childrenInfo) {
         }
         if (!othersKilled) {
           if (config.killOthers) {
-            // Give other processes some time to stop cleanly before killing them
-            var delayedExit = closeStream.delay(config.killDelay);
-
-            delayedExit.subscribe(function() {
-              killOtherProcesses(aliveChildren);
-              othersKilled = true;
-            });
+            killOtherProcesses(aliveChildren);
+            othersKilled = true;
           } else if (config.killOthersOnFail && nonSuccess) {
             killOtherProcesses(aliveChildren);
             othersKilled = true;
