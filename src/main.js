@@ -18,9 +18,6 @@ var config = {
     // Kill other processes if one exits with non zero status code
     killOthersOnFail: false,
 
-    // How much in ms we wait before killing other processes
-    killDelay: 1000,
-
     // Return success or failure of the 'first' child to terminate, the 'last' child,
     // or succeed only if 'all' children succeed
     success: 'all',
