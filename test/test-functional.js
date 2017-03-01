@@ -57,7 +57,53 @@ describe('concurrently', function() {
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
             });
-    })
+    });
+
+    it('--kill-others-on-fail should kill other commands if one exits with non-zero status code', () => {
+        return run('node ./src/main.js --kill-others-on-fail "sleep 1" "exit 1" "sleep 1"', {pipe: DEBUG_TESTS})
+            .then(function(exitCode) {
+                assert.notStrictEqual(exitCode, 0);
+            });
+    });
+
+    it('--kill-others-on-fail should NOT kill other commands if none of them exits with non-zero status code', (done) => {
+        var readline = require('readline');
+        var exits = 0;
+        var sigtermInOutput = false;
+
+        run('node ./src/main.js --kill-others-on-fail "echo killTest1" "echo killTest2" "echo killTest3"', {
+            pipe: false,
+            callback: function(child) {
+                var rl = readline.createInterface({
+                  input: child.stdout,
+                  output: null
+                });
+
+                rl.on('line', function(line) {
+                    if (DEBUG_TESTS) {
+                        console.log(line);
+                    }
+
+                    if (/SIGTERM/.test(line)) {
+                        sigtermInOutput = true;
+                    }
+
+                    // waiting for exits
+                    if (/killTest\d$/.test(line)) {
+                        exits++;
+                    }
+                });
+            }
+        }).then(function() {
+            if(sigtermInOutput) {
+                done(new Error('There was a "SIGTERM" in console output'));
+            } else if (exits !== 3) {
+                done(new Error('There was wrong number of echoes(' + exits + ') from executed commands'));
+            } else {
+                done();
+            }
+        });
+    });
 
     it('--success=first should return first exit code', () => {
         return run('node ./src/main.js -k --success first "echo test" "sleep 0.1 && nosuchcmd"', {pipe: DEBUG_TESTS})
