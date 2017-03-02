@@ -91,6 +91,10 @@ Examples:
  - Kill other processes if one exits or dies
 
      $ concurrently --kill-others "grunt watch" "http-server"
+     
+ - Kill other processes if one exits with non zero status code
+
+     $ concurrently --kill-others-on-fail "npm run build:client" "npm run build:server"
 
  - Output nothing more than stdout+stderr of child processes
 
