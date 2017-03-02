@@ -59,6 +59,7 @@ Options:
   -h, --help                       output usage information
   -V, --version                    output the version number
   -k, --kill-others                kill other processes if one exits or dies
+  --kill-others-on-fail            kill other processes if one exits with non zero status code
   --no-color                       disable colors from logging
   -p, --prefix <prefix>            prefix used in logging for each process.
   Possible values: index, pid, time, command, name, none, or a template. Default: index. Example template: "{time}-{pid}"
