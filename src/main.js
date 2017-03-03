@@ -46,7 +46,10 @@ var config = {
     color: true,
 
     // If true, the output will only be raw output of processes, nothing more
-    raw: false
+    raw: false,
+
+    // If true, the arguments separated by `--` will be added to each command
+    argumentPassthrough: false
 };
 
 function main() {
@@ -58,7 +61,23 @@ function main() {
 
     parseArgs();
     config = mergeDefaultsWithArgs(config);
-    run(program.args);
+    var commands = program.args.filter(function(arg) {
+        return arg[0] !== '-';
+    });
+
+    var passthroughArguments = getArgsAfterDoubleDash();
+
+    var passthroughArgumentString = '';
+    var shouldAddPassThroughArguments = config.argumentPassthrough && passthroughArguments.length > 0;
+    if(shouldAddPassThroughArguments) {
+        passthroughArgumentString = ' ' + passthroughArguments.join(' ');
+    }
+
+    compiledCommands = commands.map(function(command) {
+        return command + passthroughArgumentString;
+    });
+
+    run(compiledCommands);
 }
 
 function parseArgs() {
@@ -112,6 +131,10 @@ function parseArgs() {
             '-r, --raw',
             'output only raw output of processes,' +
             ' disables prettifying and concurrently coloring'
+        )
+        .option(
+            '--argument-passthrough',
+            'pass arguments separated by `--` to each command'
         )
         .option(
             '-s, --success <first|last|all>',
@@ -390,6 +413,19 @@ function shortenText(text, length, cut) {
     var first = text.substring(0, startLength);
     var last = text.substring(text.length - endLength, text.length);
     return first + cut + last;
+}
+
+function getArgsAfterDoubleDash() {
+    var foundDoubleDash = false;
+    var passthroughArguments = [];
+    process.argv.some(function(piece, index) {
+        if(piece === '--') {
+            passthroughArguments = process.argv.slice(index + 1);
+            // break
+            return true;
+        }
+    });
+    return passthroughArguments;
 }
 
 function log(prefix, prefixColor, text) {

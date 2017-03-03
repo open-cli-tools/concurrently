@@ -128,6 +128,14 @@ describe('concurrently', function() {
             });
     });
 
+    it('--argument-passthrough should pass arguments to each command', () => {
+        // TODO: How can we test this?
+        return run('node ./src/main.js --argument-passthrough "echo test1" "echo test2" -- --foo', {pipe: DEBUG_TESTS})
+            .then(function(exitCode) {
+                assert.strictEqual(exitCode, 0);
+            });
+    });
+
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
       if (IS_WINDOWS) {
           console.log('IS_WINDOWS=true');
