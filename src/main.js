@@ -24,7 +24,7 @@ var config = {
 
     // Prefix logging with pid
     // Possible values: 'pid', 'none', 'time', 'command', 'index', 'name'
-    prefix: 'index',
+    prefix: '',
 
     // List of custom names to be used in prefix template
     names: '',
@@ -58,6 +58,8 @@ function main() {
 
     parseArgs();
     config = mergeDefaultsWithArgs(config);
+    applyDynamicDefaults(config)
+
     run(program.args);
 }
 
@@ -81,7 +83,7 @@ function parseArgs() {
             '-p, --prefix <prefix>',
             'prefix used in logging for each process.\n' +
             'Possible values: index, pid, time, command, name, none, or a template. Default: ' +
-            config.prefix + '. Example template: "{time}-{pid}"\n'
+            'index or name (when --names is set). Example template: "{time}-{pid}"\n'
         )
         .option(
             '-n, --names <names>',
@@ -154,7 +156,7 @@ function parseArgs() {
             '',
             '   - Custom names and colored prefixes',
             '',
-            '       $ concurrently --prefix "[{name}]" --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "npm run watch" "http-server"',
+            '       $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "npm run watch" "http-server"',
             ''
         ];
         console.log(help.join('\n'));
@@ -170,6 +172,12 @@ function parseArgs() {
 function mergeDefaultsWithArgs(config) {
     // This will pollute config object with other attributes from program too
     return _.merge(config, program);
+}
+
+function applyDynamicDefaults(config) {
+    if (!config.prefix) {
+        config.prefix = config.names ? 'name' : 'index';
+    }
 }
 
 function stripCmdQuotes(cmd) {

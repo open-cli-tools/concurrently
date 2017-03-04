@@ -116,6 +116,48 @@ describe('concurrently', function() {
             });
     });
 
+    it('--prefix should default to "index"', () => {
+        var collectedLines = []
+
+        return run('node ./src/main.js "echo one" "echo two"', {
+            onOutputLine: (line) => {
+                if (/(one|two)$/.exec(line)) {
+                    collectedLines.push(line)
+                }
+            }
+        })
+            .then(function(exitCode) {
+                assert.strictEqual(exitCode, 0);
+
+                collectedLines.sort()
+                assert.deepEqual(collectedLines, [
+                    '[0] one',
+                    '[1] two'
+                ])
+            });
+    });
+
+    it('--names should set a different default prefix', () => {
+        var collectedLines = []
+
+        return run('node ./src/main.js -n aa,bb "echo one" "echo two"', {
+            onOutputLine: (line) => {
+                if (/(one|two)$/.exec(line)) {
+                    collectedLines.push(line)
+                }
+            }
+        })
+            .then(function(exitCode) {
+                assert.strictEqual(exitCode, 0);
+
+                collectedLines.sort()
+                assert.deepEqual(collectedLines, [
+                    '[aa] one',
+                    '[bb] two'
+                ])
+            });
+    });
+
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
       if (IS_WINDOWS) {
           console.log('IS_WINDOWS=true');

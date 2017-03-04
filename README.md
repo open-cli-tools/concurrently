@@ -62,7 +62,7 @@ Options:
   --kill-others-on-fail            kill other processes if one exits with non zero status code
   --no-color                       disable colors from logging
   -p, --prefix <prefix>            prefix used in logging for each process.
-  Possible values: index, pid, time, command, name, none, or a template. Default: index. Example template: "{time}-{pid}"
+  Possible values: index, pid, time, command, name, none, or a template. Default: index or name (when --names is set). Example template: "{time}-{pid}"
 
   -n, --names <names>              List of custom names to be used in prefix template.
   Example names: "main,browser,server"
@@ -111,7 +111,7 @@ Examples:
 
  - Custom names and colored prefixes
 
-     $ concurrently --prefix "[{name}]" --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "npm run watch" "http-server"
+     $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "npm run watch" "http-server"
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
