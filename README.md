@@ -111,7 +111,7 @@ Examples:
 
  - Custom names and colored prefixes
 
-     $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "npm run watch" "http-server"
+     $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
