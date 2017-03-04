@@ -5,8 +5,8 @@ var assert = require('assert');
 var run = require('./utils').run;
 var IS_WINDOWS = /^win/.test(process.platform);
 
-// If true, output of commands are shown
-var DEBUG_TESTS = process.env.DEBUG_TESTS === 'true';
+// Note: Set the DEBUG_TESTS environment variable to `true` to see output of test commands.
+
 var TEST_DIR = 'dir/';
 
 // Abs path to test directory
@@ -17,7 +17,7 @@ describe('concurrently', function() {
     this.timeout(5000);
 
     it('help should be successful', () => {
-        return run('node ./src/main.js --help', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js --help')
             .then(function(exitCode) {
                 // exit code 0 means success
                 assert.strictEqual(exitCode, 0);
@@ -25,35 +25,35 @@ describe('concurrently', function() {
     });
 
     it('version should be successful', () => {
-        return run('node ./src/main.js -V', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js -V')
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
             });
     });
 
     it('two successful commands should exit 0', () => {
-        return run('node ./src/main.js "echo test" "echo test"', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js "echo test" "echo test"')
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
             });
     });
 
     it('at least one unsuccessful commands should exit non-zero', () => {
-        return run('node ./src/main.js "echo test" "nosuchcmd" "echo test"', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js "echo test" "nosuchcmd" "echo test"')
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
     });
 
     it('--kill-others should kill other commands if one dies', () => {
-        return run('node ./src/main.js --kill-others "sleep 1" "echo test" "sleep 0.1 && nosuchcmd"', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js --kill-others "sleep 1" "echo test" "sleep 0.1 && nosuchcmd"')
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
     });
 
     it('--kill-others-on-fail should kill other commands if one exits with non-zero status code', () => {
-        return run('node ./src/main.js --kill-others-on-fail "sleep 1" "exit 1" "sleep 1"', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js --kill-others-on-fail "sleep 1" "exit 1" "sleep 1"')
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
@@ -65,27 +65,15 @@ describe('concurrently', function() {
         var sigtermInOutput = false;
 
         run('node ./src/main.js --kill-others-on-fail "echo killTest1" "echo killTest2" "echo killTest3"', {
-            pipe: false,
-            callback: function(child) {
-                var rl = readline.createInterface({
-                  input: child.stdout,
-                  output: null
-                });
+            onOutputLine: function(line) {
+                if (/SIGTERM/.test(line)) {
+                    sigtermInOutput = true;
+                }
 
-                rl.on('line', function(line) {
-                    if (DEBUG_TESTS) {
-                        console.log(line);
-                    }
-
-                    if (/SIGTERM/.test(line)) {
-                        sigtermInOutput = true;
-                    }
-
-                    // waiting for exits
-                    if (/killTest\d$/.test(line)) {
-                        exits++;
-                    }
-                });
+                // waiting for exits
+                if (/killTest\d$/.test(line)) {
+                    exits++;
+                }
             }
         }).then(function() {
             if(sigtermInOutput) {
@@ -99,7 +87,7 @@ describe('concurrently', function() {
     });
 
     it('--success=first should return first exit code', () => {
-        return run('node ./src/main.js -k --success first "echo test" "sleep 0.1 && nosuchcmd"', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js -k --success first "echo test" "sleep 0.1 && nosuchcmd"')
             // When killed, sleep returns null exit code
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
@@ -108,21 +96,21 @@ describe('concurrently', function() {
 
     it('--success=last should return last exit code', () => {
         // When killed, sleep returns null exit code
-        return run('node ./src/main.js -k --success last "echo test" "sleep 0.1 && nosuchcmd"', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js -k --success last "echo test" "sleep 0.1 && nosuchcmd"')
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
     });
 
     it('&& nosuchcmd should return non-zero exit code', () => {
-        return run('node ./src/main.js "echo 1 && nosuchcmd" "echo 1 && nosuchcmd" ', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js "echo 1 && nosuchcmd" "echo 1 && nosuchcmd" ')
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 1);
             });
     });
 
     it('--prefix-colors should handle non-existent colors without failing', () => {
-        return run('node ./src/main.js -c "not.a.color" "echo colors"', {pipe: DEBUG_TESTS})
+        return run('node ./src/main.js -c "not.a.color" "echo colors"')
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
             });
@@ -149,32 +137,20 @@ describe('concurrently', function() {
         }
 
         run('node ./src/main.js "node ./test/support/signal.js" "node ./test/support/signal.js"', {
-          pipe: false,
-          callback: function(child) {
-            var rl = readline.createInterface({
-              input: child.stdout,
-              output: null
-            });
+          onOutputLine: function(line, child) {
+            // waiting for startup
+            if (/STARTED/.test(line)) {
+              waitingStart--;
+            }
+            if (!waitingStart) {
+              // both processes are started
+              child.kill(signal);
+            }
 
-            rl.on('line', function(line) {
-              if (DEBUG_TESTS) {
-                console.log(line);
-              }
-
-              // waiting for startup
-              if (/STARTED/.test(line)) {
-                waitingStart--;
-              }
-              if (!waitingStart) {
-                // both processes are started
-                child.kill(signal);
-              }
-
-              // waiting for signal
-              if (new RegExp(signal).test(line)) {
-                waitingSignal--;
-              }
-            });
+            // waiting for signal
+            if (new RegExp(signal).test(line)) {
+              waitingSignal--;
+            }
           }
         }).then(function() {
           waitForSignal(done);
