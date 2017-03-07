@@ -311,14 +311,20 @@ function handleClose(streams, children, childrenInfo) {
 }
 
 function killOtherProcesses(processes) {
-    logEvent('--> ', chalk.gray.dim, 'Sending SIGTERM to other processes..');
+    var signal = config.sigkill ?
+        'SIGKILL' :
+        'SIGTERM';
+    logEvent('--> ', chalk.gray.dim, 'Sending ' + signal + ' to other processes..');
 
+    var count = 0;
     // Send SIGTERM to alive children
     _.each(processes, function(child) {
-        var signal = config.sigkill ?
-            'SIGKILL' :
-            'SIGTERM';
-        treeKill(child.pid, signal);
+        treeKill(child.pid, signal, function () {
+            count++;
+            if (count === processes.length) {
+                process.exit(0);
+            }
+        });
     });
 }
 
