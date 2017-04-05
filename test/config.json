@@ -1,0 +1,19 @@
+{
+    "commands": [
+        {
+            "name": "LIST",
+            "exec": "ls -lsa",
+            "color": "white"
+        },
+        {
+            "name": "PWD",
+            "exec": "pwd -L",
+            "color": "blue"
+        },
+        {
+            "name": "WHO",
+            "exec": "whoami",
+            "color": "red.bgYellow"
+        }
+    ]
+}
