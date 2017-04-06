@@ -137,7 +137,8 @@ function parseArgs() {
             config.prefixLength + '\n'
         ).option(
             '--config <path>',
-            'Path to a json configuration file.\n'
+            'Path to a json configuration file.\n' +
+            'This option can be used to load all option values from a provided json file.\n'
         );
 
     program.on('--help', function() {
@@ -171,13 +172,22 @@ function parseArgs() {
             '   - Example of a configuration file',
             '',
             '       {',
-            '         killOthers: false,',
-            '         killOthersOnExit: false,',
-            '         killOthersOnFail: false,',
-            '         noColors: false,',
-            '         commands: [{',
-            '           path: "path to your command"',
-            '         }]',
+            '           "killOthers": false,',
+            '           "killOthersOnFail": false,',
+            '           "success": "all",',
+            '           "prefix": "name",',
+            '           "prefixColors": "gray.dim",',
+            '           "timestampFormat": "YYYY-MM-DD HH:mm:ss.SSS",',
+            '           "prefixLength": 10,',
+            '           "color": true,',
+            '           "raw": false,',
+            '           "commands": [{',
+            '               "name": "SERVER",',
+            '               "exec": "nodemon server.js",',
+            '               "color": "green.bgYellow",',
+            '           }, {',
+            '               ...',
+            '           }]',
             '       }',
             ''
         ];

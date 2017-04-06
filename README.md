@@ -86,6 +86,8 @@ Options:
   The option can be used to shorten long commands.
   Works only if prefix is set to "command". Default: 10
 
+  --config <path>                  Path to a json configuration file.
+  This option can be used to load all option values from a provided json file.
 
 Examples:
 
@@ -112,6 +114,27 @@ Examples:
  - Custom names and colored prefixes
 
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"
+
+- Example of a configuration file'
+
+     {
+         "killOthers": false,
+         "killOthersOnFail": false,
+         "success": "all",
+         "prefix": "name",
+         "prefixColors": "gray.dim",
+         "timestampFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+         "prefixLength": 10,
+         "color": true,
+         "raw": false,
+         "commands": [{
+             "name": "SERVER",
+             "exec": "nodemon server.js",
+             "color": "green.bgYellow"
+         }, {
+             ...
+         }]
+     }
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
