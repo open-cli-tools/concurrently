@@ -158,6 +158,55 @@ describe('concurrently', function() {
             });
     });
 
+    it('--config with empty config should return zero code', () => {
+        return run('node ./src/main.js --config ./test/support/empty.config.json')
+        .then(function(exitCode) {
+            assert.strictEqual(exitCode, 0);
+        });
+    });
+
+    it('--config should properly load names', () => {
+        var collectedLines = []
+
+        return run('node ./src/main.js --config ./test/support/echo2.config.json', {
+            onOutputLine: (line) => {
+                if (/(one|two)$/.exec(line)) {
+                    collectedLines.push(line)
+                }
+            }
+        })
+        .then(function(exitCode) {
+            assert.strictEqual(exitCode, 0);
+
+            collectedLines.sort()
+            assert.deepEqual(collectedLines, [
+                '[aa] one',
+                '[bb] two'
+            ])
+        })
+    });
+
+    it('--config prefix should default to index when names are not present', () => {
+        var collectedLines = []
+
+        return run('node ./src/main.js --config ./test/support/echo2noname.config.json', {
+            onOutputLine: (line) => {
+                if (/(one|two)$/.exec(line)) {
+                    collectedLines.push(line)
+                }
+            }
+        })
+        .then(function(exitCode) {
+            assert.strictEqual(exitCode, 0);
+
+            collectedLines.sort()
+            assert.deepEqual(collectedLines, [
+                '[0] one',
+                '[1] two'
+            ])
+        })
+    });
+
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
       if (IS_WINDOWS) {
           console.log('IS_WINDOWS=true');

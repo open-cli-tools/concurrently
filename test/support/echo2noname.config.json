@@ -1,0 +1,12 @@
+{
+    "commands": [
+        {
+            "exec": "echo one",
+            "color": "green"
+        },
+        {
+            "exec": "echo two",
+            "color": "yellow"
+        }
+    ]
+}

@@ -231,10 +231,11 @@ function mergeDefaultsWithFile() {
 
     configFile.commands = configFile.commands || [];
 
-    configFile.names = configFile.commands.map(function(c) {
-        return c.name || ''
-    }).join(configFile.nameSeparator);
-    
+    var names = configFile.commands.map(function(c) { return c.name || '' });
+    if (_.some(names)) {
+        configFile.names = names.join(configFile.nameSeparator);
+    }
+
     configFile.prefixColors = configFile.commands.map(function(c) {
         return c.color || ''
     }).join(',');
