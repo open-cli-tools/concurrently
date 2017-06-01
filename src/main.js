@@ -76,6 +76,10 @@ function parseArgs() {
             'kill other processes if one exits with non zero status code'
         )
         .option(
+            '--sigkill',
+            'Use SIGKILL instead of SIGTERM for killing remaining processes'
+        )
+        .option(
             '--no-color',
             'disable colors from logging'
         )
@@ -315,11 +319,20 @@ function handleClose(streams, children, childrenInfo) {
 }
 
 function killOtherProcesses(processes) {
-    logEvent('--> ', chalk.gray.dim, 'Sending SIGTERM to other processes..');
+    var signal = config.sigkill ?
+        'SIGKILL' :
+        'SIGTERM';
+    logEvent('--> ', chalk.gray.dim, 'Sending ' + signal + ' to other processes..');
 
+    var count = 0;
     // Send SIGTERM to alive children
     _.each(processes, function(child) {
-        treeKill(child.pid, 'SIGTERM');
+        treeKill(child.pid, signal, function () {
+            count++;
+            if (count === processes.length) {
+                process.exit(0);
+            }
+        });
     });
 }
 
