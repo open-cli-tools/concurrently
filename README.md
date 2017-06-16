@@ -86,6 +86,11 @@ Options:
   The option can be used to shorten long commands.
   Works only if prefix is set to "command". Default: 10
 
+  --allow-restart                  Restart a process which died. Default: false
+
+  --restart-after <miliseconds>    delay time to respawn the process. Default: 0
+  
+  --restart-tries <times>          limit the number of respawn tries. Default: 1
 
 Examples:
 
