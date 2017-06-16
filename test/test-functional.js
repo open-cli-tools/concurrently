@@ -165,22 +165,15 @@ describe('concurrently', function() {
 
         run('node ./src/main.js --allow-restart "sleep 0.1 && exit 1" "sleep 1"', {
             pipe: false,
-            callback: function(child) {
-                var rl = readline.createInterface({
-                    input: child.stdout,
-                    output: null
-                });
+            onOutputLine: (line) => {
+                var re = /exited with code (.+)/.exec(line);
+                if (re && re[1] === '1') {
+                    exitedWithOne = true
+                }
 
-                rl.on('line', function(line) {
-                    var re = /exited with code (.+)/.exec(line);
-                    if (re && re[1] === '1') {
-                        exitedWithOne = true
-                    }
-
-                    if (/restarted/.test(line)) {
-                        restarted = true;
-                    }
-                });
+                if (/restarted/.test(line)) {
+                    restarted = true;
+                }
             }
         }).then(function() {
             if (exitedWithOne && restarted) {
@@ -197,22 +190,14 @@ describe('concurrently', function() {
 
         run('node ./src/main.js --allow-restart --restart-after 300 "exit 1" "sleep 1"', {
             pipe: false,
-            callback: function(child) {
-                var rl = readline.createInterface({
-                    input: child.stdout,
-                    output: null
-                });
+            onOutputLine: (line) => {
+                if (!start && /exited with code (.+)/.test(line)) {
+                    start = new Date().getTime();
+                }
 
-                // set the first occurrence of `start` and `end`.
-                rl.on('line', function(line) {
-                    if (!start && /exited with code (.+)/.test(line)) {
-                        start = new Date().getTime();
-                    }
-
-                    if (!end && /restarted/.test(line)) {
-                        end = new Date().getTime();
-                    }
-                });
+                if (!end && /restarted/.test(line)) {
+                    end = new Date().getTime();
+                }
             }
         }).then(function() {
             // we accept 100 miliseconds of error
@@ -229,17 +214,10 @@ describe('concurrently', function() {
 
         run('node ./src/main.js --allow-restart --restart-tries 2 "exit 1" "sleep 1"', {
             pipe: false,
-            callback: function(child) {
-                var rl = readline.createInterface({
-                    input: child.stdout,
-                    output: null
-                });
-
-                rl.on('line', function(line) {
-                    if (/restarted/.test(line)) {
-                        restartedTimes++;
-                    }
-                });
+            onOutputLine: (line) => {
+                if (/restarted/.test(line)) {
+                    restartedTimes++;
+                }
             }
         }).then(function() {
             if (restartedTimes == 2) {
