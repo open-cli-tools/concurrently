@@ -158,6 +158,98 @@ describe('concurrently', function() {
             });
     });
 
+    it('--allow-restart should restart a proccess with non-zero exit code', (done) => {
+        var readline = require('readline');
+        var exitedWithOne = false;
+        var restarted = false;
+
+        run('node ./src/main.js --allow-restart "sleep 0.1 && exit 1" "sleep 1"', {
+            pipe: false,
+            callback: function(child) {
+                var rl = readline.createInterface({
+                    input: child.stdout,
+                    output: null
+                });
+
+                rl.on('line', function(line) {
+                    var re = /exited with code (.+)/.exec(line);
+                    if (re && re[1] === '1') {
+                        exitedWithOne = true
+                    }
+
+                    if (/restarted/.test(line)) {
+                        restarted = true;
+                    }
+                });
+            }
+        }).then(function() {
+            if (exitedWithOne && restarted) {
+                done();
+            } else {
+                done(new Error('No restarted process exited with code 1'));
+            }
+        });
+    });
+
+    it('--restart-after=n should restart a proccess after n miliseconds', (done) => {
+        var readline = require('readline');
+        var start, end;
+
+        run('node ./src/main.js --allow-restart --restart-after 300 "exit 1" "sleep 1"', {
+            pipe: false,
+            callback: function(child) {
+                var rl = readline.createInterface({
+                    input: child.stdout,
+                    output: null
+                });
+
+                // set the first occurrence of `start` and `end`.
+                rl.on('line', function(line) {
+                    if (!start && /exited with code (.+)/.test(line)) {
+                        start = new Date().getTime();
+                    }
+
+                    if (!end && /restarted/.test(line)) {
+                        end = new Date().getTime();
+                    }
+                });
+            }
+        }).then(function() {
+            // we accept 100 miliseconds of error
+            if (end - start >= 300 && end - start < 400) {
+                done();
+            } else {
+                done(new Error('No restarted process after 300 miliseconds'));
+            }
+        });
+    });
+    it('--restart-tries=n should restart a proccess at most n times', (done) => {
+        var readline = require('readline');
+        var restartedTimes = 0;
+
+        run('node ./src/main.js --allow-restart --restart-tries 2 "exit 1" "sleep 1"', {
+            pipe: false,
+            callback: function(child) {
+                var rl = readline.createInterface({
+                    input: child.stdout,
+                    output: null
+                });
+
+                rl.on('line', function(line) {
+                    if (/restarted/.test(line)) {
+                        restartedTimes++;
+                    }
+                });
+            }
+        }).then(function() {
+            if (restartedTimes == 2) {
+                done();
+            } else {
+                done(new Error('No restarted process twice'));
+            }
+        });
+    });
+
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
       if (IS_WINDOWS) {
           console.log('IS_WINDOWS=true');

@@ -46,7 +46,16 @@ var config = {
     color: true,
 
     // If true, the output will only be raw output of processes, nothing more
-    raw: false
+    raw: false,
+
+    // If true, the process restart when it exited with status code non-zero
+    allowRestart: false,
+
+    // By default, restart instantly
+    restartAfter: 0,
+
+    // By default, restart once
+    restartTries: 1
 };
 
 function main() {
@@ -128,6 +137,21 @@ function parseArgs() {
             'The option can be used to shorten long commands.\n' +
             'Works only if prefix is set to "command". Default: ' +
             config.prefixLength + '\n'
+        )
+        .option(
+            '--allow-restart',
+            'Restart a process which died. Default: ' +
+            config.allowRestart + '\n'
+        )
+        .option(
+            '--restart-after <miliseconds>',
+            'delay time to respawn the process. Default: ' +
+            config.restartAfter + '\n'
+        )
+        .option(
+            '--restart-tries <times>',
+            'limit the number of respawn tries. Default: ' +
+            config.restartTries + '\n'
         );
 
     program.on('--help', function() {
@@ -206,14 +230,7 @@ function run(commands) {
           spawnOpts.env = Object.assign({FORCE_COLOR: supportsColor.level}, process.env)
         }
 
-        var child;
-        try {
-            child = spawn(cmd, spawnOpts);
-        } catch (e) {
-            logError('', chalk.gray.dim, 'Error occured when executing command: ' + cmd);
-            logError('', chalk.gray.dim, e.stack);
-            process.exit(1);
-        }
+        var child = spawnChild(cmd, spawnOpts);
 
         if (index < prefixColors.length) {
             var prefixColorPath = prefixColors[index];
@@ -225,13 +242,41 @@ function run(commands) {
             command: cmd,
             index: index,
             name: name,
+            options: spawnOpts,
+            restartTries: config.restartTries,
             prefixColor: lastPrefixColor
         };
         return child;
     });
 
+    var streams = toStreams(children);
+
+    handleChildEvents(streams, children, childrenInfo);
+
+    ['SIGINT', 'SIGTERM'].forEach(function(signal) {
+      process.on(signal, function() {
+        children.forEach(function(child) {
+          treeKill(child.pid, signal);
+        });
+      });
+    });
+}
+
+function spawnChild(cmd, options) {
+    var child;
+    try {
+        child = spawn(cmd, options);
+    } catch (e) {
+        logError('', chalk.gray.dim, 'Error occured when executing command: ' + cmd);
+        logError('', chalk.gray.dim, e.stack);
+        process.exit(1);
+    }
+    return child;
+}
+
+function toStreams(children) {
     // Transform all process events to rx streams
-    var streams = _.map(children, function(child) {
+    return _.map(children, function(child) {
         var childStreams = {
             error: Rx.Node.fromEvent(child, 'error'),
             close: Rx.Node.fromEvent(child, 'close')
@@ -249,21 +294,15 @@ function run(commands) {
             return memo;
         }, {});
     });
+}
 
+function handleChildEvents(streams, children, childrenInfo) {
     handleClose(streams, children, childrenInfo);
     handleError(streams, childrenInfo);
     if (!config.raw) {
         handleOutput(streams, childrenInfo, 'stdout');
         handleOutput(streams, childrenInfo, 'stderr');
     }
-
-    ['SIGINT', 'SIGTERM'].forEach(function(signal) {
-      process.on(signal, function() {
-        children.forEach(function(child) {
-          treeKill(child.pid, signal);
-        });
-      });
-    });
 }
 
 function handleOutput(streams, childrenInfo, source) {
@@ -291,13 +330,19 @@ function handleClose(streams, children, childrenInfo) {
         exitCodes.push(exitCode);
 
         var prefix = getPrefix(childrenInfo, event.child);
-        var prefixColor = childrenInfo[event.child.pid].prefixColor;
-        var command = childrenInfo[event.child.pid].command;
+        var childInfo = childrenInfo[event.child.pid];
+        var prefixColor = childInfo.prefixColor;
+        var command = childInfo.command;
         logEvent(prefix, prefixColor, command + ' exited with code ' + exitCode);
 
         aliveChildren = _.filter(aliveChildren, function(child) {
             return child.pid !== event.child.pid;
         });
+
+        if (nonSuccess && config.allowRestart && childInfo.restartTries--) {
+            respawnChild(event, childrenInfo);
+            return;
+        }
 
         if (aliveChildren.length === 0) {
             exit(exitCodes);
@@ -312,6 +357,23 @@ function handleClose(streams, children, childrenInfo) {
           }
         }
     });
+}
+
+function respawnChild(event, childrenInfo) {
+    setTimeout(function() {
+        var childInfo = childrenInfo[event.child.pid];
+        var prefix = getPrefix(childrenInfo, event.child);
+        var prefixColor = childInfo.prefixColor;
+        logEvent(prefix, prefixColor, childInfo.command + ' restarted');
+        var newChild = spawnChild(childInfo.command, childInfo.options);
+
+        childrenInfo[newChild.pid] = childrenInfo[event.child.pid];
+        delete childrenInfo[event.child.pid];
+
+        var children = [newChild];
+        var streams = toStreams(children);
+        handleChildEvents(streams, children, childrenInfo);
+    }, config.restartAfter);
 }
 
 function killOtherProcesses(processes) {
