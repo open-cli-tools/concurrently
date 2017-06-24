@@ -11,7 +11,7 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 **Features:**
 
-* Cross platform, works also in Windows
+* Cross platform (including Windows)
 * Output is easy to follow with prefixes
 * With `--kill-others` switch, all commands are killed if one dies
 * Spawns commands with [spawn-command](https://github.com/mmalecki/spawn-command)
@@ -32,7 +32,7 @@ npm install concurrently --save
 
 ## Usage
 
-Remember to surround separate commands with quotes, like this:
+Remember to surround separate commands with quotes:
 ```bash
 concurrently "command1 arg" "command2 arg"
 ```
