@@ -111,7 +111,6 @@ function run(commands) {
 
         var name = index < names.length ? names[index] : '';
         childrenInfo[child.pid] = {
-            process: child,
             command: cmd,
             index: index,
             name: name,
@@ -133,8 +132,6 @@ function run(commands) {
             });
         });
     });
-
-    return childrenInfo;
 }
 
 function spawnChild(cmd, options) {
