@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 var Rx = require('rx');
 var path = require('path');
 var formatDate = require('date-fns/format');

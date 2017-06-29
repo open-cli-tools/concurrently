@@ -1,6 +1,5 @@
 var _ = require('lodash');
-
-var { config, run } = require('./lib.js');
+var lib = require('./lib.js');
 
 module.exports = function(commands, options) {
     return new Promise(resolve => {
@@ -20,7 +19,7 @@ module.exports = function(commands, options) {
             }
         });
 
-        _.assign(config, options, {
+        _.assign(lib.config, options, {
             names: _.join(names, ','),
             nameSeparator: ',',
             prefixColors: _.join(prefixColors, ','),
@@ -29,6 +28,6 @@ module.exports = function(commands, options) {
             }
         });
 
-        run(executables);
+        lib.run(executables);
     });
 }

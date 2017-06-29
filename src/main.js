@@ -4,7 +4,8 @@ var path = require('path');
 var program = require('commander');
 var _ = require('lodash');
 
-var { config, run } = require('./lib.js');
+var lib = require('./lib.js');
+var config = lib.config;
 
 function main() {
     var firstBase = path.basename(process.argv[0]);
@@ -17,7 +18,7 @@ function main() {
     config = mergeDefaultsWithArgs(config);
     applyDynamicDefaults(config)
 
-    run(program.args);
+    lib.run(program.args);
 }
 
 function parseArgs() {
