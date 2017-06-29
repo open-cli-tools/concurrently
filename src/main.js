@@ -15,10 +15,9 @@ function main() {
     }
 
     parseArgs();
-    config = mergeDefaultsWithArgs(config);
-    applyDynamicDefaults(config)
+    config = _.merge(config, program);
 
-    lib.run(program.args);
+    lib.runCommands(program.args);
 }
 
 function parseArgs() {
@@ -140,17 +139,6 @@ function parseArgs() {
     });
 
     program.parse(process.argv);
-}
-
-function mergeDefaultsWithArgs(config) {
-    // This will pollute config object with other attributes from program too
-    return _.merge(config, program);
-}
-
-function applyDynamicDefaults(config) {
-    if (!config.prefix) {
-        config.prefix = config.names ? 'name' : 'index';
-    }
 }
 
 main();

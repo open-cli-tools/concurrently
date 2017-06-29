@@ -52,26 +52,7 @@ var config = {
     restartAfter: 0,
 
     // By default, restart once
-    restartTries: 1,
-
-    // callback called when all children exits    
-    exit: function(childExitCodes) {
-        var success;
-        switch (config.success) {
-            case 'first':
-                success = _.first(childExitCodes) === 0;
-                break;
-            case 'last':
-                success = _.last(childExitCodes) === 0;
-                break;
-            default:
-                success = _.every(childExitCodes, function(code) {
-                    return code === 0;
-                });
-        }
-
-        process.exit(success ? 0 : 1);
-    }
+    restartTries: 1
 };
 
 function stripCmdQuotes(cmd) {
@@ -83,11 +64,13 @@ function stripCmdQuotes(cmd) {
     }
 }
 
-function run(commands) {
+function run(commands, names, prefixColors, exitCallback) {
+    if (!config.prefix) {
+        config.prefix = names ? 'name' : 'index';
+    }
+
     var childrenInfo = {};
     var lastPrefixColor = _.get(chalk, chalk.gray.dim);
-    var prefixColors = config.prefixColors.split(',');
-    var names = config.names.split(config.nameSeparator);
     var children = _.map(commands, function(cmd, index) {
         // Remove quotes.
         cmd = stripCmdQuotes(cmd);
@@ -121,7 +104,7 @@ function run(commands) {
 
     var streams = toStreams(children);
 
-    handleChildEvents(streams, children, childrenInfo);
+    handleChildEvents(streams, children, childrenInfo, exitCallback);
 
     ['SIGINT', 'SIGTERM'].forEach(function(signal) {
         process.on(signal, function() {
@@ -130,6 +113,15 @@ function run(commands) {
             });
         });
     });
+}
+
+function runCommands(commands) {
+    var prefixColors = config.prefixColors.split(',');
+    var names = config.names.split(config.nameSeparator);
+    if (!config.prefix) {
+        config.prefix = config.names ? 'name' : 'index';
+    }
+    run(commands, names, prefixColors, exit);
 }
 
 function spawnChild(cmd, options) {
@@ -166,8 +158,8 @@ function toStreams(children) {
     });
 }
 
-function handleChildEvents(streams, children, childrenInfo) {
-    handleClose(streams, children, childrenInfo);
+function handleChildEvents(streams, children, childrenInfo, exitCallback) {
+    handleClose(streams, children, childrenInfo, exitCallback);
     handleError(streams, childrenInfo);
     if (!config.raw) {
         handleOutput(streams, childrenInfo, 'stdout');
@@ -186,7 +178,7 @@ function handleOutput(streams, childrenInfo, source) {
     });
 }
 
-function handleClose(streams, children, childrenInfo) {
+function handleClose(streams, children, childrenInfo, exitCallback) {
     var allChildren = _.clone(children);
     var aliveChildren = _.clone(children);
     var exitCodes = [];
@@ -211,12 +203,12 @@ function handleClose(streams, children, childrenInfo) {
         });
 
         if (nonSuccess && config.allowRestart && childInfo.restartTries--) {
-            respawnChild(event, childrenInfo);
+            respawnChild(event, childrenInfo, exitCallback);
             return;
         }
 
         if (aliveChildren.length === 0) {
-            config.exit(exitCodes);
+            exitCallback(exitCodes);
         }
         if (!othersKilled) {
             if (config.killOthers) {
@@ -230,7 +222,7 @@ function handleClose(streams, children, childrenInfo) {
     });
 }
 
-function respawnChild(event, childrenInfo) {
+function respawnChild(event, childrenInfo, exitCallback) {
     setTimeout(function() {
         var childInfo = childrenInfo[event.child.pid];
         var prefix = getPrefix(childrenInfo, event.child);
@@ -243,7 +235,7 @@ function respawnChild(event, childrenInfo) {
 
         var children = [newChild];
         var streams = toStreams(children);
-        handleChildEvents(streams, children, childrenInfo);
+        handleChildEvents(streams, children, childrenInfo, exitCallback);
     }, config.restartAfter);
 }
 
@@ -254,6 +246,23 @@ function killOtherProcesses(processes) {
     _.each(processes, function(child) {
         treeKill(child.pid, 'SIGTERM');
     });
+}
+
+function exit(childExitCodes) {
+    var success;
+    switch (config.success) {
+        case 'first':
+            success = _.first(childExitCodes) === 0;
+            break;
+        case 'last':
+            success = _.last(childExitCodes) === 0;
+            break;
+        default:
+            success = _.every(childExitCodes, function(code) {
+                return code === 0;
+            });
+    }
+    process.exit(success ? 0 : 1);
 }
 
 function handleError(streams, childrenInfo) {
@@ -361,5 +370,6 @@ function logWithPrefix(prefix, prefixColor, text, color) {
 
 module.exports = {
     config,
-    run
+    run,
+    runCommands
 }
