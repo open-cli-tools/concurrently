@@ -1,0 +1,1 @@
+new Promise(resolve => setTimeout(resolve, parseInt(process.argv[2], 10) * 1000)).then(() => process.exit(0));

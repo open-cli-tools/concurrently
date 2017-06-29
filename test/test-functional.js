@@ -4,6 +4,7 @@ var path = require('path');
 var assert = require('assert');
 var run = require('./utils').run;
 var IS_WINDOWS = /^win/.test(process.platform);
+var concurrently = require('../src/api.js');
 
 // Note: Set the DEBUG_TESTS environment variable to `true` to see output of test commands.
 
@@ -46,14 +47,14 @@ describe('concurrently', function() {
     });
 
     it('--kill-others should kill other commands if one dies', () => {
-        return run('node ./src/main.js --kill-others "sleep 1" "echo test" "sleep 0.1 && nosuchcmd"')
+        return run('node ./src/main.js --kill-others "node ./test/support/sleep.js  1" "echo test" "node ./test/support/sleep.js 0.1 && nosuchcmd"')
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
     });
 
     it('--kill-others-on-fail should kill other commands if one exits with non-zero status code', () => {
-        return run('node ./src/main.js --kill-others-on-fail "sleep 1" "exit 1" "sleep 1"')
+        return run('node ./src/main.js --kill-others-on-fail "node ./test/support/sleep.js  1" "exit 1" "node ./test/support/sleep.js  1"')
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
@@ -76,7 +77,7 @@ describe('concurrently', function() {
                 }
             }
         }).then(function() {
-            if(sigtermInOutput) {
+            if (sigtermInOutput) {
                 done(new Error('There was a "SIGTERM" in console output'));
             } else if (exits !== 3) {
                 done(new Error('There was wrong number of echoes(' + exits + ') from executed commands'));
@@ -87,7 +88,7 @@ describe('concurrently', function() {
     });
 
     it('--success=first should return first exit code', () => {
-        return run('node ./src/main.js -k --success first "echo test" "sleep 0.1 && nosuchcmd"')
+        return run('node ./src/main.js -k --success first "echo test" "node ./test/support/sleep.js 0.1 && nosuchcmd"')
             // When killed, sleep returns null exit code
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
@@ -96,7 +97,7 @@ describe('concurrently', function() {
 
     it('--success=last should return last exit code', () => {
         // When killed, sleep returns null exit code
-        return run('node ./src/main.js -k --success last "echo test" "sleep 0.1 && nosuchcmd"')
+        return run('node ./src/main.js -k --success last "echo test" "node ./test/support/sleep.js 0.1 && nosuchcmd"')
             .then(function(exitCode) {
                 assert.notStrictEqual(exitCode, 0);
             });
@@ -120,12 +121,12 @@ describe('concurrently', function() {
         var collectedLines = []
 
         return run('node ./src/main.js "echo one" "echo two"', {
-            onOutputLine: (line) => {
-                if (/(one|two)$/.exec(line)) {
-                    collectedLines.push(line)
+                onOutputLine: (line) => {
+                    if (/(one|two)$/.exec(line)) {
+                        collectedLines.push(line)
+                    }
                 }
-            }
-        })
+            })
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
 
@@ -141,12 +142,12 @@ describe('concurrently', function() {
         var collectedLines = []
 
         return run('node ./src/main.js -n aa,bb "echo one" "echo two"', {
-            onOutputLine: (line) => {
-                if (/(one|two)$/.exec(line)) {
-                    collectedLines.push(line)
+                onOutputLine: (line) => {
+                    if (/(one|two)$/.exec(line)) {
+                        collectedLines.push(line)
+                    }
                 }
-            }
-        })
+            })
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
 
@@ -163,7 +164,7 @@ describe('concurrently', function() {
         var exitedWithOne = false;
         var restarted = false;
 
-        run('node ./src/main.js --allow-restart "sleep 0.1 && exit 1" "sleep 1"', {
+        run('node ./src/main.js --allow-restart "node ./test/support/sleep.js 0.1 && exit 1" "node ./test/support/sleep.js 1"', {
             pipe: false,
             onOutputLine: (line) => {
                 var re = /exited with code (.+)/.exec(line);
@@ -188,7 +189,7 @@ describe('concurrently', function() {
         var readline = require('readline');
         var start, end;
 
-        run('node ./src/main.js --allow-restart --restart-after 300 "exit 1" "sleep 1"', {
+        run('node ./src/main.js --allow-restart --restart-after 300 "exit 1" "node ./test/support/sleep.js 1"', {
             pipe: false,
             onOutputLine: (line) => {
                 if (!start && /exited with code (.+)/.test(line)) {
@@ -204,15 +205,16 @@ describe('concurrently', function() {
             if (end - start >= 300 && end - start < 400) {
                 done();
             } else {
-                done(new Error('No restarted process after 300 miliseconds'));
+                done(new Error('No restarted process after 300 miliseconds - delta is: ' + (end - start)));
             }
         });
     });
+
     it('--restart-tries=n should restart a proccess at most n times', (done) => {
         var readline = require('readline');
         var restartedTimes = 0;
 
-        run('node ./src/main.js --allow-restart --restart-tries 2 "exit 1" "sleep 1"', {
+        run('node ./src/main.js --allow-restart --restart-tries 2 "exit 1" "node ./test/support/sleep.js 1"', {
             pipe: false,
             onOutputLine: (line) => {
                 if (/restarted/.test(line)) {
@@ -228,46 +230,74 @@ describe('concurrently', function() {
         });
     });
 
-    ['SIGINT', 'SIGTERM'].forEach((signal) => {
-      if (IS_WINDOWS) {
-          console.log('IS_WINDOWS=true');
-          console.log('Skipping SIGINT/SIGTERM propagation tests ..');
-          return;
-      }
+    if (IS_WINDOWS) {
+        console.log('IS_WINDOWS=true');
+        console.log('Skipping SIGINT/SIGTERM propagation tests ...');
+    } else {
+        ['SIGINT', 'SIGTERM'].forEach((signal) => {
+            it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
+                var readline = require('readline');
+                var waitingStart = 2;
+                var waitingSignal = 2;
 
-      it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
-        var readline = require('readline');
-        var waitingStart = 2;
-        var waitingSignal = 2;
+                function waitForSignal(cb) {
+                    if (waitingSignal) {
+                        setTimeout(waitForSignal, 100);
+                    } else {
+                        cb();
+                    }
+                }
 
-        function waitForSignal(cb) {
-          if (waitingSignal) {
-            setTimeout(waitForSignal, 100);
-          } else {
-            cb();
-          }
-        }
+                run('node ./src/main.js "node ./test/support/signal.js" "node ./test/support/signal.js"', {
+                    onOutputLine: function(line, child) {
+                        // waiting for startup
+                        if (/STARTED/.test(line)) {
+                            waitingStart--;
+                        }
+                        if (!waitingStart) {
+                            // both processes are started
+                            child.kill(signal);
+                        }
 
-        run('node ./src/main.js "node ./test/support/signal.js" "node ./test/support/signal.js"', {
-          onOutputLine: function(line, child) {
-            // waiting for startup
-            if (/STARTED/.test(line)) {
-              waitingStart--;
-            }
-            if (!waitingStart) {
-              // both processes are started
-              child.kill(signal);
-            }
-
-            // waiting for signal
-            if (new RegExp(signal).test(line)) {
-              waitingSignal--;
-            }
-          }
-        }).then(function() {
-          waitForSignal(done);
+                        // waiting for signal
+                        if (new RegExp(signal).test(line)) {
+                            waitingSignal--;
+                        }
+                    }
+                }).then(function() {
+                    waitForSignal(done);
+                });
+            });
         });
-      });
+    }
+
+    describe('api', () => {
+        // TODO: hide output from echo command if DEBUG_TESTS != true
+        it('should run and return correct exit codes', () => {
+            var commands = ['echo 1', 'exit 2'];
+            return concurrently(commands)
+                .then(function(result) {
+                    assert(result.length === 2);
+                    assert(result[0] === 0);
+                    assert(result[1] === 2);
+                });
+        });
+        it('should use names', () => {
+            // not sure how to test colors except visually ...
+            var commands = [{
+                name: 'echo',
+                prefixModifier: 'dim',
+                prefixTextColor: 'yellow',
+                prefixBackColor: 'bgGreen',
+                command: 'echo 1'
+            }, 'exit 2'];
+            return concurrently(commands)
+                .then(function(result) {
+                    assert(result.length === 2);
+                    assert(result[0] === 0);
+                    assert(result[1] === 2);
+                });
+        });
     });
 });
 
