@@ -469,7 +469,7 @@ function log(prefix, prefixColor, text) {
 function logEvent(prefix, prefixColor, text) {
     if (config.raw) return;
 
-    logWithPrefix(prefix, prefixColor, text, chalk.gray.dim);
+    logWithPrefix(prefix, prefixColor, text + '\n', chalk.gray.dim);
 }
 
 function logError(prefix, prefixColor, text) {
@@ -482,7 +482,7 @@ var lastChar;
 
 function logWithPrefix(prefix, prefixColor, text, color) {
 
-     if (config.raw) {  
+     if (config.raw) {
         process.stdout.write(text);
         return;
     }
@@ -504,9 +504,9 @@ function logWithPrefix(prefix, prefixColor, text, color) {
         process.stdout.write(coloredPrefix);
     }
 
-    lastChar = text[text.length - 1];         
+    lastChar = text[text.length - 1];
 
-    process.stdout.write(paddedLines.join('\n'));    
+    process.stdout.write(paddedLines.join('\n'));
 }
 
 main();
