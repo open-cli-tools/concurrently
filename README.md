@@ -48,6 +48,8 @@ In package.json, escape quotes:
 
 Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-copy-paste-this-frontend-template/blob/5cd2bde719654941bdfc0a42c6f1b8e69ae79980/package.json#L9).
 
+With no parameters, concurrently will try to load it's configuration from **concurrently.json**.
+
 Help:
 
 ```
@@ -133,6 +135,9 @@ Examples:
          "prefixLength": 10,
          "color": true,
          "raw": false,
+         "allow-restart": false,
+         "restart-after": 0,
+         "restart-tries": 1,
          "commands": [{
              "name": "SERVER",
              "exec": "nodemon server.js",
