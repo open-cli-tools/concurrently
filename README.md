@@ -92,6 +92,9 @@ Options:
   
   --restart-tries <times>          limit the number of respawn tries. Default: 1
 
+  --config <path>                  Path to a json configuration file.
+  This option can be used to load all option values from a provided json file.
+
 Examples:
 
  - Kill other processes if one exits or dies
@@ -117,6 +120,27 @@ Examples:
  - Custom names and colored prefixes
 
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"
+
+- Example of a configuration file'
+
+     {
+         "killOthers": false,
+         "killOthersOnFail": false,
+         "success": "all",
+         "prefix": "name",
+         "prefixColors": "gray.dim",
+         "timestampFormat": "YYYY-MM-DD HH:mm:ss.SSS",
+         "prefixLength": 10,
+         "color": true,
+         "raw": false,
+         "commands": [{
+             "name": "SERVER",
+             "exec": "nodemon server.js",
+             "color": "green.bgYellow"
+         }, {
+             ...
+         }]
+     }
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 var Rx = require('rx');
+var fs = require('fs');
 var path = require('path');
 var formatDate = require('date-fns/format');
 var program = require('commander');
@@ -66,7 +67,13 @@ function main() {
     }
 
     parseArgs();
-    config = mergeDefaultsWithArgs(config);
+
+    if (program.config) {
+        config = mergeDefaultsWithFile();
+    } else {
+        config = mergeDefaultsWithArgs(config);
+    }
+
     applyDynamicDefaults(config)
 
     run(program.args);
@@ -152,6 +159,10 @@ function parseArgs() {
             '--restart-tries <times>',
             'limit the number of respawn tries. Default: ' +
             config.restartTries + '\n'
+        ).option(
+            '--config <path>',
+            'Path to a json configuration file.\n' +
+            'This option can be used to load all option values from a provided json file.\n'
         );
 
     program.on('--help', function() {
@@ -181,6 +192,27 @@ function parseArgs() {
             '   - Custom names and colored prefixes',
             '',
             '       $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"',
+            '',
+            '   - Example of a configuration file',
+            '',
+            '       {',
+            '           "killOthers": false,',
+            '           "killOthersOnFail": false,',
+            '           "success": "all",',
+            '           "prefix": "name",',
+            '           "prefixColors": "gray.dim",',
+            '           "timestampFormat": "YYYY-MM-DD HH:mm:ss.SSS",',
+            '           "prefixLength": 10,',
+            '           "color": true,',
+            '           "raw": false,',
+            '           "commands": [{',
+            '               "name": "SERVER",',
+            '               "exec": "nodemon server.js",',
+            '               "color": "green.bgYellow",',
+            '           }, {',
+            '               ...',
+            '           }]',
+            '       }',
             ''
         ];
         console.log(help.join('\n'));
@@ -191,6 +223,52 @@ function parseArgs() {
     });
 
     program.parse(process.argv);
+}
+
+function mergeDefaultsWithFile() {
+    var configFileStr = null;
+    var configFile = null;
+
+    if (!fs.existsSync(program.config)) {
+        console.error('Error: config file ' + program.config + ' does not exists.');
+        process.exit(1);
+    }
+
+    try {
+        configFileStr = fs.readFileSync(program.config, 'utf-8');
+    } catch (err) {
+        console.error('There was an error while trying to read a file ' + program.config);
+        console.error(err);
+        process.exit(1);
+    }
+
+    try {
+        configFile = JSON.parse(configFileStr);
+    } catch (err) {
+        console.error('There was an error while trying to parse a file ' + program.config);
+        console.error(err);
+        process.exit(1);
+    }
+
+    // merge with the defaults
+    configFile = _.merge(config, configFile);
+
+    configFile.commands = configFile.commands || [];
+
+    var names = configFile.commands.map(function(c) { return c.name || '' });
+    if (_.some(names)) {
+        configFile.names = names.join(configFile.nameSeparator);
+    }
+
+    configFile.prefixColors = configFile.commands.map(function(c) {
+        return c.color || ''
+    }).join(',');
+
+    program.args = configFile.commands.map(function(c) {
+        return '"' + (c.exec || '') + '"';
+    });
+
+    return _.merge(config, configFile);
 }
 
 function mergeDefaultsWithArgs(config) {
