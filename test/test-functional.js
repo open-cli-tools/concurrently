@@ -226,6 +226,7 @@ describe('concurrently', function() {
                 done(new Error('No restarted process twice'));
             }
         });
+    });
     it('--config with empty config should return zero code', () => {
         return run('node ./src/main.js --config ./test/support/empty.config.json')
         .then(function(exitCode) {
