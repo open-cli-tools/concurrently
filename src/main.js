@@ -56,7 +56,10 @@ var config = {
     restartAfter: 0,
 
     // By default, restart once
-    restartTries: 1
+    restartTries: 1,
+    
+    // Default configuration file
+    config: "concurrently.json"
 };
 
 function main() {
@@ -68,8 +71,8 @@ function main() {
 
     parseArgs();
 
-    if (program.config) {
-        config = mergeDefaultsWithFile();
+    if (program.config || program.args.length == 0) {
+        config = mergeDefaultsWithFile(program.config || config.config);
     } else {
         config = mergeDefaultsWithArgs(config);
     }
@@ -225,19 +228,19 @@ function parseArgs() {
     program.parse(process.argv);
 }
 
-function mergeDefaultsWithFile() {
+function mergeDefaultsWithFile(filename) {
     var configFileStr = null;
     var configFile = null;
 
-    if (!fs.existsSync(program.config)) {
-        console.error('Error: config file ' + program.config + ' does not exists.');
+    if (!fs.existsSync(filename)) {
+        console.error('Error: config file ' + filename + ' does not exist.');
         process.exit(1);
     }
 
     try {
-        configFileStr = fs.readFileSync(program.config, 'utf-8');
+        configFileStr = fs.readFileSync(filename, 'utf-8');
     } catch (err) {
-        console.error('There was an error while trying to read a file ' + program.config);
+        console.error('There was an error while trying to read a file ' + filename);
         console.error(err);
         process.exit(1);
     }
@@ -245,7 +248,7 @@ function mergeDefaultsWithFile() {
     try {
         configFile = JSON.parse(configFileStr);
     } catch (err) {
-        console.error('There was an error while trying to parse a file ' + program.config);
+        console.error('There was an error while trying to parse a file ' + filename);
         console.error(err);
         process.exit(1);
     }
