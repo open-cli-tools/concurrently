@@ -276,6 +276,28 @@ describe('concurrently', function() {
         })
     });
 
+    it('--config should merge command line options', () => {
+        var collectedLines = []
+
+        return run('node ./src/main.js --names "A,B,C" --config ./test/support/echo2noname.config.json "echo three"', {
+            onOutputLine: (line) => {
+                if (/(one|two|three)$/.exec(line)) {
+                    collectedLines.push(line)
+                }
+            }
+        })
+        .then(function(exitCode) {
+            assert.strictEqual(exitCode, 0);
+
+            collectedLines.sort()
+            assert.deepEqual(collectedLines, [
+                '[A] one',
+                '[B] two',
+                '[C] three'
+            ])
+        })
+    });
+
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
       if (IS_WINDOWS) {
           console.log('IS_WINDOWS=true');
