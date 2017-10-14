@@ -164,8 +164,7 @@ function parseArgs() {
             config.restartTries + '\n'
         ).option(
             '--config <path>',
-            'Path to a json configuration file.\n' +
-            'This option can be used to load all option values from a provided json file.\n'
+            'Path to a json configuration file.  The default is concurrently.json.\n'
         );
 
     program.on('--help', function() {
