@@ -71,11 +71,8 @@ function main() {
 
     parseArgs();
 
-    if (program.config || program.args.length == 0) {
-        config = mergeDefaultsWithFile(program.config || config.config);
-    } else {
-        config = mergeDefaultsWithArgs(config);
-    }
+    config = mergeDefaultsWithFile(program.config || config.config);
+    config = mergeDefaultsWithArgs(config);
 
     applyDynamicDefaults(config)
 
@@ -231,10 +228,7 @@ function mergeDefaultsWithFile(filename) {
     var configFileStr = null;
     var configFile = null;
 
-    if (!fs.existsSync(filename)) {
-        console.error('Error: config file ' + filename + ' does not exist.');
-        process.exit(1);
-    }
+    if (!fs.existsSync(filename)) return config;
 
     try {
         configFileStr = fs.readFileSync(filename, 'utf-8');
@@ -253,7 +247,7 @@ function mergeDefaultsWithFile(filename) {
     }
 
     // merge with the defaults
-    configFile = _.merge(config, configFile);
+    configFile = _.merge({ }, config, configFile);
 
     configFile.commands = configFile.commands || [];
 
@@ -266,16 +260,19 @@ function mergeDefaultsWithFile(filename) {
         return c.color || ''
     }).join(',');
 
+    if (configFile.prefixColors == '') 
+        configFile.prefixColors = config.prefixColors;
+
     program.args = configFile.commands.map(function(c) {
         return '"' + (c.exec || '') + '"';
-    });
+    }).concat(program.args);
 
-    return _.merge(config, configFile);
+    return _.merge({ }, config, configFile);
 }
 
 function mergeDefaultsWithArgs(config) {
     // This will pollute config object with other attributes from program too
-    return _.merge(config, program);
+    return _.merge({ }, config, program);
 }
 
 function applyDynamicDefaults(config) {
@@ -294,6 +291,12 @@ function stripCmdQuotes(cmd) {
 }
 
 function run(commands) {
+    if (commands && commands.length == 0) {
+        program.outputHelp();
+        process.exit(0);
+        return;
+    }
+    
     var childrenInfo = {};
     var lastPrefixColor = _.get(chalk, chalk.gray.dim);
     var prefixColors = config.prefixColors.split(',');
