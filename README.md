@@ -48,8 +48,6 @@ In package.json, escape quotes:
 
 Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-copy-paste-this-frontend-template/blob/5cd2bde719654941bdfc0a42c6f1b8e69ae79980/package.json#L9).
 
-With no parameters, concurrently will try to load it's configuration from **concurrently.json**.
-
 Help:
 
 ```
@@ -94,8 +92,7 @@ Options:
   
   --restart-tries <times>          limit the number of respawn tries. Default: 1
 
-  --config <path>                  Path to a json configuration file.
-  This option can be used to load all option values from a provided json file.
+  --config <path>                  Path to a json configuration file.  The default is concurrently.json.
 
 Examples:
 
@@ -123,7 +120,7 @@ Examples:
 
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"
 
-- Example of a configuration file'
+- Example of a configuration file
 
      {
          "killOthers": false,
