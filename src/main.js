@@ -185,6 +185,10 @@ function parseArgs() {
             '   - Custom names and colored prefixes',
             '',
             '       $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"',
+            '',
+            '   - Shortened NPM run commands',
+            '',
+            '       $ concurrently npm:watch-node npm:watch-js npm:watch-css',
             ''
         ];
         console.log(help.join('\n'));

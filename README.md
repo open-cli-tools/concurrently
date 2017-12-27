@@ -46,6 +46,15 @@ In package.json, escape quotes:
 "start": "concurrently \"command1 arg\" \"command2 arg\""
 ```
 
+NPM run commands can be shortened:
+
+```bash
+concurrently "npm:watch-js" "npm:watch-css" "npm:watch-node"
+
+# Equivalent to:
+concurrently -n watch-js,watch-css,watch-node "npm run watch-js" "npm run watch-css" "npm run watch-node"
+```
+
 Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-copy-paste-this-frontend-template/blob/5cd2bde719654941bdfc0a42c6f1b8e69ae79980/package.json#L9).
 
 Help:
@@ -117,6 +126,10 @@ Examples:
  - Custom names and colored prefixes
 
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"
+
+ - Shortened NPM run commands
+
+     $ concurrently npm:watch-node npm:watch-js npm:watch-css
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
