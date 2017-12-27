@@ -225,6 +225,10 @@ function parseArgs() {
             '',
             '       $ concurrently -n js,srv "npm run watch-js" nodemon',
             '       srv:rs',
+            '',
+            '   - Shortened NPM run commands',
+            '',
+            '       $ concurrently npm:watch-node npm:watch-js npm:watch-css',
             ''
         ];
         console.log(help.join('\n'));
