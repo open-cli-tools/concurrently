@@ -11,6 +11,7 @@ function run(cmd, opts) {
         // If set to a function, it will be called for each line
         // written to the child process's stdout as (line, child)
         onOutputLine: undefined,
+        onErrorLine: undefined
     }, opts);
 
     var child;
@@ -27,6 +28,10 @@ function run(cmd, opts) {
         readLines(child, opts.onOutputLine);
     }
 
+    if (opts.onErrorLine) {
+        readLines(child, opts.onErrorLine, 'stderr');
+    }
+
     return new Promise(function(resolve, reject) {
         child.on('error', function(err) {
             reject(err);
@@ -38,9 +43,10 @@ function run(cmd, opts) {
     });
 }
 
-function readLines(child, callback) {
+function readLines(child, callback, src) {
+    src = src || 'stdout';
     var rl = readline.createInterface({
-        input: child.stdout,
+        input: child[src],
         output: null
     });
 
