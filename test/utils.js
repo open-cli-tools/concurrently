@@ -10,7 +10,7 @@ function run(cmd, opts) {
     opts = _.merge({
         // If set to a function, it will be called for each line
         // written to the child process's stdout as (line, child)
-        onOutputLine: undefined,
+        onOutputLine: undefined
     }, opts);
 
     var child;
