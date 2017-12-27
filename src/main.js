@@ -216,7 +216,7 @@ function stripCmdQuotes(cmd) {
 }
 
 function expandCmdShortcuts(cmd, idx, names) {
-    let shortcut = cmd.match(/^npm:(\S+)(.*)/);
+    var shortcut = cmd.match(/^npm:(\S+)(.*)/);
     if (shortcut) {
         if (!names[idx]) {
             names[idx] = shortcut[1];
