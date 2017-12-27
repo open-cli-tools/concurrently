@@ -69,7 +69,8 @@ function main() {
     config = mergeDefaultsWithArgs(config);
     applyDynamicDefaults(config)
 
-    run(program.args);
+    var cmds = program.args.map(stripCmdQuotes).map(expandCmdShortcuts);
+    run(cmds);
 }
 
 function parseArgs() {
@@ -213,14 +214,21 @@ function stripCmdQuotes(cmd) {
     }
 }
 
+function expandCmdShortcuts(cmd) {
+    let shortcut = cmd.match(/^npm:(\S+)(.*)/);
+    if (shortcut) {
+        return `npm run ${shortcut[1]}${shortcut[2]}`;
+    }
+
+    return cmd;
+}
+
 function run(commands) {
     var childrenInfo = {};
     var lastPrefixColor = _.get(chalk, chalk.gray.dim);
     var prefixColors = config.prefixColors.split(',');
     var names = config.names.split(config.nameSeparator);
     var children = _.map(commands, function(cmd, index) {
-        // Remove quotes.
-        cmd = stripCmdQuotes(cmd);
 
         var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
         if (IS_WINDOWS) {
