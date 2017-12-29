@@ -12,6 +12,7 @@ var supportsColor = require('supports-color');
 var IS_WINDOWS = /^win/.test(process.platform);
 
 var findChild = require('./findChild.js');
+var parseCmds = require('./parseCmds');
 
 var config = {
     // Kill other processes if one dies
@@ -73,12 +74,8 @@ function main() {
     parseArgs();
     config = mergeDefaultsWithArgs(config);
 
-    var names = config.names.split(config.nameSeparator);
-    var cmds = program.args.map(stripCmdQuotes);
-    cmds = cmds.map((cmd, idx) => {
-        return expandCmdShortcuts(cmd, idx, names);
-    });
-    run(cmds, names);
+    var cmds = parseCmds(program.args, config);
+    run(cmds);
 }
 
 function parseArgs() {
@@ -246,32 +243,10 @@ function mergeDefaultsWithArgs(config) {
     return _.merge(config, program);
 }
 
-function stripCmdQuotes(cmd) {
-    // Removes the quotes surrounding a command.
-    if (cmd[0] === '"' || cmd[0] === '\'') {
-        return cmd.substr(1, cmd.length - 2);
-    } else {
-        return cmd;
-    }
-}
-
-function expandCmdShortcuts(cmd, idx, names) {
-    var shortcut = cmd.match(/^npm:(\S+)(.*)/);
-    if (shortcut) {
-        if (!names[idx]) {
-            names[idx] = shortcut[1];
-        }
-        return `npm run ${shortcut[1]}${shortcut[2]}`;
-    }
-
-    return cmd;
-}
-
-function run(commands, names) {
+function run(commands) {
     var childrenInfo = {};
     var lastPrefixColor = _.get(chalk, chalk.gray.dim);
-    var prefixColors = config.prefixColors.split(',');
-    var children = _.map(commands, function(cmd, index) {
+    var children = _.map(commands, function(cmdInfo, index) {
 
         var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
         if (IS_WINDOWS) {
@@ -281,18 +256,17 @@ function run(commands, names) {
           spawnOpts.env = Object.assign({FORCE_COLOR: supportsColor.level}, process.env)
         }
 
-        var child = spawnChild(cmd, spawnOpts);
+        var child = spawnChild(cmdInfo.cmd, spawnOpts);
 
-        if (index < prefixColors.length) {
-            var prefixColorPath = prefixColors[index];
+        if (cmdInfo.color) {
+            var prefixColorPath = cmdInfo.color;
             lastPrefixColor = _.get(chalk, prefixColorPath, chalk.gray.dim);
         }
 
-        var name = index < names.length ? names[index] : '';
         childrenInfo[child.pid] = {
-            command: cmd,
+            command: cmdInfo.cmd,
             index: index,
-            name: name,
+            name: cmdInfo.name,
             options: spawnOpts,
             restartTries: config.restartTries,
             prefixColor: lastPrefixColor
