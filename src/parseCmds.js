@@ -7,15 +7,16 @@ module.exports = function (cmds, config) {
     let prefixColors = config.prefixColors ? config.prefixColors.split(',') : [];
 
     cmds = cmds.map(stripCmdQuotes);
-    cmds = cmds.map((cmd, idx) => {
-        return expandCmdShortcuts(cmd, idx, names);
-    });
 
-    return cmds.map((cmd, idx) => ({
+    cmds = cmds.map((cmd, idx) => ({
         cmd: cmd,
         name: names[idx] || '',
         color: prefixColors[idx]
     }));
+
+    cmds = cmds.map(expandCmdShortcuts);
+
+    return cmds;
 }
 
 function stripCmdQuotes(cmd) {
@@ -27,14 +28,14 @@ function stripCmdQuotes(cmd) {
     }
 }
 
-function expandCmdShortcuts(cmd, idx, names) {
-    let shortcut = cmd.match(/^npm:(\S+)(.*)/);
+function expandCmdShortcuts(cmd) {
+    let shortcut = cmd.cmd.match(/^npm:(\S+)(.*)/);
     if (shortcut) {
-        if (!names[idx]) {
-            names[idx] = shortcut[1];
-        }
-        return `npm run ${shortcut[1]}${shortcut[2]}`;
-    }
+        cmd.cmd = `npm run ${shortcut[1]}${shortcut[2]}`;
 
+        if (!cmd.name) {
+            cmd.name = shortcut[1];
+        }
+    }
     return cmd;
 }
