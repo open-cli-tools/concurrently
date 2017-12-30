@@ -14,7 +14,7 @@ module.exports = function (cmds, config) {
         color: prefixColors[idx]
     }));
 
-    cmds = cmds.map(expandCmdShortcuts);
+    cmds = [].concat(...cmds.map(expandCmdShortcuts));
 
     return cmds;
 }
@@ -37,5 +37,5 @@ function expandCmdShortcuts(cmd) {
             cmd.name = shortcut[1];
         }
     }
-    return cmd;
+    return [ cmd ];
 }
