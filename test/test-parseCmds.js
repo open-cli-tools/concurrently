@@ -1,13 +1,13 @@
 "use strict";
+const assert = require('assert');
 
-var assert = require('assert');
+const parseCmds = require('../src/parseCmds');
 
-var parseCmds = require('../src/parseCmds');
 
 describe('parseCmds', () => {
 
     it('returns a list of command objects', () => {
-        var cmds = parseCmds([ 'echo test' ]);
+        let cmds = parseCmds([ 'echo test' ]);
 
         assert.deepStrictEqual(cmds, [
             {
@@ -19,7 +19,7 @@ describe('parseCmds', () => {
     });
 
     it('strips quotes', () => {
-        var cmds = parseCmds([ '"echo test"' ]);
+        let cmds = parseCmds([ '"echo test"' ]);
 
         assert.deepStrictEqual(cmds, [
             {
@@ -31,7 +31,7 @@ describe('parseCmds', () => {
     });
 
     it('assigns names', () => {
-        var cmds = parseCmds([ 'echo test', 'echo test2' ], {
+        let cmds = parseCmds([ 'echo test', 'echo test2' ], {
             names: 'echo-test,echo-test2'
         });
 
@@ -50,7 +50,7 @@ describe('parseCmds', () => {
     });
 
     it('assigns names with custom separator', () => {
-        var cmds = parseCmds([ 'echo test', 'echo test2' ], {
+        let cmds = parseCmds([ 'echo test', 'echo test2' ], {
             names: 'echo-test|echo-test2',
             nameSeparator: '|'
         });
@@ -70,7 +70,7 @@ describe('parseCmds', () => {
     });
 
     it('assigns colours', () => {
-        var cmds = parseCmds([ 'echo test', 'echo test2' ], {
+        let cmds = parseCmds([ 'echo test', 'echo test2' ], {
             prefixColors: 'blue'
         });
 
@@ -89,7 +89,7 @@ describe('parseCmds', () => {
     });
 
     it('expands npm: shortcut', () => {
-        var cmds = parseCmds([ 'npm:watch:js' ]);
+        let cmds = parseCmds([ 'npm:watch:js' ]);
 
         assert.deepStrictEqual(cmds, [
             {
@@ -101,7 +101,7 @@ describe('parseCmds', () => {
     });
 
     it('expands npm: shortcut with assigned name', () => {
-        var cmds = parseCmds([ 'npm:watch:js' ], {
+        let cmds = parseCmds([ 'npm:watch:js' ], {
             names: 'js'
         });
 

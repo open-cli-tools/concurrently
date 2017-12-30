@@ -3,8 +3,8 @@
 module.exports = function (cmds, config) {
     config = config || {};
 
-    var names = (config.names || '').split(config.nameSeparator || ',');
-    var prefixColors = config.prefixColors ? config.prefixColors.split(',') : [];
+    let names = (config.names || '').split(config.nameSeparator || ',');
+    let prefixColors = config.prefixColors ? config.prefixColors.split(',') : [];
 
     cmds = cmds.map(stripCmdQuotes);
     cmds = cmds.map((cmd, idx) => {
@@ -28,7 +28,7 @@ function stripCmdQuotes(cmd) {
 }
 
 function expandCmdShortcuts(cmd, idx, names) {
-    var shortcut = cmd.match(/^npm:(\S+)(.*)/);
+    let shortcut = cmd.match(/^npm:(\S+)(.*)/);
     if (shortcut) {
         if (!names[idx]) {
             names[idx] = shortcut[1];
