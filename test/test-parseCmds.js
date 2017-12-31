@@ -1,10 +1,16 @@
 "use strict";
 const assert = require('assert');
+const sinon = require('sinon');
 
 const parseCmds = require('../src/parseCmds');
 
+const sandbox = sinon.createSandbox();
 
 describe('parseCmds', () => {
+
+    afterEach(() => {
+        sandbox.restore();
+    });
 
     it('returns a list of command objects', () => {
         let cmds = parseCmds([ 'echo test' ]);
@@ -109,6 +115,60 @@ describe('parseCmds', () => {
             {
                 cmd: 'npm run watch:js',
                 name: 'js',
+                color: undefined
+            }
+        ]);
+    });
+
+    it('expands npm: shortcut with wildcard', () => {
+        sandbox.stub(require('../src/pkgInfo'), 'getScripts').returns([
+            'test', 'start', 'watch:js', 'watch:css', 'watch:node'
+        ]);
+
+        let cmds = parseCmds([ 'npm:watch:*' ]);
+
+        assert.deepStrictEqual(cmds, [
+            {
+                cmd: 'npm run watch:js',
+                name: 'js',
+                color: undefined
+            },
+            {
+                cmd: 'npm run watch:css',
+                name: 'css',
+                color: undefined
+            },
+            {
+                cmd: 'npm run watch:node',
+                name: 'node',
+                color: undefined
+            }
+        ]);
+    });
+
+    it('expands npm: shortcut with wildcard and name prefix', () => {
+        sandbox.stub(require('../src/pkgInfo'), 'getScripts').returns([
+            'test', 'start', 'watch:js', 'watch:css', 'watch:node'
+        ]);
+
+        let cmds = parseCmds([ 'npm:watch:*' ], {
+            names: 'w:'
+        });
+
+        assert.deepStrictEqual(cmds, [
+            {
+                cmd: 'npm run watch:js',
+                name: 'w:js',
+                color: undefined
+            },
+            {
+                cmd: 'npm run watch:css',
+                name: 'w:css',
+                color: undefined
+            },
+            {
+                cmd: 'npm run watch:node',
+                name: 'w:node',
                 color: undefined
             }
         ]);
