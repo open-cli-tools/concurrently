@@ -27,6 +27,8 @@ function run(cmd, opts) {
         readLines(child, opts.onOutputLine);
     }
 
+    readLines(child, (l) => { console.log(l); }, 'stderr');
+
     return new Promise(function(resolve, reject) {
         child.on('error', function(err) {
             reject(err);
@@ -38,9 +40,11 @@ function run(cmd, opts) {
     });
 }
 
-function readLines(child, callback) {
+function readLines(child, callback, src) {
+    src = src || 'stdout';
+
     var rl = readline.createInterface({
-        input: child.stdout,
+        input: child[src],
         output: null
     });
 
