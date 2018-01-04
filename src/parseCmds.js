@@ -13,13 +13,14 @@ module.exports = function (cmds, config) {
 
     cmds = cmds.map((cmd, idx) => ({
         cmd: cmd,
-        name: names[idx] || '',
-        color: prefixColors[idx]
+        name: names[idx] || ''
     }));
 
     cmds = _.flatMap(cmds, expandCmdShortcuts);
 
-    return cmds;
+    return cmds.map((cmd, idx) => Object.assign(cmd, {
+        color: prefixColors[idx]
+    }));
 }
 
 function stripCmdQuotes(cmd) {
