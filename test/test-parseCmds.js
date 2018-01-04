@@ -173,4 +173,32 @@ describe('parseCmds', () => {
             }
         ]);
     });
+
+    it('applies prefix colors to expanded commands', () => {
+        sandbox.stub(require('../src/pkgInfo'), 'getScripts').returns([
+            'test', 'start', 'watch:js', 'watch:css', 'watch:node'
+        ]);
+
+        let cmds = parseCmds([ 'npm:watch:*' ], {
+            prefixColors: 'blue,magenta,cyan'
+        });
+
+        assert.deepStrictEqual(cmds, [
+            {
+                cmd: 'npm run watch:js',
+                name: 'js',
+                color: 'blue'
+            },
+            {
+                cmd: 'npm run watch:css',
+                name: 'css',
+                color: 'magenta'
+            },
+            {
+                cmd: 'npm run watch:node',
+                name: 'node',
+                color: 'cyan'
+            }
+        ]);
+    });
 });
