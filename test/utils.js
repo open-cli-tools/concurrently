@@ -11,6 +11,7 @@ function run(cmd, opts) {
         // If set to a function, it will be called for each line
         // written to the child process's stdout as (line, child)
         onOutputLine: undefined,
+        onErrorLine: undefined
     }, opts);
 
     var child;
@@ -42,7 +43,6 @@ function run(cmd, opts) {
 
 function readLines(child, callback, src) {
     src = src || 'stdout';
-
     var rl = readline.createInterface({
         input: child[src],
         output: null

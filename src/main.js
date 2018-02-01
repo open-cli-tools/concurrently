@@ -72,9 +72,13 @@ function main() {
 
     parseArgs();
     config = mergeDefaultsWithArgs(config);
-    applyDynamicDefaults(config)
 
-    run(program.args);
+    var names = config.names.split(config.nameSeparator);
+    var cmds = program.args.map(stripCmdQuotes);
+    cmds = cmds.map((cmd, idx) => {
+        return expandCmdShortcuts(cmd, idx, names);
+    });
+    run(cmds, names);
 }
 
 function parseArgs() {
@@ -202,6 +206,10 @@ function parseArgs() {
             '',
             '       $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"',
             '',
+            '   - Shortened NPM run commands',
+            '',
+            '       $ concurrently npm:watch-node npm:watch-js npm:watch-css',
+            '',
             '   - Send input to default',
             '',
             '       $ concurrently "nodemon" "npm run watch-js"',
@@ -238,12 +246,6 @@ function mergeDefaultsWithArgs(config) {
     return _.merge(config, program);
 }
 
-function applyDynamicDefaults(config) {
-    if (!config.prefix) {
-        config.prefix = config.names ? 'name' : 'index';
-    }
-}
-
 function stripCmdQuotes(cmd) {
     // Removes the quotes surrounding a command.
     if (cmd[0] === '"' || cmd[0] === '\'') {
@@ -253,14 +255,23 @@ function stripCmdQuotes(cmd) {
     }
 }
 
-function run(commands) {
+function expandCmdShortcuts(cmd, idx, names) {
+    var shortcut = cmd.match(/^npm:(\S+)(.*)/);
+    if (shortcut) {
+        if (!names[idx]) {
+            names[idx] = shortcut[1];
+        }
+        return `npm run ${shortcut[1]}${shortcut[2]}`;
+    }
+
+    return cmd;
+}
+
+function run(commands, names) {
     var childrenInfo = {};
     var lastPrefixColor = _.get(chalk, chalk.gray.dim);
     var prefixColors = config.prefixColors.split(',');
-    var names = config.names.split(config.nameSeparator);
     var children = _.map(commands, function(cmd, index) {
-        // Remove quotes.
-        cmd = stripCmdQuotes(cmd);
 
         var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
         if (IS_WINDOWS) {
@@ -482,8 +493,9 @@ function colorText(text, color) {
 
 function getPrefix(childrenInfo, child) {
     var prefixes = getPrefixes(childrenInfo, child);
-    if (_.includes(_.keys(prefixes), config.prefix)) {
-        return '[' + prefixes[config.prefix] + '] ';
+    var prefixType = config.prefix || prefixes.name ? 'name' : 'index';
+    if (_.includes(_.keys(prefixes), prefixType)) {
+        return '[' + prefixes[prefixType] + '] ';
     }
 
     return _.reduce(prefixes, function(memo, val, key) {

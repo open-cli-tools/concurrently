@@ -11,7 +11,9 @@
     "node": ">=4.0.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "echo": "echo",
+    "echo-test": "echo test"
   },
   "repository": {
     "type": "git",
