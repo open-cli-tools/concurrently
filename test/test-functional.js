@@ -137,6 +137,24 @@ describe('concurrently', function() {
             });
     });
 
+    it('--prefix should not display if prefix is empty', () => {
+        var collectedLines = []
+
+        return run('node ./src/main.js "echo one" "echo two" --prefix ""', {
+            onOutputLine: (line) => {
+                collectedLines.push(line)
+            }
+        })
+            .then(function(exitCode) {
+                assert.strictEqual(exitCode, 0);
+
+                assert.deepEqual(collectedLines, [
+                    'one',
+                    'two'
+                ]);
+            });
+    });
+
     it('--names should set a different default prefix', () => {
         var collectedLines = []
 

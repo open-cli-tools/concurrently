@@ -24,7 +24,7 @@ var config = {
 
     // Prefix logging with pid
     // Possible values: 'pid', 'none', 'time', 'command', 'index', 'name'
-    prefix: '',
+    prefix: undefined,
 
     // List of custom names to be used in prefix template
     names: '',
@@ -434,10 +434,20 @@ function colorText(text, color) {
 }
 
 function getPrefix(childrenInfo, child) {
+    if (config.prefix === '') {
+        return ''
+    }
+
     var prefixes = getPrefixes(childrenInfo, child);
     var prefixType = config.prefix || prefixes.name ? 'name' : 'index';
     if (_.includes(_.keys(prefixes), prefixType)) {
-        return '[' + prefixes[prefixType] + '] ';
+        var prefix =prefixes[prefixType];
+
+        if (!prefix) {
+            return prefix;
+        }
+
+        return '[' + prefix + '] ';
     }
 
     return _.reduce(prefixes, function(memo, val, key) {
@@ -503,7 +513,9 @@ function logWithPrefix(prefix, prefixColor, text, color) {
 
     var lines = text.split('\n');
     // Do not bgColor trailing space
-    var coloredPrefix = colorText(prefix.replace(/ $/, ''), prefixColor) + ' ';
+    var coloredPrefix = prefix
+        ? colorText(prefix.replace(/ $/, ''), prefixColor) + ' '
+        : prefix;
     var paddedLines = _.map(lines, function(line, index) {
         var coloredLine = color ? colorText(line, color) : line;
         if (index !== 0 && index !== (lines.length - 1)) {
