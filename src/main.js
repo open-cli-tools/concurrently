@@ -441,7 +441,7 @@ function getPrefix(childrenInfo, child) {
     var prefixes = getPrefixes(childrenInfo, child);
     var prefixType = config.prefix || prefixes.name ? 'name' : 'index';
     if (_.includes(_.keys(prefixes), prefixType)) {
-        var prefix =prefixes[prefixType];
+        var prefix = prefixes[prefixType];
 
         if (!prefix) {
             return prefix;
