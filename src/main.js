@@ -443,7 +443,7 @@ function getPrefix(childrenInfo, child) {
     if (_.includes(_.keys(prefixes), prefixType)) {
         var prefix = prefixes[prefixType];
 
-        if (!prefix) {
+        if (prefix === undefined) {
             return prefix;
         }
 
