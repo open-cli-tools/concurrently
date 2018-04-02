@@ -150,7 +150,9 @@ describe('concurrently', function() {
 
                 assert.deepEqual(collectedLines, [
                     'one',
-                    'two'
+                    'two',
+                    'echo two exited with code 0',
+                    'echo one exited with code 0'
                 ]);
             });
     });
