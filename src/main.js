@@ -525,7 +525,7 @@ function logWithPrefix(prefix, prefixColor, text, color) {
     });
 
     if (!lastChar || lastChar == '\n' ){
-        process.stdout.write(coloredPrefix);
+        process.stdout.write(`${coloredPrefix}`);
     }
 
     lastChar = text[text.length - 1];
