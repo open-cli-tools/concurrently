@@ -515,7 +515,7 @@ function logWithPrefix(prefix, prefixColor, text, color) {
     // Do not bgColor trailing space
     var coloredPrefix = prefix
         ? colorText(prefix.replace(/ $/, ''), prefixColor) + ' '
-        : prefix;
+        : prefix + '';
     var paddedLines = _.map(lines, function(line, index) {
         var coloredLine = color ? colorText(line, color) : line;
         if (index !== 0 && index !== (lines.length - 1)) {
@@ -525,7 +525,7 @@ function logWithPrefix(prefix, prefixColor, text, color) {
     });
 
     if (!lastChar || lastChar == '\n' ){
-        process.stdout.write(`${coloredPrefix}`);
+        process.stdout.write(coloredPrefix);
     }
 
     lastChar = text[text.length - 1];
