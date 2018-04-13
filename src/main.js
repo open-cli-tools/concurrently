@@ -494,31 +494,36 @@ var lastChar;
 
 function logWithPrefix(prefix, prefixColor, text, color) {
 
-     if (config.raw) {
+    if (config.raw) {
         process.stdout.write(text);
         return;
     }
 
     text = text.replace(/\u2026/g,'...'); // Ellipsis
+    text = text.replace(/\r/g, '');
 
-    var lines = text.split('\n');
-    // Do not bgColor trailing space
-    var coloredPrefix = colorText(prefix.replace(/ $/, ''), prefixColor) + ' ';
-    var paddedLines = _.map(lines, function(line, index) {
-        var coloredLine = color ? colorText(line, color) : line;
-        if (index !== 0 && index !== (lines.length - 1)) {
-            coloredLine = coloredPrefix + coloredLine;
+    if (text.length > 0) {
+        var lines = text.split('\n');
+        // Do not bgColor trailing space
+        var coloredPrefix = colorText(prefix.replace(/ $/, ''), prefixColor) + ' ';
+        var paddedLines = _.map(lines, function(line, index) {
+            var coloredLine = color ? colorText(line, color) : line;
+            if (index !== 0 && index !== (lines.length - 1)) {
+                coloredLine = coloredPrefix + coloredLine;
+            }
+            return coloredLine;
+        });
+
+        if (!lastChar || lastChar == '\n' ){
+            process.stdout.write(coloredPrefix);
         }
-        return coloredLine;
-    });
 
-    if (!lastChar || lastChar == '\n' ){
-        process.stdout.write(coloredPrefix);
+        lastChar = text[text.length - 1];
+
+        process.stdout.write(paddedLines.join('\n'));
     }
 
-    lastChar = text[text.length - 1];
 
-    process.stdout.write(paddedLines.join('\n'));
 }
 
 main();
