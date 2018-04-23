@@ -11,6 +11,8 @@ var spawn = require('spawn-command');
 var supportsColor = require('supports-color');
 var IS_WINDOWS = /^win/.test(process.platform);
 
+var findChild = require('./findChild.js');
+
 var config = {
     // Kill other processes if one dies
     killOthers: false,
@@ -55,7 +57,10 @@ var config = {
     restartAfter: 0,
 
     // By default, restart once
-    restartTries: 1
+    restartTries: 1,
+
+    // Default identifier for child to which input on stdin should be sent.
+    defaultInputTarget: '0'
 };
 
 function main() {
@@ -156,10 +161,25 @@ function parseArgs() {
             '--restart-tries <times>',
             'limit the number of respawn tries. Default: ' +
             config.restartTries + '\n'
+
+        )
+        .option(
+            '--default-input-target <identifier>',
+            'identifier for child process to which input on ' +
+            'stdin should be sent if not specified at start ' +
+            'of input. Can be either the index or the name ' +
+            'of the process. Default: ' + config.defaultInputTarget + '\n'
         );
 
     program.on('--help', function() {
         var help = [
+            '  Input:',
+            '',
+            '  Input can be sent to any of the child processes using either the name or',
+            '  index of the command followed by a colon. If no child identifier is',
+            '  specified then the input will be sent to the child specified by the',
+            '  `--default-input-target` option, which defaults to index 0.',
+            '',
             '  Examples:',
             '',
             '   - Kill other processes if one exits or dies',
@@ -189,6 +209,26 @@ function parseArgs() {
             '   - Shortened NPM run commands',
             '',
             '       $ concurrently npm:watch-node npm:watch-js npm:watch-css',
+            '',
+            '   - Send input to default',
+            '',
+            '       $ concurrently "nodemon" "npm run watch-js"',
+            '       rs  # Sends rs command to nodemon process',
+            '',
+            '   - Specify a default-input-target',
+            '',
+            '       $ concurrently --default-input-target 1 "npm run watch-js" nodemon',
+            '       rs',
+            '',
+            '   - Send input to specific child identified by index',
+            '',
+            '       $ concurrently "npm run watch-js" nodemon',
+            '       1:rs',
+            '',
+            '   - Send input to specific child identified by name',
+            '',
+            '       $ concurrently -n js,srv "npm run watch-js" nodemon',
+            '       srv:rs',
             ''
         ];
         console.log(help.join('\n'));
@@ -270,6 +310,24 @@ function run(commands, names) {
           treeKill(child.pid, signal);
         });
       });
+    });
+
+    process.stdin.on('data', (chunk) => {
+        var line = chunk.toString();
+
+        var targetId = config.defaultInputTarget;
+        if (line.indexOf(':') >= 0) {
+            var parts = line.split(':');
+            targetId = parts[0];
+            line = parts[1];
+        }
+
+        var target = findChild(targetId, children, childrenInfo);
+        if (target) {
+            target.stdin.write(line);
+        } else {
+            logError('', chalk.gray.dim, `Unable to find command [${targetId}]\n`);
+        }
     });
 }
 

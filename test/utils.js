@@ -32,6 +32,8 @@ function run(cmd, opts) {
         readLines(child, opts.onErrorLine, 'stderr');
     }
 
+    readLines(child, (l) => { console.log(l); }, 'stderr');
+
     return new Promise(function(resolve, reject) {
         child.on('error', function(err) {
             reject(err);

@@ -1,3 +1,4 @@
+"use strict";
 // Test basic usage of cli
 
 var path = require('path');
@@ -286,6 +287,85 @@ describe('concurrently', function() {
             assert.strictEqual(exitCode, 0);
             assert.ok(echo1);
             assert.ok(echo2);
+        })
+        .then(done, done);
+    });
+
+    it('sends input to default stdin target process', (done) => {
+        let echoed = false;
+        run('node ./src/main.js "node ./test/support/read-echo.js"', {
+            onOutputLine: (line, child) => {
+                if (/READING/.test(line)) {
+                    child.stdin.write('stop\n');
+                }
+
+                if (/\[\d+\] stop/.test(line)) {
+                    echoed = true;
+                }
+            }
+        })
+        .then(() => {
+            assert(echoed);
+        })
+        .then(done, done);
+    });
+
+    it('sends input to specified default stdin target process', (done) => {
+        let echoed = false;
+        run('node ./src/main.js --default-input-target 1 "echo test" "node ./test/support/read-echo.js"', {
+            onOutputLine: (line, child) => {
+                if (/READING/.test(line)) {
+                    child.stdin.write('stop\n');
+                }
+
+                if (/\[1\] stop/.test(line)) {
+                    echoed = true;
+                }
+            }
+        })
+        .then(() => {
+            assert(echoed);
+        })
+        .then(done, done);
+    });
+
+    it('sends input to child specified by index', (done) => {
+        let echoed = false;
+        run('node ./src/main.js "echo test" "node ./test/support/read-echo.js"', {
+            onOutputLine: (line, child) => {
+                if (/READING/.test(line)) {
+                    child.stdin.write('1:stop\n');
+                }
+
+                if (/\[1\] stop/.test(line)) {
+                    echoed = true;
+                }
+            }
+        })
+        .then(() => {
+            assert(echoed);
+        })
+        .then(done, done);
+    });
+
+    it('emits error when specified read stream is not found', (done) => {
+        let errorEmitted = false;
+        run('node ./src/main.js "echo test" "node ./test/support/read-echo.js"', {
+            onOutputLine: (line, child) => {
+                if (/READING/.test(line)) {
+                    child.stdin.write('2:stop\n');
+                }
+
+                if ('Unable to find command [2]' === line.trim()) {
+                    errorEmitted = true;
+
+                    // Stop read process to continue the test
+                    child.stdin.write('1:stop\n');
+                }
+            }
+        })
+        .then(() => {
+            assert(errorEmitted);
         })
         .then(done, done);
     });

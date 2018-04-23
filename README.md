@@ -101,6 +101,15 @@ Options:
   
   --restart-tries <times>          limit the number of respawn tries. Default: 1
 
+  --default-input-target <identifier> identifier for child process to which input on stdin should be sent if not specified at start of input. Can be either the index or the name of the process. Default: 0
+
+Input:
+
+Input can be sent to any of the child processes using either the name or index
+of the command followed by a colon. If no child identifier is specified then the
+input will be sent to the child specified by the `--default-input-target`
+option, which defaults to index 0.
+
 Examples:
 
  - Kill other processes if one exits or dies
@@ -126,10 +135,30 @@ Examples:
  - Custom names and colored prefixes
 
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"
-
+     
  - Shortened NPM run commands
 
      $ concurrently npm:watch-node npm:watch-js npm:watch-css
+
+ - Send input to default
+
+     $ concurrently "nodemon" "npm run watch-js"
+     rs  # Sends rs command to nodemon process
+
+ - Specify a default-input-target
+
+     $ concurrently --default-input-target 1 "npm run watch-js" nodemon
+     rs
+
+ - Send input to specific child identified by index
+
+     $ concurrently "npm run watch-js" nodemon
+     1:rs
+
+ - Send input to specific child identified by name
+
+     $ concurrently -n js,srv "npm run watch-js" nodemon
+     srv:rs
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```
