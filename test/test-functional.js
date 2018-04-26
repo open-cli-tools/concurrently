@@ -369,6 +369,26 @@ describe('concurrently', function() {
         })
         .then(done, done);
     });
+
+    it('expands npm run shortcut wildcards', (done) => {
+        var echoBeep = false;
+        var echoBoop = false;
+        run('node ./src/main.js "npm:echo-sound-*"', {
+            onOutputLine: (line, child) => {
+                if (line === '[beep] beep') {
+                    echoBeep = true;
+                } else if (line === '[boop] boop') {
+                    echoBoop = true;
+                }
+            }
+        })
+        .then((exitCode) => {
+            assert.strictEqual(exitCode, 0);
+            assert.ok(echoBeep);
+            assert.ok(echoBoop);
+        })
+        .then(done, done);
+    });
 });
 
 function resolve(relativePath) {

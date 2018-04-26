@@ -13,7 +13,9 @@
   "scripts": {
     "test": "mocha",
     "echo": "echo",
-    "echo-test": "echo test"
+    "echo-test": "echo test",
+    "echo-sound-beep": "echo beep",
+    "echo-sound-boop": "echo boop"
   },
   "repository": {
     "type": "git",
