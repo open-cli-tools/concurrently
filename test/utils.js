@@ -10,7 +10,8 @@ function run(cmd, opts) {
     opts = _.merge({
         // If set to a function, it will be called for each line
         // written to the child process's stdout as (line, child)
-        onOutputLine: undefined
+        onOutputLine: undefined,
+        onErrorLine: undefined
     }, opts);
 
     var child;
@@ -25,6 +26,10 @@ function run(cmd, opts) {
 
     if (opts.onOutputLine) {
         readLines(child, opts.onOutputLine);
+    }
+
+    if (opts.onErrorLine) {
+        readLines(child, opts.onErrorLine, 'stderr');
     }
 
     readLines(child, (l) => { console.log(l); }, 'stderr');

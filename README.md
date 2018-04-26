@@ -166,6 +166,30 @@ Examples:
  - Custom names and colored prefixes
 
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"
+     
+ - Shortened NPM run commands
+
+     $ concurrently npm:watch-node npm:watch-js npm:watch-css
+
+ - Send input to default
+
+     $ concurrently "nodemon" "npm run watch-js"
+     rs  # Sends rs command to nodemon process
+
+ - Specify a default-input-target
+
+     $ concurrently --default-input-target 1 "npm run watch-js" nodemon
+     rs
+
+ - Send input to specific child identified by index
+
+     $ concurrently "npm run watch-js" nodemon
+     1:rs
+
+ - Send input to specific child identified by name
+
+     $ concurrently -n js,srv "npm run watch-js" nodemon
+     srv:rs
 
  - Send input to default
 
