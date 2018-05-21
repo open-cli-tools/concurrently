@@ -55,6 +55,37 @@ concurrently "npm:watch-js" "npm:watch-css" "npm:watch-node"
 concurrently -n watch-js,watch-css,watch-node "npm run watch-js" "npm run watch-css" "npm run watch-node"
 ```
 
+NPM shortened commands also support wildcards. Given the following scripts in
+package.json:
+
+```javascript
+{
+    //...
+    "scripts": {
+        // ...
+        "watch-js": "...",
+        "watch-css": "...",
+        "watch-node": "...",
+        // ...
+    },
+    // ...
+}
+```
+
+```bash
+concurrently "npm:watch-*"
+
+# Equivalent to:
+concurrently -n js,css,node "npm run watch-js" "npm run watch-css" "npm run watch-node"
+
+# Any name provided for the wildcard command will be used as a prefix to the wildcard
+# part of the script name:
+concurrently -n w: npm:watch-*
+
+# Equivalent to:
+concurrently -n w:js,w:css,w:node "npm run watch-js" "npm run watch-css" "npm run watch-node"
+```
+
 Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-copy-paste-this-frontend-template/blob/5cd2bde719654941bdfc0a42c6f1b8e69ae79980/package.json#L9).
 
 Help:
@@ -159,6 +190,34 @@ Examples:
 
      $ concurrently -n js,srv "npm run watch-js" nodemon
      srv:rs
+
+ - Send input to default
+
+     $ concurrently "nodemon" "npm run watch-js"
+     rs  # Sends rs command to nodemon process
+
+ - Specify a default-input-target
+
+     $ concurrently --default-input-target 1 "npm run watch-js" nodemon
+     rs
+
+ - Send input to specific child identified by index
+
+     $ concurrently "npm run watch-js" nodemon
+     1:rs
+
+ - Send input to specific child identified by name
+
+     $ concurrently -n js,srv "npm run watch-js" nodemon
+     srv:rs
+
+ - Shortened NPM run commands
+
+     $ concurrently npm:watch-node npm:watch-js npm:watch-css
+
+ - Shortened NPM run command with wildcard
+
+     $ concurrently npm:watch-*
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
 ```

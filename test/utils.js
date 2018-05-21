@@ -47,6 +47,7 @@ function run(cmd, opts) {
 
 function readLines(child, callback, src) {
     src = src || 'stdout';
+
     var rl = readline.createInterface({
         input: child[src],
         output: null

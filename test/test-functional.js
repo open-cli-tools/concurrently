@@ -271,26 +271,6 @@ describe('concurrently', function() {
       });
     });
 
-    it('should expand npm: command shortcuts', (done) => {
-        var echo1 = false;
-        var echo2 = false;
-        run('node ./src/main.js "npm:echo-test" "npm:echo -- testarg"', {
-            onOutputLine: function (line, child) {
-                if (line === '[echo-test] test') {
-                    echo1 = true;
-                } else if (line === '[echo] testarg') {
-                    echo2 = true;
-                }
-            }
-        })
-        .then((exitCode) => {
-            assert.strictEqual(exitCode, 0);
-            assert.ok(echo1);
-            assert.ok(echo2);
-        })
-        .then(done, done);
-    });
-
     it('sends input to default stdin target process', (done) => {
         let echoed = false;
         run('node ./src/main.js "node ./test/support/read-echo.js"', {
@@ -366,6 +346,46 @@ describe('concurrently', function() {
         })
         .then(() => {
             assert(errorEmitted);
+        })
+        .then(done, done);
+    });
+
+    it('should expand npm: command shortcuts', (done) => {
+        var echo1 = false;
+        var echo2 = false;
+        run('node ./src/main.js "npm:echo-test" "npm:echo -- testarg"', {
+            onOutputLine: function (line, child) {
+                if (line === '[echo-test] test') {
+                    echo1 = true;
+                } else if (line === '[echo] testarg') {
+                    echo2 = true;
+                }
+            }
+        })
+        .then((exitCode) => {
+            assert.strictEqual(exitCode, 0);
+            assert.ok(echo1);
+            assert.ok(echo2);
+        })
+        .then(done, done);
+    });
+
+    it('expands npm run shortcut wildcards', (done) => {
+        var echoBeep = false;
+        var echoBoop = false;
+        run('node ./src/main.js "npm:echo-sound-*"', {
+            onOutputLine: (line, child) => {
+                if (line === '[beep] beep') {
+                    echoBeep = true;
+                } else if (line === '[boop] boop') {
+                    echoBoop = true;
+                }
+            }
+        })
+        .then((exitCode) => {
+            assert.strictEqual(exitCode, 0);
+            assert.ok(echoBeep);
+            assert.ok(echoBoop);
         })
         .then(done, done);
     });
