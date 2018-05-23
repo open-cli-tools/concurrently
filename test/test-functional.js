@@ -221,7 +221,7 @@ describe('concurrently', function() {
                 }
             }
         }).then(function() {
-            if (restartedTimes == 2) {
+            if (restartedTimes === 2) {
                 done();
             } else {
                 done(new Error('No restarted process twice'));

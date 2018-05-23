@@ -1,0 +1,13 @@
+{
+    "root": true,
+    "env": {
+        "browser": false,
+        "node": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 6
+    },
+    "rules": {
+        "eqeqeq": ["error", "always", { "null": "ignore" }]
+    }
+}
