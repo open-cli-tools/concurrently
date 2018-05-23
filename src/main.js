@@ -515,7 +515,9 @@ function log(prefix, prefixColor, text) {
 }
 
 function logEvent(prefix, prefixColor, text) {
-    if (config.raw) return;
+    if (config.raw) {
+        return;
+    }
 
     logWithPrefix(prefix, prefixColor, text + '\n', chalk.gray.dim);
 }

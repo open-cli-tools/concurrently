@@ -8,6 +8,7 @@
         "ecmaVersion": 6
     },
     "rules": {
+        "curly": "error",
         "eqeqeq": ["error", "always", { "null": "ignore" }],
         "indent": ["error", 4]
     }
