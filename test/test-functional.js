@@ -354,7 +354,7 @@ describe('concurrently', function() {
         let echo1 = false;
         let echo2 = false;
         run('node ./src/main.js "npm:echo-test" "npm:echo -- testarg"', {
-            onOutputLine: function (line, child) {
+            onOutputLine: function(line, child) {
                 if (line === '[echo-test] test') {
                     echo1 = true;
                 } else if (line === '[echo] testarg') {

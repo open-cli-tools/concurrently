@@ -3,7 +3,7 @@ const _ = require('lodash');
 
 const pkgInfo = require('./pkgInfo');
 
-module.exports = function (cmds, config) {
+module.exports = function(cmds, config) {
     config = config || {};
 
     const names = (config.names || '').split(config.nameSeparator || ',');

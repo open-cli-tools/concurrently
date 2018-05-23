@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function (targetId, children, childrenInfo) {
+module.exports = function(targetId, children, childrenInfo) {
 
     return children.find((child) => {
         return (

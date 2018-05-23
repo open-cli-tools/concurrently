@@ -11,7 +11,7 @@ function getPkg() {
     return pkg;
 }
 
-exports.getScripts = function () {
+exports.getScripts = function() {
     const pkg = getPkg();
     return Object.keys(pkg.scripts || {});
 };
