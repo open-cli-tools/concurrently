@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const readPkg = require('read-pkg');
 

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 const _ = require('lodash');
 
 const pkgInfo = require('./pkgInfo');

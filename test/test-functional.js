@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 // Test basic usage of cli
 
 var path = require('path');

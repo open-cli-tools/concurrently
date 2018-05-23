@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 process.stdin.on('data', (chunk) => {
     let line = chunk.toString().trim();
@@ -9,4 +9,4 @@ process.stdin.on('data', (chunk) => {
     }
 });
 
-console.log("READING");
+console.log('READING');
