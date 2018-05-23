@@ -21,7 +21,7 @@ module.exports = function (cmds, config) {
     return cmds.map((cmd, idx) => Object.assign(cmd, {
         color: prefixColors[idx]
     }));
-}
+};
 
 function stripCmdQuotes(cmd) {
     // Removes the quotes surrounding a command.

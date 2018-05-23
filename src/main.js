@@ -257,7 +257,7 @@ function run(commands) {
             spawnOpts.detached = false;
         }
         if (supportsColor) {
-            spawnOpts.env = Object.assign({FORCE_COLOR: supportsColor.level}, process.env)
+            spawnOpts.env = Object.assign({FORCE_COLOR: supportsColor.level}, process.env);
         }
 
         var child = spawnChild(cmdInfo.cmd, spawnOpts);
@@ -368,7 +368,7 @@ function handleClose(streams, children, childrenInfo) {
     var exitCodes = [];
     var closeStreams = _.map(streams, 'close');
     var closeStream = Rx.Observable.merge.apply(this, closeStreams);
-    var othersKilled = false
+    var othersKilled = false;
 
     // TODO: Is it possible that amount of close events !== count of spawned?
     closeStream.subscribe(function(event) {

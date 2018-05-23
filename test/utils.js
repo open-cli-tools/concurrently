@@ -1,6 +1,6 @@
 var childProcess = require('child_process');
 var _ = require('lodash');
-var readline = require('readline')
+var readline = require('readline');
 var shellQuote = require('shell-quote');
 
 // If true, output of commands are shown
@@ -58,7 +58,7 @@ function readLines(child, callback, src) {
             console.log(line);
         }
 
-        callback(line, child)
+        callback(line, child);
     });
 }
 

@@ -11,6 +11,7 @@
         "curly": "error",
         "eqeqeq": ["error", "always", { "null": "ignore" }],
         "indent": ["error", 4],
-        "quotes": ["error", "single"]
+        "quotes": ["error", "single"],
+        "semi": ["error"]
     }
 }
