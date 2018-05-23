@@ -11,6 +11,7 @@
     "node": ">=4.0.0"
   },
   "scripts": {
+    "lint": "eslint .",
     "test": "mocha",
     "echo": "echo",
     "echo-test": "echo test",
