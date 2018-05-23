@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+'use strict';
 
 const Rx = require('rx');
 const path = require('path');

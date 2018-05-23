@@ -1,3 +1,4 @@
+'use strict';
 const childProcess = require('child_process');
 const _ = require('lodash');
 const readline = require('readline');
