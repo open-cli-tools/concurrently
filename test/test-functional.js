@@ -1,17 +1,17 @@
 'use strict';
 // Test basic usage of cli
 
-var path = require('path');
-var assert = require('assert');
-var run = require('./utils').run;
-var IS_WINDOWS = /^win/.test(process.platform);
+const path = require('path');
+const assert = require('assert');
+const run = require('./utils').run;
+const IS_WINDOWS = /^win/.test(process.platform);
 
 // Note: Set the DEBUG_TESTS environment variable to `true` to see output of test commands.
 
-var TEST_DIR = 'dir/';
+const TEST_DIR = 'dir/';
 
 // Abs path to test directory
-var testDir = path.resolve(__dirname);
+const testDir = path.resolve(__dirname);
 process.chdir(path.join(testDir, '..'));
 
 describe('concurrently', function() {
@@ -61,9 +61,9 @@ describe('concurrently', function() {
     });
 
     it('--kill-others-on-fail should NOT kill other commands if none of them exits with non-zero status code', (done) => {
-        var readline = require('readline');
-        var exits = 0;
-        var sigtermInOutput = false;
+        const readline = require('readline');
+        let exits = 0;
+        let sigtermInOutput = false;
 
         run('node ./src/main.js --kill-others-on-fail "echo killTest1" "echo killTest2" "echo killTest3"', {
             onOutputLine: function(line) {
@@ -118,7 +118,7 @@ describe('concurrently', function() {
     });
 
     it('--prefix should default to "index"', () => {
-        var collectedLines = [];
+        const collectedLines = [];
 
         return run('node ./src/main.js "echo one" "echo two"', {
             onOutputLine: (line) => {
@@ -139,7 +139,7 @@ describe('concurrently', function() {
     });
 
     it('--names should set a different default prefix', () => {
-        var collectedLines = [];
+        const collectedLines = [];
 
         return run('node ./src/main.js -n aa,bb "echo one" "echo two"', {
             onOutputLine: (line) => {
@@ -160,14 +160,14 @@ describe('concurrently', function() {
     });
 
     it('--allow-restart should restart a proccess with non-zero exit code', (done) => {
-        var readline = require('readline');
-        var exitedWithOne = false;
-        var restarted = false;
+        const readline = require('readline');
+        let exitedWithOne = false;
+        let restarted = false;
 
         run('node ./src/main.js --allow-restart "sleep 0.1 && exit 1" "sleep 1"', {
             pipe: false,
             onOutputLine: (line) => {
-                var re = /exited with code (.+)/.exec(line);
+                const re = /exited with code (.+)/.exec(line);
                 if (re && re[1] === '1') {
                     exitedWithOne = true;
                 }
@@ -186,8 +186,8 @@ describe('concurrently', function() {
     });
 
     it('--restart-after=n should restart a proccess after n miliseconds', (done) => {
-        var readline = require('readline');
-        var start, end;
+        const readline = require('readline');
+        let start, end;
 
         run('node ./src/main.js --allow-restart --restart-after 300 "exit 1" "sleep 1"', {
             pipe: false,
@@ -210,8 +210,8 @@ describe('concurrently', function() {
         });
     });
     it('--restart-tries=n should restart a proccess at most n times', (done) => {
-        var readline = require('readline');
-        var restartedTimes = 0;
+        const readline = require('readline');
+        let restartedTimes = 0;
 
         run('node ./src/main.js --allow-restart --restart-tries 2 "exit 1" "sleep 1"', {
             pipe: false,
@@ -237,9 +237,9 @@ describe('concurrently', function() {
         }
 
         it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
-            var readline = require('readline');
-            var waitingStart = 2;
-            var waitingSignal = 2;
+            const readline = require('readline');
+            let waitingStart = 2;
+            let waitingSignal = 2;
 
             function waitForSignal(cb) {
                 if (waitingSignal) {
@@ -351,8 +351,8 @@ describe('concurrently', function() {
     });
 
     it('should expand npm: command shortcuts', (done) => {
-        var echo1 = false;
-        var echo2 = false;
+        let echo1 = false;
+        let echo2 = false;
         run('node ./src/main.js "npm:echo-test" "npm:echo -- testarg"', {
             onOutputLine: function (line, child) {
                 if (line === '[echo-test] test') {
@@ -371,8 +371,8 @@ describe('concurrently', function() {
     });
 
     it('expands npm run shortcut wildcards', (done) => {
-        var echoBeep = false;
-        var echoBoop = false;
+        let echoBeep = false;
+        let echoBoop = false;
         run('node ./src/main.js "npm:echo-sound-*"', {
             onOutputLine: (line, child) => {
                 if (line === '[beep] beep') {
