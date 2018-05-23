@@ -77,7 +77,7 @@ describe('concurrently', function() {
                 }
             }
         }).then(function() {
-            if(sigtermInOutput) {
+            if (sigtermInOutput) {
                 done(new Error('There was a "SIGTERM" in console output'));
             } else if (exits !== 3) {
                 done(new Error('There was wrong number of echoes(' + exits + ') from executed commands'));
