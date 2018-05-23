@@ -1,7 +1,7 @@
 'use strict';
 
 process.stdin.on('data', (chunk) => {
-    let line = chunk.toString().trim();
+    const line = chunk.toString().trim();
     console.log(line);
 
     if (line === 'stop') {

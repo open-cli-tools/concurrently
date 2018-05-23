@@ -13,7 +13,7 @@ describe('parseCmds', () => {
     });
 
     it('returns a list of command objects', () => {
-        let cmds = parseCmds([ 'echo test' ]);
+        const cmds = parseCmds([ 'echo test' ]);
 
         assert.deepStrictEqual(cmds, [
             {
@@ -25,7 +25,7 @@ describe('parseCmds', () => {
     });
 
     it('strips quotes', () => {
-        let cmds = parseCmds([ '"echo test"' ]);
+        const cmds = parseCmds([ '"echo test"' ]);
 
         assert.deepStrictEqual(cmds, [
             {
@@ -37,7 +37,7 @@ describe('parseCmds', () => {
     });
 
     it('assigns names', () => {
-        let cmds = parseCmds([ 'echo test', 'echo test2' ], {
+        const cmds = parseCmds([ 'echo test', 'echo test2' ], {
             names: 'echo-test,echo-test2'
         });
 
@@ -56,7 +56,7 @@ describe('parseCmds', () => {
     });
 
     it('assigns names with custom separator', () => {
-        let cmds = parseCmds([ 'echo test', 'echo test2' ], {
+        const cmds = parseCmds([ 'echo test', 'echo test2' ], {
             names: 'echo-test|echo-test2',
             nameSeparator: '|'
         });
@@ -76,7 +76,7 @@ describe('parseCmds', () => {
     });
 
     it('assigns colours', () => {
-        let cmds = parseCmds([ 'echo test', 'echo test2' ], {
+        const cmds = parseCmds([ 'echo test', 'echo test2' ], {
             prefixColors: 'blue'
         });
 
@@ -95,7 +95,7 @@ describe('parseCmds', () => {
     });
 
     it('expands npm: shortcut', () => {
-        let cmds = parseCmds([ 'npm:watch:js' ]);
+        const cmds = parseCmds([ 'npm:watch:js' ]);
 
         assert.deepStrictEqual(cmds, [
             {
@@ -107,7 +107,7 @@ describe('parseCmds', () => {
     });
 
     it('expands npm: shortcut with assigned name', () => {
-        let cmds = parseCmds([ 'npm:watch:js' ], {
+        const cmds = parseCmds([ 'npm:watch:js' ], {
             names: 'js'
         });
 
@@ -125,7 +125,7 @@ describe('parseCmds', () => {
             'test', 'start', 'watch:js', 'watch:css', 'watch:node'
         ]);
 
-        let cmds = parseCmds([ 'npm:watch:*' ]);
+        const cmds = parseCmds([ 'npm:watch:*' ]);
 
         assert.deepStrictEqual(cmds, [
             {
@@ -151,7 +151,7 @@ describe('parseCmds', () => {
             'test', 'start', 'watch:js', 'watch:css', 'watch:node'
         ]);
 
-        let cmds = parseCmds([ 'npm:watch:*' ], {
+        const cmds = parseCmds([ 'npm:watch:*' ], {
             names: 'w:'
         });
 
@@ -179,7 +179,7 @@ describe('parseCmds', () => {
             'test', 'start', 'watch:js', 'watch:css', 'watch:node'
         ]);
 
-        let cmds = parseCmds([ 'npm:watch:*' ], {
+        const cmds = parseCmds([ 'npm:watch:*' ], {
             prefixColors: 'blue,magenta,cyan'
         });
 
