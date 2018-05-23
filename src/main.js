@@ -257,7 +257,7 @@ function run(commands) {
             spawnOpts.detached = false;
         }
         if (supportsColor) {
-          spawnOpts.env = Object.assign({FORCE_COLOR: supportsColor.level}, process.env)
+            spawnOpts.env = Object.assign({FORCE_COLOR: supportsColor.level}, process.env)
         }
 
         var child = spawnChild(cmdInfo.cmd, spawnOpts);
@@ -283,11 +283,11 @@ function run(commands) {
     handleChildEvents(streams, children, childrenInfo);
 
     ['SIGINT', 'SIGTERM'].forEach(function(signal) {
-      process.on(signal, function() {
-        children.forEach(function(child) {
-          treeKill(child.pid, signal);
+        process.on(signal, function() {
+            children.forEach(function(child) {
+                treeKill(child.pid, signal);
+            });
         });
-      });
     });
 
     process.stdin.on('data', (chunk) => {
@@ -395,13 +395,13 @@ function handleClose(streams, children, childrenInfo) {
             exit(exitCodes);
         }
         if (!othersKilled) {
-          if (config.killOthers) {
-            killOtherProcesses(aliveChildren);
-            othersKilled = true;
-          } else if (config.killOthersOnFail && nonSuccess) {
-            killOtherProcesses(aliveChildren);
-            othersKilled = true;
-          }
+            if (config.killOthers) {
+                killOtherProcesses(aliveChildren);
+                othersKilled = true;
+            } else if (config.killOthersOnFail && nonSuccess) {
+                killOtherProcesses(aliveChildren);
+                othersKilled = true;
+            }
         }
     });
 }
@@ -435,16 +435,16 @@ function killOtherProcesses(processes) {
 function exit(childExitCodes) {
     var success;
     switch (config.success) {
-        case 'first':
-            success = _.first(childExitCodes) === 0;
-            break;
-        case 'last':
-            success = _.last(childExitCodes) === 0;
-            break;
-        default:
-            success = _.every(childExitCodes, function(code) {
-                return code === 0;
-            });
+    case 'first':
+        success = _.first(childExitCodes) === 0;
+        break;
+    case 'last':
+        success = _.last(childExitCodes) === 0;
+        break;
+    default:
+        success = _.every(childExitCodes, function(code) {
+            return code === 0;
+        });
     }
     process.exit(success ? 0 : 1);
 }
@@ -530,7 +530,7 @@ var lastChar;
 
 function logWithPrefix(prefix, prefixColor, text, color) {
 
-     if (config.raw) {
+    if (config.raw) {
         process.stdout.write(text);
         return;
     }

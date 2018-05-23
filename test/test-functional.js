@@ -230,45 +230,45 @@ describe('concurrently', function() {
     });
 
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
-      if (IS_WINDOWS) {
-          console.log('IS_WINDOWS=true');
-          console.log('Skipping SIGINT/SIGTERM propagation tests ..');
-          return;
-      }
-
-      it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
-        var readline = require('readline');
-        var waitingStart = 2;
-        var waitingSignal = 2;
-
-        function waitForSignal(cb) {
-          if (waitingSignal) {
-            setTimeout(waitForSignal, 100);
-          } else {
-            cb();
-          }
+        if (IS_WINDOWS) {
+            console.log('IS_WINDOWS=true');
+            console.log('Skipping SIGINT/SIGTERM propagation tests ..');
+            return;
         }
 
-        run('node ./src/main.js "node ./test/support/signal.js" "node ./test/support/signal.js"', {
-          onOutputLine: function(line, child) {
-            // waiting for startup
-            if (/STARTED/.test(line)) {
-              waitingStart--;
-            }
-            if (!waitingStart) {
-              // both processes are started
-              child.kill(signal);
+        it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
+            var readline = require('readline');
+            var waitingStart = 2;
+            var waitingSignal = 2;
+
+            function waitForSignal(cb) {
+                if (waitingSignal) {
+                    setTimeout(waitForSignal, 100);
+                } else {
+                    cb();
+                }
             }
 
-            // waiting for signal
-            if (new RegExp(signal).test(line)) {
-              waitingSignal--;
-            }
-          }
-        }).then(function() {
-          waitForSignal(done);
+            run('node ./src/main.js "node ./test/support/signal.js" "node ./test/support/signal.js"', {
+                onOutputLine: function(line, child) {
+                    // waiting for startup
+                    if (/STARTED/.test(line)) {
+                        waitingStart--;
+                    }
+                    if (!waitingStart) {
+                        // both processes are started
+                        child.kill(signal);
+                    }
+
+                    // waiting for signal
+                    if (new RegExp(signal).test(line)) {
+                        waitingSignal--;
+                    }
+                }
+            }).then(function() {
+                waitForSignal(done);
+            });
         });
-      });
     });
 
     it('sends input to default stdin target process', (done) => {
@@ -284,10 +284,10 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then(() => {
-            assert(echoed);
-        })
-        .then(done, done);
+            .then(() => {
+                assert(echoed);
+            })
+            .then(done, done);
     });
 
     it('sends input to specified default stdin target process', (done) => {
@@ -303,10 +303,10 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then(() => {
-            assert(echoed);
-        })
-        .then(done, done);
+            .then(() => {
+                assert(echoed);
+            })
+            .then(done, done);
     });
 
     it('sends input to child specified by index', (done) => {
@@ -322,10 +322,10 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then(() => {
-            assert(echoed);
-        })
-        .then(done, done);
+            .then(() => {
+                assert(echoed);
+            })
+            .then(done, done);
     });
 
     it('emits error when specified read stream is not found', (done) => {
@@ -344,10 +344,10 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then(() => {
-            assert(errorEmitted);
-        })
-        .then(done, done);
+            .then(() => {
+                assert(errorEmitted);
+            })
+            .then(done, done);
     });
 
     it('should expand npm: command shortcuts', (done) => {
@@ -362,12 +362,12 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then((exitCode) => {
-            assert.strictEqual(exitCode, 0);
-            assert.ok(echo1);
-            assert.ok(echo2);
-        })
-        .then(done, done);
+            .then((exitCode) => {
+                assert.strictEqual(exitCode, 0);
+                assert.ok(echo1);
+                assert.ok(echo2);
+            })
+            .then(done, done);
     });
 
     it('expands npm run shortcut wildcards', (done) => {
@@ -382,12 +382,12 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then((exitCode) => {
-            assert.strictEqual(exitCode, 0);
-            assert.ok(echoBeep);
-            assert.ok(echoBoop);
-        })
-        .then(done, done);
+            .then((exitCode) => {
+                assert.strictEqual(exitCode, 0);
+                assert.ok(echoBeep);
+                assert.ok(echoBoop);
+            })
+            .then(done, done);
     });
 });
 
