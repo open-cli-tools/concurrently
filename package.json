@@ -11,6 +11,7 @@
     "node": ">=4.0.0"
   },
   "scripts": {
+    "lint": "eslint .",
     "test": "mocha",
     "echo": "echo",
     "echo-test": "echo test",
@@ -48,6 +49,7 @@
   },
   "devDependencies": {
     "chai": "^1.10.0",
+    "eslint": "^4.19.1",
     "mocha": "^2.1.0",
     "mustache": "^1.0.0",
     "releasor": "^1.2.1",

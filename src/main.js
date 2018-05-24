@@ -1,20 +1,21 @@
 #!/usr/bin/env node
+'use strict';
 
-var Rx = require('rx');
-var path = require('path');
-var formatDate = require('date-fns/format');
-var program = require('commander');
-var _ = require('lodash');
-var treeKill = require('tree-kill');
-var chalk = require('chalk');
-var spawn = require('spawn-command');
-var supportsColor = require('supports-color');
-var IS_WINDOWS = /^win/.test(process.platform);
+const Rx = require('rx');
+const path = require('path');
+const formatDate = require('date-fns/format');
+const program = require('commander');
+const _ = require('lodash');
+const treeKill = require('tree-kill');
+const chalk = require('chalk');
+const spawn = require('spawn-command');
+const supportsColor = require('supports-color');
+const IS_WINDOWS = /^win/.test(process.platform);
 
-var findChild = require('./findChild.js');
-var parseCmds = require('./parseCmds');
+const findChild = require('./findChild.js');
+const parseCmds = require('./parseCmds');
 
-var config = {
+let config = {
     // Kill other processes if one dies
     killOthers: false,
 
@@ -65,8 +66,8 @@ var config = {
 };
 
 function main() {
-    var firstBase = path.basename(process.argv[0]);
-    var secondBase = path.basename(process.argv[1]);
+    const firstBase = path.basename(process.argv[0]);
+    const secondBase = path.basename(process.argv[1]);
     if (firstBase === 'concurrent' || secondBase === 'concurrent') {
         console.error('Warning: "concurrent" command is deprecated, use "concurrently" instead.\n');
     }
@@ -74,7 +75,7 @@ function main() {
     parseArgs();
     config = mergeDefaultsWithArgs(config);
 
-    var cmds = parseCmds(program.args, config);
+    const cmds = parseCmds(program.args, config);
     run(cmds);
 }
 
@@ -169,7 +170,7 @@ function parseArgs() {
         );
 
     program.on('--help', function() {
-        var help = [
+        const help = [
             '  Input:',
             '',
             '  Input can be sent to any of the child processes using either the name or',
@@ -234,7 +235,7 @@ function parseArgs() {
         ];
         console.log(help.join('\n'));
 
-        var url = 'https://github.com/kimmobrunfeldt/concurrently';
+        const url = 'https://github.com/kimmobrunfeldt/concurrently';
         console.log('  For more details, visit ' + url);
         console.log('');
     });
@@ -248,22 +249,22 @@ function mergeDefaultsWithArgs(config) {
 }
 
 function run(commands) {
-    var childrenInfo = {};
-    var lastPrefixColor = _.get(chalk, chalk.gray.dim);
-    var children = _.map(commands, function(cmdInfo, index) {
+    const childrenInfo = {};
+    let lastPrefixColor = _.get(chalk, chalk.gray.dim);
+    const children = _.map(commands, function(cmdInfo, index) {
 
-        var spawnOpts = config.raw ? {stdio: 'inherit'} : {};
+        const spawnOpts = config.raw ? {stdio: 'inherit'} : {};
         if (IS_WINDOWS) {
             spawnOpts.detached = false;
         }
         if (supportsColor) {
-          spawnOpts.env = Object.assign({FORCE_COLOR: supportsColor.level}, process.env)
+            spawnOpts.env = Object.assign({FORCE_COLOR: supportsColor.level}, process.env);
         }
 
-        var child = spawnChild(cmdInfo.cmd, spawnOpts);
+        const child = spawnChild(cmdInfo.cmd, spawnOpts);
 
         if (cmdInfo.color) {
-            var prefixColorPath = cmdInfo.color;
+            const prefixColorPath = cmdInfo.color;
             lastPrefixColor = _.get(chalk, prefixColorPath, chalk.gray.dim);
         }
 
@@ -278,29 +279,29 @@ function run(commands) {
         return child;
     });
 
-    var streams = toStreams(children);
+    const streams = toStreams(children);
 
     handleChildEvents(streams, children, childrenInfo);
 
     ['SIGINT', 'SIGTERM'].forEach(function(signal) {
-      process.on(signal, function() {
-        children.forEach(function(child) {
-          treeKill(child.pid, signal);
+        process.on(signal, function() {
+            children.forEach(function(child) {
+                treeKill(child.pid, signal);
+            });
         });
-      });
     });
 
     process.stdin.on('data', (chunk) => {
-        var line = chunk.toString();
+        let line = chunk.toString();
 
-        var targetId = config.defaultInputTarget;
+        let targetId = config.defaultInputTarget;
         if (line.indexOf(':') >= 0) {
-            var parts = line.split(':');
+            const parts = line.split(':');
             targetId = parts[0];
             line = parts[1];
         }
 
-        var target = findChild(targetId, children, childrenInfo);
+        const target = findChild(targetId, children, childrenInfo);
         if (target) {
             target.stdin.write(line);
         } else {
@@ -310,7 +311,7 @@ function run(commands) {
 }
 
 function spawnChild(cmd, options) {
-    var child;
+    let child;
     try {
         child = spawn(cmd, options);
     } catch (e) {
@@ -324,7 +325,7 @@ function spawnChild(cmd, options) {
 function toStreams(children) {
     // Transform all process events to rx streams
     return _.map(children, function(child) {
-        var childStreams = {
+        const childStreams = {
             error: Rx.Node.fromEvent(child, 'error'),
             close: Rx.Node.fromEvent(child, 'close')
         };
@@ -353,33 +354,33 @@ function handleChildEvents(streams, children, childrenInfo) {
 }
 
 function handleOutput(streams, childrenInfo, source) {
-    var sourceStreams = _.map(streams, source);
-    var combinedSourceStream = Rx.Observable.merge.apply(this, sourceStreams);
+    const sourceStreams = _.map(streams, source);
+    const combinedSourceStream = Rx.Observable.merge.apply(this, sourceStreams);
 
     combinedSourceStream.subscribe(function(event) {
-        var prefix = getPrefix(childrenInfo, event.child);
-        var prefixColor = childrenInfo[event.child.pid].prefixColor;
+        const prefix = getPrefix(childrenInfo, event.child);
+        const prefixColor = childrenInfo[event.child.pid].prefixColor;
         log(prefix, prefixColor, event.data.toString());
     });
 }
 
 function handleClose(streams, children, childrenInfo) {
-    var aliveChildren = _.clone(children);
-    var exitCodes = [];
-    var closeStreams = _.map(streams, 'close');
-    var closeStream = Rx.Observable.merge.apply(this, closeStreams);
-    var othersKilled = false
+    let aliveChildren = _.clone(children);
+    const exitCodes = [];
+    const closeStreams = _.map(streams, 'close');
+    const closeStream = Rx.Observable.merge.apply(this, closeStreams);
+    let othersKilled = false;
 
     // TODO: Is it possible that amount of close events !== count of spawned?
     closeStream.subscribe(function(event) {
-        var exitCode = event.data;
-        var nonSuccess = exitCode !== 0;
+        const exitCode = event.data;
+        const nonSuccess = exitCode !== 0;
         exitCodes.push(exitCode);
 
-        var prefix = getPrefix(childrenInfo, event.child);
-        var childInfo = childrenInfo[event.child.pid];
-        var prefixColor = childInfo.prefixColor;
-        var command = childInfo.command;
+        const prefix = getPrefix(childrenInfo, event.child);
+        const childInfo = childrenInfo[event.child.pid];
+        const prefixColor = childInfo.prefixColor;
+        const command = childInfo.command;
         logEvent(prefix, prefixColor, command + ' exited with code ' + exitCode);
 
         aliveChildren = _.filter(aliveChildren, function(child) {
@@ -395,30 +396,30 @@ function handleClose(streams, children, childrenInfo) {
             exit(exitCodes);
         }
         if (!othersKilled) {
-          if (config.killOthers) {
-            killOtherProcesses(aliveChildren);
-            othersKilled = true;
-          } else if (config.killOthersOnFail && nonSuccess) {
-            killOtherProcesses(aliveChildren);
-            othersKilled = true;
-          }
+            if (config.killOthers) {
+                killOtherProcesses(aliveChildren);
+                othersKilled = true;
+            } else if (config.killOthersOnFail && nonSuccess) {
+                killOtherProcesses(aliveChildren);
+                othersKilled = true;
+            }
         }
     });
 }
 
 function respawnChild(event, childrenInfo) {
     setTimeout(function() {
-        var childInfo = childrenInfo[event.child.pid];
-        var prefix = getPrefix(childrenInfo, event.child);
-        var prefixColor = childInfo.prefixColor;
+        const childInfo = childrenInfo[event.child.pid];
+        const prefix = getPrefix(childrenInfo, event.child);
+        const prefixColor = childInfo.prefixColor;
         logEvent(prefix, prefixColor, childInfo.command + ' restarted');
-        var newChild = spawnChild(childInfo.command, childInfo.options);
+        const newChild = spawnChild(childInfo.command, childInfo.options);
 
         childrenInfo[newChild.pid] = childrenInfo[event.child.pid];
         delete childrenInfo[event.child.pid];
 
-        var children = [newChild];
-        var streams = toStreams(children);
+        const children = [newChild];
+        const streams = toStreams(children);
         handleChildEvents(streams, children, childrenInfo);
     }, config.restartAfter);
 }
@@ -433,29 +434,29 @@ function killOtherProcesses(processes) {
 }
 
 function exit(childExitCodes) {
-    var success;
+    let success;
     switch (config.success) {
-        case 'first':
-            success = _.first(childExitCodes) === 0;
-            break;
-        case 'last':
-            success = _.last(childExitCodes) === 0;
-            break;
-        default:
-            success = _.every(childExitCodes, function(code) {
-                return code === 0;
-            });
+    case 'first':
+        success = _.first(childExitCodes) === 0;
+        break;
+    case 'last':
+        success = _.last(childExitCodes) === 0;
+        break;
+    default:
+        success = _.every(childExitCodes, function(code) {
+            return code === 0;
+        });
     }
     process.exit(success ? 0 : 1);
 }
 
 function handleError(streams, childrenInfo) {
     // Output emitted errors from child process
-    var errorStreams = _.map(streams, 'error');
-    var processErrorStream = Rx.Observable.merge.apply(this, errorStreams);
+    const errorStreams = _.map(streams, 'error');
+    const processErrorStream = Rx.Observable.merge.apply(this, errorStreams);
 
     processErrorStream.subscribe(function(event) {
-        var command = childrenInfo[event.child.pid].command;
+        const command = childrenInfo[event.child.pid].command;
         logError('', chalk.gray.dim, 'Error occured when executing command: ' + command);
         logError('', chalk.gray.dim, event.data.stack);
     });
@@ -470,20 +471,20 @@ function colorText(text, color) {
 }
 
 function getPrefix(childrenInfo, child) {
-    var prefixes = getPrefixes(childrenInfo, child);
-    var prefixType = config.prefix || prefixes.name ? 'name' : 'index';
+    const prefixes = getPrefixes(childrenInfo, child);
+    const prefixType = config.prefix || prefixes.name ? 'name' : 'index';
     if (_.includes(_.keys(prefixes), prefixType)) {
         return '[' + prefixes[prefixType] + '] ';
     }
 
     return _.reduce(prefixes, function(memo, val, key) {
-        var re = new RegExp('{' + key + '}', 'g');
+        const re = new RegExp('{' + key + '}', 'g');
         return memo.replace(re, val);
     }, config.prefix) + ' ';
 }
 
 function getPrefixes(childrenInfo, child) {
-    var prefixes = {};
+    const prefixes = {};
 
     prefixes.none = '';
     prefixes.pid = child.pid;
@@ -491,7 +492,7 @@ function getPrefixes(childrenInfo, child) {
     prefixes.name = childrenInfo[child.pid].name;
     prefixes.time = formatDate(Date.now(), config.timestampFormat);
 
-    var command = childrenInfo[child.pid].command;
+    const command = childrenInfo[child.pid].command;
     prefixes.command = shortenText(command, config.prefixLength);
     return prefixes;
 }
@@ -502,11 +503,11 @@ function shortenText(text, length, cut) {
     }
     cut = _.isString(cut) ? cut : '..';
 
-    var endLength = Math.floor(length / 2);
-    var startLength = length - endLength;
+    const endLength = Math.floor(length / 2);
+    const startLength = length - endLength;
 
-    var first = text.substring(0, startLength);
-    var last = text.substring(text.length - endLength, text.length);
+    const first = text.substring(0, startLength);
+    const last = text.substring(text.length - endLength, text.length);
     return first + cut + last;
 }
 
@@ -515,7 +516,9 @@ function log(prefix, prefixColor, text) {
 }
 
 function logEvent(prefix, prefixColor, text) {
-    if (config.raw) return;
+    if (config.raw) {
+        return;
+    }
 
     logWithPrefix(prefix, prefixColor, text + '\n', chalk.gray.dim);
 }
@@ -526,29 +529,29 @@ function logError(prefix, prefixColor, text) {
     logWithPrefix(prefix, prefixColor, text, chalk.red.bold);
 }
 
-var lastChar;
+let lastChar;
 
 function logWithPrefix(prefix, prefixColor, text, color) {
 
-     if (config.raw) {
+    if (config.raw) {
         process.stdout.write(text);
         return;
     }
 
     text = text.replace(/\u2026/g,'...'); // Ellipsis
 
-    var lines = text.split('\n');
+    const lines = text.split('\n');
     // Do not bgColor trailing space
-    var coloredPrefix = colorText(prefix.replace(/ $/, ''), prefixColor) + ' ';
-    var paddedLines = _.map(lines, function(line, index) {
-        var coloredLine = color ? colorText(line, color) : line;
+    const coloredPrefix = colorText(prefix.replace(/ $/, ''), prefixColor) + ' ';
+    const paddedLines = _.map(lines, function(line, index) {
+        let coloredLine = color ? colorText(line, color) : line;
         if (index !== 0 && index !== (lines.length - 1)) {
             coloredLine = coloredPrefix + coloredLine;
         }
         return coloredLine;
     });
 
-    if (!lastChar || lastChar == '\n' ){
+    if (!lastChar || lastChar === '\n' ) {
         process.stdout.write(coloredPrefix);
     }
 

@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
 process.stdin.on('data', (chunk) => {
-  let line = chunk.toString().trim();
-  console.log(line);
+    const line = chunk.toString().trim();
+    console.log(line);
 
-  if (line === 'stop') {
-    process.exit(0);
-  }
+    if (line === 'stop') {
+        process.exit(0);
+    }
 });
 
-console.log("READING");
+console.log('READING');

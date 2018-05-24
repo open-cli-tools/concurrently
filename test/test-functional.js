@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 // Test basic usage of cli
 
-var path = require('path');
-var assert = require('assert');
-var run = require('./utils').run;
-var IS_WINDOWS = /^win/.test(process.platform);
+const path = require('path');
+const assert = require('assert');
+const run = require('./utils').run;
+const IS_WINDOWS = /^win/.test(process.platform);
 
 // Note: Set the DEBUG_TESTS environment variable to `true` to see output of test commands.
 
-var TEST_DIR = 'dir/';
+const TEST_DIR = 'dir/';
 
 // Abs path to test directory
-var testDir = path.resolve(__dirname);
+const testDir = path.resolve(__dirname);
 process.chdir(path.join(testDir, '..'));
 
 describe('concurrently', function() {
@@ -61,9 +61,9 @@ describe('concurrently', function() {
     });
 
     it('--kill-others-on-fail should NOT kill other commands if none of them exits with non-zero status code', (done) => {
-        var readline = require('readline');
-        var exits = 0;
-        var sigtermInOutput = false;
+        const readline = require('readline');
+        let exits = 0;
+        let sigtermInOutput = false;
 
         run('node ./src/main.js --kill-others-on-fail "echo killTest1" "echo killTest2" "echo killTest3"', {
             onOutputLine: function(line) {
@@ -77,7 +77,7 @@ describe('concurrently', function() {
                 }
             }
         }).then(function() {
-            if(sigtermInOutput) {
+            if (sigtermInOutput) {
                 done(new Error('There was a "SIGTERM" in console output'));
             } else if (exits !== 3) {
                 done(new Error('There was wrong number of echoes(' + exits + ') from executed commands'));
@@ -118,58 +118,58 @@ describe('concurrently', function() {
     });
 
     it('--prefix should default to "index"', () => {
-        var collectedLines = []
+        const collectedLines = [];
 
         return run('node ./src/main.js "echo one" "echo two"', {
             onOutputLine: (line) => {
                 if (/(one|two)$/.exec(line)) {
-                    collectedLines.push(line)
+                    collectedLines.push(line);
                 }
             }
         })
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
 
-                collectedLines.sort()
+                collectedLines.sort();
                 assert.deepEqual(collectedLines, [
                     '[0] one',
                     '[1] two'
-                ])
+                ]);
             });
     });
 
     it('--names should set a different default prefix', () => {
-        var collectedLines = []
+        const collectedLines = [];
 
         return run('node ./src/main.js -n aa,bb "echo one" "echo two"', {
             onOutputLine: (line) => {
                 if (/(one|two)$/.exec(line)) {
-                    collectedLines.push(line)
+                    collectedLines.push(line);
                 }
             }
         })
             .then(function(exitCode) {
                 assert.strictEqual(exitCode, 0);
 
-                collectedLines.sort()
+                collectedLines.sort();
                 assert.deepEqual(collectedLines, [
                     '[aa] one',
                     '[bb] two'
-                ])
+                ]);
             });
     });
 
     it('--allow-restart should restart a proccess with non-zero exit code', (done) => {
-        var readline = require('readline');
-        var exitedWithOne = false;
-        var restarted = false;
+        const readline = require('readline');
+        let exitedWithOne = false;
+        let restarted = false;
 
         run('node ./src/main.js --allow-restart "sleep 0.1 && exit 1" "sleep 1"', {
             pipe: false,
             onOutputLine: (line) => {
-                var re = /exited with code (.+)/.exec(line);
+                const re = /exited with code (.+)/.exec(line);
                 if (re && re[1] === '1') {
-                    exitedWithOne = true
+                    exitedWithOne = true;
                 }
 
                 if (/restarted/.test(line)) {
@@ -186,8 +186,8 @@ describe('concurrently', function() {
     });
 
     it('--restart-after=n should restart a proccess after n miliseconds', (done) => {
-        var readline = require('readline');
-        var start, end;
+        const readline = require('readline');
+        let start, end;
 
         run('node ./src/main.js --allow-restart --restart-after 300 "exit 1" "sleep 1"', {
             pipe: false,
@@ -210,8 +210,8 @@ describe('concurrently', function() {
         });
     });
     it('--restart-tries=n should restart a proccess at most n times', (done) => {
-        var readline = require('readline');
-        var restartedTimes = 0;
+        const readline = require('readline');
+        let restartedTimes = 0;
 
         run('node ./src/main.js --allow-restart --restart-tries 2 "exit 1" "sleep 1"', {
             pipe: false,
@@ -221,7 +221,7 @@ describe('concurrently', function() {
                 }
             }
         }).then(function() {
-            if (restartedTimes == 2) {
+            if (restartedTimes === 2) {
                 done();
             } else {
                 done(new Error('No restarted process twice'));
@@ -230,45 +230,45 @@ describe('concurrently', function() {
     });
 
     ['SIGINT', 'SIGTERM'].forEach((signal) => {
-      if (IS_WINDOWS) {
-          console.log('IS_WINDOWS=true');
-          console.log('Skipping SIGINT/SIGTERM propagation tests ..');
-          return;
-      }
-
-      it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
-        var readline = require('readline');
-        var waitingStart = 2;
-        var waitingSignal = 2;
-
-        function waitForSignal(cb) {
-          if (waitingSignal) {
-            setTimeout(waitForSignal, 100);
-          } else {
-            cb();
-          }
+        if (IS_WINDOWS) {
+            console.log('IS_WINDOWS=true');
+            console.log('Skipping SIGINT/SIGTERM propagation tests ..');
+            return;
         }
 
-        run('node ./src/main.js "node ./test/support/signal.js" "node ./test/support/signal.js"', {
-          onOutputLine: function(line, child) {
-            // waiting for startup
-            if (/STARTED/.test(line)) {
-              waitingStart--;
-            }
-            if (!waitingStart) {
-              // both processes are started
-              child.kill(signal);
+        it('killing it with ' + signal + ' should propagate the signal to the children', function(done) {
+            const readline = require('readline');
+            let waitingStart = 2;
+            let waitingSignal = 2;
+
+            function waitForSignal(cb) {
+                if (waitingSignal) {
+                    setTimeout(waitForSignal, 100);
+                } else {
+                    cb();
+                }
             }
 
-            // waiting for signal
-            if (new RegExp(signal).test(line)) {
-              waitingSignal--;
-            }
-          }
-        }).then(function() {
-          waitForSignal(done);
+            run('node ./src/main.js "node ./test/support/signal.js" "node ./test/support/signal.js"', {
+                onOutputLine: function(line, child) {
+                    // waiting for startup
+                    if (/STARTED/.test(line)) {
+                        waitingStart--;
+                    }
+                    if (!waitingStart) {
+                        // both processes are started
+                        child.kill(signal);
+                    }
+
+                    // waiting for signal
+                    if (new RegExp(signal).test(line)) {
+                        waitingSignal--;
+                    }
+                }
+            }).then(function() {
+                waitForSignal(done);
+            });
         });
-      });
     });
 
     it('sends input to default stdin target process', (done) => {
@@ -284,10 +284,10 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then(() => {
-            assert(echoed);
-        })
-        .then(done, done);
+            .then(() => {
+                assert(echoed);
+            })
+            .then(done, done);
     });
 
     it('sends input to specified default stdin target process', (done) => {
@@ -303,10 +303,10 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then(() => {
-            assert(echoed);
-        })
-        .then(done, done);
+            .then(() => {
+                assert(echoed);
+            })
+            .then(done, done);
     });
 
     it('sends input to child specified by index', (done) => {
@@ -322,10 +322,10 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then(() => {
-            assert(echoed);
-        })
-        .then(done, done);
+            .then(() => {
+                assert(echoed);
+            })
+            .then(done, done);
     });
 
     it('emits error when specified read stream is not found', (done) => {
@@ -344,17 +344,17 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then(() => {
-            assert(errorEmitted);
-        })
-        .then(done, done);
+            .then(() => {
+                assert(errorEmitted);
+            })
+            .then(done, done);
     });
 
     it('should expand npm: command shortcuts', (done) => {
-        var echo1 = false;
-        var echo2 = false;
+        let echo1 = false;
+        let echo2 = false;
         run('node ./src/main.js "npm:echo-test" "npm:echo -- testarg"', {
-            onOutputLine: function (line, child) {
+            onOutputLine: function(line, child) {
                 if (line === '[echo-test] test') {
                     echo1 = true;
                 } else if (line === '[echo] testarg') {
@@ -362,17 +362,17 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then((exitCode) => {
-            assert.strictEqual(exitCode, 0);
-            assert.ok(echo1);
-            assert.ok(echo2);
-        })
-        .then(done, done);
+            .then((exitCode) => {
+                assert.strictEqual(exitCode, 0);
+                assert.ok(echo1);
+                assert.ok(echo2);
+            })
+            .then(done, done);
     });
 
     it('expands npm run shortcut wildcards', (done) => {
-        var echoBeep = false;
-        var echoBoop = false;
+        let echoBeep = false;
+        let echoBoop = false;
         run('node ./src/main.js "npm:echo-sound-*"', {
             onOutputLine: (line, child) => {
                 if (line === '[beep] beep') {
@@ -382,12 +382,12 @@ describe('concurrently', function() {
                 }
             }
         })
-        .then((exitCode) => {
-            assert.strictEqual(exitCode, 0);
-            assert.ok(echoBeep);
-            assert.ok(echoBoop);
-        })
-        .then(done, done);
+            .then((exitCode) => {
+                assert.strictEqual(exitCode, 0);
+                assert.ok(echoBeep);
+                assert.ok(echoBoop);
+            })
+            .then(done, done);
     });
 });
 

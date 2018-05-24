@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 const readPkg = require('read-pkg');
 
@@ -11,7 +11,7 @@ function getPkg() {
     return pkg;
 }
 
-exports.getScripts = function () {
-    let pkg = getPkg();
+exports.getScripts = function() {
+    const pkg = getPkg();
     return Object.keys(pkg.scripts || {});
 };

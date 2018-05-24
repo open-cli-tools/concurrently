@@ -1,10 +1,11 @@
-var childProcess = require('child_process');
-var _ = require('lodash');
-var readline = require('readline')
-var shellQuote = require('shell-quote');
+'use strict';
+const childProcess = require('child_process');
+const _ = require('lodash');
+const readline = require('readline');
+const shellQuote = require('shell-quote');
 
 // If true, output of commands are shown
-var DEBUG_TESTS = process.env.DEBUG_TESTS === 'true';
+const DEBUG_TESTS = process.env.DEBUG_TESTS === 'true';
 
 function run(cmd, opts) {
     opts = _.merge({
@@ -14,8 +15,8 @@ function run(cmd, opts) {
         onErrorLine: undefined
     }, opts);
 
-    var child;
-    var parts = shellQuote.parse(cmd);
+    let child;
+    const parts = shellQuote.parse(cmd);
     try {
         child = childProcess.spawn(_.head(parts), _.tail(parts), {
             stdio: DEBUG_TESTS && !opts.onOutputLine ? 'inherit': null,
@@ -48,7 +49,7 @@ function run(cmd, opts) {
 function readLines(child, callback, src) {
     src = src || 'stdout';
 
-    var rl = readline.createInterface({
+    const rl = readline.createInterface({
         input: child[src],
         output: null
     });
@@ -58,7 +59,7 @@ function readLines(child, callback, src) {
             console.log(line);
         }
 
-        callback(line, child)
+        callback(line, child);
     });
 }
 
