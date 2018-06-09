@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/kimmobrunfeldt/concurrently",
   "dependencies": {
-    "chalk": "0.5.1",
+    "chalk": "^2.4.1",
     "commander": "2.6.0",
     "date-fns": "^1.23.0",
     "lodash": "^4.5.1",
