@@ -472,7 +472,7 @@ function colorText(text, color) {
 
 function getPrefix(childrenInfo, child) {
     const prefixes = getPrefixes(childrenInfo, child);
-    const prefixType = config.prefix || prefixes.name ? 'name' : 'index';
+    const prefixType = config.prefix || (prefixes.name ? 'name' : 'index');
     if (_.includes(_.keys(prefixes), prefixType)) {
         return '[' + prefixes[prefixType] + '] ';
     }

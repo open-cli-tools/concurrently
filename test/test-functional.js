@@ -117,6 +117,42 @@ describe('concurrently', function() {
             });
     });
 
+    it('--prefix can contain PID', () => {
+        const collectedLines = [];
+        return run('node ./src/main.js --prefix {pid} "echo one" "echo two"', {
+            onOutputLine(line) {
+                collectedLines.push(line);
+            }
+        }).then(() => {
+            assert.ok(/^\d+ one$/.test(collectedLines[0]));
+            assert.ok(/^\d+ two$/.test(collectedLines[1]));
+        });
+    });
+
+    it('--prefix can contain command itself', () => {
+        const collectedLines = [];
+        return run('node ./src/main.js --prefix "[{command}]" "echo one" "echo two"', {
+            onOutputLine(line) {
+                collectedLines.push(line);
+            }
+        }).then(() => {
+            assert.equal(collectedLines[0], '[echo one] one');
+            assert.equal(collectedLines[1], '[echo two] two');
+        });
+    });
+
+    it('--prefix can contain time', () => {
+        const collectedLines = [];
+        return run('node ./src/main.js --prefix {time} "echo one" "echo two"', {
+            onOutputLine(line) {
+                collectedLines.push(line);
+            }
+        }).then(() => {
+            assert.ok(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} one$/.test(collectedLines[0]));
+            assert.ok(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} two$/.test(collectedLines[1]));
+        });
+    });
+
     it('--prefix should default to "index"', () => {
         const collectedLines = [];
 
