@@ -1,5 +1,6 @@
 const assert = require('assert');
 const _ = require('lodash');
+const Rx = require('rxjs');
 const spawn = require('spawn-command');
 
 const StripQuotes = require('./command-parser/strip-quotes');
@@ -10,6 +11,7 @@ const LogExit = require('./flow-control/log-exit');
 const LogOutput = require('./flow-control/log-output');
 const KillOthers = require('./flow-control/kill-others');
 const RestartProcess = require('./flow-control/restart-process');
+const CompletionHandler = require('./flow-control/completion-handler');
 
 const getSpawnOpts = require('./get-spawn-opts');
 const Command = require('./command');
@@ -59,6 +61,7 @@ module.exports = (commands, options) => {
         timestampFormat: options.timestampFormat,
     });
 
+    const controlSubject = new Rx.Subject();
     [
         new LogOutput(logger),
         new LogExit(logger),
@@ -71,10 +74,12 @@ module.exports = (commands, options) => {
             logger,
             delay: options.restartDelay,
             tries: options.restartTries,
-        })
-    ].forEach(controller => controller.handle(commands));
+        }),
+        new CompletionHandler({ successCondition: options.successCondition })
+    ].forEach(controller => controller.handle(commands, controlSubject));
 
     commands.forEach(command => command.start());
+    return controlSubject.asObservable();
 };
 
 function mapToCommandInfo(command) {

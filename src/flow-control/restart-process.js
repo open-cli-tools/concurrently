@@ -1,3 +1,5 @@
+const { filter, take, delay } = require('rxjs/operators');
+
 module.exports = class RestartProcess {
     constructor({ delay, tries, logger }) {
         this.delay = +delay || 0;
@@ -12,9 +14,9 @@ module.exports = class RestartProcess {
 
         commands.forEach(command => {
             command.close
-                .filter(exitCode => exitCode !== 0)
-                .take(this.tries)
-                .delay(this.delay)
+                .pipe(filter(exitCode => exitCode !== 0))
+                .pipe(take(this.tries))
+                .pipe(delay(this.delay))
                 .subscribe(() => {
                     this.logger.logCommandEvent(`${command.info.command} restarted`);
                     command.start();

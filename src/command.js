@@ -1,4 +1,4 @@
-const Rx = require('rx');
+const Rx = require('rxjs');
 
 module.exports = class Command {
     constructor({ index, info, spawn, spawnOpts }) {
@@ -16,17 +16,18 @@ module.exports = class Command {
     start() {
         const child = this.spawn(this.info.command, this.spawnOpts);
         this.process = child;
+        this.pid = child.pid;
 
-        Rx.Node.fromEvent(child, 'error').subscribe(event => {
+        Rx.fromEvent(child, 'error').subscribe(event => {
             this.process = undefined;
-            this.error.onNext(event);
+            this.error.next(event);
         });
-        Rx.Node.fromEvent(child, 'close').subscribe(event => {
+        Rx.fromEvent(child, 'close').subscribe(event => {
             this.process = undefined;
-            this.close.onNext(event);
+            this.close.next(event);
         });
-        child.stdout && pipeTo(Rx.Node.fromReadableStream(child.stdout), this.stdout);
-        child.stderr && pipeTo(Rx.Node.fromReadableStream(child.stderr), this.stderr);
+        child.stdout && pipeTo(Rx.fromEvent(child.stdout, 'data'), this.stdout);
+        child.stderr && pipeTo(Rx.fromEvent(child.stderr, 'data'), this.stderr);
     }
 
     kill() {
@@ -35,5 +36,5 @@ module.exports = class Command {
 }
 
 function pipeTo(stream, subject) {
-    stream.subscribe(event => subject.onNext(event));
+    stream.subscribe(event => subject.next(event));
 }

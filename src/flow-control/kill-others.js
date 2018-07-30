@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const { map, tap, skipWhile, filter } = require('rxjs/operators');
 
 module.exports = class KillOthers {
     constructor({ logger, conditions, restartTries }) {
@@ -20,12 +21,12 @@ module.exports = class KillOthers {
         const subscriptions = commands.map(command => {
             let restartsLeft = this.restartTries;
             return command.close
-                .map(exitCode => exitCode === 0 ? 'success' : 'failure')
+                .pipe(map(exitCode => exitCode === 0 ? 'success' : 'failure'))
                 // Everytime a failure happens, it's known that a restart could follow.
                 // And, while restarts are allowed, failures are dismissable.
-                .do(state => restartsLeft -= state === 'failure' ? 1 : 0)
-                .skipWhile(state => state === 'failure' && restartsLeft >= 0)
-                .filter(state => conditions.includes(state))
+                .pipe(tap(state => restartsLeft -= state === 'failure' ? 1 : 0))
+                .pipe(skipWhile(state => state === 'failure' && restartsLeft >= 0))
+                .pipe(filter(state => conditions.includes(state)))
                 .subscribe(() => {
                     this.logger.logGlobalEvent('Sending SIGTERM to other processes..');
 
