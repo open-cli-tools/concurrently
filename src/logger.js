@@ -12,7 +12,7 @@ module.exports = class Logger {
     getPrefixesFor(command) {
         return {
             none: '',
-            pid: command.process.pid,
+            pid: command.pid,
             index: command.index,
             name: command.info.name,
             time: formatDate(Date.now(), this.timestampFormat)
