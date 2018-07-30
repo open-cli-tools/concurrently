@@ -47,7 +47,7 @@ module.exports = class Logger {
     }
 
     logGlobalEvent(text) {
-        this.log(chalk.gray.dim('-->') + ' ', text);
+        this.log(chalk.gray.dim('-->') + ' ', text + '\n');
     }
 
     log(prefix, text) {
