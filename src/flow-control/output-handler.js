@@ -4,9 +4,9 @@ module.exports = class OutputHandler {
     }
 
     handle(commands) {
-        commands.forEach(command => command.on('start', () => {
-            command.stdout && command.stdout.subscribe(text => this.logger.log(text.toString(), command));
-            command.stderr && command.stderr.subscribe(text => this.logger.log(text.toString(), command));
-        }));
+        commands.forEach(command => {
+            command.stdout.subscribe(text => this.logger.log(text.toString(), command));
+            command.stderr.subscribe(text => this.logger.log(text.toString(), command));
+        });
     }
 }
