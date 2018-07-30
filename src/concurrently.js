@@ -5,7 +5,10 @@ const spawn = require('spawn-command');
 const StripQuotes = require('./command-parser/strip-quotes');
 const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
+
+const CloseHandler = require('./flow-control/close-handler');
 const OutputHandler = require('./flow-control/output-handler');
+
 const getSpawnOpts = require('./get-spawn-opts');
 const Command = require('./command');
 const Logger = require('./logger');
@@ -53,6 +56,7 @@ module.exports = (commands, options) => {
 
     [
         new OutputHandler(logger),
+        new CloseHandler(logger),
     ].forEach(controller => controller.handle(commands));
 
     commands.forEach(command => command.start());

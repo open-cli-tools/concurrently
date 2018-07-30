@@ -37,6 +37,10 @@ module.exports = class Logger {
         return color(text);
     }
 
+    logEvent(text, command) {
+        this.log(chalk.gray.dim(text) + '\n', command);
+    }
+
     log(text, command) {
         // #70 - replace some ANSI code that would impact clearing lines
         text = text.replace(/\u2026/g, '...');
