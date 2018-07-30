@@ -17,8 +17,14 @@ module.exports = class Command {
         const child = this.spawn(this.info.command, this.spawnOpts);
         this.process = child;
 
-        pipeTo(Rx.Node.fromEvent(child, 'error'), this.error);
-        pipeTo(Rx.Node.fromEvent(child, 'close'), this.close);
+        Rx.Node.fromEvent(child, 'error').subscribe(event => {
+            this.process = undefined;
+            this.error.onNext(event);
+        });
+        Rx.Node.fromEvent(child, 'close').subscribe(event => {
+            this.process = undefined;
+            this.close.onNext(event);
+        });
         child.stdout && pipeTo(Rx.Node.fromReadableStream(child.stdout), this.stdout);
         child.stderr && pipeTo(Rx.Node.fromReadableStream(child.stderr), this.stderr);
     }

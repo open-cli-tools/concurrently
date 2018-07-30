@@ -8,6 +8,7 @@ const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
 const CloseHandler = require('./flow-control/close-handler');
 const OutputHandler = require('./flow-control/output-handler');
+const RestartHandler = require('./flow-control/restart-handler');
 
 const getSpawnOpts = require('./get-spawn-opts');
 const Command = require('./command');
@@ -17,6 +18,8 @@ const defaults = {
     spawn,
     raw: false,
     outputStream: process.stdout,
+    restartDelay: 0,
+    restartTries: 0,
     timestampFormat: 'YYYY-MM-DD HH:mm:ss.SSS',
 };
 
@@ -57,6 +60,11 @@ module.exports = (commands, options) => {
     [
         new OutputHandler(logger),
         new CloseHandler(logger),
+        new RestartHandler({
+            logger,
+            delay: options.restartDelay,
+            tries: options.restartTries,
+        })
     ].forEach(controller => controller.handle(commands));
 
     commands.forEach(command => command.start());
