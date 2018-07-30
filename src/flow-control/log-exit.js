@@ -5,7 +5,7 @@ module.exports = class LogExit {
 
     handle(commands) {
         commands.forEach(command => command.close.subscribe(exitCode => {
-            this.logger.logEvent(`${command.info.command} exited with code ${exitCode}`, command);
+            this.logger.logCommandEvent(`${command.info.command} exited with code ${exitCode}`, command);
         }));
     }
 }

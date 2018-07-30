@@ -16,7 +16,7 @@ module.exports = class RestartProcess {
                 .take(this.tries)
                 .delay(this.delay)
                 .subscribe(() => {
-                    this.logger.logEvent(`${command.info.command} restarted`);
+                    this.logger.logCommandEvent(`${command.info.command} restarted`);
                     command.start();
                 });
         });

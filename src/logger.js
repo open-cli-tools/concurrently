@@ -37,15 +37,19 @@ module.exports = class Logger {
         return color(text);
     }
 
-    logEvent(text, command) {
-        this.log(chalk.gray.dim(text) + '\n', command);
+    logCommandEvent(text, command) {
+        this.logCommandText(chalk.gray.dim(text) + '\n', command);
     }
 
-    log(text, command) {
+    logCommandText(text, command) {
+        const prefix = this.colorText(command, this.getPrefix(command)) + ' ';
+        return this.log(prefix, text);
+    }
+
+    log(prefix, text) {
         // #70 - replace some ANSI code that would impact clearing lines
         text = text.replace(/\u2026/g, '...');
 
-        const prefix = this.colorText(command, this.getPrefix(command)) + ' ';
         const lines = text.split('\n').map((line, index, lines) => {
             // First line will write prefix only if we finished the last write with a LF.
             // Last line won't write prefix because it should be empty.
