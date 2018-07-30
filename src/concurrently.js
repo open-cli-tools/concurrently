@@ -2,6 +2,7 @@ const assert = require('assert');
 const _ = require('lodash');
 const Rx = require('rxjs');
 const spawn = require('spawn-command');
+const treeKill = require('tree-kill');
 
 const StripQuotes = require('./command-parser/strip-quotes');
 const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
@@ -19,6 +20,7 @@ const Logger = require('./logger');
 
 const defaults = {
     spawn,
+    kill: treeKill,
     raw: false,
     killOthers: [],
     outputStream: process.stdout,
@@ -50,6 +52,7 @@ module.exports = (commands, options) => {
         .map((command, index) => new Command({
             index,
             spawnOpts,
+            killProcess: options.kill,
             spawn: options.spawn,
             info: command,
         }))

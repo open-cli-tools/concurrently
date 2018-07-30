@@ -1,9 +1,10 @@
 const Rx = require('rxjs');
 
 module.exports = class Command {
-    constructor({ index, info, spawn, spawnOpts }) {
+    constructor({ index, info, killProcess, spawn, spawnOpts }) {
         this.index = index;
         this.info = info;
+        this.killProcess = killProcess;
         this.spawn = spawn;
         this.spawnOpts = spawnOpts;
 
@@ -30,8 +31,8 @@ module.exports = class Command {
         child.stderr && pipeTo(Rx.fromEvent(child.stderr, 'data'), this.stderr);
     }
 
-    kill() {
-
+    kill(code) {
+        this.killProcess(this.pid, code);
     }
 }
 
