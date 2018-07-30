@@ -1,4 +1,4 @@
-module.exports = class OutputHandler {
+module.exports = class LogOutput {
     constructor(logger) {
         this.logger = logger;
     }

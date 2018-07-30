@@ -1,4 +1,4 @@
-module.exports = class CloseHandler {
+module.exports = class LogExit {
     constructor(logger) {
         this.logger = logger;
     }

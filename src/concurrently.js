@@ -6,9 +6,9 @@ const StripQuotes = require('./command-parser/strip-quotes');
 const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
-const CloseHandler = require('./flow-control/close-handler');
-const OutputHandler = require('./flow-control/output-handler');
-const RestartHandler = require('./flow-control/restart-handler');
+const LogExit = require('./flow-control/log-exit');
+const LogOutput = require('./flow-control/log-output');
+const RestartProcess = require('./flow-control/restart-process');
 
 const getSpawnOpts = require('./get-spawn-opts');
 const Command = require('./command');
@@ -58,9 +58,9 @@ module.exports = (commands, options) => {
     });
 
     [
-        new OutputHandler(logger),
-        new CloseHandler(logger),
-        new RestartHandler({
+        new LogOutput(logger),
+        new LogExit(logger),
+        new RestartProcess({
             logger,
             delay: options.restartDelay,
             tries: options.restartTries,

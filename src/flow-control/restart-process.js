@@ -1,4 +1,4 @@
-module.exports = class RestartHandler {
+module.exports = class RestartProcess {
     constructor({ delay, tries, logger }) {
         this.delay = +delay || 0;
         this.tries = +tries || 0;
