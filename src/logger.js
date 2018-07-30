@@ -46,6 +46,10 @@ module.exports = class Logger {
         return this.log(prefix, text);
     }
 
+    logGlobalEvent(text) {
+        this.log(chalk.gray.dim('-->') + ' ', text);
+    }
+
     log(prefix, text) {
         // #70 - replace some ANSI code that would impact clearing lines
         text = text.replace(/\u2026/g, '...');

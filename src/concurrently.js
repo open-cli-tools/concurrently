@@ -8,6 +8,7 @@ const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
 const LogExit = require('./flow-control/log-exit');
 const LogOutput = require('./flow-control/log-output');
+const KillOthers = require('./flow-control/kill-others');
 const RestartProcess = require('./flow-control/restart-process');
 
 const getSpawnOpts = require('./get-spawn-opts');
@@ -17,6 +18,7 @@ const Logger = require('./logger');
 const defaults = {
     spawn,
     raw: false,
+    killOthers: [],
     outputStream: process.stdout,
     restartDelay: 0,
     restartTries: 0,
@@ -60,6 +62,11 @@ module.exports = (commands, options) => {
     [
         new LogOutput(logger),
         new LogExit(logger),
+        new KillOthers({
+            logger,
+            conditions: options.killOthers,
+            restartTries: options.restartTries,
+        }),
         new RestartProcess({
             logger,
             delay: options.restartDelay,
