@@ -1,6 +1,5 @@
 const assert = require('assert');
 const _ = require('lodash');
-const Rx = require('rxjs');
 const spawn = require('spawn-command');
 const treeKill = require('tree-kill');
 
@@ -12,8 +11,8 @@ const LogExit = require('./flow-control/log-exit');
 const LogOutput = require('./flow-control/log-output');
 const KillOthers = require('./flow-control/kill-others');
 const RestartProcess = require('./flow-control/restart-process');
-const CompletionHandler = require('./flow-control/completion-handler');
 
+const CompletionDecorator = require('./completion-decorator');
 const getSpawnOpts = require('./get-spawn-opts');
 const Command = require('./command');
 const Logger = require('./logger');
@@ -64,25 +63,26 @@ module.exports = (commands, options) => {
         timestampFormat: options.timestampFormat,
     });
 
-    const controlSubject = new Rx.Subject();
-    [
-        new LogOutput(logger),
-        new LogExit(logger),
-        new KillOthers({
-            logger,
-            conditions: options.killOthers,
-            restartTries: options.restartTries,
-        }),
-        new RestartProcess({
-            logger,
-            delay: options.restartDelay,
-            tries: options.restartTries,
-        }),
-        new CompletionHandler({ successCondition: options.successCondition })
-    ].forEach(controller => controller.handle(commands, controlSubject));
+    const controllerHandler = new CompletionDecorator({
+        successCondition: options.successCondition,
+        controllers: [
+            new LogOutput(logger),
+            new LogExit(logger),
+            new KillOthers({
+                logger,
+                conditions: options.killOthers,
+                restartTries: options.restartTries,
+            }),
+            new RestartProcess({
+                logger,
+                delay: options.restartDelay,
+                tries: options.restartTries,
+            })
+        ]
+    });
 
     commands.forEach(command => command.start());
-    return controlSubject.asObservable();
+    return controllerHandler.handle(commands);
 };
 
 function mapToCommandInfo(command) {
