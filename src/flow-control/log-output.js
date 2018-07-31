@@ -1,3 +1,5 @@
+const { empty } = require('rxjs');
+
 module.exports = class LogOutput {
     constructor(logger) {
         this.logger = logger;
@@ -8,5 +10,7 @@ module.exports = class LogOutput {
             command.stdout.subscribe(text => this.logger.logCommandText(text.toString(), command));
             command.stderr.subscribe(text => this.logger.logCommandText(text.toString(), command));
         });
+
+        return empty();
     }
 }

@@ -1,3 +1,5 @@
+const { empty } = require('rxjs');
+
 module.exports = class LogExit {
     constructor(logger) {
         this.logger = logger;
@@ -7,5 +9,7 @@ module.exports = class LogExit {
         commands.forEach(command => command.close.subscribe(code => {
             this.logger.logCommandEvent(`${command.info.command} exited with code ${code}`, command);
         }));
+
+        return empty();
     }
 }

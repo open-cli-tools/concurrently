@@ -1,3 +1,4 @@
+const Rx = require('rxjs');
 const { filter, take, delay } = require('rxjs/operators');
 
 module.exports = class RestartProcess {
@@ -9,18 +10,21 @@ module.exports = class RestartProcess {
 
     handle(commands) {
         if (this.tries === 0) {
-            return;
+            return Rx.empty();
         }
 
-        commands.forEach(command => {
+        const observables = commands.map(command => (
             command.close
                 .pipe(filter(exitCode => typeof exitCode === 'number' && exitCode !== 0))
                 .pipe(take(this.tries))
                 .pipe(delay(this.delay))
-                .subscribe(() => {
-                    this.logger.logCommandEvent(`${command.info.command} restarted`, command);
-                    command.start();
-                });
-        });
+        ));
+
+        commands.forEach((command, index) => observables[index].subscribe(() => {
+            this.logger.logCommandEvent(`${command.info.command} restarted`, command);
+            command.start();
+        }));
+
+        return Rx.forkJoin(...observables);
     }
 }

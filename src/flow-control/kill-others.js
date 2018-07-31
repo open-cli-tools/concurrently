@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const Rx = require('rxjs');
 const { map, tap, skipWhile, filter } = require('rxjs/operators');
 
 module.exports = class KillOthers {
@@ -15,9 +16,10 @@ module.exports = class KillOthers {
         ));
 
         if (!conditions.length) {
-            return;
+            return Rx.empty();
         }
 
+        const subject = new Rx.Subject();
         const subscriptions = commands.map(command => {
             let restartsLeft = this.restartTries;
             return command.close
@@ -32,7 +34,10 @@ module.exports = class KillOthers {
 
                     subscriptions.forEach(subscription => subscription.unsubscribe());
                     commands.forEach(command => command.kill());
+                    subject.complete();
                 });
         });
+
+        return subject.asObservable();
     }
 }
