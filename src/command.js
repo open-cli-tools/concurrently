@@ -23,9 +23,9 @@ module.exports = class Command {
             this.process = undefined;
             this.error.next(event);
         });
-        Rx.fromEvent(child, 'close').subscribe(event => {
+        Rx.fromEvent(child, 'close').subscribe(([exitCode, signal]) => {
             this.process = undefined;
-            this.close.next(event);
+            this.close.next(exitCode === null ? signal : exitCode);
         });
         child.stdout && pipeTo(Rx.fromEvent(child.stdout, 'data'), this.stdout);
         child.stderr && pipeTo(Rx.fromEvent(child.stderr, 'data'), this.stderr);

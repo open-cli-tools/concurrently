@@ -23,7 +23,7 @@ module.exports = class CompletionHandler {
                 }
             }))
             .subscribe(success => {
-                success ? controlSubject.completed() : controlSubject.error();
+                success ? controlSubject.complete() : controlSubject.error();
             });
     }
 }

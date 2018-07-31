@@ -4,8 +4,7 @@ module.exports = class LogExit {
     }
 
     handle(commands) {
-        commands.forEach(command => command.close.subscribe(([exitCode, signal]) => {
-            const code = exitCode == null ? signal : exitCode;
+        commands.forEach(command => command.close.subscribe(code => {
             this.logger.logCommandEvent(`${command.info.command} exited with code ${code}`, command);
         }));
     }

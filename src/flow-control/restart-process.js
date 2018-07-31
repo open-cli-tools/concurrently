@@ -14,11 +14,11 @@ module.exports = class RestartProcess {
 
         commands.forEach(command => {
             command.close
-                .pipe(filter(exitCode => exitCode !== 0))
+                .pipe(filter(exitCode => typeof exitCode === 'number' && exitCode !== 0))
                 .pipe(take(this.tries))
                 .pipe(delay(this.delay))
                 .subscribe(() => {
-                    this.logger.logCommandEvent(`${command.info.command} restarted`);
+                    this.logger.logCommandEvent(`${command.info.command} restarted`, command);
                     command.start();
                 });
         });
