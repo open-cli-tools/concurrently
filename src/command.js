@@ -1,6 +1,10 @@
 const Rx = require('rxjs');
 
 module.exports = class Command {
+    get killable() {
+        return !!this.process;
+    }
+
     constructor({ index, info, killProcess, spawn, spawnOpts }) {
         this.index = index;
         this.info = info;
@@ -32,7 +36,9 @@ module.exports = class Command {
     }
 
     kill(code) {
-        this.killProcess(this.pid, code);
+        if (this.process) {
+            this.killProcess(this.pid, code);
+        }
     }
 }
 
