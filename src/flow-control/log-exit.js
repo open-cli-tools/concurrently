@@ -1,4 +1,4 @@
-const { empty } = require('rxjs');
+const { of } = require('rxjs');
 
 module.exports = class LogExit {
     constructor(logger) {
@@ -10,6 +10,6 @@ module.exports = class LogExit {
             this.logger.logCommandEvent(`${command.info.command} exited with code ${code}`, command);
         }));
 
-        return empty();
+        return of(null);
     }
 }

@@ -1,5 +1,5 @@
 const Rx = require('rxjs');
-const { filter, take, delay } = require('rxjs/operators');
+const { defaultIfEmpty, delay, mapTo, skip, take, takeWhile } = require('rxjs/operators');
 
 module.exports = class RestartProcess {
     constructor({ delay, tries, logger }) {
@@ -10,21 +10,29 @@ module.exports = class RestartProcess {
 
     handle(commands) {
         if (this.tries === 0) {
-            return Rx.empty();
+            return Rx.of(null);
         }
 
-        const observables = commands.map(command => (
-            command.close
-                .pipe(filter(exitCode => typeof exitCode === 'number' && exitCode !== 0))
-                .pipe(take(this.tries))
-                .pipe(delay(this.delay))
+        const shouldRestart = commands.map(command => command.close.pipe(
+            take(this.tries),
+            takeWhile(code => code !== 0)
+        )).map(failure => Rx.merge(
+            // Delay the emission (so that the restarts happen on time),
+            // explicitly telling the subscriber that a restart is needed
+            failure.pipe(delay(this.delay), mapTo(true)),
+            // Skip the first N emissions (as these would be duplicates of the above),
+            // meaning it will be empty because of success, or failed all N times,
+            // and no more restarts should be attempted.
+            failure.pipe(skip(this.tries), defaultIfEmpty(false)),
         ));
 
-        commands.forEach((command, index) => observables[index].subscribe(() => {
-            this.logger.logCommandEvent(`${command.info.command} restarted`, command);
-            command.start();
+        commands.forEach((command, index) => shouldRestart[index].subscribe(restart => {
+            if (restart) {
+                this.logger.logCommandEvent(`${command.info.command} restarted`, command);
+                command.start();
+            }
         }));
 
-        return Rx.forkJoin(...observables);
+        return Rx.forkJoin(shouldRestart);
     }
 }

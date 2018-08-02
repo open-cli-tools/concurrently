@@ -1,5 +1,5 @@
 const Rx = require('rxjs');
-const { map, skipUntil } = require('rxjs/operators');
+const { map, switchMap, withLatestFrom } = require('rxjs/operators');
 
 module.exports = class CompletionDecorator {
     constructor({ controllers, successCondition }) {
@@ -9,13 +9,13 @@ module.exports = class CompletionDecorator {
 
     handle(commands) {
         const results = this.controllers.map(controller => controller.handle(commands));
-        const controllersDone = Rx.forkJoin(...results);
         const closeStreams = commands.map(command => command.close);
-        const subject = new Rx.Subject();
 
-        Rx.combineLatest(...closeStreams)
-            .pipe(skipUntil(controllersDone))
-            .pipe(map(exitCodes => {
+        return Rx.forkJoin(results).pipe(
+            // Lots of close events can happen before the controllers are done,
+            // so when they finally complete, we only care about the last exit code
+            withLatestFrom(Rx.combineLatest(closeStreams)),
+            map(([, exitCodes]) => {
                 switch (this.successCondition) {
                     case 'first':
                         return exitCodes[0] === 0;
@@ -26,11 +26,8 @@ module.exports = class CompletionDecorator {
                     default:
                         return exitCodes.every(exitCode => exitCode === 0);
                 }
-            }))
-            .subscribe(success => {
-                success ? subject.complete() : subject.error();
-            });
-
-        return subject.asObservable();
+            }),
+            switchMap(success => success ? Rx.of(null) : Rx.throwError())
+        );
     }
 }
