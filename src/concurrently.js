@@ -7,6 +7,7 @@ const StripQuotes = require('./command-parser/strip-quotes');
 const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
+const InputHandler = require('./flow-control/input-handler');
 const LogExit = require('./flow-control/log-exit');
 const LogOutput = require('./flow-control/log-output');
 const KillOthers = require('./flow-control/kill-others');
@@ -22,6 +23,7 @@ const defaults = {
     kill: treeKill,
     raw: false,
     killOthers: [],
+    defaultInputTarget: 0,
     outputStream: process.stdout,
     restartDelay: 0,
     restartTries: 0,
@@ -67,6 +69,11 @@ module.exports = (commands, options) => {
         controllers: [
             new LogOutput(logger),
             new LogExit(logger),
+            new InputHandler({
+                logger,
+                defaultInputTarget: options.defaultInputTarget,
+                inputStream: options.inputStream,
+            }),
             new KillOthers({
                 logger,
                 conditions: options.killOthers,

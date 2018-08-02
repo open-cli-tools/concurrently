@@ -35,6 +35,7 @@ module.exports = class Command {
         });
         child.stdout && pipeTo(Rx.fromEvent(child.stdout, 'data'), this.stdout);
         child.stderr && pipeTo(Rx.fromEvent(child.stderr, 'data'), this.stderr);
+        this.stdin = child.stdin;
     }
 
     kill(code) {
