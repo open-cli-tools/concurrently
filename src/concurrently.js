@@ -8,6 +8,7 @@ const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
 const InputHandler = require('./flow-control/input-handler');
+const LogError = require('./flow-control/log-error');
 const LogExit = require('./flow-control/log-exit');
 const LogOutput = require('./flow-control/log-output');
 const KillOthers = require('./flow-control/kill-others');
@@ -67,6 +68,7 @@ module.exports = (commands, options) => {
     const controllerHandler = new CompletionDecorator({
         successCondition: options.successCondition,
         controllers: [
+            new LogError(logger),
             new LogOutput(logger),
             new LogExit(logger),
             new InputHandler({
