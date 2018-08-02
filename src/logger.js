@@ -3,7 +3,8 @@ const _ = require('lodash');
 const formatDate = require('date-fns/format');
 
 module.exports = class Logger {
-    constructor({ outputStream, prefixFormat, timestampFormat }) {
+    constructor({ outputStream, prefixFormat, raw, timestampFormat }) {
+        this.raw = raw;
         this.outputStream = outputStream;
         this.prefixFormat = prefixFormat;
         this.timestampFormat = timestampFormat;
@@ -14,13 +15,13 @@ module.exports = class Logger {
             none: '',
             pid: command.pid,
             index: command.index,
-            name: command.info.name,
+            name: command.name,
             time: formatDate(Date.now(), this.timestampFormat)
         };
     }
 
     getPrefix(command) {
-        const prefix = this.prefixFormat || (command.info.name ? 'name' : 'index');
+        const prefix = this.prefixFormat || (command.name ? 'name' : 'index');
         const prefixes = this.getPrefixesFor(command);
         if (Object.keys(prefixes).includes(prefix)) {
             return `[${prefixes[prefix]}]`;
@@ -38,6 +39,10 @@ module.exports = class Logger {
     }
 
     logCommandEvent(text, command) {
+        if (this.raw) {
+            return;
+        }
+
         this.logCommandText(chalk.gray.dim(text) + '\n', command);
     }
 
@@ -47,10 +52,18 @@ module.exports = class Logger {
     }
 
     logGlobalEvent(text) {
-        this.log(chalk.gray.dim('-->') + ' ', text + '\n');
+        if (this.raw) {
+            return;
+        }
+
+        this.log(chalk.gray.dim('-->') + ' ', chalk.gray.dim(text) + '\n');
     }
 
     log(prefix, text) {
+        if (this.raw) {
+            return this.outputStream.write(text);
+        }
+
         // #70 - replace some ANSI code that would impact clearing lines
         text = text.replace(/\u2026/g, '...');
 

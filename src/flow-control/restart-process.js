@@ -28,7 +28,7 @@ module.exports = class RestartProcess {
 
         commands.forEach((command, index) => shouldRestart[index].subscribe(restart => {
             if (restart) {
-                this.logger.logCommandEvent(`${command.info.command} restarted`, command);
+                this.logger.logCommandEvent(`${command.command} restarted`, command);
                 command.start();
             }
         }));

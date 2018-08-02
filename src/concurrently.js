@@ -48,13 +48,12 @@ module.exports = (commands, options) => {
     commands = _(commands)
         .map(mapToCommandInfo)
         .flatMap(command => parseCommand(command, commandParsers))
-        .map((command, index) => new Command({
+        .map((command, index) => new Command(Object.assign({
             index,
             spawnOpts,
             killProcess: options.kill,
             spawn: options.spawn,
-            info: command,
-        }))
+        }, command)))
         .value();
 
     const logger = new Logger({

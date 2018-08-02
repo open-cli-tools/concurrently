@@ -5,9 +5,11 @@ module.exports = class Command {
         return !!this.process;
     }
 
-    constructor({ index, info, killProcess, spawn, spawnOpts }) {
+    constructor({ index, name, command, prefixColor, killProcess, spawn, spawnOpts }) {
         this.index = index;
-        this.info = info;
+        this.name = name;
+        this.command = command;
+        this.prefixColor = prefixColor;
         this.killProcess = killProcess;
         this.spawn = spawn;
         this.spawnOpts = spawnOpts;
@@ -19,7 +21,7 @@ module.exports = class Command {
     }
 
     start() {
-        const child = this.spawn(this.info.command, this.spawnOpts);
+        const child = this.spawn(this.command, this.spawnOpts);
         this.process = child;
         this.pid = child.pid;
 
