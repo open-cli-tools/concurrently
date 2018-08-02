@@ -7,9 +7,6 @@ module.exports = class StripQuotes {
             command = command.substr(1, command.length - 2);
         }
 
-        return {
-            ...commandInfo,
-            command
-        };
+        return Object.assign({}, commandInfo, { command });
     }
-}
+};

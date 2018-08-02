@@ -12,4 +12,4 @@ module.exports = class LogExit {
 
         return of(null);
     }
-}
+};

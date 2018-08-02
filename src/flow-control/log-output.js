@@ -13,4 +13,4 @@ module.exports = class LogOutput {
 
         return of(null);
     }
-}
+};

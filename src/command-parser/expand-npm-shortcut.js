@@ -10,4 +10,4 @@ module.exports = class ExpandNpmShortcut {
             command: `npm run ${cmdName}${args}`
         });
     }
-}
+};

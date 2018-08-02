@@ -83,4 +83,4 @@ module.exports = class Logger {
         this.lastChar = text[text.length - 1];
         this.outputStream.write(lines.join('\n'));
     }
-}
+};

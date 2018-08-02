@@ -27,7 +27,7 @@ module.exports = class KillOthers {
                 tap(state => restartsLeft -= state === 'failure' ? 1 : 0),
                 // While restarts are allowed, failures are dismissable.
                 skipWhile(state => state === 'failure' && restartsLeft >= 0),
-                first(),
+                first()
             );
         });
 
@@ -43,4 +43,4 @@ module.exports = class KillOthers {
 
         return Rx.forkJoin(closeStates);
     }
-}
+};

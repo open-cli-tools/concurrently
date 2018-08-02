@@ -23,7 +23,7 @@ module.exports = class RestartProcess {
             // Skip the first N emissions (as these would be duplicates of the above),
             // meaning it will be empty because of success, or failed all N times,
             // and no more restarts should be attempted.
-            failure.pipe(skip(this.tries), defaultIfEmpty(false)),
+            failure.pipe(skip(this.tries), defaultIfEmpty(false))
         ));
 
         commands.forEach((command, index) => shouldRestart[index].subscribe(restart => {
@@ -35,4 +35,4 @@ module.exports = class RestartProcess {
 
         return Rx.forkJoin(shouldRestart);
     }
-}
+};

@@ -42,7 +42,7 @@ module.exports = class Command {
             this.killProcess(this.pid, code);
         }
     }
-}
+};
 
 function pipeTo(stream, subject) {
     stream.subscribe(event => subject.next(event));

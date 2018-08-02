@@ -17,6 +17,7 @@ module.exports = class CompletionDecorator {
             withLatestFrom(Rx.combineLatest(closeStreams)),
             map(([, exitCodes]) => {
                 switch (this.successCondition) {
+                /* eslint-disable indent */
                     case 'first':
                         return exitCodes[0] === 0;
 
@@ -25,9 +26,10 @@ module.exports = class CompletionDecorator {
 
                     default:
                         return exitCodes.every(exitCode => exitCode === 0);
+                /* eslint-enable indent */
                 }
             }),
             switchMap(success => success ? Rx.of(null) : Rx.throwError())
         );
     }
-}
+};
