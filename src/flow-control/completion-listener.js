@@ -1,7 +1,7 @@
 const Rx = require('rxjs');
 const { map, switchMap, withLatestFrom } = require('rxjs/operators');
 
-module.exports = class CompletionDecorator {
+module.exports = class CompletionListener {
     constructor({ controllers, successCondition }) {
         this.successCondition = successCondition;
         this.controllers = controllers;

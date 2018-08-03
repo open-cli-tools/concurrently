@@ -7,6 +7,7 @@ const StripQuotes = require('./command-parser/strip-quotes');
 const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
+const CompletionListener = require('./flow-control/completion-listener');
 const InputHandler = require('./flow-control/input-handler');
 const KillOnSignal = require('./flow-control/kill-on-signal');
 const LogError = require('./flow-control/log-error');
@@ -15,7 +16,6 @@ const LogOutput = require('./flow-control/log-output');
 const KillOthers = require('./flow-control/kill-others');
 const RestartProcess = require('./flow-control/restart-process');
 
-const CompletionDecorator = require('./completion-decorator');
 const getSpawnOpts = require('./get-spawn-opts');
 const Command = require('./command');
 const Logger = require('./logger');
@@ -66,7 +66,7 @@ module.exports = (commands, options) => {
         timestampFormat: options.timestampFormat,
     });
 
-    const controllerHandler = new CompletionDecorator({
+    const controllerHandler = new CompletionListener({
         successCondition: options.successCondition,
         controllers: [
             new LogError(logger),
