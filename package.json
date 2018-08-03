@@ -51,6 +51,8 @@
   "devDependencies": {
     "chai": "^1.10.0",
     "eslint": "^4.19.1",
+    "jest": "^23.4.2",
+    "jest-create-mock-instance": "^1.1.0",
     "mocha": "^2.1.0",
     "mustache": "^1.0.0",
     "releasor": "^1.2.1",
