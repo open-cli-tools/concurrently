@@ -8,6 +8,7 @@ const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
 const InputHandler = require('./flow-control/input-handler');
+const KillOnSignal = require('./flow-control/kill-on-signal');
 const LogError = require('./flow-control/log-error');
 const LogExit = require('./flow-control/log-exit');
 const LogOutput = require('./flow-control/log-output');
@@ -76,6 +77,7 @@ module.exports = (commands, options) => {
                 defaultInputTarget: options.defaultInputTarget,
                 inputStream: options.inputStream,
             }),
+            new KillOnSignal(),
             new KillOthers({
                 logger,
                 conditions: options.killOthers,
