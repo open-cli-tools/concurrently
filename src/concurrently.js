@@ -63,6 +63,7 @@ module.exports = (commands, options) => {
     const logger = new Logger({
         outputStream: options.outputStream,
         prefixFormat: options.prefix,
+        raw: options.raw,
         timestampFormat: options.timestampFormat,
     });
 
