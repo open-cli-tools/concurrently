@@ -1,8 +1,9 @@
 const { of } = require('rxjs');
 
 module.exports = class LogExit {
-    constructor(logger) {
+    constructor({ logger, scheduler }) {
         this.logger = logger;
+        this.scheduler = scheduler;
     }
 
     handle(commands) {
@@ -10,6 +11,6 @@ module.exports = class LogExit {
             this.logger.logCommandEvent(`${command.command} exited with code ${code}`, command);
         }));
 
-        return of(null);
+        return of(null, this.scheduler);
     }
 };
