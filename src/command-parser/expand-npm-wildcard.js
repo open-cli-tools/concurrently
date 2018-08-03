@@ -3,7 +3,7 @@ const readPkg = require('read-pkg');
 
 module.exports = class ExpandNpmWildcard {
     constructor(readPackage = readPkg.sync) {
-        this.scripts = Object.keys(readPackage().scripts || {});
+        this.readPackage = readPackage;
     }
 
     parse(commandInfo) {
@@ -14,6 +14,10 @@ module.exports = class ExpandNpmWildcard {
         // then we have nothing to do here
         if (!cmdName || wildcardPosition === -1) {
             return commandInfo;
+        }
+
+        if (!this.scripts) {
+            this.scripts = Object.keys(this.readPackage().scripts || {});
         }
 
         const preWildcard = _.escapeRegExp(cmdName.substr(0, wildcardPosition));
