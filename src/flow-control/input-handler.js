@@ -16,7 +16,7 @@ module.exports = class InputHandler {
         Rx.fromEvent(this.inputStream, 'data')
             .pipe(map(data => data.toString()))
             .subscribe(data => {
-                let [targetId, input] = data.split(':', 2);
+                let [targetId, input] = data.split(':', 2); // eslint-disable-line prefer-const
                 targetId = input ? targetId : this.defaultInputTarget;
 
                 const command = commands.filter(command => (
