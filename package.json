@@ -61,5 +61,12 @@
     "shelljs": "^0.3.0",
     "sinon": "^4.1.3",
     "string": "^3.0.0"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
+    "testEnvironment": "node"
   }
 }
