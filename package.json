@@ -67,6 +67,10 @@
     "collectCoverageFrom": [
       "src/**/*.js"
     ],
+    "coveragePathIgnorePatterns": [
+      "/fixtures/",
+      "/node_modules/"
+    ],
     "testEnvironment": "node"
   }
 }
