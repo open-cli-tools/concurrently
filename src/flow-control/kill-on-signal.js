@@ -1,8 +1,9 @@
 const { of } = require('rxjs');
 
 module.exports = class KillOnSignal {
-    constructor(process = global.process) {
+    constructor({ process = global.process, scheduler }) {
         this.process = process;
+        this.scheduler = scheduler;
     }
 
     handle(commands) {
@@ -12,6 +13,6 @@ module.exports = class KillOnSignal {
             });
         });
 
-        return of(null);
+        return of(null, this.scheduler);
     }
 };
