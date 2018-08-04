@@ -70,9 +70,9 @@ module.exports = (commands, options) => {
     const controllerHandler = new CompletionListener({
         successCondition: options.successCondition,
         controllers: [
-            new LogError(logger),
-            new LogOutput(logger),
-            new LogExit(logger),
+            new LogError({ logger }),
+            new LogOutput({ logger }),
+            new LogExit({ logger }),
             new InputHandler({
                 logger,
                 defaultInputTarget: options.defaultInputTarget,

@@ -1,7 +1,7 @@
 const { of } = require('rxjs');
 
 module.exports = class KillOnSignal {
-    constructor({ process = global.process, scheduler }) {
+    constructor({ process = global.process, scheduler } = {}) {
         this.process = process;
         this.scheduler = scheduler;
     }
