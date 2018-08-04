@@ -1,12 +1,13 @@
 const _ = require('lodash');
 const Rx = require('rxjs');
-const { filter, first, map, tap, skipWhile } = require('rxjs/operators');
+const { first, map, tap, skipWhile } = require('rxjs/operators');
 
 module.exports = class KillOthers {
-    constructor({ logger, conditions, restartTries }) {
+    constructor({ logger, conditions, restartTries, scheduler }) {
         this.logger = logger;
         this.conditions = _.castArray(conditions);
         this.restartTries = +restartTries || 0;
+        this.scheduler = scheduler;
     }
 
     handle(commands) {
@@ -16,7 +17,7 @@ module.exports = class KillOthers {
         ));
 
         if (!conditions.length) {
-            return Rx.of(null);
+            return Rx.of(null, this.scheduler);
         }
 
         const closeStates = commands.map(command => {
@@ -36,7 +37,7 @@ module.exports = class KillOthers {
                 const killableCommands = commands.filter(command => command.killable);
                 if (conditions.includes(state) && killableCommands.length) {
                     this.logger.logGlobalEvent('Sending SIGTERM to other processes..');
-                    commands.forEach(command => command.kill());
+                    killableCommands.forEach(command => command.kill());
                 }
             });
         });
