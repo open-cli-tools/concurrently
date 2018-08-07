@@ -7,7 +7,7 @@ module.exports = class Logger {
         this.raw = raw;
         this.outputStream = outputStream;
         this.prefixFormat = prefixFormat;
-        this.timestampFormat = timestampFormat;
+        this.timestampFormat = timestampFormat || 'YYYY-MM-DD HH:mm:ss.SSS';
     }
 
     getPrefixesFor(command) {
