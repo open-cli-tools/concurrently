@@ -8,28 +8,15 @@ const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
 const CompletionListener = require('./flow-control/completion-listener');
-const InputHandler = require('./flow-control/input-handler');
-const KillOnSignal = require('./flow-control/kill-on-signal');
-const LogError = require('./flow-control/log-error');
-const LogExit = require('./flow-control/log-exit');
-const LogOutput = require('./flow-control/log-output');
-const KillOthers = require('./flow-control/kill-others');
-const RestartProcess = require('./flow-control/restart-process');
 
 const getSpawnOpts = require('./get-spawn-opts');
 const Command = require('./command');
-const Logger = require('./logger');
 
 const defaults = {
     spawn,
     kill: treeKill,
     raw: false,
-    killOthers: [],
-    defaultInputTarget: 0,
-    outputStream: process.stdout,
-    restartDelay: 0,
-    restartTries: 0,
-    timestampFormat: 'YYYY-MM-DD HH:mm:ss.SSS',
+    controllers: []
 };
 
 module.exports = (commands, options) => {
@@ -57,36 +44,9 @@ module.exports = (commands, options) => {
         }, command)))
         .value();
 
-    const logger = new Logger({
-        outputStream: options.outputStream,
-        prefixFormat: options.prefix,
-        raw: options.raw,
-        timestampFormat: options.timestampFormat,
-    });
-
     const controllerHandler = new CompletionListener({
         successCondition: options.successCondition,
-        controllers: [
-            new LogError({ logger }),
-            new LogOutput({ logger }),
-            new LogExit({ logger }),
-            new InputHandler({
-                logger,
-                defaultInputTarget: options.defaultInputTarget,
-                inputStream: options.inputStream,
-            }),
-            new KillOnSignal(),
-            new KillOthers({
-                logger,
-                conditions: options.killOthers,
-                restartTries: options.restartTries,
-            }),
-            new RestartProcess({
-                logger,
-                delay: options.restartDelay,
-                tries: options.restartTries,
-            })
-        ]
+        controllers: options.controllers
     });
 
     commands.forEach(command => command.start());
