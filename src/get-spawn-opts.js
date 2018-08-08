@@ -2,9 +2,11 @@ const supportsColor = require('supports-color');
 
 module.exports = ({
     colorSupport = supportsColor,
-    isWindows = process.platform
+    process = global.process,
+    raw = false
 } = {}) => Object.assign(
     {},
-    isWindows && { detached: false },
-    colorSupport && Object.assign({ FORCE_COLOR: colorSupport.level }, process.env)
+    raw && { stdio: 'inherit' },
+    /^win/.test(process.platform) && { detached: false },
+    colorSupport && { env: Object.assign({ FORCE_COLOR: colorSupport.level }, process.env) }
 );

@@ -39,7 +39,7 @@ module.exports = class Command {
     }
 
     kill(code) {
-        if (this.process) {
+        if (this.killable) {
             this.killProcess(this.pid, code);
         }
     }

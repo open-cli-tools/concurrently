@@ -21,9 +21,9 @@ module.exports = (commands, options = {}) => {
         raw: options.raw,
         successCondition: options.successCondition,
         controllers: [
-            new LogError(logger),
-            new LogOutput(logger),
-            new LogExit(logger),
+            new LogError({ logger }),
+            new LogOutput({ logger }),
+            new LogExit({ logger }),
             new InputHandler({
                 logger,
                 defaultInputTarget: options.defaultInputTarget,

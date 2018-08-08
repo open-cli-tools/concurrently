@@ -2,9 +2,10 @@ const Rx = require('rxjs');
 const { map, switchMap, withLatestFrom } = require('rxjs/operators');
 
 module.exports = class CompletionListener {
-    constructor({ controllers, successCondition }) {
+    constructor({ controllers, successCondition, scheduler }) {
         this.successCondition = successCondition;
         this.controllers = controllers;
+        this.scheduler = scheduler;
     }
 
     handle(commands) {
@@ -29,7 +30,9 @@ module.exports = class CompletionListener {
                 /* eslint-enable indent */
                 }
             }),
-            switchMap(success => success ? Rx.of(null) : Rx.throwError())
+            switchMap(success => success
+                ? Rx.of(null, this.scheduler)
+                : Rx.throwError(new Error(), this.scheduler))
         );
     }
 };

@@ -2,15 +2,16 @@ const Rx = require('rxjs');
 const { defaultIfEmpty, delay, mapTo, skip, take, takeWhile } = require('rxjs/operators');
 
 module.exports = class RestartProcess {
-    constructor({ delay, tries, logger }) {
+    constructor({ delay, tries, logger, scheduler }) {
         this.delay = +delay || 0;
         this.tries = +tries || 0;
         this.logger = logger;
+        this.scheduler = scheduler;
     }
 
     handle(commands) {
         if (this.tries === 0) {
-            return Rx.of(null);
+            return Rx.of(null, this.scheduler);
         }
 
         const shouldRestart = commands.map(command => command.close.pipe(
@@ -19,7 +20,7 @@ module.exports = class RestartProcess {
         )).map(failure => Rx.merge(
             // Delay the emission (so that the restarts happen on time),
             // explicitly telling the subscriber that a restart is needed
-            failure.pipe(delay(this.delay), mapTo(true)),
+            failure.pipe(delay(this.delay, this.scheduler), mapTo(true)),
             // Skip the first N emissions (as these would be duplicates of the above),
             // meaning it will be empty because of success, or failed all N times,
             // and no more restarts should be attempted.

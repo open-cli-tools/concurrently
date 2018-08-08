@@ -31,10 +31,7 @@ module.exports = (commands, options) => {
         new ExpandNpmWildcard()
     ];
 
-    const spawnOpts = Object.assign(
-        options.raw ? { stdio: 'inherit' } : {},
-        getSpawnOpts()
-    );
+    const spawnOpts = getSpawnOpts({ raw: options.raw });
 
     commands = _(commands)
         .map(mapToCommandInfo)
