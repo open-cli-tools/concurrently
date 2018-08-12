@@ -1,5 +1,5 @@
 const Rx = require('rxjs');
-const { defaultIfEmpty, delay, mapTo, skip, take, takeWhile } = require('rxjs/operators');
+const { defaultIfEmpty, delay, filter, mapTo, skip, skipUntil, take, takeWhile } = require('rxjs/operators');
 
 module.exports = class RestartProcess {
     constructor({ delay, tries, logger, scheduler }) {
@@ -11,13 +11,13 @@ module.exports = class RestartProcess {
 
     handle(commands) {
         if (this.tries === 0) {
-            return Rx.of(null, this.scheduler);
+            return commands;
         }
 
-        const shouldRestart = commands.map(command => command.close.pipe(
+        commands.map(command => command.close.pipe(
             take(this.tries),
             takeWhile(code => code !== 0)
-        )).map(failure => Rx.merge(
+        )).map((failure, index) => Rx.merge(
             // Delay the emission (so that the restarts happen on time),
             // explicitly telling the subscriber that a restart is needed
             failure.pipe(delay(this.delay, this.scheduler), mapTo(true)),
@@ -25,15 +25,23 @@ module.exports = class RestartProcess {
             // meaning it will be empty because of success, or failed all N times,
             // and no more restarts should be attempted.
             failure.pipe(skip(this.tries), defaultIfEmpty(false))
-        ));
-
-        commands.forEach((command, index) => shouldRestart[index].subscribe(restart => {
+        ).subscribe(restart => {
+            const command = commands[index];
             if (restart) {
                 this.logger.logCommandEvent(`${command.command} restarted`, command);
                 command.start();
             }
         }));
 
-        return Rx.forkJoin(shouldRestart);
+        return commands.map(command => {
+            const closeStream = command.close.pipe(filter((value, emission) => {
+                // We let all success codes pass, and failures only after restarting won't happen again
+                return value === 0 || emission >= this.tries;
+            }));
+
+            return Object.create(command, {
+                close: { get: () => closeStream }
+            });
+        });
     }
 };

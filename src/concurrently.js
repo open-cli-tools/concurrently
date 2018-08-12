@@ -7,7 +7,7 @@ const StripQuotes = require('./command-parser/strip-quotes');
 const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
-const CompletionListener = require('./flow-control/completion-listener');
+const CompletionListener = require('./completion-listener');
 
 const getSpawnOpts = require('./get-spawn-opts');
 const Command = require('./command');
@@ -44,13 +44,13 @@ module.exports = (commands, options) => {
         }, command)))
         .value();
 
-    const controllerHandler = new CompletionListener({
-        successCondition: options.successCondition,
-        controllers: options.controllers
-    });
+    commands = options.controllers.reduce(
+        (prevCommands, controller) => controller.handle(prevCommands),
+        commands
+    );
 
     commands.forEach(command => command.start());
-    return controllerHandler.handle(commands);
+    return new CompletionListener({ successCondition: options.successCondition }).listen(commands);
 };
 
 function mapToCommandInfo(command) {

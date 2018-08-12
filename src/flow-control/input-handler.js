@@ -11,7 +11,7 @@ module.exports = class InputHandler {
 
     handle(commands) {
         if (!this.inputStream) {
-            return Rx.of(null, this.scheduler);
+            return commands;
         }
 
         Rx.fromEvent(this.inputStream, 'data')
@@ -33,6 +33,6 @@ module.exports = class InputHandler {
                 }
             });
 
-        return Rx.of(null, this.scheduler);
+        return commands;
     }
 };

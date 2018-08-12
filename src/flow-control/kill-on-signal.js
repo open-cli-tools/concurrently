@@ -13,6 +13,6 @@ module.exports = class KillOnSignal {
             });
         });
 
-        return of(null, this.scheduler);
+        return commands;
     }
 };

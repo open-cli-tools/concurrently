@@ -16,12 +16,8 @@ beforeEach(() => {
     controller = new LogExit({ logger, scheduler });
 });
 
-it('returns empty observable', () => {
-    controller.handle(commands).subscribe(value => {
-        expect(value).toBe(null);
-    });
-
-    scheduler.flush();
+it('returns same commands', () => {
+    expect(controller.handle(commands)).toBe(commands);
 });
 
 it('logs the close event of each command', () => {

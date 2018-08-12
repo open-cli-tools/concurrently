@@ -1,22 +1,16 @@
 const Rx = require('rxjs');
-const { map, switchMap, withLatestFrom } = require('rxjs/operators');
+const { map, switchMap, take } = require('rxjs/operators');
 
 module.exports = class CompletionListener {
-    constructor({ controllers, successCondition, scheduler }) {
+    constructor({ successCondition, scheduler }) {
         this.successCondition = successCondition;
-        this.controllers = controllers;
         this.scheduler = scheduler;
     }
 
-    handle(commands) {
-        const results = this.controllers.map(controller => controller.handle(commands));
+    listen(commands) {
         const closeStreams = commands.map(command => command.close);
-
-        return Rx.forkJoin(results).pipe(
-            // Lots of close events can happen before the controllers are done,
-            // so when they finally complete, we only care about the last exit code
-            withLatestFrom(Rx.combineLatest(closeStreams)),
-            map(([, exitCodes]) => {
+        return Rx.zip(...closeStreams).pipe(
+            map(exitCodes => {
                 switch (this.successCondition) {
                 /* eslint-disable indent */
                     case 'first':
@@ -32,7 +26,8 @@ module.exports = class CompletionListener {
             }),
             switchMap(success => success
                 ? Rx.of(null, this.scheduler)
-                : Rx.throwError(new Error(), this.scheduler))
-        );
+                : Rx.throwError(new Error(), this.scheduler)),
+            take(1)
+        ).toPromise();
     }
 };

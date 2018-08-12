@@ -16,6 +16,6 @@ module.exports = class LogExit {
             this.logger.logCommandEvent(event.stack || event, command);
         }));
 
-        return of(null, this.scheduler);
+        return commands;
     }
 };

@@ -11,6 +11,6 @@ module.exports = class LogExit {
             this.logger.logCommandEvent(`${command.command} exited with code ${code}`, command);
         }));
 
-        return of(null, this.scheduler);
+        return commands;
     }
 };

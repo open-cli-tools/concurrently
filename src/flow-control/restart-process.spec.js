@@ -22,23 +22,16 @@ beforeEach(() => {
     });
 });
 
-it('does nothing if 0 tries are to be attempted', () => {
-    controller = new RestartProcess({ logger, scheduler });
-    controller.handle(commands).subscribe(value => {
-        expect(value).toBeNull();
-    });
-
-    scheduler.flush();
-});
-
-it('finishes when all processes complete with success', () => {
-    const promise = controller.handle(commands).toPromise();
+it('does not restart processes that complete with success', () => {
+    controller.handle(commands);
 
     commands[0].close.next(0);
     commands[1].close.next(0);
 
     scheduler.flush();
-    return promise;
+
+    expect(commands[0].start).toHaveBeenCalledTimes(0);
+    expect(commands[1].start).toHaveBeenCalledTimes(0);
 });
 
 it('restarts processes that fail after delay has passed', () => {
@@ -59,7 +52,7 @@ it('restarts processes that fail after delay has passed', () => {
 });
 
 it('restarts processes up to tries', () => {
-    const promise = controller.handle(commands).toPromise();
+    controller.handle(commands);
 
     commands[0].close.next(1);
     commands[0].close.next('SIGTERM');
@@ -74,12 +67,10 @@ it('restarts processes up to tries', () => {
         commands[0]
     );
     expect(commands[0].start).toHaveBeenCalledTimes(2);
-
-    return promise;
 });
 
 it('restarts processes until they succeed', () => {
-    const promise = controller.handle(commands).toPromise();
+    controller.handle(commands);
 
     commands[0].close.next(1);
     commands[0].close.next(0);
@@ -93,6 +84,36 @@ it('restarts processes until they succeed', () => {
         commands[0]
     );
     expect(commands[0].start).toHaveBeenCalledTimes(1);
+});
 
-    return promise;
+describe('returned commands', () => {
+    it('are the same if 0 tries are to be attempted', () => {
+        controller = new RestartProcess({ logger, scheduler });
+        expect(controller.handle(commands)).toBe(commands);
+    });
+
+    it('are not the same, but with same length if 1+ tries are to be attempted', () => {
+        const newCommands = controller.handle(commands);
+        expect(newCommands).not.toBe(commands);
+        expect(newCommands).toHaveLength(commands.length);
+    });
+
+    it('skip close events followed by restarts', () => {
+        const newCommands = controller.handle(commands);
+
+        const callback = jest.fn();
+        newCommands[0].close.subscribe(callback);
+        newCommands[1].close.subscribe(callback);
+
+        commands[0].close.next(1);
+        commands[0].close.next(1);
+        commands[0].close.next(1);
+        commands[1].close.next(1);
+        commands[1].close.next(0);
+
+        scheduler.flush();
+
+        // 1 failure from commands[0], 1 success from commands[1]
+        expect(callback).toHaveBeenCalledTimes(2);
+    });
 });

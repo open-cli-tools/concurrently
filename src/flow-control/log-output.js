@@ -12,6 +12,6 @@ module.exports = class LogOutput {
             command.stderr.subscribe(text => this.logger.logCommandText(text.toString(), command));
         });
 
-        return of(null, this.scheduler);
+        return commands;
     }
 };

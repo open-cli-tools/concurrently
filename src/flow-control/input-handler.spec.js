@@ -24,13 +24,11 @@ beforeEach(() => {
     });
 });
 
-it('does nothing if no input stream is given', () => {
-    controller = new InputHandler({ logger, scheduler });
-    controller.handle(commands).subscribe(value => {
-        expect(value).toBeNull();
-    });
+it('returns same commands', () => {
+    expect(controller.handle(commands)).toBe(commands);
 
-    scheduler.flush();
+    controller = new InputHandler({ logger, scheduler });
+    expect(controller.handle(commands)).toBe(commands);
 });
 
 it('forwards input stream to default target ID', () => {

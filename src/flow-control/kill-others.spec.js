@@ -16,19 +16,15 @@ beforeEach(() => {
     scheduler = new TestScheduler();
 });
 
-const createWithConditions = (conditions, restartTries) => new KillOthers({
+const createWithConditions = conditions => new KillOthers({
     logger,
     scheduler,
-    conditions,
-    restartTries
+    conditions
 });
 
-it('does nothing if conditions are not recognized', () => {
-    createWithConditions(['foo']).handle(commands).subscribe(value => {
-        expect(value).toBeNull();
-    });
-
-    scheduler.flush();
+it('returns same commands', () => {
+    expect(createWithConditions(['foo']).handle(commands)).toBe(commands);
+    expect(createWithConditions(['failure']).handle(commands)).toBe(commands);
 });
 
 it('does not kill others if condition does not match', () => {
@@ -42,9 +38,8 @@ it('does not kill others if condition does not match', () => {
 });
 
 it('kills other killable processes on success', () => {
-    createWithConditions(['success'], 1).handle(commands);
+    createWithConditions(['success']).handle(commands);
     commands[1].killable = true;
-    commands[0].close.next(1);
     commands[0].close.next(0);
 
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
@@ -53,14 +48,22 @@ it('kills other killable processes on success', () => {
     expect(commands[1].kill).toHaveBeenCalled();
 });
 
-it('kills other killable processes on failure, after restarts attempted', () => {
-    createWithConditions(['failure'], 1).handle(commands);
+it('kills other killable processes on failure', () => {
+    createWithConditions(['failure']).handle(commands);
     commands[1].killable = true;
-    commands[0].close.next(1);
     commands[0].close.next(1);
 
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
     expect(commands[0].kill).not.toHaveBeenCalled();
     expect(commands[1].kill).toHaveBeenCalled();
+});
+
+it('does not try to kill processes already dead', () => {
+    createWithConditions(['failure']).handle(commands);
+    commands[0].close.next(1);
+
+    expect(logger.logGlobalEvent).not.toHaveBeenCalled();
+    expect(commands[0].kill).not.toHaveBeenCalled();
+    expect(commands[1].kill).not.toHaveBeenCalled();
 });

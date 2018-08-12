@@ -30,15 +30,14 @@ module.exports = (commands, options = {}) => {
                 inputStream: options.inputStream,
             }),
             new KillOnSignal(),
-            new KillOthers({
-                logger,
-                conditions: options.killOthers,
-                restartTries: options.restartTries,
-            }),
             new RestartProcess({
                 logger,
                 delay: options.restartDelay,
                 tries: options.restartTries,
+            }),
+            new KillOthers({
+                logger,
+                conditions: options.killOthers
             })
         ]
     });

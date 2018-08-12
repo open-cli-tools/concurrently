@@ -13,6 +13,10 @@ beforeEach(() => {
     controller = new KillOnSignal({ process });
 });
 
+it('returns same commands', () => {
+    expect(controller.handle(commands)).toBe(commands);
+});
+
 it('kills all commands on SIGINT', () => {
     controller.handle(commands);
     process.emit('SIGINT');

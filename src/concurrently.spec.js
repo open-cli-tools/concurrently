@@ -1,5 +1,6 @@
 const EventEmitter = require('events');
 
+const createFakeCommand = require('./flow-control/fixtures/fake-command');
 const concurrently = require('./concurrently');
 
 let spawn, kill, controllers;
@@ -9,7 +10,7 @@ beforeEach(() => {
 
     spawn = jest.fn(() => process);
     kill = jest.fn();
-    controllers = [{ handle: jest.fn() }, { handle: jest.fn() }];
+    controllers = [{ handle: jest.fn(arg => arg) }, { handle: jest.fn(arg => arg) }];
 });
 
 const create = (commands, options = {}) => concurrently(
@@ -57,4 +58,19 @@ it('runs commands with a name or prefix color', () => {
             expect.objectContaining({ command: 'kill', index: 1, name: '', prefixColor: '' }),
         ]);
     });
+});
+
+it('passes commands wrapped from a controller to the next one', () => {
+    const fakeCommand = createFakeCommand('banana', 'banana');
+    controllers[0].handle.mockReturnValue([fakeCommand]);
+
+    create(['echo']);
+
+    expect(controllers[0].handle).toHaveBeenCalledWith([
+        expect.objectContaining({ command: 'echo', index: 0 })
+    ]);
+
+    expect(controllers[1].handle).toHaveBeenCalledWith([fakeCommand]);
+
+    expect(fakeCommand.start).toHaveBeenCalledTimes(1);
 });
