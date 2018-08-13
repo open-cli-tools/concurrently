@@ -293,7 +293,7 @@ describe('--handle-input', () => {
         const child = run('-ki --default-input-target 1 "node fixtures/read-echo.js" "node fixtures/read-echo.js"');
         child.log.subscribe(line => {
             lines.push(line);
-            if (/READING/.test(line)) {
+            if (/\[1\] READING/.test(line)) {
                 child.stdin.write('stop\n');
             }
         }, done);
@@ -311,7 +311,7 @@ describe('--handle-input', () => {
         const child = run('-ki "node fixtures/read-echo.js" "node fixtures/read-echo.js"');
         child.log.subscribe(line => {
             lines.push(line);
-            if (/READING/.test(line)) {
+            if (/\[1\] READING/.test(line)) {
                 child.stdin.write('1:stop\n');
             }
         }, done);
