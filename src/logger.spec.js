@@ -125,6 +125,13 @@ describe('#logCommandText()', () => {
         expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('0-bar') + ' ', 'foo');
     });
 
+    it('logs prefix using command line itself', () => {
+        const logger = createLogger({ prefixFormat: 'command' });
+        logger.logCommandText('foo', { command: 'echo foo' });
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[echo foo]') + ' ', 'foo');
+    });
+
     it('logs prefix using prefixColor from command', () => {
         const logger = createLogger();
         logger.logCommandText('foo', { prefixColor: 'blue', index: 1 });

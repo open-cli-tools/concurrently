@@ -18,6 +18,7 @@ module.exports = class Logger {
             pid: command.pid,
             index: command.index,
             name: command.name,
+            command: command.command,
             time: formatDate(Date.now(), this.timestampFormat)
         };
     }
