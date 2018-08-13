@@ -201,11 +201,9 @@ describe('--kill-others', () => {
     it('is alised to -k', done => {
         const child = run('-k "sleep 10" "exit 0"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toEqual([
-                expect.stringContaining('[1] exit 0 exited with code 0'),
-                expect.stringContaining('Sending SIGTERM to other processes'),
-                expect.stringContaining('[0] sleep 10 exited with code SIGTERM')
-            ]);
+            expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
+            expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
+            expect(lines).toContainEqual(expect.stringContaining('[0] sleep 10 exited with code SIGTERM'));
             done();
         }, done);
     });
@@ -213,11 +211,9 @@ describe('--kill-others', () => {
     it('kills on success', done => {
         const child = run('--kill-others "sleep 10" "exit 0"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toEqual([
-                expect.stringContaining('[1] exit 0 exited with code 0'),
-                expect.stringContaining('Sending SIGTERM to other processes'),
-                expect.stringContaining('[0] sleep 10 exited with code SIGTERM')
-            ]);
+            expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
+            expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
+            expect(lines).toContainEqual(expect.stringContaining('[0] sleep 10 exited with code SIGTERM'));
             done();
         }, done);
     });
@@ -225,11 +221,9 @@ describe('--kill-others', () => {
     it('kills on failure', done => {
         const child = run('--kill-others "sleep 10" "exit 1"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toEqual([
-                expect.stringContaining('[1] exit 1 exited with code 1'),
-                expect.stringContaining('Sending SIGTERM to other processes'),
-                expect.stringContaining('[0] sleep 10 exited with code SIGTERM')
-            ]);
+            expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
+            expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
+            expect(lines).toContainEqual(expect.stringContaining('[0] sleep 10 exited with code SIGTERM'));
             done();
         }, done);
     });
@@ -239,10 +233,8 @@ describe('--kill-others-on-fail', () => {
     it('does not kill on success', done => {
         const child = run('--kill-others-on-fail "sleep 0.5" "exit 0"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toEqual([
-                expect.stringContaining('[1] exit 0 exited with code 0'),
-                expect.stringContaining('[0] sleep 0.5 exited with code 0')
-            ]);
+            expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
+            expect(lines).toContainEqual(expect.stringContaining('[0] sleep 0.5 exited with code 0'));
             done();
         }, done);
     });
@@ -250,11 +242,9 @@ describe('--kill-others-on-fail', () => {
     it('kills on failure', done => {
         const child = run('--kill-others-on-fail "sleep 10" "exit 1"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toEqual([
-                expect.stringContaining('[1] exit 1 exited with code 1'),
-                expect.stringContaining('Sending SIGTERM to other processes'),
-                expect.stringContaining('[0] sleep 10 exited with code SIGTERM')
-            ]);
+            expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
+            expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
+            expect(lines).toContainEqual(expect.stringContaining('[0] sleep 10 exited with code SIGTERM'));
             done();
         }, done);
     });
