@@ -2,21 +2,16 @@
   "name": "concurrently",
   "version": "3.6.1",
   "description": "Run commands concurrently",
-  "main": "src/main.js",
+  "main": "index.js",
   "bin": {
-    "concurrent": "./src/main.js",
-    "concurrently": "./src/main.js"
+    "concurrently": "./bin/concurrently.js"
   },
   "engines": {
-    "node": ">=4.0.0"
+    "node": ">=6.0.0"
   },
   "scripts": {
     "lint": "eslint .",
-    "test": "mocha",
-    "echo": "echo",
-    "echo-test": "echo test",
-    "echo-sound-beep": "echo beep",
-    "echo-sound-boop": "echo boop"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -32,10 +27,6 @@
   ],
   "author": "Kimmo Brunfeldt",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/kimmobrunfeldt/concurrently/issues"
-  },
-  "homepage": "https://github.com/kimmobrunfeldt/concurrently",
   "dependencies": {
     "chalk": "^2.4.1",
     "commander": "2.6.0",
