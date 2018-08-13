@@ -2,12 +2,14 @@ const chalk = require('chalk');
 const _ = require('lodash');
 const formatDate = require('date-fns/format');
 
+const defaults = require('./defaults');
+
 module.exports = class Logger {
     constructor({ outputStream, prefixFormat, raw, timestampFormat }) {
         this.raw = raw;
         this.outputStream = outputStream;
         this.prefixFormat = prefixFormat;
-        this.timestampFormat = timestampFormat || 'YYYY-MM-DD HH:mm:ss.SSS';
+        this.timestampFormat = timestampFormat || defaults.timestampFormat;
     }
 
     getPrefixesFor(command) {

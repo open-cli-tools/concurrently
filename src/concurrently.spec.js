@@ -1,4 +1,5 @@
 const EventEmitter = require('events');
+const { Subject } = require('rxjs');
 
 const createFakeCommand = require('./flow-control/fixtures/fake-command');
 const concurrently = require('./concurrently');

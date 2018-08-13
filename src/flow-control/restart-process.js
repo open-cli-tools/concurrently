@@ -1,10 +1,12 @@
 const Rx = require('rxjs');
 const { defaultIfEmpty, delay, filter, mapTo, skip, skipUntil, take, takeWhile } = require('rxjs/operators');
 
+const defaults = require('../defaults');
+
 module.exports = class RestartProcess {
     constructor({ delay, tries, logger, scheduler }) {
-        this.delay = +delay || 0;
-        this.tries = +tries || 0;
+        this.delay = +delay || defaults.restartDelay;
+        this.tries = +tries || defaults.restartTries;
         this.logger = logger;
         this.scheduler = scheduler;
     }

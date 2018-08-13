@@ -1,9 +1,11 @@
 const Rx = require('rxjs');
 const { map } = require('rxjs/operators');
 
+const defaults = require('../defaults');
+
 module.exports = class InputHandler {
     constructor({ defaultInputTarget, inputStream, logger, scheduler }) {
-        this.defaultInputTarget = defaultInputTarget;
+        this.defaultInputTarget = defaultInputTarget || defaults.defaultInputTarget;
         this.inputStream = inputStream;
         this.logger = logger;
         this.scheduler = scheduler;
