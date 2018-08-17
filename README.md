@@ -92,64 +92,69 @@ Help:
 
 ```
 
-Usage: concurrently [options] <command ...>
+concurrently [options] <command ...>
+
+General
+  -n, --names       List of custom names to be used in prefix template.
+                    Example names: "main,browser,server"                [string]
+  --name-separator  The character to split <names> on. Example usage:
+                    concurrently -n "styles|scripts|server" --name-separator "|"
+                                                                  [default: ","]
+  -r, --raw         Output only raw output of processes, disables prettifying
+                    and concurrently coloring.                         [boolean]
+  -s, --success     Return exit code of zero or one based on the success or
+                    failure of the "first" child to terminate, the "last child",
+                    or succeed only if "all" child processes succeed.
+                              [choices: "first", "last", "all"] [default: "all"]
+  --no-color        Disables colors from logging                       [boolean]
+
+Prefix styling
+  -p, --prefix            Prefix used in logging for each process.
+                          Possible values: index, pid, time, command, name,
+                          none, or a template. Example template: "{time}-{pid}"
+                         [string] [default: index or name (when --names is set)]
+  -c, --prefix-colors     Comma-separated list of chalk colors to use on
+                          prefixes. If there are more commands than colors, the
+                          last color will be repeated.
+                          - Available modifiers: reset, bold, dim, italic,
+                          underline, inverse, hidden, strikethrough
+                          - Available colors: black, red, green, yellow, blue,
+                          magenta, cyan, white, gray
+                          - Available background colors: bgBlack, bgRed,
+                          bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
+                          See https://www.npmjs.com/package/chalk for more
+                          information.            [string] [default: "gray.dim"]
+  -l, --prefix-length     Limit how many characters of the command is displayed
+                          in prefix. The option can be used to shorten the
+                          prefix when it is set to "command"
+                                                          [number] [default: 10]
+  -t, --timestamp-format  Specify the timestamp in moment/date-fns format.
+                                   [string] [default: "YYYY-MM-DD HH:mm:ss.SSS"]
+
+Input handling
+  -i, --handle-input      Whether input should be forwarded to the child
+                          processes. See examples for more information.[boolean]
+  --default-input-target  Identifier for child process to which input on stdin
+                          should be sent if not specified at start of input.
+                          Can be either the index or the name of the process.
+                                                                    [default: 0]
+
+Killing other processes
+  -k, --kill-others      kill other processes if one exits or dies     [boolean]
+  --kill-others-on-fail  kill other processes if one exits with non zero status
+                         code                                          [boolean]
+
+Restarting
+  --restart-tries  How many times a process that died should restart.
+                                                           [number] [default: 0]
+  --restart-after  Delay time to respawn the process, in milliseconds.
+                                                           [number] [default: 0]
 
 Options:
-
-  -h, --help                       output usage information
-  -V, --version                    output the version number
-  -k, --kill-others                kill other processes if one exits or dies
-  --kill-others-on-fail            kill other processes if one exits with non zero status code
-  --no-color                       disable colors from logging
-  -p, --prefix <prefix>            prefix used in logging for each process.
-  Possible values: index, pid, time, command, name, none, or a template. Default: index or name (when --names is set). Example template: "{time}-{pid}"
-
-  -n, --names <names>              List of custom names to be used in prefix template.
-  Example names: "main,browser,server"
-
-  --name-separator <char>          The character to split <names> on.
-  Default: ",". Example usage: concurrently -n "styles,scripts|server" --name-separator "|" <command ...>
-
-  -c, --prefix-colors <colors>     Comma-separated list of chalk colors to use on prefixes. If there are more commands than colors, the last color will be repeated.
-  Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough
-  Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray
-  Available background colors: bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
-  See https://www.npmjs.com/package/chalk for more information.
-  Default: "gray.dim". Example: "black.bgWhite,cyan,gray.dim"
-
-  -t, --timestamp-format <format>  specify the timestamp in moment/date-fns format. Default: YYYY-MM-DD HH:mm:ss.SSS
-
-  -r, --raw                        output only raw output of processes, disables prettifying and concurrently coloring
-  -s, --success <first|last|all>   Return exit code of zero or one based on the success or failure of the "first" child to terminate, the "last" child, or succeed  only if "all" child processes succeed. Default: all
-
-  -l, --prefix-length <length>     limit how many characters of the command is displayed in prefix.
-  The option can be used to shorten long commands.
-  Works only if prefix is set to "command". Default: 10
-
-  --allow-restart                  Restart a process which died. Default: false
-
-  --restart-after <miliseconds>    delay time to respawn the process. Default: 0
-  
-  --restart-tries <times>          limit the number of respawn tries. Default: 1
-
-  --default-input-target <identifier> identifier for child process to which input on stdin should be sent if not specified at start of input. Can be either the index or the name of the process. Default: 0
-
-Input:
-
-Input can be sent to any of the child processes using either the name or index
-of the command followed by a colon. If no child identifier is specified then the
-input will be sent to the child specified by the `--default-input-target`
-option, which defaults to index 0.
+  -h, --help         Show help                                         [boolean]
+  -v, -V, --version  Show version number                               [boolean]
 
 Examples:
-
- - Kill other processes if one exits or dies
-
-     $ concurrently --kill-others "grunt watch" "http-server"
-     
- - Kill other processes if one exits with non zero status code
-
-     $ concurrently --kill-others-on-fail "npm run build:client" "npm run build:server"
 
  - Output nothing more than stdout+stderr of child processes
 
@@ -165,50 +170,26 @@ Examples:
 
  - Custom names and colored prefixes
 
-     $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"
-     
+     $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold"
+     "http-server" "npm run watch"
+
  - Shortened NPM run commands
 
      $ concurrently npm:watch-node npm:watch-js npm:watch-css
 
  - Send input to default
 
-     $ concurrently "nodemon" "npm run watch-js"
+     $ concurrently --handle-input "nodemon" "npm run watch-js"
      rs  # Sends rs command to nodemon process
-
- - Specify a default-input-target
-
-     $ concurrently --default-input-target 1 "npm run watch-js" nodemon
-     rs
 
  - Send input to specific child identified by index
 
-     $ concurrently "npm run watch-js" nodemon
+     $ concurrently --handle-input "npm run watch-js" nodemon
      1:rs
 
  - Send input to specific child identified by name
 
-     $ concurrently -n js,srv "npm run watch-js" nodemon
-     srv:rs
-
- - Send input to default
-
-     $ concurrently "nodemon" "npm run watch-js"
-     rs  # Sends rs command to nodemon process
-
- - Specify a default-input-target
-
-     $ concurrently --default-input-target 1 "npm run watch-js" nodemon
-     rs
-
- - Send input to specific child identified by index
-
-     $ concurrently "npm run watch-js" nodemon
-     1:rs
-
- - Send input to specific child identified by name
-
-     $ concurrently -n js,srv "npm run watch-js" nodemon
+     $ concurrently --handle-input -n js,srv "npm run watch-js" nodemon
      srv:rs
 
  - Shortened NPM run commands
