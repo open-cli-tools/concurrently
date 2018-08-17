@@ -13,6 +13,8 @@ module.exports = {
     prefix: '',
     // Refer to https://www.npmjs.com/package/chalk
     prefixColors: 'gray.dim',
+    // How many bytes we'll show on the command prefix
+    prefixLength: 10,
     raw: false,
     // Number of attempts of restarting a process, if it exits with non-0 code
     restartTries: 0,
