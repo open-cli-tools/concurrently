@@ -5,11 +5,27 @@ const formatDate = require('date-fns/format');
 const defaults = require('./defaults');
 
 module.exports = class Logger {
-    constructor({ outputStream, prefixFormat, raw, timestampFormat }) {
+    constructor({ outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {
         this.raw = raw;
         this.outputStream = outputStream;
         this.prefixFormat = prefixFormat;
+        this.prefixLength = prefixLength || defaults.prefixLength;
         this.timestampFormat = timestampFormat || defaults.timestampFormat;
+    }
+
+    shortenText(text) {
+        if (!text || text.length <= this.prefixLength) {
+            return text;
+        }
+
+        const ellipsis = '..';
+        const prefixLength = this.prefixLength - ellipsis.length;
+        const endLength = Math.floor(prefixLength / 2);
+        const beginningLength = prefixLength - endLength;
+
+        const beginnning = text.substring(0, beginningLength);
+        const end = text.substring(text.length - endLength, text.length);
+        return beginnning + ellipsis + end;
     }
 
     getPrefixesFor(command) {
@@ -18,7 +34,7 @@ module.exports = class Logger {
             pid: command.pid,
             index: command.index,
             name: command.name,
-            command: command.command,
+            command: this.shortenText(command.command),
             time: formatDate(Date.now(), this.timestampFormat)
         };
     }
