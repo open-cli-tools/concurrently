@@ -9,6 +9,17 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 ![](docs/demo.gif)
 
+## Why
+
+I like [task automation with npm](http://substack.net/task_automation_with_npm_run)
+but the usual way to run multiple commands concurrently is
+`npm run watch-js & npm run watch-css`. That's fine but it's hard to keep
+on track of different outputs. Also if one process fails, others still keep running
+and you won't even notice the difference.
+
+Another option would be to just run all commands in separate terminals. I got
+tired of opening terminals and made **concurrently**.
+
 **Features:**
 
 * Cross platform (including Windows)
@@ -218,14 +229,3 @@ For more details, visit https://github.com/kimmobrunfeldt/concurrently
     So *null* means the process didn't terminate normally. This will make **concurrent**
     to return non-zero exit code too.
 
-
-## Why
-
-I like [task automation with npm](http://substack.net/task_automation_with_npm_run)
-but the usual way to run multiple commands concurrently is
-`npm run watch-js & npm run watch-css`. That's fine but it's hard to keep
-on track of different outputs. Also if one process fails, others still keep running
-and you won't even notice the difference.
-
-Another option would be to just run all commands in separate terminals. I got
-tired of opening terminals and made **concurrently**.
