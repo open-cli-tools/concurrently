@@ -1,12 +1,11 @@
 const EventEmitter = require('events');
 const { createMockInstance } = require('jest-create-mock-instance');
-const { TestScheduler } = require('rxjs/testing');
 
 const Logger = require('../logger');
 const createFakeCommand = require('./fixtures/fake-command');
 const InputHandler = require('./input-handler');
 
-let commands, controller, inputStream, logger, scheduler;
+let commands, controller, inputStream, logger;
 
 beforeEach(() => {
     commands = [
@@ -15,19 +14,17 @@ beforeEach(() => {
     ];
     inputStream = new EventEmitter();
     logger = createMockInstance(Logger);
-    scheduler = new TestScheduler();
     controller = new InputHandler({
         defaultInputTarget: 0,
         inputStream,
-        logger,
-        scheduler
+        logger
     });
 });
 
 it('returns same commands', () => {
     expect(controller.handle(commands)).toBe(commands);
 
-    controller = new InputHandler({ logger, scheduler });
+    controller = new InputHandler({ logger });
     expect(controller.handle(commands)).toBe(commands);
 });
 

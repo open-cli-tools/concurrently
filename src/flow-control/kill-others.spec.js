@@ -1,11 +1,10 @@
 const { createMockInstance } = require('jest-create-mock-instance');
-const { TestScheduler } = require('rxjs/testing');
 
 const Logger = require('../logger');
 const createFakeCommand = require('./fixtures/fake-command');
 const KillOthers = require('./kill-others');
 
-let commands, logger, scheduler;
+let commands, logger;
 beforeEach(() => {
     commands = [
         createFakeCommand(),
@@ -13,12 +12,10 @@ beforeEach(() => {
     ];
 
     logger = createMockInstance(Logger);
-    scheduler = new TestScheduler();
 });
 
 const createWithConditions = conditions => new KillOthers({
     logger,
-    scheduler,
     conditions
 });
 

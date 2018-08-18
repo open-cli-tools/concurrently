@@ -1,9 +1,6 @@
-const { of } = require('rxjs');
-
 module.exports = class LogOutput {
-    constructor({ logger, scheduler }) {
+    constructor({ logger }) {
         this.logger = logger;
-        this.scheduler = scheduler;
     }
 
     handle(commands) {

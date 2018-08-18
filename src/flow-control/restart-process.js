@@ -1,5 +1,5 @@
 const Rx = require('rxjs');
-const { defaultIfEmpty, delay, filter, mapTo, skip, skipUntil, take, takeWhile } = require('rxjs/operators');
+const { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } = require('rxjs/operators');
 
 const defaults = require('../defaults');
 

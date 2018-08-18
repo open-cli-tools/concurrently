@@ -1,10 +1,9 @@
 const { createMockInstance } = require('jest-create-mock-instance');
-const { TestScheduler } = require('rxjs/testing');
 const Logger = require('../logger');
 const LogOutput = require('./log-output');
 const createFakeCommand = require('./fixtures/fake-command');
 
-let controller, logger, scheduler, commands;
+let controller, logger, commands;
 beforeEach(() => {
     commands = [
         createFakeCommand(),
@@ -12,8 +11,7 @@ beforeEach(() => {
     ];
 
     logger = createMockInstance(Logger);
-    scheduler = new TestScheduler();
-    controller = new LogOutput({ logger, scheduler });
+    controller = new LogOutput({ logger });
 });
 
 it('returns same commands', () => {

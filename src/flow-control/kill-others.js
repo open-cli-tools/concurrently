@@ -2,10 +2,9 @@ const _ = require('lodash');
 const { filter, map } = require('rxjs/operators');
 
 module.exports = class KillOthers {
-    constructor({ logger, conditions, scheduler }) {
+    constructor({ logger, conditions }) {
         this.logger = logger;
         this.conditions = _.castArray(conditions);
-        this.scheduler = scheduler;
     }
 
     handle(commands) {
