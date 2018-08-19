@@ -41,6 +41,10 @@ module.exports = class Logger {
 
     getPrefix(command) {
         const prefix = this.prefixFormat || (command.name ? 'name' : 'index');
+        if (prefix === 'none') {
+            return '';
+        }
+
         const prefixes = this.getPrefixesFor(command);
         if (Object.keys(prefixes).includes(prefix)) {
             return `[${prefixes[prefix]}]`;
@@ -66,8 +70,8 @@ module.exports = class Logger {
     }
 
     logCommandText(text, command) {
-        const prefix = this.colorText(command, this.getPrefix(command)) + ' ';
-        return this.log(prefix, text);
+        const prefix = this.colorText(command, this.getPrefix(command));
+        return this.log(prefix + (prefix ? ' ' : ''), text);
     }
 
     logGlobalEvent(text) {

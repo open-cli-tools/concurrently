@@ -125,6 +125,13 @@ describe('#logCommandText()', () => {
         expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('0-bar') + ' ', 'foo');
     });
 
+    it('logs with no prefix', () => {
+        const logger = createLogger({ prefixFormat: 'none' });
+        logger.logCommandText('foo', { command: 'echo foo' });
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim(''), 'foo');
+    });
+
     it('logs prefix using command line itself', () => {
         const logger = createLogger({ prefixFormat: 'command' });
         logger.logCommandText('foo', { command: 'echo foo' });
