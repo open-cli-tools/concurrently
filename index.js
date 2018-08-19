@@ -11,8 +11,9 @@ const Logger = require('./src/logger');
 
 module.exports = (commands, options = {}) => {
     const logger = new Logger({
-        outputStream: process.stdout,
+        outputStream: options.outputStream || process.stdout,
         prefixFormat: options.prefix,
+        prefixLength: options.prefixLength,
         raw: options.raw,
         timestampFormat: options.timestampFormat,
     });
