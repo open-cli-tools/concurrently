@@ -50,5 +50,6 @@ exports.InputHandler = InputHandler;
 exports.KillOnSignal = KillOnSignal;
 exports.KillOthers = KillOthers;
 exports.LogError = LogError;
+exports.LogExit = LogExit;
 exports.LogOutput = LogOutput;
 exports.RestartProcess = RestartProcess;
