@@ -9,6 +9,13 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 ![](docs/demo.gif)
 
+**Table of contents**
+- [Why](#why)
+- [Install](#install)
+- [Usage](#usage)
+- [Programmatic Usage](#programmatic-usage)
+- [FAQ](#faq)
+
 ## Why
 
 I like [task automation with npm](http://substack.net/task_automation_with_npm_run)
@@ -212,6 +219,52 @@ Examples:
      $ concurrently npm:watch-*
 
 For more details, visit https://github.com/kimmobrunfeldt/concurrently
+```
+
+## Programmatic Usage
+concurrently can be used programmatically by using the API documented below:
+
+### `concurrently(commands[, options])`
+- `commands`: an array of either strings (containing the commands to run) or objects 
+  with the shape `{ command, name, prefixColor }`.
+- `options` (optional): an object containing any of the below:
+    - `defaultInputTarget`: the default input target when reading from `inputStream`. 
+    Default: `0`.
+    - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams) 
+    to read the input from, eg `process.stdin`.
+    - `killOthers`: an array of exitting conditions that will cause a process to kill others.  
+    Can contain any of `success` or `failure`.
+    - `outputStream`: a [`Writable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_writable_streams)
+    to write logs to. Default: `process.stdout`.
+    - `prefix`: the prefix type to use when logging processes output.  
+      Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).  
+      Default: the name of the process, or its index if no name is set.
+    - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
+    - `raw`: whether raw mode should be used, meaning strictly process output will
+    be logged, without any prefixes, colouring or extra stuff.
+    - `successCondition`: the condition to consider the run was successful.
+    If `first`, only the first process will make up the success of the run; if `last`, the last.  
+    Anything else means all processes should exit successfully.
+    - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
+    - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
+    - `timestampFormat`: a [date-fns/moment format](https://date-fns.org/v1.29.0/docs/format)
+    to use when prefixing with `time`. Default: `YYYY-MM-DD HH:mm:ss.ZZZ`
+
+> Returns: a `Promise` that resolves if the run was successful (according to `successCondition` option),
+> or rejects otherwise.
+
+Example:
+
+```js
+const concurrently = require('concurrently');
+concurrently([
+    'npm:watch-*', 
+    { command: 'nodemon', name: 'server' }
+], {
+    prefix: 'name',
+    killOthers: ['failure', 'success'],
+    restartTries: 3,
+}).then(success, failure);
 ```
 
 ## FAQ
