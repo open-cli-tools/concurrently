@@ -13,8 +13,20 @@ beforeEach(() => {
     controller = new KillOnSignal({ process });
 });
 
-it('returns same commands', () => {
-    expect(controller.handle(commands)).toBe(commands);
+it('returns commands that map SIGINT to exit code 0', () => {
+    const newCommands = controller.handle(commands);
+    expect(newCommands).not.toBe(commands);
+    expect(newCommands).toHaveLength(commands.length);
+
+    const callback = jest.fn();
+    newCommands[0].close.subscribe(callback);
+    process.emit('SIGINT');
+
+    // A fake command's .kill() call won't trigger a close event automatically...
+    commands[0].close.next(1);
+
+    expect(callback).not.toHaveBeenCalledWith('SIGINT');
+    expect(callback).toHaveBeenCalledWith(0);
 });
 
 it('kills all commands on SIGINT', () => {
