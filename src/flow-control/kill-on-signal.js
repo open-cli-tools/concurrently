@@ -1,5 +1,6 @@
 const { map } = require('rxjs/operators');
 
+
 module.exports = class KillOnSignal {
     constructor({ process = global.process } = {}) {
         this.process = process;
@@ -18,9 +19,10 @@ module.exports = class KillOnSignal {
             const closeStream = command.close.pipe(map(value => {
                 return caughtSignal === 'SIGINT' ? 0 : value;
             }));
-
-            return Object.create(command, {
-                close: { get: () => closeStream }
+            return new Proxy(command, {
+                get(target, prop) {
+                    return prop === 'close' ? closeStream : target[prop];
+                }
             });
         });
     }
