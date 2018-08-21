@@ -1,10 +1,12 @@
 const readline = require('readline');
 const Rx = require('rxjs');
-const { buffer, filter, map, takeUntil, tap } = require('rxjs/operators');
+const { buffer, map } = require('rxjs/operators');
 const spawn = require('spawn-command');
 
 const isWindows = process.platform === 'win32';
 const killExitCode = isWindows ? 1 : 'SIGTERM';
+
+jest.setTimeout(3000);
 
 const run = args => {
     const child = spawn('node ./concurrently.js ' + args, {
@@ -27,7 +29,12 @@ const run = args => {
         Rx.fromEvent(stderr, 'line')
     ).pipe(map(data => data.toString()));
 
-    return { close, log, stdin: child.stdin };
+    return {
+        close,
+        log,
+        stdin: child.stdin,
+        pid: child.pid
+    };
 };
 
 it('has help command', done => {
@@ -103,6 +110,17 @@ describe('exitting conditions', () => {
                 expect(exit[0]).toBeGreaterThan(0);
                 done();
             }, done);
+    });
+
+    it.skip('is of success when a SIGINT is sent', done => {
+        const child = run('"node fixtures/read-echo.js"');
+        child.close.subscribe(exit => {
+            // TODO This is null within Node, but should be 0 outside (eg from real terminal)
+            expect(exit[0]).toBe(0);
+            done();
+        }, done);
+
+        process.kill(child.pid, 'SIGINT');
     });
 
     it('is aliased to -s', done => {
