@@ -6,8 +6,6 @@ const spawn = require('spawn-command');
 const isWindows = process.platform === 'win32';
 const killExitCode = isWindows ? 1 : 'SIGTERM';
 
-jest.setTimeout(3000);
-
 const run = args => {
     const child = spawn('node ./concurrently.js ' + args, {
         cwd: __dirname
