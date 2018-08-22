@@ -41,8 +41,10 @@ module.exports = class RestartProcess {
                 return value === 0 || emission >= this.tries;
             }));
 
-            return Object.create(command, {
-                close: { get: () => closeStream }
+            return new Proxy(command, {
+                get(target, prop) {
+                    return prop === 'close' ? closeStream : target[prop];
+                }
             });
         });
     }
