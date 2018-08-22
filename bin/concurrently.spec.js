@@ -1,10 +1,15 @@
 const readline = require('readline');
+const _ = require('lodash');
 const Rx = require('rxjs');
 const { buffer, map } = require('rxjs/operators');
 const spawn = require('spawn-command');
 
 const isWindows = process.platform === 'win32';
-const killExitCode = isWindows ? 1 : 'SIGTERM';
+const createKillMessage = prefix => new RegExp(
+    _.escapeRegExp(prefix) +
+    ' exited with code ' +
+    (isWindows ? 1 : '(SIGTERM|143)')
+);
 
 const run = args => {
     const child = spawn('node ./concurrently.js ' + args, {
@@ -222,7 +227,7 @@ describe('--kill-others', () => {
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
             expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
-            expect(lines).toContainEqual(expect.stringContaining(`[0] sleep 10 exited with code ${killExitCode}`));
+            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
             done();
         }, done);
     });
@@ -232,7 +237,7 @@ describe('--kill-others', () => {
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
             expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
-            expect(lines).toContainEqual(expect.stringContaining(`[0] sleep 10 exited with code ${killExitCode}`));
+            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
             done();
         }, done);
     });
@@ -242,7 +247,7 @@ describe('--kill-others', () => {
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
             expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
-            expect(lines).toContainEqual(expect.stringContaining(`[0] sleep 10 exited with code ${killExitCode}`));
+            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
             done();
         }, done);
     });
@@ -263,7 +268,7 @@ describe('--kill-others-on-fail', () => {
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
             expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
-            expect(lines).toContainEqual(expect.stringContaining(`[0] sleep 10 exited with code ${killExitCode}`));
+            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
             done();
         }, done);
     });
@@ -310,7 +315,7 @@ describe('--handle-input', () => {
         child.close.subscribe(exit => {
             expect(exit[0]).toBeGreaterThan(0);
             expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
-            expect(lines).toContainEqual(expect.stringMatching(new RegExp(`\\[0\\] .*? ${killExitCode}`)));
+            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js')));
             done();
         }, done);
     });
@@ -328,7 +333,7 @@ describe('--handle-input', () => {
         child.close.subscribe(exit => {
             expect(exit[0]).toBeGreaterThan(0);
             expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
-            expect(lines).toContainEqual(expect.stringMatching(new RegExp(`\\[0\\] .*? ${killExitCode}`)));
+            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js')));
             done();
         }, done);
     });
