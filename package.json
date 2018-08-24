@@ -30,19 +30,18 @@
   "dependencies": {
     "chalk": "^2.4.1",
     "date-fns": "^1.23.0",
-    "lodash": "^4.5.1",
-    "read-pkg": "^3.0.0",
+    "lodash": "^4.17.10",
+    "read-pkg": "^4.0.1",
     "rxjs": "6.2.2",
     "spawn-command": "^0.0.2-1",
-    "supports-color": "^3.2.3",
+    "supports-color": "^4.5.0",
     "tree-kill": "^1.1.0",
     "yargs": "^12.0.1"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
-    "jest": "^23.4.2",
-    "jest-create-mock-instance": "^1.1.0",
-    "releasor": "^1.2.1"
+    "eslint": "^5.4.0",
+    "jest": "^23.5.0",
+    "jest-create-mock-instance": "^1.1.0"
   },
   "jest": {
     "collectCoverage": true,
