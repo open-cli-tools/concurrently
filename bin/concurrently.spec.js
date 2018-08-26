@@ -127,7 +127,7 @@ describe('exiting conditions', () => {
     });
 
     it('is aliased to -s', done => {
-        run('-s last "exit 1" "echo foo"')
+        run('-s last "exit 1" "sleep 0.5 && echo foo"')
             .close
             .subscribe(exit => {
                 expect(exit[0]).toBe(0);
