@@ -40,22 +40,22 @@ describe('with default success condition set', () => {
 
 
 describe('with success condition set to first', () => {
-    it('succeeds if first process exited with code 0', () => {
+    it('succeeds if first process to exit has code 0', () => {
         const result = createController('first').listen(commands);
 
-        commands[0].close.next(0);
-        commands[1].close.next(1);
+        commands[1].close.next(0);
+        commands[0].close.next(1);
 
         scheduler.flush();
 
         return expect(result).resolves.toBeNull();
     });
 
-    it('fails if first process exited with non-0 code', () => {
+    it('fails if first process to exit has non-0 code', () => {
         const result = createController('first').listen(commands);
 
-        commands[0].close.next(1);
-        commands[1].close.next(0);
+        commands[1].close.next(1);
+        commands[0].close.next(0);
 
         scheduler.flush();
 
@@ -64,22 +64,22 @@ describe('with success condition set to first', () => {
 });
 
 describe('with success condition set to last', () => {
-    it('succeeds if last process exited with code 0', () => {
+    it('succeeds if last process to exit has code 0', () => {
         const result = createController('last').listen(commands);
 
-        commands[0].close.next(1);
-        commands[1].close.next(0);
+        commands[1].close.next(1);
+        commands[0].close.next(0);
 
         scheduler.flush();
 
         return expect(result).resolves.toBeNull();
     });
 
-    it('fails if first process exited with non-0 code', () => {
+    it('fails if last process to exit has non-0 code', () => {
         const result = createController('last').listen(commands);
 
-        commands[0].close.next(0);
-        commands[1].close.next(1);
+        commands[1].close.next(0);
+        commands[0].close.next(1);
 
         scheduler.flush();
 

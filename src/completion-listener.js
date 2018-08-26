@@ -1,5 +1,5 @@
 const Rx = require('rxjs');
-const { map, switchMap, take } = require('rxjs/operators');
+const { bufferCount, map, switchMap, take } = require('rxjs/operators');
 
 module.exports = class CompletionListener {
     constructor({ successCondition, scheduler }) {
@@ -9,7 +9,9 @@ module.exports = class CompletionListener {
 
     listen(commands) {
         const closeStreams = commands.map(command => command.close);
-        return Rx.zip(...closeStreams).pipe(
+        const allClosed = Rx.zip(...closeStreams);
+        return Rx.merge(...closeStreams).pipe(
+            bufferCount(closeStreams.length),
             map(exitCodes => {
                 switch (this.successCondition) {
                 /* eslint-disable indent */

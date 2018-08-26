@@ -60,7 +60,7 @@ it('has version command', done => {
     }, done);
 });
 
-describe('exitting conditions', () => {
+describe('exiting conditions', () => {
     it('is of success by default when running successful commands', done => {
         run('"echo foo" "echo bar"')
             .close
@@ -79,8 +79,8 @@ describe('exitting conditions', () => {
             }, done);
     });
 
-    it('is of success when --success=first and first command succeeds', done => {
-        run('--success=first "echo foo" "exit 1"')
+    it('is of success when --success=first and first command to exit succeeds', done => {
+        run('--success=first "echo foo" "sleep 0.5 && exit 1"')
             .close
             .subscribe(exit => {
                 expect(exit[0]).toBe(0);
@@ -88,8 +88,8 @@ describe('exitting conditions', () => {
             }, done);
     });
 
-    it('is of failure when --success=first and first command fails', done => {
-        run('--success=first "exit 1" "echo foo"')
+    it('is of failure when --success=first and first command to exit fails', done => {
+        run('--success=first "exit 1" "sleep 0.5 && echo foo"')
             .close
             .subscribe(exit => {
                 expect(exit[0]).toBeGreaterThan(0);
@@ -97,8 +97,8 @@ describe('exitting conditions', () => {
             }, done);
     });
 
-    it('is of success when --success=last and last command succeeds', done => {
-        run('--success=last "exit 1" "echo foo"')
+    it('is of success when --success=last and last command to exit succeeds', done => {
+        run('--success=last "exit 1" "sleep 0.5 && echo foo"')
             .close
             .subscribe(exit => {
                 expect(exit[0]).toBe(0);
@@ -106,8 +106,8 @@ describe('exitting conditions', () => {
             }, done);
     });
 
-    it('is of failure when --success=last and last command fails', done => {
-        run('--success=last "echo foo" "exit 1"')
+    it('is of failure when --success=last and last command to exit fails', done => {
+        run('--success=last "echo foo" "sleep 0.5 && exit 1"')
             .close
             .subscribe(exit => {
                 expect(exit[0]).toBeGreaterThan(0);
