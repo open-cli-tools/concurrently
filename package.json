@@ -11,6 +11,7 @@
   },
   "scripts": {
     "lint": "eslint . --ignore-path .gitignore",
+    "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"
   },
   "repository": {
@@ -39,6 +40,7 @@
     "yargs": "^12.0.1"
   },
   "devDependencies": {
+    "coveralls": "^3.0.2",
     "eslint": "^5.4.0",
     "jest": "^23.5.0",
     "jest-create-mock-instance": "^1.1.0"
