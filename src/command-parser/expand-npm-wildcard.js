@@ -26,9 +26,9 @@ module.exports = class ExpandNpmWildcard {
 
         return this.scripts
             .filter(script => wildcardRegex.test(script))
-            .map(script => Object.assign({}, commandInfo, {
+            .map(script => Object.assign({}, {
                 command: `npm run ${script}${args}`,
-                name: script
+                name: (commandInfo.names || '') +  script.match(wildcardRegex)[1]
             }));
     }
 };
