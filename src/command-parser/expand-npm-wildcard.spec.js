@@ -61,8 +61,8 @@ it('suffix name with wildcard values', () => {
         }
     });
 
-    expect(parser.parse({ names: 'w:', command: 'npm run watch-*' })).toEqual([
+    expect(parser.parse({ name: 'w:', command: 'npm run watch-*' })).toEqual([
         { name: 'w:foo', command: 'npm run watch-foo' },
         { name: 'w:bar', command: 'npm run watch-bar' },
     ]);
-})
+});
