@@ -116,4 +116,14 @@ describe('returned commands', () => {
         // 1 failure from commands[0], 1 success from commands[1]
         expect(callback).toHaveBeenCalledTimes(2);
     });
+
+    it('keep non-close streams from original commands', () => {
+        const newCommands = controller.handle(commands);
+        newCommands.forEach((newCommand, i) => {
+            expect(newCommand.close).not.toBe(commands[i].close);
+            expect(newCommand.error).toBe(commands[i].error);
+            expect(newCommand.stdout).toBe(commands[i].stdout);
+            expect(newCommand.stderr).toBe(commands[i].stderr);
+        });
+    });
 });

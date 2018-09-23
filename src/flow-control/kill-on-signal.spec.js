@@ -13,6 +13,16 @@ beforeEach(() => {
     controller = new KillOnSignal({ process });
 });
 
+it('returns commands that keep non-close streams from original commands', () => {
+    const newCommands = controller.handle(commands);
+    newCommands.forEach((newCommand, i) => {
+        expect(newCommand.close).not.toBe(commands[i].close);
+        expect(newCommand.error).toBe(commands[i].error);
+        expect(newCommand.stdout).toBe(commands[i].stdout);
+        expect(newCommand.stderr).toBe(commands[i].stderr);
+    });
+});
+
 it('returns commands that map SIGINT to exit code 0', () => {
     const newCommands = controller.handle(commands);
     expect(newCommands).not.toBe(commands);
@@ -27,6 +37,18 @@ it('returns commands that map SIGINT to exit code 0', () => {
 
     expect(callback).not.toHaveBeenCalledWith('SIGINT');
     expect(callback).toHaveBeenCalledWith(0);
+});
+
+it('returns commands that keep non-SIGINT exit codes', () => {
+    const newCommands = controller.handle(commands);
+    expect(newCommands).not.toBe(commands);
+    expect(newCommands).toHaveLength(commands.length);
+
+    const callback = jest.fn();
+    newCommands[0].close.subscribe(callback);
+    commands[0].close.next(1);
+
+    expect(callback).toHaveBeenCalledWith(1);
 });
 
 it('kills all commands on SIGINT', () => {
