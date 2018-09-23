@@ -8,7 +8,7 @@ const args = yargs
     .usage('$0 [options] <command ...>')
     .help('h')
     .alias('h', 'help')
-    .version('v')
+    .version('v', require('../package.json').version)
     .alias('v', 'V')
     .alias('v', 'version')
     .options({
