@@ -6,7 +6,6 @@ updated.
 
 **Pull requests:** You don't need to bump version numbers or modify anything related to releasing. That stuff is fully automated, just write the functionality.
 
-
 # Maintaining
 
 ## Test
@@ -14,10 +13,8 @@ updated.
 Tests can be run with command:
 
 ```bash
-mocha
+npm run test
 ```
-
-You need to have *mocha* installed globally with `npm install -g mocha`.
 
 ## Release
 
