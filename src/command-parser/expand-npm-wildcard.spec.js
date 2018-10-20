@@ -31,24 +31,28 @@ it('expands to nothing if no scripts exist in package.json', () => {
     expect(parser.parse({ command: 'npm run foo-*-baz qux' })).toEqual([]);
 });
 
-it('expands to all scripts matching pattern', () => {
-    readPkg.mockReturnValue({
-        scripts: {
-            'foo-bar-baz': '',
-            'foo--baz': '',
-        }
+for (const npmCmd of ['npm', 'yarn']) {
+    describe(`with an ${npmCmd}: prefix`, () => {
+        it('expands to all scripts matching pattern', () => {
+            readPkg.mockReturnValue({
+                scripts: {
+                    'foo-bar-baz': '',
+                    'foo--baz': '',
+                }
+            });
+
+            expect(parser.parse({ command: `${npmCmd} run foo-*-baz qux` })).toEqual([
+                { name: 'foo-bar-baz', command: `${npmCmd} run foo-bar-baz qux` },
+                { name: 'foo--baz', command: `${npmCmd} run foo--baz qux` },
+            ]);
+        });
+
+        it('caches scripts upon calls', () => {
+            readPkg.mockReturnValue({});
+            parser.parse({ command: `${npmCmd} run foo-*-baz qux` });
+            parser.parse({ command: `${npmCmd} run foo-*-baz qux` });
+
+            expect(readPkg).toHaveBeenCalledTimes(1);
+        });
     });
-
-    expect(parser.parse({ command: 'npm run foo-*-baz qux' })).toEqual([
-        { name: 'foo-bar-baz', command: 'npm run foo-bar-baz qux' },
-        { name: 'foo--baz', command: 'npm run foo--baz qux' },
-    ]);
-});
-
-it('caches scripts upon calls', () => {
-    readPkg.mockReturnValue({});
-    parser.parse({ command: 'npm run foo-*-baz qux' });
-    parser.parse({ command: 'npm run foo-*-baz qux' });
-
-    expect(readPkg).toHaveBeenCalledTimes(1);
-});
+}
