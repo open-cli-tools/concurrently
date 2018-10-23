@@ -55,6 +55,12 @@ const args = yargs
             describe: 'Disables colors from logging',
             type: 'boolean'
         },
+        'hide': {
+            describe:
+                'Hide the output of a child process. ' +
+                'The process can be identified by its name or its index.',
+            type: 'array'
+        },
 
         // Kill others
         'k': {
@@ -132,7 +138,7 @@ const args = yargs
                 'Can be either the index or the name of the process.'
         }
     })
-    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color'], 'General')
+    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color', 'hide'], 'General')
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
@@ -161,6 +167,7 @@ concurrently(args._.map((command, index) => {
         : (args.killOthersOnFail ? ['failure'] : []),
     maxProcesses: args.maxProcesses,
     raw: args.raw,
+    hide: args.hide,
     prefix: args.prefix,
     prefixLength: args.prefixLength,
     restartDelay: args.restartAfter,

@@ -5,7 +5,8 @@ const formatDate = require('date-fns/format');
 const defaults = require('./defaults');
 
 module.exports = class Logger {
-    constructor({ outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {
+    constructor({ hide, outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {
+        this.hide = hide || defaults.hide;
         this.raw = raw;
         this.outputStream = outputStream;
         this.prefixFormat = prefixFormat;
@@ -70,6 +71,10 @@ module.exports = class Logger {
     }
 
     logCommandText(text, command) {
+        if (this.hide.includes(command.index) || this.hide.includes(command.name)) {
+            return;
+        }
+
         const prefix = this.colorText(command, this.getPrefix(command));
         return this.log(prefix + (prefix ? ' ' : ''), text);
     }
