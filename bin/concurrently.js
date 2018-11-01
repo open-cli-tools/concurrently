@@ -57,8 +57,10 @@ const args = yargs
         },
         'hide': {
             describe:
-                'Hide the output of a child process. ' +
-                'The process can be identified by its name or its index.',
+                'Hide the output of given child processes. ' +
+                'The processes can be identified by their name or index ' +
+                'and be separated with a space. When using hide, it must ' +
+                'be the last option specified and be followed by --.',
             type: 'array'
         },
 
