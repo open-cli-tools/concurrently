@@ -243,7 +243,7 @@ concurrently can be used programmatically by using the API documented below:
     - `raw`: whether raw mode should be used, meaning strictly process output will
     be logged, without any prefixes, colouring or extra stuff.
     - `successCondition`: the condition to consider the run was successful.
-    If `first`, only the first process will make up the success of the run; if `last`, the last.
+    If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.
     - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
     - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
