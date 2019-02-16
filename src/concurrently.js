@@ -31,24 +31,24 @@ module.exports = (commands, options) => {
         new ExpandNpmWildcard()
     ];
 
-    const spawnOpts = getSpawnOpts({ raw: options.raw });
-
     commands = _(commands)
         .map(mapToCommandInfo)
         .flatMap(command => parseCommand(command, commandParsers))
-        .map((command, index) => new Command(Object.assign({
-            index,
-            spawnOpts,
-            killProcess: options.kill,
-            spawn: options.spawn,
-        }, command)))
+        .map((command, index) => new Command(
+            Object.assign({
+                index,
+                spawnOpts: getSpawnOpts({ raw: options.raw, env: command.env }),
+                killProcess: options.kill,
+                spawn: options.spawn,
+            }, command)
+        ))
         .value();
 
     commands = options.controllers.reduce(
         (prevCommands, controller) => controller.handle(prevCommands),
         commands
     );
-
+    
     commands.forEach(command => command.start());
     return new CompletionListener({ successCondition: options.successCondition }).listen(commands);
 };
@@ -58,6 +58,7 @@ function mapToCommandInfo(command) {
         command: command.command || command,
         name: command.name || '',
         prefixColor: command.prefixColor || '',
+        env: command.env || {},
     };
 }
 
