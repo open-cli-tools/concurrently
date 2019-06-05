@@ -207,6 +207,26 @@ describe('--prefix', () => {
     });
 });
 
+describe('--prefix-length', () => {
+    it('is alised to -l', done => {
+        const child = run('-p command -l 5 "echo foo" "echo bar"');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
+            expect(lines).toContainEqual(expect.stringContaining('[ec..r] bar'));
+            done();
+        }, done);
+    });
+
+    it('specifies custom prefix length', done => {
+        const child = run('--prefix command --prefix-length 5 "echo foo" "echo bar"');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
+            expect(lines).toContainEqual(expect.stringContaining('[ec..r] bar'));
+            done();
+        }, done);
+    });
+});
+
 describe('--restart-tries', () => {
     it('changes how many times a command will restart', done => {
         const child = run('--restart-tries 1 "exit 1"');

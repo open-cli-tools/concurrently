@@ -154,6 +154,7 @@ concurrently(args._.map((command, index) => {
         : (args.killOthersOnFail ? ['failure'] : []),
     raw: args.raw,
     prefix: args.prefix,
+    prefixLength: args.prefixLength,
     restartDelay: args.restartAfter,
     restartTries: args.restartTries,
     successCondition: args.success,
