@@ -1,5 +1,6 @@
 {
     "eslint.enable": true,
     "jest.autoEnable": true,
-    "jest.showCoverageOnLoad": true
+    "jest.showCoverageOnLoad": true,
+    "editor.rulers": [100]
 }
