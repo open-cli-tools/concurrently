@@ -42,7 +42,7 @@
   "devDependencies": {
     "coveralls": "^3.0.4",
     "eslint": "^5.16.0",
-    "jest": "^23.6.0",
+    "jest": "^24.8.0",
     "jest-create-mock-instance": "^1.1.0"
   },
   "jest": {

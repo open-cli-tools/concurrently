@@ -13,7 +13,12 @@ const createKillMessage = prefix => new RegExp(
 
 const run = args => {
     const child = spawn('node ./concurrently.js ' + args, {
-        cwd: __dirname
+        cwd: __dirname,
+        env: {
+            // When upgrading from jest 23 -> 24, colors started printing in the test output.
+            // They are forcibly disabled here
+            FORCE_COLOR: 0
+        }
     });
 
     const stdout = readline.createInterface({
