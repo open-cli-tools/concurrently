@@ -134,7 +134,7 @@ const args = yargs
     .epilogue(fs.readFileSync(__dirname + '/epilogue.txt', { encoding: 'utf8' }))
     .argv;
 
-const prefixColors = args.prefixColors.split(',');
+const prefixColors = args.prefixColors.toString().split(',');
 const names = (args.names || '').split(args.nameSeparator);
 
 let lastColor;
