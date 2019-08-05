@@ -210,10 +210,6 @@ Examples:
      $ concurrently --handle-input -n js,srv "npm run watch-js" nodemon
      srv:rs
 
- - Shortened NPM run commands
-
-     $ concurrently npm:watch-node npm:watch-js npm:watch-css
-
  - Shortened NPM run command with wildcard
 
      $ concurrently npm:watch-*
