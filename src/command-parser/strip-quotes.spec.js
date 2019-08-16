@@ -12,3 +12,9 @@ it('strips single quotes', () => {
 it('strips double quotes', () => {
     expect(parser.parse({ command: '"echo foo"' })).toEqual({ command: 'echo foo' });
 });
+
+it('does not remove quotes if they are impaired', () => {
+    expect(parser.parse({ command: '"echo foo' })).toEqual({ command: '"echo foo' });
+    expect(parser.parse({ command: 'echo foo\'' })).toEqual({ command: 'echo foo\'' });
+    expect(parser.parse({ command: '"echo foo\'' })).toEqual({ command: '"echo foo\'' });
+});
