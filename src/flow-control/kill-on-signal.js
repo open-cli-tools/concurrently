@@ -8,7 +8,7 @@ module.exports = class KillOnSignal {
 
     handle(commands) {
         let caughtSignal;
-        ['SIGINT', 'SIGTERM'].forEach(signal => {
+        ['SIGINT', 'SIGTERM', 'SIGHUP'].forEach(signal => {
             this.process.on(signal, () => {
                 caughtSignal = signal;
                 commands.forEach(command => command.kill(signal));
