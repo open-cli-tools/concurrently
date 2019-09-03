@@ -147,7 +147,7 @@ Prefix styling
                           prefix when it is set to "command"
                                                           [number] [default: 10]
   -t, --timestamp-format  Specify the timestamp in moment/date-fns format.
-                                   [string] [default: "YYYY-MM-DD HH:mm:ss.SSS"]
+                                   [string] [default: "yyyy-MM-dd HH:mm:ss.SSS"]
 
 Input handling
   -i, --handle-input      Whether input should be forwarded to the child
@@ -247,8 +247,8 @@ concurrently can be used programmatically by using the API documented below:
     Anything else means all processes should exit successfully.
     - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
     - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
-    - `timestampFormat`: a [date-fns/moment format](https://date-fns.org/v1.29.0/docs/format)
-    to use when prefixing with `time`. Default: `YYYY-MM-DD HH:mm:ss.ZZZ`
+    - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
+    to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
 
 > Returns: a `Promise` that resolves if the run was successful (according to `successCondition` option),
 > or rejects otherwise.

@@ -111,7 +111,7 @@ describe('#logCommandText()', () => {
     });
 
     it('logs with prefixFormat set to time (with timestampFormat)', () => {
-        const logger = createLogger({ prefixFormat: 'time', timestampFormat: 'YYYY' });
+        const logger = createLogger({ prefixFormat: 'time', timestampFormat: 'yyyy' });
         logger.logCommandText('foo', {});
 
         const year = new Date().getFullYear();
