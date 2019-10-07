@@ -45,6 +45,13 @@
     "jest": "^24.8.0",
     "jest-create-mock-instance": "^1.1.0"
   },
+  "files": [
+    "bin",
+    "!**/fixtures",
+    "index.js",
+    "src",
+    "!*.spec.js"
+  ],
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
