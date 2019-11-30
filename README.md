@@ -191,10 +191,6 @@ Examples:
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold"
      "http-server" "npm run watch"
 
- - Shortened NPM run commands
-
-     $ concurrently npm:watch-node npm:watch-js npm:watch-css
-
  - Send input to default
 
      $ concurrently --handle-input "nodemon" "npm run watch-js"
