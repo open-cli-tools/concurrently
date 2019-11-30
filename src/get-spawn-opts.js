@@ -1,7 +1,7 @@
 const supportsColor = require('supports-color');
 
 module.exports = ({
-    colorSupport = supportsColor,
+    colorSupport = supportsColor.stdout,
     process = global.process,
     raw = false
 } = {}) => Object.assign(
