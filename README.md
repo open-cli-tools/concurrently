@@ -207,7 +207,7 @@ Examples:
      srv:rs
 
  - Shortened NPM run commands
- 
+
      $ concurrently npm:watch-node npm:watch-js npm:watch-css
 
  - Shortened NPM run command with wildcard
