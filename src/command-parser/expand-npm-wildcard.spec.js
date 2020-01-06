@@ -42,7 +42,7 @@ for (const npmCmd of ['npm', 'yarn']) {
             });
 
             expect(parser.parse({ command: `${npmCmd} run foo-*-baz qux` })).toEqual([
-                { name: 'foo-bar-baz', command: `${npmCmd} run foo-bar-baz qux` },
+                { name: 'bar', command: `${npmCmd} run foo-bar-baz qux` },
                 { name: 'foo--baz', command: `${npmCmd} run foo--baz qux` },
             ]);
         });

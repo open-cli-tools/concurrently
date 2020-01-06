@@ -25,10 +25,18 @@ module.exports = class ExpandNpmWildcard {
         const wildcardRegex = new RegExp(`^${preWildcard}(.*?)${postWildcard}$`);
 
         return this.scripts
-            .filter(script => wildcardRegex.test(script))
-            .map(script => Object.assign({}, commandInfo, {
-                command: `${npmCmd} run ${script}${args}`,
-                name: script
-            }));
+            .map(script => {
+                const match = script.match(wildcardRegex);
+
+                if (match) {
+                    return Object.assign({}, commandInfo, {
+                        command: `${npmCmd} run ${script}${args}`,
+                        // Use the wildcard portion of the script match unless it's empty, 
+                        // in which case use the full name of the script
+                        name: match[1] || script
+                    });
+                }
+            })
+            .filter(Boolean);
     }
 };
