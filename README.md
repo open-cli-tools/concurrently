@@ -247,7 +247,7 @@ concurrently can be used programmatically by using the API documented below:
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
 
 > Returns: a `Promise` that resolves if the run was successful (according to `successCondition` option),
-> or rejects otherwise.
+> or rejects, containing an array with the exit codes of each command that has been run.
 
 Example:
 
