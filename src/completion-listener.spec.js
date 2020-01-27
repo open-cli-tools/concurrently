@@ -9,10 +9,11 @@ beforeEach(() => {
     scheduler = new TestScheduler();
 });
 
-const createController = successCondition => new CompletionListener({
-    successCondition,
-    scheduler
-});
+const createController = successCondition =>
+    new CompletionListener({
+        successCondition,
+        scheduler
+    });
 
 describe('with default success condition set', () => {
     it('succeeds if all processes exited with code 0', () => {
@@ -23,7 +24,7 @@ describe('with default success condition set', () => {
 
         scheduler.flush();
 
-        return expect(result).resolves.toBeNull();
+        return expect(result).resolves.toEqual([0, 0]);
     });
 
     it('fails if one of the processes exited with non-0 code', () => {
@@ -34,10 +35,9 @@ describe('with default success condition set', () => {
 
         scheduler.flush();
 
-        expect(result).rejects.toThrowError();
+        expect(result).rejects.toEqual([0, 1]);
     });
 });
-
 
 describe('with success condition set to first', () => {
     it('succeeds if first process to exit has code 0', () => {
@@ -48,7 +48,7 @@ describe('with success condition set to first', () => {
 
         scheduler.flush();
 
-        return expect(result).resolves.toBeNull();
+        return expect(result).resolves.toEqual([0, 1]);
     });
 
     it('fails if first process to exit has non-0 code', () => {
@@ -59,7 +59,7 @@ describe('with success condition set to first', () => {
 
         scheduler.flush();
 
-        return expect(result).rejects.toThrowError();
+        return expect(result).rejects.toEqual([1, 0]);
     });
 });
 
@@ -72,7 +72,7 @@ describe('with success condition set to last', () => {
 
         scheduler.flush();
 
-        return expect(result).resolves.toBeNull();
+        return expect(result).resolves.toEqual([1, 0]);
     });
 
     it('fails if last process to exit has non-0 code', () => {
@@ -83,6 +83,6 @@ describe('with success condition set to last', () => {
 
         scheduler.flush();
 
-        return expect(result).rejects.toThrowError();
+        return expect(result).rejects.toEqual([0, 1]);
     });
 });
