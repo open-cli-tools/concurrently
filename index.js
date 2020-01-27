@@ -31,7 +31,7 @@ module.exports = (commands, options = {}) => {
                 defaultInputTarget: options.defaultInputTarget,
                 inputStream: options.inputStream,
             }),
-            new KillOnSignal(),
+            new KillOnSignal({ process }),
             new RestartProcess({
                 logger,
                 delay: options.restartDelay,
