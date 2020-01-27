@@ -22,6 +22,6 @@ module.exports = {
     restartDelay: 0,
     // Condition of success for concurrently itself.
     success: 'all',
-    // Refer to https://date-fns.org/v1.29.0/docs/format
-    timestampFormat: 'YYYY-MM-DD HH:mm:ss.SSS'
+    // Refer to https://date-fns.org/v2.0.1/docs/format
+    timestampFormat: 'yyyy-MM-dd HH:mm:ss.SSS'
 };

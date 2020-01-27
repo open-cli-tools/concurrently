@@ -13,7 +13,12 @@ const createKillMessage = prefix => new RegExp(
 
 const run = args => {
     const child = spawn('node ./concurrently.js ' + args, {
-        cwd: __dirname
+        cwd: __dirname,
+        env: Object.assign({}, process.env, {
+            // When upgrading from jest 23 -> 24, colors started printing in the test output.
+            // They are forcibly disabled here
+            FORCE_COLOR: 0
+        }),
     });
 
     const stdout = readline.createInterface({
@@ -202,6 +207,26 @@ describe('--prefix', () => {
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('[echo foo] foo'));
             expect(lines).toContainEqual(expect.stringContaining('[echo bar] bar'));
+            done();
+        }, done);
+    });
+});
+
+describe('--prefix-length', () => {
+    it('is alised to -l', done => {
+        const child = run('-p command -l 5 "echo foo" "echo bar"');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
+            expect(lines).toContainEqual(expect.stringContaining('[ec..r] bar'));
+            done();
+        }, done);
+    });
+
+    it('specifies custom prefix length', done => {
+        const child = run('--prefix command --prefix-length 5 "echo foo" "echo bar"');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
+            expect(lines).toContainEqual(expect.stringContaining('[ec..r] bar'));
             done();
         }, done);
     });

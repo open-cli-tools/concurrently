@@ -1,6 +1,6 @@
 {
   "name": "concurrently",
-  "version": "4.1.0",
+  "version": "5.1.0",
   "description": "Run commands concurrently",
   "main": "index.js",
   "bin": {
@@ -29,22 +29,29 @@
   "author": "Kimmo Brunfeldt",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^2.4.1",
-    "date-fns": "^1.23.0",
-    "lodash": "^4.17.10",
+    "chalk": "^2.4.2",
+    "date-fns": "^2.0.1",
+    "lodash": "^4.17.15",
     "read-pkg": "^4.0.1",
-    "rxjs": "^6.3.3",
+    "rxjs": "^6.5.2",
     "spawn-command": "^0.0.2-1",
-    "supports-color": "^4.5.0",
-    "tree-kill": "^1.1.0",
-    "yargs": "^12.0.1"
+    "supports-color": "^6.1.0",
+    "tree-kill": "^1.2.2",
+    "yargs": "^13.3.0"
   },
   "devDependencies": {
-    "coveralls": "^3.0.2",
-    "eslint": "^5.4.0",
-    "jest": "^23.5.0",
+    "coveralls": "^3.0.4",
+    "eslint": "^5.16.0",
+    "jest": "^24.8.0",
     "jest-create-mock-instance": "^1.1.0"
   },
+  "files": [
+    "bin",
+    "!**/fixtures",
+    "index.js",
+    "src",
+    "!*.spec.js"
+  ],
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [

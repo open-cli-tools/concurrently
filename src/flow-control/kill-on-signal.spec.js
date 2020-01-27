@@ -68,3 +68,12 @@ it('kills all commands on SIGTERM', () => {
     expect(commands[0].kill).toHaveBeenCalledWith('SIGTERM');
     expect(commands[1].kill).toHaveBeenCalledWith('SIGTERM');
 });
+
+it('kills all commands on SIGHUP', () => {
+    controller.handle(commands);
+    process.emit('SIGHUP');
+
+    expect(process.listenerCount('SIGHUP')).toBe(1);
+    expect(commands[0].kill).toHaveBeenCalledWith('SIGHUP');
+    expect(commands[1].kill).toHaveBeenCalledWith('SIGHUP');
+});

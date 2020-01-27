@@ -3,7 +3,7 @@ module.exports = class StripQuotes {
         let { command } = commandInfo;
 
         // Removes the quotes surrounding a command.
-        if (command[0] === '"' || command[0] === '\'') {
+        if (/^"(.+?)"$/.test(command) || /^'(.+?)'$/.test(command)) {
             command = command.substr(1, command.length - 2);
         }
 
