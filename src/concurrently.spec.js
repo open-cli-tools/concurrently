@@ -1,5 +1,4 @@
 const EventEmitter = require('events');
-const { Writable } = require('stream');
 
 const createFakeCommand = require('./flow-control/fixtures/fake-command');
 const concurrently = require('./concurrently');
