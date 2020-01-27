@@ -1,23 +1,26 @@
 const EventEmitter = require('events');
-const { Subject } = require('rxjs');
+const { Writable } = require('stream');
 
 const createFakeCommand = require('./flow-control/fixtures/fake-command');
 const concurrently = require('./concurrently');
 
 let spawn, kill, controllers;
-beforeEach(() => {
-    const process = new EventEmitter();
-    process.pid = 1;
-
-    spawn = jest.fn(() => process);
-    kill = jest.fn();
-    controllers = [{ handle: jest.fn(arg => arg) }, { handle: jest.fn(arg => arg) }];
-});
-
 const create = (commands, options = {}) => concurrently(
     commands,
     Object.assign(options, { controllers, spawn, kill })
 );
+
+const createProcess = (pid = 1) => {
+    const process = new EventEmitter();
+    process.pid = pid;
+    return process;
+};
+
+beforeEach(() => {
+    spawn = jest.fn(() => createProcess(1));
+    kill = jest.fn();
+    controllers = [{ handle: jest.fn(arg => arg) }, { handle: jest.fn(arg => arg) }];
+});
 
 it('fails if commands is not an array', () => {
     const bomb = () => create('foo');
@@ -34,6 +37,25 @@ it('spawns all commands', () => {
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({}));
+});
+
+it('spawns commands up to configured limit at once', () => {
+    const process1 = createProcess(1);
+    const process2 = createProcess(2);
+    const process3 = createProcess(3);
+    spawn
+        .mockReturnValueOnce(process1)
+        .mockReturnValueOnce(process2)
+        .mockReturnValueOnce(process3);
+
+    create(['foo', 'bar', 'baz'], { maxProcesses: 2 });
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith('foo', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('bar', expect.objectContaining({}));
+
+    process2.emit('close', 1, null);
+    expect(spawn).toHaveBeenCalledTimes(3);
+    expect(spawn).toHaveBeenCalledWith('baz', expect.objectContaining({}));
 });
 
 it('runs controllers with the commands', () => {

@@ -8,6 +8,8 @@ module.exports = {
     defaultInputTarget: 0,
     // Whether process.stdin should be forwarded to child processes
     handleInput: false,
+    // How many processes to run at once
+    maxProcesses: 0,
     nameSeparator: ',',
     // Which prefix style to use when logging processes output.
     prefix: '',

@@ -19,6 +19,7 @@ module.exports = (commands, options = {}) => {
     });
 
     return concurrently(commands, {
+        maxProcesses: options.maxProcesses,
         raw: options.raw,
         successCondition: options.successCondition,
         controllers: [
