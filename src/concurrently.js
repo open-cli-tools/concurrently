@@ -49,7 +49,12 @@ module.exports = (commands, options) => {
         commands
     );
 
-    commands.forEach(command => command.start());
+    const commandsLeft = commands.slice();
+    const maxProcesses = Math.max(1, Number(options.maxProcesses) || commandsLeft.length);
+    for (let i = 0; i < maxProcesses; i++) {
+        maybeRunMore(commandsLeft);
+    }
+
     return new CompletionListener({ successCondition: options.successCondition }).listen(commands);
 };
 
@@ -66,4 +71,16 @@ function parseCommand(command, parsers) {
         (commands, parser) => _.flatMap(commands, command => parser.parse(command)),
         _.castArray(command)
     );
+}
+
+function maybeRunMore(commandsLeft) {
+    const command = commandsLeft.shift();
+    if (!command) {
+        return;
+    }
+
+    command.start();
+    command.close.subscribe(() => {
+        maybeRunMore(commandsLeft);
+    });
 }

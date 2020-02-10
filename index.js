@@ -19,6 +19,7 @@ module.exports = (commands, options = {}) => {
     });
 
     return concurrently(commands, {
+        maxProcesses: options.maxProcesses,
         raw: options.raw,
         successCondition: options.successCondition,
         controllers: [
@@ -30,7 +31,7 @@ module.exports = (commands, options = {}) => {
                 defaultInputTarget: options.defaultInputTarget,
                 inputStream: options.inputStream,
             }),
-            new KillOnSignal(),
+            new KillOnSignal({ process }),
             new RestartProcess({
                 logger,
                 delay: options.restartDelay,

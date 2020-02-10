@@ -4,7 +4,7 @@ module.exports = ({
     colorSupport = supportsColor.stdout,
     process = global.process,
     raw = false
-} = {}) => Object.assign(
+}) => Object.assign(
     {},
     raw && { stdio: 'inherit' },
     /^win/.test(process.platform) && { detached: false },

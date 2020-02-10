@@ -1,23 +1,25 @@
 const EventEmitter = require('events');
-const { Subject } = require('rxjs');
 
 const createFakeCommand = require('./flow-control/fixtures/fake-command');
 const concurrently = require('./concurrently');
 
-let spawn, kill, controllers;
-beforeEach(() => {
-    const process = new EventEmitter();
-    process.pid = 1;
-
-    spawn = jest.fn(() => process);
-    kill = jest.fn();
-    controllers = [{ handle: jest.fn(arg => arg) }, { handle: jest.fn(arg => arg) }];
-});
-
+let spawn, kill, controllers, processes = [];
 const create = (commands, options = {}) => concurrently(
     commands,
     Object.assign(options, { controllers, spawn, kill })
 );
+
+beforeEach(() => {
+    processes = [];
+    spawn = jest.fn(() => {
+        const process = new EventEmitter();
+        processes.push(process);
+        process.pid = processes.length;
+        return process;
+    });
+    kill = jest.fn();
+    controllers = [{ handle: jest.fn(arg => arg) }, { handle: jest.fn(arg => arg) }];
+});
 
 it('fails if commands is not an array', () => {
     const bomb = () => create('foo');
@@ -34,6 +36,26 @@ it('spawns all commands', () => {
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({}));
+});
+
+it('spawns commands up to configured limit at once', () => {
+    create(['foo', 'bar', 'baz', 'qux'], { maxProcesses: 2 });
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith('foo', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('bar', expect.objectContaining({}));
+
+    // Test out of order completion picking up new processes in-order
+    processes[1].emit('close', 1, null);
+    expect(spawn).toHaveBeenCalledTimes(3);
+    expect(spawn).toHaveBeenCalledWith('baz', expect.objectContaining({}));
+
+    processes[0].emit('close', null, 'SIGINT');
+    expect(spawn).toHaveBeenCalledTimes(4);
+    expect(spawn).toHaveBeenCalledWith('qux', expect.objectContaining({}));
+
+    // Shouldn't attempt to spawn anything else.
+    processes[2].emit('close', 1, null);
+    expect(spawn).toHaveBeenCalledTimes(4);
 });
 
 it('runs controllers with the commands', () => {
