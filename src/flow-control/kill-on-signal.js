@@ -2,7 +2,7 @@ const { map } = require('rxjs/operators');
 
 
 module.exports = class KillOnSignal {
-    constructor({ process = global.process } = {}) {
+    constructor({ process }) {
         this.process = process;
     }
 

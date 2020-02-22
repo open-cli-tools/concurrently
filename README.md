@@ -113,18 +113,21 @@ Help:
 concurrently [options] <command ...>
 
 General
-  -n, --names       List of custom names to be used in prefix template.
-                    Example names: "main,browser,server"                [string]
-  --name-separator  The character to split <names> on. Example usage:
-                    concurrently -n "styles|scripts|server" --name-separator "|"
-                                                                  [default: ","]
-  -r, --raw         Output only raw output of processes, disables prettifying
-                    and concurrently coloring.                         [boolean]
-  -s, --success     Return exit code of zero or one based on the success or
-                    failure of the "first" child to terminate, the "last child",
-                    or succeed only if "all" child processes succeed.
+  -m, --max-processes  How many processes should run at once.
+                       New processes only spawn after all restart tries of a
+                       process.                                         [number]
+  -n, --names          List of custom names to be used in prefix template.
+                       Example names: "main,browser,server"             [string]
+  --name-separator     The character to split <names> on. Example usage:
+                       concurrently -n "styles|scripts|server" --name-separator
+                       "|"                                        [default: ","]
+  -r, --raw            Output only raw output of processes, disables prettifying
+                       and concurrently coloring.                      [boolean]
+  -s, --success        Return exit code of zero or one based on the success or
+                       failure of the "first" child to terminate, the "last
+                       child", or succeed only if "all" child processes succeed.
                               [choices: "first", "last", "all"] [default: "all"]
-  --no-color        Disables colors from logging                       [boolean]
+  --no-color           Disables colors from logging                    [boolean]
 
 Prefix styling
   -p, --prefix            Prefix used in logging for each process.
@@ -230,6 +233,7 @@ concurrently can be used programmatically by using the API documented below:
     to read the input from, eg `process.stdin`.
     - `killOthers`: an array of exitting conditions that will cause a process to kill others.
     Can contain any of `success` or `failure`.
+    - `maxProcesses`: how many processes should run at once.
     - `outputStream`: a [`Writable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_writable_streams)
     to write logs to. Default: `process.stdout`.
     - `prefix`: the prefix type to use when logging processes output.

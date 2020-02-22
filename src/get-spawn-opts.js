@@ -5,7 +5,7 @@ module.exports = ({
     process = global.process,
     raw = false,
     env = {}
-} = {}) => Object.assign(
+}) => Object.assign(
     {},
     raw && { stdio: 'inherit' },
     /^win/.test(process.platform) && { detached: false },

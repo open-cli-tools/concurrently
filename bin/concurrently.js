@@ -13,6 +13,13 @@ const args = yargs
     .alias('v', 'version')
     .options({
         // General
+        'm': {
+            alias: 'max-processes',
+            describe:
+                'How many processes should run at once.\n' +
+                'New processes only spawn after all restart tries of a process.',
+            type: 'number'
+        },
         'n': {
             alias: 'names',
             describe:
@@ -125,7 +132,7 @@ const args = yargs
                 'Can be either the index or the name of the process.'
         }
     })
-    .group(['n', 'name-separator', 'raw', 's', 'no-color'], 'General')
+    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color'], 'General')
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
@@ -152,6 +159,7 @@ concurrently(args._.map((command, index) => {
     killOthers: args.killOthers
         ? ['success', 'failure']
         : (args.killOthersOnFail ? ['failure'] : []),
+    maxProcesses: args.maxProcesses,
     raw: args.raw,
     prefix: args.prefix,
     prefixLength: args.prefixLength,
