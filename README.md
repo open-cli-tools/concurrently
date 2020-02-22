@@ -260,7 +260,7 @@ const concurrently = require('concurrently');
 concurrently([
     'npm:watch-*',
     { command: 'nodemon', name: 'server' },
-    { command: 'deploy', name: 'deploy', env: {PUBLIC_KEY: '...'} }
+    { command: 'deploy', name: 'deploy', env: { PUBLIC_KEY: '...' } }
 ], {
     prefix: 'name',
     killOthers: ['failure', 'success'],
