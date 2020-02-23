@@ -225,7 +225,7 @@ concurrently can be used programmatically by using the API documented below:
 
 ### `concurrently(commands[, options])`
 - `commands`: an array of either strings (containing the commands to run) or objects
-  with the shape `{ command, name, prefixColor }`.
+  with the shape `{ command, name, prefixColor, env }`.
 - `options` (optional): an object containing any of the below:
     - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
@@ -259,7 +259,8 @@ Example:
 const concurrently = require('concurrently');
 concurrently([
     'npm:watch-*',
-    { command: 'nodemon', name: 'server' }
+    { command: 'nodemon', name: 'server' },
+    { command: 'deploy', name: 'deploy', env: { PUBLIC_KEY: '...' } }
 ], {
     prefix: 'name',
     killOthers: ['failure', 'success'],

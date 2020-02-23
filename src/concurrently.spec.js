@@ -97,3 +97,22 @@ it('passes commands wrapped from a controller to the next one', () => {
 
     expect(fakeCommand.start).toHaveBeenCalledTimes(1);
 });
+
+it('merges extra env vars into each command', () => {
+    create([
+        { command: 'echo', env: { foo: 'bar' } },
+        { command: 'echo', env: { foo: 'baz' } },
+        'kill'
+    ]);
+    
+    expect(spawn).toHaveBeenCalledTimes(3);
+    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
+        env: expect.objectContaining({ foo: 'bar' }) 
+    }));
+    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
+        env: expect.objectContaining({ foo: 'baz' }) 
+    }));
+    expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({
+        env: expect.not.objectContaining({ foo: expect.anything() }) 
+    }));
+});
