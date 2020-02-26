@@ -242,7 +242,7 @@ concurrently can be used programmatically by using the API documented below:
     - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
     - `raw`: whether raw mode should be used, meaning strictly process output will
     be logged, without any prefixes, colouring or extra stuff.
-    - `successCondition`: the condition to consider the run was successful.
+    - `success`: the condition to consider the run was successful.
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.
     - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
@@ -250,7 +250,7 @@ concurrently can be used programmatically by using the API documented below:
     - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
 
-> Returns: a `Promise` that resolves if the run was successful (according to `successCondition` option),
+> Returns: a `Promise` that resolves if the run was successful (according to `success` option),
 > or rejects, containing an array with the exit codes of each command that has been run.
 
 Example:
