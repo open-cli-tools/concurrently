@@ -48,6 +48,7 @@ module.exports = (commands, options = {}) => {
 // Export all flow controllers and the main concurrently function,
 // so that 3rd-parties can use them however they want
 exports.concurrently = concurrently;
+exports.Logger = Logger;
 exports.InputHandler = InputHandler;
 exports.KillOnSignal = KillOnSignal;
 exports.KillOthers = KillOthers;
