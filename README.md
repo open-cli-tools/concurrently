@@ -283,6 +283,6 @@ concurrently([
     So *null* means the process didn't terminate normally. This will make **concurrent**
     to return non-zero exit code too.
 
-* Does this work with the npm-replacement [yarn](https://github.com/yarnpkg/yarn)?
+* Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn) or [pnpm](https://pnpm.js.org/)?
 
-    Yes! In all examples above, you may replace "`npm`" with "`yarn`".
+    Yes! In all examples above, you may replace "`npm`" with "`yarn`" or "`pnpm`".
