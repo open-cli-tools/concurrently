@@ -59,7 +59,7 @@ describe('#start()', () => {
         const command = new Command({ spawn: () => process });
 
         command.close.subscribe(data => {
-            expect(data).toBe(0);
+            expect(data.exitCode).toBe(0);
             expect(command.process).toBeUndefined();
             done();
         });
@@ -73,12 +73,36 @@ describe('#start()', () => {
         const command = new Command({ spawn: () => process });
 
         command.close.subscribe(data => {
-            expect(data).toBe('SIGKILL');
+            expect(data.exitCode).toBe('SIGKILL');
             done();
         });
 
         command.start();
         process.emit('close', null, 'SIGKILL');
+    });
+
+    it('shares closes to the close stream with command info and index', done => {
+        const process = createProcess();
+        const command = new Command({
+            command: 'cmd',
+            name: 'name',
+            prefixColor: 'green',
+            env: { VAR: 'yes' },
+            index: 1,
+            spawn: () => process,
+        });
+
+        command.close.subscribe(data => {
+            expect(data.command).toBe('cmd');
+            expect(data.name).toBe('name');
+            expect(data.prefixColor).toBe('green');
+            expect(data.env).toEqual({ VAR: 'yes' });
+            expect(data.index).toBe(1);
+            done();
+        });
+
+        command.start();
+        process.emit('close', 0, null);
     });
 
     it('shares stdout to the stdout stream', done => {

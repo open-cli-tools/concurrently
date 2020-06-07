@@ -27,10 +27,10 @@ module.exports = class CompletionListener {
         return Rx.merge(...closeStreams)
             .pipe(
                 bufferCount(closeStreams.length),
-                switchMap(exitCodes =>
-                    this.isSuccess(exitCodes)
-                        ? Rx.of(exitCodes, this.scheduler)
-                        : Rx.throwError(exitCodes, this.scheduler)
+                switchMap(exitInfos =>
+                    this.isSuccess(exitInfos.map(({ exitCode }) => exitCode))
+                        ? Rx.of(exitInfos, this.scheduler)
+                        : Rx.throwError(exitInfos, this.scheduler)
                 ),
                 take(1)
             )

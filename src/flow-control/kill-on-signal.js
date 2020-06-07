@@ -16,8 +16,9 @@ module.exports = class KillOnSignal {
         });
 
         return commands.map(command => {
-            const closeStream = command.close.pipe(map(value => {
-                return caughtSignal === 'SIGINT' ? 0 : value;
+            const closeStream = command.close.pipe(map(exitInfo => {
+                const exitCode = caughtSignal === 'SIGINT' ? 0 : exitInfo.exitCode;
+                return Object.assign({}, exitInfo, { exitCode });
             }));
             return new Proxy(command, {
                 get(target, prop) {
