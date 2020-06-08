@@ -83,20 +83,21 @@ describe('#start()', () => {
 
     it('shares closes to the close stream with command info and index', done => {
         const process = createProcess();
-        const command = new Command({
+        const commandInfo = {
             command: 'cmd',
             name: 'name',
             prefixColor: 'green',
             env: { VAR: 'yes' },
-            index: 1,
-            spawn: () => process,
-        });
+        };
+        const command = new Command(
+            Object.assign({
+                index: 1,
+                spawn: () => process
+            }, commandInfo)
+        );
 
         command.close.subscribe(data => {
-            expect(data.command).toBe('cmd');
-            expect(data.name).toBe('name');
-            expect(data.prefixColor).toBe('green');
-            expect(data.env).toEqual({ VAR: 'yes' });
+            expect(data.command).toEqual(commandInfo);
             expect(data.index).toBe(1);
             done();
         });

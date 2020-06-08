@@ -33,10 +33,12 @@ module.exports = class Command {
         Rx.fromEvent(child, 'close').subscribe(([exitCode, signal]) => {
             this.process = undefined;
             this.close.next({
-                command: this.command,
-                name: this.name,
-                prefixColor: this.prefixColor,
-                env: this.env,
+                command: {
+                    command: this.command,
+                    name: this.name,
+                    prefixColor: this.prefixColor,
+                    env: this.env,
+                },
                 index: this.index,
                 exitCode: exitCode === null ? signal : exitCode,
             });

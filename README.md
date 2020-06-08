@@ -252,9 +252,9 @@ concurrently can be used programmatically by using the API documented below:
 
 > Returns: a `Promise` that resolves if the run was successful (according to `successCondition` option),
 > or rejects, containing an array of objects with information for each command that has been run, in the order
-> that the commands terminated. The objects have the shape `{ command, name, prefixColor, env, index, exitCode }`, where
-> `index` is the index in the passed `commands` array. Default values (empty strings or objects) are returned for the
-> fields that were not specified.
+> that the commands terminated. The objects have the shape `{ command, index, exitCode }`, where `command` is the object
+> passed in the `commands` array and `index` its index there. Default values (empty strings or objects) are returned for
+> the fields that were not specified.
 
 Example:
 
