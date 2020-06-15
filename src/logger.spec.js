@@ -125,6 +125,13 @@ describe('#logCommandText()', () => {
         expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('0-bar') + ' ', 'foo');
     });
 
+    it('does not strip spaces from beginning or end of prefixFormat', () => {
+        const logger = createLogger({ prefixFormat: ' {index}-{name} ' });
+        logger.logCommandText('foo', { index: 0, name: 'bar' });
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim(' 0-bar ') + ' ', 'foo');
+    });
+
     it('logs with no prefix', () => {
         const logger = createLogger({ prefixFormat: 'none' });
         logger.logCommandText('foo', { command: 'echo foo' });

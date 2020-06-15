@@ -53,7 +53,7 @@ module.exports = class Logger {
         return _.reduce(prefixes, (prev, val, key) => {
             const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
             return prev.replace(keyRegex, val);
-        }, prefix).trim();
+        }, prefix);
     }
 
     colorText(command, text) {
