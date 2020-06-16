@@ -1,6 +1,6 @@
 module.exports = class ExpandNpmShortcut {
     parse(commandInfo) {
-        const [, npmCmd, cmdName, args] = commandInfo.command.match(/^(npm|yarn):(\S+)(.*)/) || [];
+        const [, npmCmd, cmdName, args] = commandInfo.command.match(/^(npm|yarn|pnpm):(\S+)(.*)/) || [];
         if (!cmdName) {
             return commandInfo;
         }

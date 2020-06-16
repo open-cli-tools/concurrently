@@ -7,7 +7,7 @@ module.exports = class ExpandNpmWildcard {
     }
 
     parse(commandInfo) {
-        const [, npmCmd, cmdName, args] = commandInfo.command.match(/(npm|yarn) run (\S+)([^&]*)/) || [];
+        const [, npmCmd, cmdName, args] = commandInfo.command.match(/(npm|yarn|pnpm) run (\S+)([^&]*)/) || [];
         const wildcardPosition = (cmdName || '').indexOf('*');
 
         // If the regex didn't match an npm script, or it has no wildcard,
