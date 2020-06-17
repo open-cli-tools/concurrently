@@ -14,7 +14,7 @@ const createLogger = options => {
     return logger;
 };
 
-describe('#log()', () => {
+describe(Logger.prototype.log, () => {
     it('writes prefix + text to the output stream', () => {
         const logger = new Logger({ outputStream });
         logger.log('foo', 'bar');
@@ -52,7 +52,7 @@ describe('#log()', () => {
     });
 });
 
-describe('#logGlobalEvent()', () => {
+describe(Logger.prototype.logGlobalEvent, () => {
     it('does nothing if in raw mode', () => {
         const logger = createLogger({ raw: true });
         logger.logGlobalEvent('foo');
@@ -71,7 +71,7 @@ describe('#logGlobalEvent()', () => {
     });
 });
 
-describe('#logCommandText()', () => {
+describe(Logger.prototype.logCommandText, () => {
     it('logs with name if no prefixFormat is set', () => {
         const logger = createLogger();
         logger.logCommandText('foo', { name: 'bla' });
@@ -168,7 +168,7 @@ describe('#logCommandText()', () => {
     });
 });
 
-describe('#logCommandEvent()', () => {
+describe(Logger.prototype.logCommandEvent, () => {
     it('does nothing if in raw mode', () => {
         const logger = createLogger({ raw: true });
         logger.logCommandEvent('foo');
