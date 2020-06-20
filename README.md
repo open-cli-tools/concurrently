@@ -251,7 +251,10 @@ concurrently can be used programmatically by using the API documented below:
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
 
 > Returns: a `Promise` that resolves if the run was successful (according to `successCondition` option),
-> or rejects, containing an array with the exit codes of each command that has been run.
+> or rejects, containing an array of objects with information for each command that has been run, in the order
+> that the commands terminated. The objects have the shape `{ command, index, exitCode }`, where `command` is the object
+> passed in the `commands` array and `index` its index there. Default values (empty strings or objects) are returned for
+> the fields that were not specified.
 
 Example:
 

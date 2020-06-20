@@ -27,7 +27,7 @@ it('returns same commands', () => {
 it('does not kill others if condition does not match', () => {
     createWithConditions(['failure']).handle(commands);
     commands[1].killable = true;
-    commands[0].close.next(0);
+    commands[0].close.next({ exitCode: 0 });
 
     expect(logger.logGlobalEvent).not.toHaveBeenCalled();
     expect(commands[0].kill).not.toHaveBeenCalled();
@@ -37,7 +37,7 @@ it('does not kill others if condition does not match', () => {
 it('kills other killable processes on success', () => {
     createWithConditions(['success']).handle(commands);
     commands[1].killable = true;
-    commands[0].close.next(0);
+    commands[0].close.next({ exitCode: 0 });
 
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
@@ -48,7 +48,7 @@ it('kills other killable processes on success', () => {
 it('kills other killable processes on failure', () => {
     createWithConditions(['failure']).handle(commands);
     commands[1].killable = true;
-    commands[0].close.next(1);
+    commands[0].close.next({ exitCode: 1 });
 
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
@@ -58,7 +58,7 @@ it('kills other killable processes on failure', () => {
 
 it('does not try to kill processes already dead', () => {
     createWithConditions(['failure']).handle(commands);
-    commands[0].close.next(1);
+    commands[0].close.next({ exitCode: 1 });
 
     expect(logger.logGlobalEvent).not.toHaveBeenCalled();
     expect(commands[0].kill).not.toHaveBeenCalled();

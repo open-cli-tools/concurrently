@@ -18,7 +18,7 @@ module.exports = class RestartProcess {
 
         commands.map(command => command.close.pipe(
             take(this.tries),
-            takeWhile(code => code !== 0)
+            takeWhile(({ exitCode }) => exitCode !== 0)
         )).map((failure, index) => Rx.merge(
             // Delay the emission (so that the restarts happen on time),
             // explicitly telling the subscriber that a restart is needed
@@ -36,9 +36,9 @@ module.exports = class RestartProcess {
         }));
 
         return commands.map(command => {
-            const closeStream = command.close.pipe(filter((value, emission) => {
+            const closeStream = command.close.pipe(filter(({ exitCode }, emission) => {
                 // We let all success codes pass, and failures only after restarting won't happen again
-                return value === 0 || emission >= this.tries;
+                return exitCode === 0 || emission >= this.tries;
             }));
 
             return new Proxy(command, {

@@ -25,8 +25,8 @@ beforeEach(() => {
 it('does not restart processes that complete with success', () => {
     controller.handle(commands);
 
-    commands[0].close.next(0);
-    commands[1].close.next(0);
+    commands[0].close.next({ exitCode: 0 });
+    commands[1].close.next({ exitCode: 0 });
 
     scheduler.flush();
 
@@ -37,8 +37,8 @@ it('does not restart processes that complete with success', () => {
 it('restarts processes that fail after delay has passed', () => {
     controller.handle(commands);
 
-    commands[0].close.next(1);
-    commands[1].close.next(0);
+    commands[0].close.next({ exitCode: 1 });
+    commands[1].close.next({ exitCode: 0 });
 
     scheduler.flush();
 
@@ -54,10 +54,10 @@ it('restarts processes that fail after delay has passed', () => {
 it('restarts processes up to tries', () => {
     controller.handle(commands);
 
-    commands[0].close.next(1);
-    commands[0].close.next('SIGTERM');
-    commands[0].close.next('SIGTERM');
-    commands[1].close.next(0);
+    commands[0].close.next({ exitCode: 1 });
+    commands[0].close.next({ exitCode: 'SIGTERM' });
+    commands[0].close.next({ exitCode: 'SIGTERM' });
+    commands[1].close.next({ exitCode: 0 });
 
     scheduler.flush();
 
@@ -72,9 +72,9 @@ it('restarts processes up to tries', () => {
 it('restarts processes until they succeed', () => {
     controller.handle(commands);
 
-    commands[0].close.next(1);
-    commands[0].close.next(0);
-    commands[1].close.next(0);
+    commands[0].close.next({ exitCode: 1 });
+    commands[0].close.next({ exitCode: 0 });
+    commands[1].close.next({ exitCode: 0 });
 
     scheduler.flush();
 
@@ -105,11 +105,11 @@ describe('returned commands', () => {
         newCommands[0].close.subscribe(callback);
         newCommands[1].close.subscribe(callback);
 
-        commands[0].close.next(1);
-        commands[0].close.next(1);
-        commands[0].close.next(1);
-        commands[1].close.next(1);
-        commands[1].close.next(0);
+        commands[0].close.next({ exitCode: 1 });
+        commands[0].close.next({ exitCode: 1 });
+        commands[0].close.next({ exitCode: 1 });
+        commands[1].close.next({ exitCode: 1 });
+        commands[1].close.next({ exitCode: 0 });
 
         scheduler.flush();
 

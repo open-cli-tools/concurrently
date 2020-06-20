@@ -21,8 +21,8 @@ it('returns same commands', () => {
 it('logs the close event of each command', () => {
     controller.handle(commands);
 
-    commands[0].close.next(0);
-    commands[1].close.next('SIGTERM');
+    commands[0].close.next({ exitCode: 0 });
+    commands[1].close.next({ exitCode: 'SIGTERM' });
 
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(2);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(

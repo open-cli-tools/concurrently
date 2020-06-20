@@ -18,7 +18,7 @@ module.exports = class KillOthers {
         }
 
         const closeStates = commands.map(command => command.close.pipe(
-            map(exitCode => exitCode === 0 ? 'success' : 'failure'),
+            map(({ exitCode }) => exitCode === 0 ? 'success' : 'failure'),
             filter(state => conditions.includes(state))
         ));
 
