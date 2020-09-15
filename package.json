@@ -7,7 +7,7 @@
     "concurrently": "./bin/concurrently.js"
   },
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=8.0.0"
   },
   "scripts": {
     "lint": "eslint . --ignore-path .gitignore",
@@ -37,7 +37,7 @@
     "spawn-command": "^0.0.2-1",
     "supports-color": "^6.1.0",
     "tree-kill": "^1.2.2",
-    "yargs": "^13.3.0"
+    "yargs": "^15.4.1"
   },
   "devDependencies": {
     "coveralls": "^3.0.4",
