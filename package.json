@@ -29,13 +29,13 @@
   "author": "Kimmo Brunfeldt",
   "license": "MIT",
   "dependencies": {
-    "chalk": "^2.4.2",
+    "chalk": "^3.0.0",
     "date-fns": "^2.16.1",
     "lodash": "^4.17.20",
-    "read-pkg": "^4.0.1",
+    "read-pkg": "^5.2.0",
     "rxjs": "^6.6.3",
     "spawn-command": "^0.0.2-1",
-    "supports-color": "^6.1.0",
+    "supports-color": "^7.2.0",
     "tree-kill": "^1.2.2",
     "yargs": "^15.4.1"
   },
