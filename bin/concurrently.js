@@ -49,6 +49,12 @@ const args = yargs
                 'and concurrently coloring.',
             type: 'boolean'
         },
+        'grid': {
+            describe:
+                'Output of processes will be formatted inside a grid.\n' +
+                'Experimental layout.',
+            type: 'boolean'
+        },
         // This one is provided for free. Chalk reads this itself and removes colours.
         // https://www.npmjs.com/package/chalk#chalksupportscolor
         'no-color': {
@@ -161,6 +167,7 @@ concurrently(args._.map((command, index) => {
         : (args.killOthersOnFail ? ['failure'] : []),
     maxProcesses: args.maxProcesses,
     raw: args.raw,
+    grid: args.grid,
     prefix: args.prefix,
     prefixLength: args.prefixLength,
     restartDelay: args.restartAfter,

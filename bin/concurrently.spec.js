@@ -163,6 +163,17 @@ describe('--raw', () => {
     });
 });
 
+describe('--grid', () => {
+    it('contains output', done => {
+        const child = run('--grid "echo foo" "echo bar"');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expect(lines).toContainEqual(expect.stringContaining('foo'));
+            expect(lines).toContainEqual(expect.stringContaining('bar'));
+            done();
+        }, done);
+    });
+});
+
 describe('--names', () => {
     it('is aliased to -n', done => {
         const child = run('-n foo,bar "echo foo" "echo bar"');

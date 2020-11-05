@@ -11,7 +11,7 @@ beforeEach(() => {
     ];
 
     logger = createMockInstance(Logger);
-    controller = new LogOutput({ logger });
+    controller = new LogOutput({ logger, grid: false });
 });
 
 it('returns same commands', () => {
