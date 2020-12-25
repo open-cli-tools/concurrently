@@ -228,8 +228,10 @@ For more details, visit https://github.com/kimmobrunfeldt/concurrently
 concurrently can be used programmatically by using the API documented below:
 
 ### `concurrently(commands[, options])`
+
 - `commands`: an array of either strings (containing the commands to run) or objects
   with the shape `{ command, name, prefixColor, env, cwd }`.
+
 - `options` (optional): an object containing any of the below:
     - `cwd`: the working directory to be used by all commands. Can be overriden per command.
     Default: `process.cwd()`.
@@ -237,6 +239,7 @@ concurrently can be used programmatically by using the API documented below:
     Default: `0`.
     - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
     to read the input from, eg `process.stdin`.
+    - `pauseInputStreamOnFinish`: by default, pauses `inputStream` when all of the processes have finished. If you need to read from `inputStream` after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
     - `killOthers`: an array of exitting conditions that will cause a process to kill others.
     Can contain any of `success` or `failure`.
     - `maxProcesses`: how many processes should run at once.

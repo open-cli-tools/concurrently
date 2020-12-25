@@ -5,11 +5,12 @@ const defaults = require('../defaults');
 const BaseHandler = require('./base-handler');
 
 module.exports = class InputHandler extends BaseHandler {
-    constructor({ defaultInputTarget, inputStream, logger }) {
+    constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }) {
         super({ logger });
 
         this.defaultInputTarget = defaultInputTarget || defaults.defaultInputTarget;
         this.inputStream = inputStream;
+        this.pauseInputStreamOnFinish = pauseInputStreamOnFinish !== false;
     }
 
     handle(commands) {
@@ -40,7 +41,7 @@ module.exports = class InputHandler extends BaseHandler {
     }
 
     onFinish() {
-        if (this.inputStream) {
+        if (this.inputStream && this.pauseInputStreamOnFinish) {
             // https://github.com/kimmobrunfeldt/concurrently/issues/252
             this.inputStream.pause();
         }
