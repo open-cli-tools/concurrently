@@ -5,5 +5,6 @@ module.exports = class FakeHandler extends BaseHandler {
         super();
 
         this.handle = jest.fn(commands => commands);
+        this.onFinish = jest.fn();
     }
 };
