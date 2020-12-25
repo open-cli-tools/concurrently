@@ -8,4 +8,9 @@ module.exports = class BaseHandler {
     handle(commands) {
         return commands;
     }
+
+    /**
+     * A hook called when all commands have finished (either successful or not).
+     */
+    onFinish() {}
 };
