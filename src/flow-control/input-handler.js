@@ -6,9 +6,10 @@ const BaseHandler = require('./base-handler');
 
 module.exports = class InputHandler extends BaseHandler {
     constructor({ defaultInputTarget, inputStream, logger }) {
+        super({ logger });
+
         this.defaultInputTarget = defaultInputTarget || defaults.defaultInputTarget;
         this.inputStream = inputStream;
-        this.logger = logger;
     }
 
     handle(commands) {

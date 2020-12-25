@@ -4,6 +4,8 @@ const BaseHandler = require('./base-handler');
 
 module.exports = class KillOnSignal extends BaseHandler {
     constructor({ process }) {
+        super();
+
         this.process = process;
     }
 
