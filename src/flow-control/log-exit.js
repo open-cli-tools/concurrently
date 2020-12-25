@@ -1,4 +1,6 @@
-module.exports = class LogExit {
+const BaseHandler = require('./base-handler');
+
+module.exports = class LogExit extends BaseHandler {
     constructor({ logger }) {
         this.logger = logger;
     }
