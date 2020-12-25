@@ -89,3 +89,13 @@ it('logs error if command is not found', () => {
     expect(commands[1].stdin.write).not.toHaveBeenCalled();
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Unable to find command foobar, or it has no stdin open\n');
 });
+
+it('pauses input stream when finished', () => {
+    expect(inputStream.readableFlowing).toBeNull();
+
+    controller.handle(commands);
+    expect(inputStream.readableFlowing).toBe(true);
+
+    controller.onFinish();
+    expect(inputStream.readableFlowing).toBe(false);
+});
