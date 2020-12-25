@@ -157,7 +157,7 @@ concurrently(args._.map((command, index) => {
         name: names[index]
     };
 }), {
-    inputStream: args.handleInput && process.stdin,
+    handleInput: args.handleInput,
     defaultInputTarget: args.defaultInputTarget,
     killOthers: args.killOthers
         ? ['success', 'failure']

@@ -237,9 +237,10 @@ concurrently can be used programmatically by using the API documented below:
     Default: `process.cwd()`.
     - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
+    - `handleInput`: when `true`, reads input from `process.stdin`.
     - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
-    to read the input from, eg `process.stdin`.
-    - `pauseInputStreamOnFinish`: by default, pauses `inputStream` when all of the processes have finished. If you need to read from `inputStream` after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
+    to read the input from. Should only be used in the rare instance you would like to stream anything other than `process.stdin`. Overrides `handleInput`.
+    - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
     - `killOthers`: an array of exitting conditions that will cause a process to kill others.
     Can contain any of `success` or `failure`.
     - `maxProcesses`: how many processes should run at once.
