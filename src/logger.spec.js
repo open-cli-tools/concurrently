@@ -166,6 +166,14 @@ describe('#logCommandText()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[1]') + ' ', 'foo');
     });
+
+    it('logs prefix using prefixColor from command if prefixColor is a hex value', () => {
+        const logger = createLogger();
+        const prefixColor = '#32bd8a';
+        logger.logCommandText('foo', {prefixColor, index: 1});
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.hex(prefixColor)('[1]') + ' ', 'foo');
+    });
 });
 
 describe('#logCommandEvent()', () => {
