@@ -104,15 +104,42 @@ it('merges extra env vars into each command', () => {
         { command: 'echo', env: { foo: 'baz' } },
         'kill'
     ]);
-    
+
     expect(spawn).toHaveBeenCalledTimes(3);
     expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'bar' }) 
+        env: expect.objectContaining({ foo: 'bar' })
     }));
     expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'baz' }) 
+        env: expect.objectContaining({ foo: 'baz' })
     }));
     expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({
-        env: expect.not.objectContaining({ foo: expect.anything() }) 
+        env: expect.not.objectContaining({ foo: expect.anything() })
+    }));
+});
+
+it('uses cwd from options for each command', () => {
+    create(
+        [
+            { command: 'echo', env: { foo: 'bar' } },
+            { command: 'echo', env: { foo: 'baz' } },
+            'kill'
+        ],
+        {
+            cwd: 'foobar',
+        }
+    );
+
+    expect(spawn).toHaveBeenCalledTimes(3);
+    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
+        env: expect.objectContaining({ foo: 'bar' }),
+        cwd: 'foobar',
+    }));
+    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
+        env: expect.objectContaining({ foo: 'baz' }),
+        cwd: 'foobar',
+    }));
+    expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({
+        env: expect.not.objectContaining({ foo: expect.anything() }),
+        cwd: 'foobar',
     }));
 });

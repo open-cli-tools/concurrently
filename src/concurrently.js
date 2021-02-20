@@ -16,7 +16,8 @@ const defaults = {
     spawn,
     kill: treeKill,
     raw: false,
-    controllers: []
+    controllers: [],
+    cwd: undefined,
 };
 
 module.exports = (commands, options) => {
@@ -37,7 +38,11 @@ module.exports = (commands, options) => {
         .map((command, index) => new Command(
             Object.assign({
                 index,
-                spawnOpts: getSpawnOpts({ raw: options.raw, env: command.env }),
+                spawnOpts: getSpawnOpts({
+                    raw: options.raw,
+                    env: command.env,
+                    cwd: command.cwd || options.cwd,
+                }),
                 killProcess: options.kill,
                 spawn: options.spawn,
             }, command)

@@ -22,6 +22,7 @@ module.exports = (commands, options = {}) => {
         maxProcesses: options.maxProcesses,
         raw: options.raw,
         successCondition: options.successCondition,
+        cwd: options.cwd,
         controllers: [
             new LogError({ logger }),
             new LogOutput({ logger }),

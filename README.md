@@ -10,11 +10,13 @@ Like `npm run watch-js & npm run watch-less` but better.
 ![](docs/demo.gif)
 
 **Table of contents**
-- [Why](#why)
-- [Install](#install)
-- [Usage](#usage)
-- [Programmatic Usage](#programmatic-usage)
-- [FAQ](#faq)
+- [Concurrently](#concurrently)
+  - [Why](#why)
+  - [Install](#install)
+  - [Usage](#usage)
+  - [Programmatic Usage](#programmatic-usage)
+    - [`concurrently(commands[, options])`](#concurrentlycommands-options)
+  - [FAQ](#faq)
 
 ## Why
 
@@ -226,8 +228,10 @@ concurrently can be used programmatically by using the API documented below:
 
 ### `concurrently(commands[, options])`
 - `commands`: an array of either strings (containing the commands to run) or objects
-  with the shape `{ command, name, prefixColor, env }`.
+  with the shape `{ command, name, prefixColor, env, cwd }`.
 - `options` (optional): an object containing any of the below:
+    - `cwd`: the working directory to be used by all commands. Can be overriden per command.
+    Default: `process.cwd()`.
     - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
     - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
@@ -264,11 +268,13 @@ const concurrently = require('concurrently');
 concurrently([
     'npm:watch-*',
     { command: 'nodemon', name: 'server' },
-    { command: 'deploy', name: 'deploy', env: { PUBLIC_KEY: '...' } }
+    { command: 'deploy', name: 'deploy', env: { PUBLIC_KEY: '...' } },
+    { command: 'watch', name: 'watch', cwd: path.resolve(__dirname, 'scripts/watchers')}
 ], {
     prefix: 'name',
     killOthers: ['failure', 'success'],
     restartTries: 3,
+    cwd: path.resolve(__dirname, 'scripts'),
 }).then(success, failure);
 ```
 
