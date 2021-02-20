@@ -140,7 +140,8 @@ Prefix styling
                           - Available modifiers: reset, bold, dim, italic,
                           underline, inverse, hidden, strikethrough
                           - Available colors: black, red, green, yellow, blue,
-                          magenta, cyan, white, gray
+                          magenta, cyan, white, gray, or any hex values for
+                          colors, eg #23de43
                           - Available background colors: bgBlack, bgRed,
                           bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
                           See https://www.npmjs.com/package/chalk for more

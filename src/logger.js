@@ -57,7 +57,12 @@ module.exports = class Logger {
     }
 
     colorText(command, text) {
-        const color = _.get(chalk, command.prefixColor, chalk.gray.dim);
+        let color;
+        if (command.prefixColor && command.prefixColor.startsWith('#')) {
+            color = chalk.hex(command.prefixColor);
+        } else {
+            color = _.get(chalk, command.prefixColor, chalk.gray.dim);
+        }
         return color(text);
     }
 
