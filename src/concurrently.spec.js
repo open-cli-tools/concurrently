@@ -143,3 +143,25 @@ it('uses cwd from options for each command', () => {
         cwd: 'foobar',
     }));
 });
+
+it('uses overridden cwd option for each command if specified', () => {
+    create(
+        [
+            { command: 'echo', env: { foo: 'bar' }, cwd: 'baz' },
+            { command: 'echo', env: { foo: 'baz' } },
+        ],
+        {
+            cwd: 'foobar',
+        }
+    );
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
+        env: expect.objectContaining({ foo: 'bar' }),
+        cwd: 'baz',
+    }));
+    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
+        env: expect.objectContaining({ foo: 'baz' }),
+        cwd: 'foobar',
+    }));
+});

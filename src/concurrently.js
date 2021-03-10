@@ -69,6 +69,7 @@ function mapToCommandInfo(command) {
         name: command.name || '',
         prefixColor: command.prefixColor || '',
         env: command.env || {},
+        cwd: command.cwd || '',
     };
 }
 
