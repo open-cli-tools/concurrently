@@ -18,7 +18,7 @@ module.exports = class InputHandler {
         Rx.fromEvent(this.inputStream, 'data')
             .pipe(map(data => data.toString()))
             .subscribe(data => {
-                let [targetId, input] = data.split(':', 2);
+                let [targetId, input] = data.split(/:(.+)/);
                 targetId = input ? targetId : this.defaultInputTarget;
                 input = input || data;
 

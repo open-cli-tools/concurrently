@@ -48,6 +48,18 @@ it('forwards input stream to target index specified in input', () => {
     expect(commands[1].stdin.write).toHaveBeenCalledWith('something');
 });
 
+it('forwards input stream to target index specified in input when input contains colon', () => {
+    controller.handle(commands);
+
+    inputStream.emit('data', Buffer.from('1::something'));
+    inputStream.emit('data', Buffer.from('1:some:thing'));
+
+    expect(commands[0].stdin.write).not.toHaveBeenCalled();
+    expect(commands[1].stdin.write).toHaveBeenCalledTimes(2);
+    expect(commands[1].stdin.write).toHaveBeenCalledWith(':something');
+    expect(commands[1].stdin.write).toHaveBeenCalledWith('some:thing');
+});
+
 it('forwards input stream to target name specified in input', () => {
     controller.handle(commands);
 
