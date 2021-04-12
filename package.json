@@ -31,7 +31,7 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "date-fns": "^2.16.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "read-pkg": "^5.2.0",
     "rxjs": "^6.6.3",
     "spawn-command": "^0.0.2-1",
