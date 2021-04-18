@@ -20,6 +20,8 @@ module.exports = {
     // How many bytes we'll show on the command prefix
     prefixLength: 10,
     raw: false,
+    // Whether to display output ordered as if the commands were sequential
+    group: false,
     // Number of attempts of restarting a process, if it exits with non-0 code
     restartTries: 0,
     // How many milliseconds concurrently should wait before restarting a process.

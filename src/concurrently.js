@@ -11,6 +11,7 @@ const CompletionListener = require('./completion-listener');
 
 const getSpawnOpts = require('./get-spawn-opts');
 const Command = require('./command');
+const OutputWriter = require('./output-writer');
 
 const defaults = {
     spawn,
@@ -71,6 +72,15 @@ module.exports = (commands, options) => {
     const maxProcesses = Math.max(1, Number(options.maxProcesses) || commandsLeft.length);
     for (let i = 0; i < maxProcesses; i++) {
         maybeRunMore(commandsLeft);
+    }
+
+    if (options.logger) {
+        const outputWriter = new OutputWriter({
+            outputStream: options.outputStream,
+            group: options.group,
+            commands,
+        });
+        options.logger.observable.subscribe(({command, text}) => outputWriter.write(command, text));
     }
 
     return new CompletionListener({ successCondition: options.successCondition })
