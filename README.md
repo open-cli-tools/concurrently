@@ -147,7 +147,7 @@ Prefix styling
                           - Available background colors: bgBlack, bgRed,
                           bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
                           See https://www.npmjs.com/package/chalk for more
-                          information.            [string] [default: "gray.dim"]
+                          information.            [string] [default: "reset"]
   -l, --prefix-length     Limit how many characters of the command is displayed
                           in prefix. The option can be used to shorten the
                           prefix when it is set to "command"

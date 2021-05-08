@@ -61,7 +61,8 @@ module.exports = class Logger {
         if (command.prefixColor && command.prefixColor.startsWith('#')) {
             color = chalk.hex(command.prefixColor);
         } else {
-            color = _.get(chalk, command.prefixColor, chalk.gray.dim);
+            const defaultColor = _.get(chalk, defaults.prefixColors, chalk.reset);
+            color = _.get(chalk, command.prefixColor, defaultColor);
         }
         return color(text);
     }
@@ -71,7 +72,7 @@ module.exports = class Logger {
             return;
         }
 
-        this.logCommandText(chalk.gray.dim(text) + '\n', command);
+        this.logCommandText(chalk.reset(text) + '\n', command);
     }
 
     logCommandText(text, command) {
@@ -84,7 +85,7 @@ module.exports = class Logger {
             return;
         }
 
-        this.log(chalk.gray.dim('-->') + ' ', chalk.gray.dim(text) + '\n');
+        this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n');
     }
 
     log(prefix, text) {

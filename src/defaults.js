@@ -14,7 +14,7 @@ module.exports = {
     // Which prefix style to use when logging processes output.
     prefix: '',
     // Refer to https://www.npmjs.com/package/chalk
-    prefixColors: 'gray.dim',
+    prefixColors: 'reset',
     // How many bytes we'll show on the command prefix
     prefixLength: 10,
     raw: false,
