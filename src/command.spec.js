@@ -168,7 +168,7 @@ describe('#kill()', () => {
         expect(killProcess).not.toHaveBeenCalled();
     });
 
-    it('should mark the command as killed', done => {
+    it('marks the command as killed', done => {
         command.start();
         
         command.close.subscribe(data => {
