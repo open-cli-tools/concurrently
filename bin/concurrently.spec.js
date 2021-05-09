@@ -1,7 +1,7 @@
 const readline = require('readline');
 const _ = require('lodash');
 const Rx = require('rxjs');
-const { buffer, map } = require('rxjs/operators');
+const { buffer, map, toArray } = require('rxjs/operators');
 const spawn = require('spawn-command');
 
 const isWindows = process.platform === 'win32';
@@ -300,7 +300,7 @@ describe('--kill-others-on-fail', () => {
 });
 
 describe('--handle-input', () => {
-    it('is alised to -i', done => {
+    it('is aliased to -i', done => {
         const child = run('-i "node fixtures/read-echo.js"');
         child.log.subscribe(line => {
             if (/READING/.test(line)) {
