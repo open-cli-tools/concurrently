@@ -1,7 +1,7 @@
 const readline = require('readline');
 const _ = require('lodash');
 const Rx = require('rxjs');
-const { buffer, map, toArray } = require('rxjs/operators');
+const { buffer, map } = require('rxjs/operators');
 const spawn = require('spawn-command');
 
 const isWindows = process.platform === 'win32';
