@@ -60,6 +60,7 @@ describe('#start()', () => {
 
         command.close.subscribe(data => {
             expect(data.exitCode).toBe(0);
+            expect(data.killed).toBe(false);
             expect(command.process).toBeUndefined();
             done();
         });
@@ -74,6 +75,7 @@ describe('#start()', () => {
 
         command.close.subscribe(data => {
             expect(data.exitCode).toBe('SIGKILL');
+            expect(data.killed).toBe(false);
             done();
         });
 
@@ -98,6 +100,7 @@ describe('#start()', () => {
 
         command.close.subscribe(data => {
             expect(data.command).toEqual(commandInfo);
+            expect(data.killed).toBe(false);
             expect(data.index).toBe(1);
             done();
         });
@@ -163,5 +166,18 @@ describe('#kill()', () => {
         command.kill();
 
         expect(killProcess).not.toHaveBeenCalled();
+    });
+
+    it('marks the command as killed', done => {
+        command.start();
+        
+        command.close.subscribe(data => {
+            expect(data.exitCode).toBe(1);
+            expect(data.killed).toBe(true);
+            done();
+        });
+
+        command.kill();
+        process.emit('close', 1, null);
     });
 });

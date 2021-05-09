@@ -1,5 +1,5 @@
 const Rx = require('rxjs');
-const { bufferCount, map, switchMap, take } = require('rxjs/operators');
+const { bufferCount, switchMap, take } = require('rxjs/operators');
 
 module.exports = class CompletionListener {
     constructor({ successCondition, scheduler }) {

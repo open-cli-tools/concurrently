@@ -300,7 +300,7 @@ describe('--kill-others-on-fail', () => {
 });
 
 describe('--handle-input', () => {
-    it('is alised to -i', done => {
+    it('is aliased to -i', done => {
         const child = run('-i "node fixtures/read-echo.js"');
         child.log.subscribe(line => {
             if (/READING/.test(line)) {

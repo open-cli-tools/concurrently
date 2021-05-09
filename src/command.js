@@ -14,6 +14,7 @@ module.exports = class Command {
         this.killProcess = killProcess;
         this.spawn = spawn;
         this.spawnOpts = spawnOpts;
+        this.killed = false;
 
         this.error = new Rx.Subject();
         this.close = new Rx.Subject();
@@ -41,6 +42,7 @@ module.exports = class Command {
                 },
                 index: this.index,
                 exitCode: exitCode === null ? signal : exitCode,
+                killed: this.killed,
             });
         });
         child.stdout && pipeTo(Rx.fromEvent(child.stdout, 'data'), this.stdout);
@@ -50,6 +52,7 @@ module.exports = class Command {
 
     kill(code) {
         if (this.killable) {
+            this.killed = true;
             this.killProcess(this.pid, code);
         }
     }
