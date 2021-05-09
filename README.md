@@ -169,9 +169,10 @@ Killing other processes
                          code                                          [boolean]
 
 Restarting
-  --restart-tries  How many times a process that died should restart.
+      --restart-tries  How many times a process that died should restart.
+                       Negative numbers will make the process restart forever.
                                                            [number] [default: 0]
-  --restart-after  Delay time to respawn the process, in milliseconds.
+      --restart-after  Delay time to respawn the process, in milliseconds.
                                                            [number] [default: 0]
 
 Options:

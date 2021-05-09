@@ -7,6 +7,7 @@ module.exports = class RestartProcess {
     constructor({ delay, tries, logger, scheduler }) {
         this.delay = +delay || defaults.restartDelay;
         this.tries = +tries || defaults.restartTries;
+        this.tries = this.tries < 0 ? Infinity : this.tries;
         this.logger = logger;
         this.scheduler = scheduler;
     }

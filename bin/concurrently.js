@@ -107,7 +107,9 @@ const args = yargs
 
         // Restarting
         'restart-tries': {
-            describe: 'How many times a process that died should restart.',
+            describe:
+                'How many times a process that died should restart.\n' +
+                'Negative numbers will make the process restart forever.',
             default: defaults.restartTries,
             type: 'number'
         },
