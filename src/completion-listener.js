@@ -16,6 +16,10 @@ module.exports = class CompletionListener {
             case 'last':
                 return exitCodes[exitCodes.length - 1] === 0;
 
+            case 'all-but-first':
+                const [, ...allButFirst] = exitCodes;
+                return allButFirst.every(code => code === 0);
+
             default:
                 return exitCodes.every(exitCode => exitCode === 0);
             /* eslint-enable indent */

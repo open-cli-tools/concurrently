@@ -37,9 +37,10 @@ const args = yargs
             alias: 'success',
             describe:
                 'Return exit code of zero or one based on the success or failure ' +
-                'of the "first" child to terminate, the "last child", or succeed ' +
-                'only if "all" child processes succeed.',
-            choices: ['first', 'last', 'all'],
+                'of the "first" child to terminate, the "last child", all but ' +
+                'the first child success, or succeeed only if "all" child ' +
+                'processes succeed.',
+            choices: ['first', 'last', 'all-but-first', 'all'],
             default: defaults.success
         },
         'r': {

@@ -125,10 +125,12 @@ General
                        "|"                                        [default: ","]
   -r, --raw            Output only raw output of processes, disables prettifying
                        and concurrently coloring.                      [boolean]
-  -s, --success        Return exit code of zero or one based on the success or
-                       failure of the "first" child to terminate, the "last
-                       child", or succeed only if "all" child processes succeed.
-                              [choices: "first", "last", "all"] [default: "all"]
+  -s, --success        Return exit code of zero or one based on the success or failure 
+                       of the "first" child to terminate, the "last child", "all-but-
+                       first" child success, or succeeed only if "all" child processes
+                       succeed
+                              [choices: "first", "last", "all-but-first",  "all"] 
+                              [default: "all"]
   --no-color           Disables colors from logging                    [boolean]
 
 Prefix styling

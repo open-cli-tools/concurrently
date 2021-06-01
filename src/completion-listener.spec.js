@@ -86,3 +86,33 @@ describe('with success condition set to last', () => {
         return expect(result).rejects.toEqual([{ exitCode: 0 }, { exitCode: 1 }]);
     });
 });
+
+describe('with success condition set to all-but-first', () => {
+    beforeEach(() => {
+        commands.push(createFakeCommand('oof'));
+    });
+
+    it('succeeds if all but first process to exit has code 0', () => {
+        const result = createController('all-but-first').listen(commands);
+
+        commands[0].close.next({ exitCode: 1 });
+        commands[1].close.next({ exitCode: 0 });
+        commands[2].close.next({ exitCode: 0 });
+
+        scheduler.flush();
+
+        return expect(result).resolves.toEqual([{ exitCode: 1 }, { exitCode: 0 }, { exitCode: 0 }]);
+    });
+
+    it('fails if last process to exit has non-0 code', () => {
+        const result = createController('first').listen(commands);
+
+        commands[0].close.next({ exitCode: 1 });
+        commands[1].close.next({ exitCode: 0 });
+        commands[2].close.next({ exitCode: 1 });
+
+        scheduler.flush();
+
+        return expect(result).rejects.toEqual([{ exitCode: 1 }, { exitCode: 0 }, { exitCode: 1 }]);
+    });
+});
