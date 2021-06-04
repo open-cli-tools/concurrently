@@ -140,7 +140,7 @@ const args = yargs
             alias: 'prepend',
             describe: 
                 'prepend string to each command',
-            default: "",
+            default: '',
             type: 'string'
         },
         'A': {
@@ -148,7 +148,7 @@ const args = yargs
             describe:
                 'append string to each command\n' + 
                 'eg: pass arguments',
-            default: "",
+            default: '',
             type: 'string'
         }
     })

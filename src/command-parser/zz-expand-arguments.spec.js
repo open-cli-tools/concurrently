@@ -21,7 +21,7 @@ it('noop if empty argPend', () => {
 it('argPend prepend', () => {
     const commandInfo = {
         command: 'foo bar',
-        argPend: { prepend: "echo" },
+        argPend: { prepend: 'echo' },
     };
     expect(parser.parse(commandInfo).command)
         .toEqual('echo foo bar');
@@ -30,7 +30,7 @@ it('argPend prepend', () => {
 it('argPend append', () => {
     const commandInfo = {
         command: 'foo bar',
-        argPend: { append: "--watch" },
+        argPend: { append: '--watch' },
     };
     expect(parser.parse(commandInfo).command)
         .toEqual('foo bar --watch');
@@ -39,7 +39,7 @@ it('argPend append', () => {
 it('argPend prepend + append', () => {
     const commandInfo = {
         command: 'foo bar',
-        argPend: { prepend: "echo", append: "--watch" },
+        argPend: { prepend: 'echo', append: '--watch' },
     };
     expect(parser.parse(commandInfo).command)
         .toEqual('echo foo bar --watch');
