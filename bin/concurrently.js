@@ -157,7 +157,8 @@ const args = yargs
         'D': {
             alias: 'define',
             describe: 
-                'add definition to prepend / append each command, can be use multiple times',
+                'add definition to render \n' + 
+                'template `{{prepend}} <command> {{append}}`',
             default: [],
             type: 'string'
         }
