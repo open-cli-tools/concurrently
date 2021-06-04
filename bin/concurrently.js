@@ -187,8 +187,8 @@ const definition = Object.assign(
     // desc: convert ["a=1","b=2"] into {"a":"1","b":"2"}
     Object.fromEntries(
         _define
-        .map(el=>el.split('='))
-        .map(x=>[x[0],x.slice(1).join('=')])
+            .map(el=>el.split('='))
+            .map(x=>[x[0],x.slice(1).join('=')])
     )
 );
 
