@@ -10,6 +10,8 @@
     "node": ">=10.0.0"
   },
   "scripts": {
+    "example:echo:A": "echo A",
+    "example:echo:B": "echo B",
     "lint": "eslint . --ignore-path .gitignore",
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"

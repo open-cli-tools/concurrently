@@ -12,6 +12,15 @@ Examples:
 
      $ $0 --prefix "{time}-{pid}" "npm run watch" "http-server"
 
+ - Custom cmd prepend
+
+     $ $0 -P 'npm run' 'example:echo:A' 'example:echo:B'
+
+ - Custom cmd append
+
+     $ $0 -A ' -- --watch' 'npm:example:echo*'
+     # Add one space to prevent yargs parse this string as an option
+
  - Custom names and colored prefixes
 
      $ $0 --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"

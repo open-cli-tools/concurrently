@@ -138,13 +138,16 @@ const args = yargs
         // shorten command
         'P': {
             alias: 'prepend',
-            describe: 'prepend string to each command',
+            describe: 
+                'prepend string to each command',
             default: "",
             type: 'string'
         },
         'A': {
             alias: 'append',
-            describe: 'append string to each command',
+            describe:
+                'append string to each command\n' + 
+                'eg: pass arguments',
             default: "",
             type: 'string'
         }
@@ -154,6 +157,7 @@ const args = yargs
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
     .group(['restart-tries', 'restart-after'], 'Restarting')
+    .group(['P', 'A'], 'shorten command')
     // Too much text to write as JS strings, .txt file is better
     .epilogue(fs.readFileSync(__dirname + '/epilogue.txt', { encoding: 'utf8' }))
     .argv;
