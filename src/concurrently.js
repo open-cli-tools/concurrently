@@ -6,7 +6,7 @@ const treeKill = require('tree-kill');
 const StripQuotes = require('./command-parser/strip-quotes');
 const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
-const ZZ_ExpandArguments = require('./command-parser/zz-expand-arguments')
+const ZZ_ExpandArguments = require('./command-parser/zz-expand-arguments');
 
 const CompletionListener = require('./completion-listener');
 
