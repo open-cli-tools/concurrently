@@ -15,11 +15,15 @@ Examples:
  - Custom cmd prepend
 
      $ $0 -P 'npm run' 'example:echo:A' 'example:echo:B'
+     
+     $ $0 -D prepend='npm run' 'example:echo:A' 'example:echo:B'
 
  - Custom cmd append
 
      $ $0 -A ' -- --watch' 'npm:example:echo*'
      # Add one space to prevent yargs parse this string as an option
+
+     $ $0 -D append='-- --watch' 'npm:example:echo*'
 
  - Custom names and colored prefixes
 

@@ -176,10 +176,11 @@ Restarting
                                                            [number] [default: 0]
 
 shorten command
-  -P, --prepend  prepend string to each command
-                                                          [string] [default: ""]
+  -P, --prepend  prepend string to each command           [string] [default: ""]
   -A, --append   append string to each command
                  eg: pass arguments                       [string] [default: ""]
+  -D, --define   add definition to prepend / append each command, can be use
+                 multiple times                           [string] [default: []]
 
 Options:
   -h, --help         Show help                                         [boolean]
@@ -203,10 +204,14 @@ Examples:
 
      $ concurrently -P 'npm run' 'example:echo:A' 'example:echo:B'
 
+     $ concurrently -D prepend='npm run' 'example:echo:A' 'example:echo:B'
+
  - Custom cmd append
 
      $ concurrently -A ' -- --watch' 'npm:example:echo*'
      # Add one space to prevent yargs parse this string as an option
+
+     $ concurrently -D append='-- --watch' 'npm:example:echo*'
 
  - Custom names and colored prefixes
 
