@@ -6,6 +6,7 @@ const treeKill = require('tree-kill');
 const StripQuotes = require('./command-parser/strip-quotes');
 const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
+const ZZ_ExpandArguments = require('./command-parser/zz-expand-arguments')
 
 const CompletionListener = require('./completion-listener');
 
@@ -29,7 +30,8 @@ module.exports = (commands, options) => {
     const commandParsers = [
         new StripQuotes(),
         new ExpandNpmShortcut(),
-        new ExpandNpmWildcard()
+        new ExpandNpmWildcard(),
+        new ZZ_ExpandArguments(),
     ];
 
     commands = _(commands)
@@ -66,6 +68,7 @@ module.exports = (commands, options) => {
 function mapToCommandInfo(command) {
     return {
         command: command.command || command,
+        argPend: command.argPend,
         name: command.name || '',
         prefixColor: command.prefixColor || '',
         env: command.env || {},

@@ -133,6 +133,20 @@ const args = yargs
                 'Identifier for child process to which input on stdin ' +
                 'should be sent if not specified at start of input.\n' +
                 'Can be either the index or the name of the process.'
+        },
+
+        // shorten command
+        'P': {
+            alias: 'prepend',
+            describe: 'prepend string to each command',
+            default: "",
+            type: 'string'
+        },
+        'A': {
+            alias: 'append',
+            describe: 'append string to each command',
+            default: "",
+            type: 'string'
         }
     })
     .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color'], 'General')
@@ -153,6 +167,7 @@ concurrently(args._.map((command, index) => {
     lastColor = prefixColors[index] || lastColor;
     return {
         command,
+        argPend: { prepend:args.prepend, append:args.append },
         prefixColor: lastColor,
         name: names[index]
     };
