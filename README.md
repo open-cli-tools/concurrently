@@ -176,11 +176,16 @@ Restarting
                                                            [number] [default: 0]
 
 shorten command
-  -P, --prepend  prepend string to each command           [string] [default: ""]
+  -P, --prepend  prepend string to each command
+                 but make sure you not using dash, else use
+                 `-D prepend="foobar"`                    [string] [default: ""]
   -A, --append   append string to each command
-                 eg: pass arguments                       [string] [default: ""]
-  -D, --define   add definition to prepend / append each command, can be use
-                 multiple times                           [string] [default: []]
+                 eg: pass arguments
+                 but make sure you not using dash, else use
+                 `-D append="foobar"`                     [string] [default: ""]
+  -D, --define   add definition to render
+                 template `{{prepend}} <command> {{append}}`
+                                                          [string] [default: []]
 
 Options:
   -h, --help         Show help                                         [boolean]

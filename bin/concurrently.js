@@ -139,7 +139,9 @@ const args = yargs
         'P': {
             alias: 'prepend',
             describe: 
-                'prepend string to each command',
+                'prepend string to each command\n' +
+                'but make sure you not using dash, else use \n' +
+                '`-D prepend="foobar"`',
             default: '',
             type: 'string'
         },
@@ -147,7 +149,9 @@ const args = yargs
             alias: 'append',
             describe:
                 'append string to each command\n' + 
-                'eg: pass arguments',
+                'eg: pass arguments\n' +
+                'but make sure you not using dash, else use \n' +
+                '`-D append="foobar"`', 
             default: '',
             type: 'string'
         },
