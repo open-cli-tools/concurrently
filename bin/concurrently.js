@@ -180,12 +180,17 @@ const args = yargs
 const prefixColors = args.prefixColors.split(',');
 const names = (args.names || '').split(args.nameSeparator);
 
+const _ObjectFromEntries = (l) => {
+    const d = {};
+    l.forEach(el=>d[el[0]] = el[1]);
+    return d;
+};
 const _define = Array.isArray(args.define) ? args.define : [args.define];
 const definition = Object.assign(
     {}, 
     { prepend: args.prepend, append: args.append },
     // desc: convert ["a=1","b=2"] into {"a":"1","b":"2"}
-    Object.fromEntries(
+    _ObjectFromEntries(
         _define
             .map(el=>el.split('='))
             .map(x=>[x[0],x.slice(1).join('=')])
