@@ -16,7 +16,7 @@ module.exports = class RestartProcess extends BaseHandler {
 
     handle(commands) {
         if (this.tries === 0) {
-            return commands;
+            return { commands };
         }
 
         commands.map(command => command.close.pipe(
@@ -38,17 +38,19 @@ module.exports = class RestartProcess extends BaseHandler {
             }
         }));
 
-        return commands.map(command => {
-            const closeStream = command.close.pipe(filter(({ exitCode }, emission) => {
-                // We let all success codes pass, and failures only after restarting won't happen again
-                return exitCode === 0 || emission >= this.tries;
-            }));
+        return {
+            commands: commands.map(command => {
+                const closeStream = command.close.pipe(filter(({ exitCode }, emission) => {
+                    // We let all success codes pass, and failures only after restarting won't happen again
+                    return exitCode === 0 || emission >= this.tries;
+                }));
 
-            return new Proxy(command, {
-                get(target, prop) {
-                    return prop === 'close' ? closeStream : target[prop];
-                }
-            });
-        });
+                return new Proxy(command, {
+                    get(target, prop) {
+                        return prop === 'close' ? closeStream : target[prop];
+                    }
+                });
+            })
+        };
     }
 };

@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 
 it('returns commands that keep non-close streams from original commands', () => {
-    const newCommands = controller.handle(commands);
+    const { commands: newCommands } = controller.handle(commands);
     newCommands.forEach((newCommand, i) => {
         expect(newCommand.close).not.toBe(commands[i].close);
         expect(newCommand.error).toBe(commands[i].error);
@@ -24,7 +24,7 @@ it('returns commands that keep non-close streams from original commands', () => 
 });
 
 it('returns commands that map SIGINT to exit code 0', () => {
-    const newCommands = controller.handle(commands);
+    const { commands: newCommands } = controller.handle(commands);
     expect(newCommands).not.toBe(commands);
     expect(newCommands).toHaveLength(commands.length);
 
@@ -40,7 +40,7 @@ it('returns commands that map SIGINT to exit code 0', () => {
 });
 
 it('returns commands that keep non-SIGINT exit codes', () => {
-    const newCommands = controller.handle(commands);
+    const { commands: newCommands } = controller.handle(commands);
     expect(newCommands).not.toBe(commands);
     expect(newCommands).toHaveLength(commands.length);
 

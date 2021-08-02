@@ -15,7 +15,7 @@ beforeEach(() => {
 });
 
 it('returns same commands', () => {
-    expect(controller.handle(commands)).toBe(commands);
+    expect(controller.handle(commands)).toMatchObject({ commands });
 });
 
 it('logs the error event of each command', () => {

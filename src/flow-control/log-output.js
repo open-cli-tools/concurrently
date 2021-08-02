@@ -7,6 +7,6 @@ module.exports = class LogOutput extends BaseHandler {
             command.stderr.subscribe(text => this.logger.logCommandText(text.toString(), command));
         });
 
-        return commands;
+        return { commands };
     }
 };

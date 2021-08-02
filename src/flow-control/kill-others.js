@@ -17,7 +17,7 @@ module.exports = class KillOthers extends BaseHandler {
         ));
 
         if (!conditions.length) {
-            return commands;
+            return { commands };
         }
 
         const closeStates = commands.map(command => command.close.pipe(
@@ -33,6 +33,6 @@ module.exports = class KillOthers extends BaseHandler {
             }
         }));
 
-        return commands;
+        return { commands };
     }
 };

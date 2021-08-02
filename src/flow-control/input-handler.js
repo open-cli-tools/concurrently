@@ -15,7 +15,7 @@ module.exports = class InputHandler extends BaseHandler {
 
     handle(commands) {
         if (!this.inputStream) {
-            return commands;
+            return { commands };
         }
 
         Rx.fromEvent(this.inputStream, 'data')
@@ -37,7 +37,7 @@ module.exports = class InputHandler extends BaseHandler {
                 }
             });
 
-        return commands;
+        return { commands };
     }
 
     onFinish() {

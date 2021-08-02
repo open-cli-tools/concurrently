@@ -13,6 +13,6 @@ module.exports = class LogExit extends BaseHandler {
             this.logger.logCommandEvent(event.stack || event, command);
         }));
 
-        return commands;
+        return { commands };
     }
 };

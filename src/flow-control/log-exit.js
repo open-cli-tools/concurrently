@@ -6,6 +6,6 @@ module.exports = class LogExit extends BaseHandler {
             this.logger.logCommandEvent(`${command.command} exited with code ${exitCode}`, command);
         }));
 
-        return commands;
+        return { commands };
     }
 };

@@ -6,7 +6,7 @@ module.exports = class BaseHandler {
     }
 
     handle(commands) {
-        return commands;
+        return { commands };
     }
 
     /**

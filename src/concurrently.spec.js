@@ -86,7 +86,7 @@ it('runs commands with a name or prefix color', () => {
 
 it('passes commands wrapped from a controller to the next one', () => {
     const fakeCommand = createFakeCommand('banana', 'banana');
-    controllers[0].handle.mockReturnValue([fakeCommand]);
+    controllers[0].handle.mockReturnValue({ commands: [fakeCommand] });
 
     create(['echo']);
 

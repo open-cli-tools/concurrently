@@ -50,7 +50,7 @@ module.exports = (commands, options) => {
         .value();
 
     commands = options.controllers.reduce(
-        (prevCommands, controller) => controller.handle(prevCommands),
+        (prevCommands, controller) => controller.handle(prevCommands).commands,
         commands
     );
 

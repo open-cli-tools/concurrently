@@ -18,16 +18,18 @@ module.exports = class KillOnSignal extends BaseHandler {
             });
         });
 
-        return commands.map(command => {
-            const closeStream = command.close.pipe(map(exitInfo => {
-                const exitCode = caughtSignal === 'SIGINT' ? 0 : exitInfo.exitCode;
-                return Object.assign({}, exitInfo, { exitCode });
-            }));
-            return new Proxy(command, {
-                get(target, prop) {
-                    return prop === 'close' ? closeStream : target[prop];
-                }
-            });
-        });
+        return {
+            commands: commands.map(command => {
+                const closeStream = command.close.pipe(map(exitInfo => {
+                    const exitCode = caughtSignal === 'SIGINT' ? 0 : exitInfo.exitCode;
+                    return Object.assign({}, exitInfo, { exitCode });
+                }));
+                return new Proxy(command, {
+                    get(target, prop) {
+                        return prop === 'close' ? closeStream : target[prop];
+                    }
+                });
+            })
+        };
     }
 };

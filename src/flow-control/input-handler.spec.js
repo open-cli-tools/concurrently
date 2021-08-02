@@ -22,10 +22,10 @@ beforeEach(() => {
 });
 
 it('returns same commands', () => {
-    expect(controller.handle(commands)).toBe(commands);
+    expect(controller.handle(commands)).toMatchObject({ commands });
 
     controller = new InputHandler({ logger });
-    expect(controller.handle(commands)).toBe(commands);
+    expect(controller.handle(commands)).toMatchObject({ commands });
 });
 
 it('forwards input stream to default target ID', () => {
