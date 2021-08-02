@@ -6,11 +6,11 @@ module.exports = class BaseHandler {
     }
 
     handle(commands) {
-        return { commands };
+        return {
+            commands,
+            // an optional callback to call when all commands have finished
+            // (either successful or not)
+            onFinish: null,
+        };
     }
-
-    /**
-     * A hook called when all commands have finished (either successful or not).
-     */
-    onFinish() {}
 };

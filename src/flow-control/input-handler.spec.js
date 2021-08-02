@@ -93,10 +93,10 @@ it('logs error if command is not found', () => {
 it('pauses input stream when finished', () => {
     expect(inputStream.readableFlowing).toBeNull();
 
-    controller.handle(commands);
+    const { onFinish } = controller.handle(commands);
     expect(inputStream.readableFlowing).toBe(true);
 
-    controller.onFinish();
+    onFinish();
     expect(inputStream.readableFlowing).toBe(false);
 });
 
@@ -105,9 +105,9 @@ it('does not pause input stream when pauseInputStreamOnFinish is set to false', 
 
     expect(inputStream.readableFlowing).toBeNull();
 
-    controller.handle(commands);
+    const { onFinish } = controller.handle(commands);
     expect(inputStream.readableFlowing).toBe(true);
 
-    controller.onFinish();
+    onFinish();
     expect(inputStream.readableFlowing).toBe(true);
 });

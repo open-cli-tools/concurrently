@@ -37,13 +37,14 @@ module.exports = class InputHandler extends BaseHandler {
                 }
             });
 
-        return { commands };
-    }
-
-    onFinish() {
-        if (this.inputStream && this.pauseInputStreamOnFinish) {
-            // https://github.com/kimmobrunfeldt/concurrently/issues/252
-            this.inputStream.pause();
-        }
+        return {
+            commands,
+            onFinish: () => {
+                if (this.pauseInputStreamOnFinish) {
+                    // https://github.com/kimmobrunfeldt/concurrently/issues/252
+                    this.inputStream.pause();
+                }
+            },
+        };
     }
 };

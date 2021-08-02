@@ -49,10 +49,17 @@ module.exports = (commands, options) => {
         ))
         .value();
 
-    commands = options.controllers.reduce(
-        (prevCommands, controller) => controller.handle(prevCommands).commands,
-        commands
+    const handleResult = options.controllers.reduce(
+        ({ commands: prevCommands, onFinishCallbacks }, controller) => {
+            const { commands, onFinish } = controller.handle(prevCommands);
+            return {
+                commands,
+                onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : [])
+            }
+        },
+        { commands, onFinishCallbacks: [] }
     );
+    commands = handleResult.commands
 
     const commandsLeft = commands.slice();
     const maxProcesses = Math.max(1, Number(options.maxProcesses) || commandsLeft.length);
@@ -63,7 +70,7 @@ module.exports = (commands, options) => {
     return new CompletionListener({ successCondition: options.successCondition })
         .listen(commands)
         .finally(() => {
-            options.controllers.forEach((controller) => controller.onFinish());
+            handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
         });
 };
 
