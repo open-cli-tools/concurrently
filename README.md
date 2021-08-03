@@ -1,6 +1,6 @@
 # Concurrently
 
-[![Travis Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/kimmobrunfeldt/concurrently?branch=master&svg=true)](https://ci.appveyor.com/project/kimmobrunfeldt/concurrently) *master branch status*
+[![Build Status](https://github.com/open-cli-tools/concurrently/workflows/Tests/badge.svg)](https://github.com/open-cli-tools/concurrently/actions?workflow=Tests) *master branch status*
 
 [![NPM Badge](https://nodei.co/npm/concurrently.png?downloads=true)](https://www.npmjs.com/package/concurrently)
 
@@ -221,7 +221,7 @@ Examples:
 
      $ concurrently npm:watch-*
 
-For more details, visit https://github.com/kimmobrunfeldt/concurrently
+For more details, visit https://github.com/open-cli-tools/concurrently
 ```
 
 ## Programmatic Usage
@@ -259,7 +259,7 @@ concurrently can be used programmatically by using the API documented below:
 > Returns: a `Promise` that resolves if the run was successful (according to `successCondition` option),
 > or rejects, containing an array of objects with information for each command that has been run, in the order
 > that the commands terminated. The objects have the shape `{ command, index, exitCode, killed }`, where `command` is the object
-> passed in the `commands` array, `index` its index there and `killed` indicates if the process was killed as a result of 
+> passed in the `commands` array, `index` its index there and `killed` indicates if the process was killed as a result of
 > `killOthers`. Default values (empty strings or objects) are returned for the fields that were not specified.
 
 Example:
