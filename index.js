@@ -30,7 +30,8 @@ module.exports = exports = (commands, options = {}) => {
             new InputHandler({
                 logger,
                 defaultInputTarget: options.defaultInputTarget,
-                inputStream: options.inputStream,
+                inputStream: options.inputStream || (options.handleInput && process.stdin),
+                pauseInputStreamOnFinish: options.pauseInputStreamOnFinish,
             }),
             new KillOnSignal({ process }),
             new RestartProcess({

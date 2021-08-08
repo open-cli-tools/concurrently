@@ -2,17 +2,20 @@ const Rx = require('rxjs');
 const { map } = require('rxjs/operators');
 
 const defaults = require('../defaults');
+const BaseHandler = require('./base-handler');
 
-module.exports = class InputHandler {
-    constructor({ defaultInputTarget, inputStream, logger }) {
+module.exports = class InputHandler extends BaseHandler {
+    constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }) {
+        super({ logger });
+
         this.defaultInputTarget = defaultInputTarget || defaults.defaultInputTarget;
         this.inputStream = inputStream;
-        this.logger = logger;
+        this.pauseInputStreamOnFinish = pauseInputStreamOnFinish !== false;
     }
 
     handle(commands) {
         if (!this.inputStream) {
-            return commands;
+            return { commands };
         }
 
         Rx.fromEvent(this.inputStream, 'data')
@@ -34,6 +37,14 @@ module.exports = class InputHandler {
                 }
             });
 
-        return commands;
+        return {
+            commands,
+            onFinish: () => {
+                if (this.pauseInputStreamOnFinish) {
+                    // https://github.com/kimmobrunfeldt/concurrently/issues/252
+                    this.inputStream.pause();
+                }
+            },
+        };
     }
 };

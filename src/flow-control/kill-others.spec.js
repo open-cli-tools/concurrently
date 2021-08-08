@@ -20,8 +20,8 @@ const createWithConditions = conditions => new KillOthers({
 });
 
 it('returns same commands', () => {
-    expect(createWithConditions(['foo']).handle(commands)).toBe(commands);
-    expect(createWithConditions(['failure']).handle(commands)).toBe(commands);
+    expect(createWithConditions(['foo']).handle(commands)).toMatchObject({ commands });
+    expect(createWithConditions(['failure']).handle(commands)).toMatchObject({ commands });
 });
 
 it('does not kill others if condition does not match', () => {

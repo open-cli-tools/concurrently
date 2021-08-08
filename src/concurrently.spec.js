@@ -1,6 +1,7 @@
 const EventEmitter = require('events');
 
 const createFakeCommand = require('./flow-control/fixtures/fake-command');
+const FakeHandler = require('./flow-control/fixtures/fake-handler');
 const concurrently = require('./concurrently');
 
 let spawn, kill, controllers, processes = [];
@@ -18,7 +19,7 @@ beforeEach(() => {
         return process;
     });
     kill = jest.fn();
-    controllers = [{ handle: jest.fn(arg => arg) }, { handle: jest.fn(arg => arg) }];
+    controllers = [new FakeHandler(), new FakeHandler()];
 });
 
 it('fails if commands is not an array', () => {
@@ -85,7 +86,7 @@ it('runs commands with a name or prefix color', () => {
 
 it('passes commands wrapped from a controller to the next one', () => {
     const fakeCommand = createFakeCommand('banana', 'banana');
-    controllers[0].handle.mockReturnValue([fakeCommand]);
+    controllers[0].handle.mockReturnValue({ commands: [fakeCommand] });
 
     create(['echo']);
 
@@ -165,3 +166,21 @@ it('uses overridden cwd option for each command if specified', () => {
         cwd: 'foobar',
     }));
 });
+
+it('runs onFinish hook after all commands run', async () => {
+    const promise = create(['foo', 'bar'], { maxProcesses: 1 });
+    expect(spawn).toHaveBeenCalledTimes(1);
+    expect(controllers[0].onFinish).not.toHaveBeenCalled();
+    expect(controllers[1].onFinish).not.toHaveBeenCalled();
+
+    processes[0].emit('close', 0, null);
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(controllers[0].onFinish).not.toHaveBeenCalled();
+    expect(controllers[1].onFinish).not.toHaveBeenCalled();
+
+    processes[1].emit('close', 0, null);
+    await promise;
+
+    expect(controllers[0].onFinish).toHaveBeenCalled();
+    expect(controllers[1].onFinish).toHaveBeenCalled();
+})

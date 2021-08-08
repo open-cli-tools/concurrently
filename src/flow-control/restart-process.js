@@ -2,19 +2,21 @@ const Rx = require('rxjs');
 const { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } = require('rxjs/operators');
 
 const defaults = require('../defaults');
+const BaseHandler = require('./base-handler');
 
-module.exports = class RestartProcess {
+module.exports = class RestartProcess extends BaseHandler {
     constructor({ delay, tries, logger, scheduler }) {
+        super({ logger });
+
         this.delay = +delay || defaults.restartDelay;
         this.tries = +tries || defaults.restartTries;
         this.tries = this.tries < 0 ? Infinity : this.tries;
-        this.logger = logger;
         this.scheduler = scheduler;
     }
 
     handle(commands) {
         if (this.tries === 0) {
-            return commands;
+            return { commands };
         }
 
         commands.map(command => command.close.pipe(
@@ -36,17 +38,19 @@ module.exports = class RestartProcess {
             }
         }));
 
-        return commands.map(command => {
-            const closeStream = command.close.pipe(filter(({ exitCode }, emission) => {
-                // We let all success codes pass, and failures only after restarting won't happen again
-                return exitCode === 0 || emission >= this.tries;
-            }));
+        return {
+            commands: commands.map(command => {
+                const closeStream = command.close.pipe(filter(({ exitCode }, emission) => {
+                    // We let all success codes pass, and failures only after restarting won't happen again
+                    return exitCode === 0 || emission >= this.tries;
+                }));
 
-            return new Proxy(command, {
-                get(target, prop) {
-                    return prop === 'close' ? closeStream : target[prop];
-                }
-            });
-        });
+                return new Proxy(command, {
+                    get(target, prop) {
+                        return prop === 'close' ? closeStream : target[prop];
+                    }
+                });
+            })
+        };
     }
 };
