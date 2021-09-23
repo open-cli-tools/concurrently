@@ -24,16 +24,11 @@ module.exports = class ExpandNpmWildcard {
         const postWildcard = _.escapeRegExp(cmdName.substr(wildcardPosition + 1));
         const wildcardRegex = new RegExp(`^${preWildcard}(.*?)${postWildcard}$`);
 
-        let prefixColor;
         return this.scripts
             .filter(script => wildcardRegex.test(script))
-            .map((script, index) => {
-                prefixColor = (commandInfo.prefixColors && commandInfo.prefixColors[index] || commandInfo.prefixColor) || prefixColor;
-                return Object.assign({}, commandInfo, {
-                    command: `${npmCmd} run ${script}${args}`,
-                    name: script,
-                    prefixColor
-                });
-            });
+            .map(script => Object.assign({}, commandInfo, {
+                command: `${npmCmd} run ${script}${args}`,
+                name: script
+            }));
     }
 };

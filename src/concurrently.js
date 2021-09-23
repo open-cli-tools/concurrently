@@ -24,6 +24,9 @@ module.exports = (commands, options) => {
     assert.ok(Array.isArray(commands), '[concurrently] commands should be an array');
     assert.notStrictEqual(commands.length, 0, '[concurrently] no commands provided');
 
+    const prefixColors = options.prefixColors;
+
+    delete options.prefixColors;
     options = _.defaults(options, defaults);
 
     const commandParsers = [
@@ -32,21 +35,25 @@ module.exports = (commands, options) => {
         new ExpandNpmWildcard()
     ];
 
+    let lastColor = undefined;
     commands = _(commands)
         .map(mapToCommandInfo)
         .flatMap(command => parseCommand(command, commandParsers))
-        .map((command, index) => new Command(
-            Object.assign({
-                index,
-                spawnOpts: getSpawnOpts({
-                    raw: options.raw,
-                    env: command.env,
-                    cwd: command.cwd || options.cwd,
-                }),
-                killProcess: options.kill,
-                spawn: options.spawn,
-            }, command)
-        ))
+        .map((command, index) => {
+            lastColor = prefixColors && prefixColors[index] || lastColor;
+            return new Command(
+                Object.assign({
+                    index,
+                    spawnOpts: getSpawnOpts({
+                        raw: options.raw,
+                        env: command.env,
+                        cwd: command.cwd || options.cwd,
+                    }),
+                    killProcess: options.kill,
+                    spawn: options.spawn,
+                }, command, lastColor ? { prefixColor: lastColor } : null)
+            );
+        })
         .value();
 
     const handleResult = options.controllers.reduce(
