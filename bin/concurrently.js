@@ -151,11 +151,14 @@ let lastColor;
 concurrently(args._.map((command, index) => {
     // Use documented behaviour of repeating last colour when specifying more commands than colours
     lastColor = prefixColors[index] || lastColor;
-    return {
-        command,
-        prefixColor: lastColor,
-        name: names[index]
-    };
+    return Object.assign({},
+        {
+            command,
+            prefixColor: lastColor,
+            name: names[index]
+        },
+        /^(npm|yarn|pnpm):(\S+)(.*)/.test(command) ? { prefixColors } : null
+    );
 }), {
     handleInput: args.handleInput,
     defaultInputTarget: args.defaultInputTarget,
