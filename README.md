@@ -1,6 +1,7 @@
 # Concurrently
 
-[![Build Status](https://github.com/open-cli-tools/concurrently/workflows/Tests/badge.svg)](https://github.com/open-cli-tools/concurrently/actions?workflow=Tests) *master branch status*
+[![Build Status](https://github.com/open-cli-tools/concurrently/workflows/Tests/badge.svg)](https://github.com/open-cli-tools/concurrently/actions?workflow=Tests) 
+[![Coverage Status](https://coveralls.io/repos/github/open-cli-tools/concurrently/badge.svg?branch=master)](https://coveralls.io/github/open-cli-tools/concurrently?branch=master)
 
 [![NPM Badge](https://nodei.co/npm/concurrently.png?downloads=true)](https://www.npmjs.com/package/concurrently)
 
