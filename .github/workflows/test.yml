@@ -34,3 +34,20 @@ jobs:
         shell: bash
         env:
           SHELL: "/bin/bash"
+
+      - name: Submit coverage
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          flag-name: Node.js ${{ matrix.node }}
+          parallel: true
+  teardown:
+    needs: run
+    name: Submitting coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true

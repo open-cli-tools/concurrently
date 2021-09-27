@@ -1,8 +1,17 @@
 const _ = require('lodash');
-const readPkg = require('read-pkg');
+const fs = require('fs');
 
 module.exports = class ExpandNpmWildcard {
-    constructor(readPackage = readPkg.sync) {
+    static readPackage() {
+        try {
+            const json = fs.readFileSync('package.json', { encoding: 'utf-8' });
+            return JSON.parse(json);
+        } catch (e) {
+            return {};
+        }
+    }
+
+    constructor(readPackage = ExpandNpmWildcard.readPackage) {
         this.readPackage = readPackage;
     }
 
