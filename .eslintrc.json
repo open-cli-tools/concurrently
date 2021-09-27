@@ -5,7 +5,7 @@
         "node": true
     },
     "parserOptions": {
-        "ecmaVersion": 6
+        "ecmaVersion": 8
     },
     "rules": {
         "block-spacing": "error",
@@ -18,6 +18,10 @@
         "quotes": ["error", "single"],
         "semi": "error",
         "space-before-blocks": "error",
-        "space-before-function-paren": ["error", "never"]
+        "space-before-function-paren": ["error", {
+            "anonymous": "never",
+            "named": "never",
+            "asyncArrow": "always"
+        }]
     }
 }

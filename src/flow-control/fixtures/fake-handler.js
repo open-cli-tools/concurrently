@@ -1,4 +1,4 @@
-const BaseHandler = require('../base-handler')
+const BaseHandler = require('../base-handler');
 
 module.exports = class FakeHandler extends BaseHandler {
     constructor() {

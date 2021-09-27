@@ -35,6 +35,9 @@ jobs:
         env:
           SHELL: "/bin/bash"
 
+      - name: Lint
+        run: npm run lint
+
       - name: Submit coverage
         uses: coverallsapp/github-action@master
         with:

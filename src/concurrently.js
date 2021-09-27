@@ -55,11 +55,11 @@ module.exports = (commands, options) => {
             return {
                 commands,
                 onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : [])
-            }
+            };
         },
         { commands, onFinishCallbacks: [] }
     );
-    commands = handleResult.commands
+    commands = handleResult.commands;
 
     const commandsLeft = commands.slice();
     const maxProcesses = Math.max(1, Number(options.maxProcesses) || commandsLeft.length);
