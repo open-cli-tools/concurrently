@@ -183,4 +183,4 @@ it('runs onFinish hook after all commands run', async () => {
 
     expect(controllers[0].onFinish).toHaveBeenCalled();
     expect(controllers[1].onFinish).toHaveBeenCalled();
-})
+});
