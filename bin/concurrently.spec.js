@@ -165,7 +165,7 @@ describe('--raw', () => {
 
 describe('--hide', () => {
     it('hides the output of a process by its index', done => {
-        const child = run('--hide 1 -- "echo foo" "echo bar"');
+        const child = run('--hide 1 "echo foo" "echo bar"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('foo'));
             expect(lines).not.toContainEqual(expect.stringContaining('bar'));
@@ -174,7 +174,7 @@ describe('--hide', () => {
     });
 
     it('hides the output of a process by its name', done => {
-        const child = run('-n foo,bar --hide bar -- "echo foo" "echo bar"');
+        const child = run('-n foo,bar --hide bar "echo foo" "echo bar"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('foo'));
             expect(lines).not.toContainEqual(expect.stringContaining('bar'));

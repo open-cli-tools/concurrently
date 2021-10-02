@@ -57,11 +57,10 @@ const args = yargs
         },
         'hide': {
             describe:
-                'Hide the output of given child processes. ' +
-                'The processes can be identified by their name or index ' +
-                'and be separated with a space. When using hide, it must ' +
-                'be the last option specified and be followed by --.',
-            type: 'array'
+                'Comma-separated list of processes to hide the output.\n' +
+                'The processes can be identified by their name or index.',
+            default: defaults.hide,
+            type: 'string'
         },
 
         // Kill others
@@ -143,7 +142,7 @@ const args = yargs
                 'Can be either the index or the name of the process.'
         }
     })
-    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color', 'hide'], 'General')
+    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color', 'h'], 'General')
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
@@ -165,7 +164,7 @@ concurrently(args._.map((command, index) => ({
         : (args.killOthersOnFail ? ['failure'] : []),
     maxProcesses: args.maxProcesses,
     raw: args.raw,
-    hide: args.hide,
+    hide: args.hide.split(','),
     prefix: args.prefix,
     prefixColors: args.prefixColors.split(','),
     prefixLength: args.prefixLength,
