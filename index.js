@@ -43,7 +43,8 @@ module.exports = exports = (commands, options = {}) => {
                 logger,
                 conditions: options.killOthers
             })
-        ]
+        ],
+        prefixColors: options.prefixColors || []
     });
 };
 

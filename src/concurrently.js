@@ -32,21 +32,27 @@ module.exports = (commands, options) => {
         new ExpandNpmWildcard()
     ];
 
+    let lastColor = '';
     commands = _(commands)
         .map(mapToCommandInfo)
         .flatMap(command => parseCommand(command, commandParsers))
-        .map((command, index) => new Command(
-            Object.assign({
-                index,
-                spawnOpts: getSpawnOpts({
-                    raw: options.raw,
-                    env: command.env,
-                    cwd: command.cwd || options.cwd,
-                }),
-                killProcess: options.kill,
-                spawn: options.spawn,
-            }, command)
-        ))
+        .map((command, index) => {
+            // Use documented behaviour of repeating last color when specifying more commands than colors
+            lastColor = options.prefixColors && options.prefixColors[index] || lastColor;
+            return new Command(
+                Object.assign({
+                    index,
+                    spawnOpts: getSpawnOpts({
+                        raw: options.raw,
+                        env: command.env,
+                        cwd: command.cwd || options.cwd,
+                    }),
+                    prefixColor: lastColor,
+                    killProcess: options.kill,
+                    spawn: options.spawn,
+                }, command)
+            );
+        })
         .value();
 
     const handleResult = options.controllers.reduce(
@@ -75,13 +81,14 @@ module.exports = (commands, options) => {
 };
 
 function mapToCommandInfo(command) {
-    return {
+    return Object.assign({
         command: command.command || command,
         name: command.name || '',
-        prefixColor: command.prefixColor || '',
         env: command.env || {},
         cwd: command.cwd || '',
-    };
+    }, command.prefixColor ? {
+        prefixColor: command.prefixColor,
+    } : {});
 }
 
 function parseCommand(command, parsers) {

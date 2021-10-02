@@ -144,19 +144,12 @@ const args = yargs
     .epilogue(fs.readFileSync(__dirname + '/epilogue.txt', { encoding: 'utf8' }))
     .argv;
 
-const prefixColors = args.prefixColors.split(',');
 const names = (args.names || '').split(args.nameSeparator);
 
-let lastColor;
-concurrently(args._.map((command, index) => {
-    // Use documented behaviour of repeating last colour when specifying more commands than colours
-    lastColor = prefixColors[index] || lastColor;
-    return {
-        command,
-        prefixColor: lastColor,
-        name: names[index]
-    };
-}), {
+concurrently(args._.map((command, index) => ({
+    command,
+    name: names[index]
+})), {
     handleInput: args.handleInput,
     defaultInputTarget: args.defaultInputTarget,
     killOthers: args.killOthers
@@ -165,11 +158,12 @@ concurrently(args._.map((command, index) => {
     maxProcesses: args.maxProcesses,
     raw: args.raw,
     prefix: args.prefix,
+    prefixColors: args.prefixColors.split(','),
     prefixLength: args.prefixLength,
     restartDelay: args.restartAfter,
     restartTries: args.restartTries,
     successCondition: args.success,
-    timestampFormat: args.timestampFormat
+    timestampFormat: args.timestampFormat,
 }).then(
     () => process.exit(0),
     () => process.exit(1)
