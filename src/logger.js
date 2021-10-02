@@ -6,7 +6,10 @@ const defaults = require('./defaults');
 
 module.exports = class Logger {
     constructor({ hide, outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {
-        this.hide = hide || defaults.hide;
+        // To avoid empty strings from hiding the output of commands that don't have a name,
+        // keep in the list of commands to hide only strings with some length.
+        // This might happen through the CLI when no `--hide` argument is specified, for example.
+        this.hide = _.castArray(hide).filter(name => name || name === 0).map(String);
         this.raw = raw;
         this.outputStream = outputStream;
         this.prefixFormat = prefixFormat;
@@ -77,7 +80,7 @@ module.exports = class Logger {
     }
 
     logCommandText(text, command) {
-        if (this.hide.includes(command.index) || this.hide.includes(command.name)) {
+        if (this.hide.includes(String(command.index)) || this.hide.includes(command.name)) {
             return;
         }
 
