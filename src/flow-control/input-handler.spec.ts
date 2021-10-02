@@ -101,7 +101,7 @@ it('pauses input stream when finished', () => {
 });
 
 it('does not pause input stream when pauseInputStreamOnFinish is set to false', () => {
-    controller = new InputHandler({ inputStream, pauseInputStreamOnFinish: false });
+    controller = new InputHandler({ logger, inputStream, pauseInputStreamOnFinish: false });
 
     expect(inputStream.readableFlowing).toBeNull();
 

@@ -1,8 +1,7 @@
-import EventEmitter from 'events';
-
 import { createFakeCommand } from './flow-control/fixtures/fake-command';
 import { FakeHandler } from './flow-control/fixtures/fake-handler';
 import { concurrently } from './concurrently';
+import { FakeProcess } from './fixtures/fake-process';
 
 let spawn, kill, controllers, processes = [];
 const create = (commands, options = {}) => concurrently(
@@ -13,7 +12,7 @@ const create = (commands, options = {}) => concurrently(
 beforeEach(() => {
     processes = [];
     spawn = jest.fn(() => {
-        const process = new EventEmitter();
+        const process = new FakeProcess();
         processes.push(process);
         process.pid = processes.length;
         return process;

@@ -1,6 +1,6 @@
 import { InputHandler } from './src/flow-control/input-handler';
 import { KillOnSignal } from './src/flow-control/kill-on-signal';
-import { KillOthers } from './src/flow-control/kill-others';
+import { KillOthers, KillOthersCondition } from './src/flow-control/kill-others';
 import { LogError } from './src/flow-control/log-error';
 import { LogExit } from './src/flow-control/log-exit';
 import { LogOutput } from './src/flow-control/log-output';
@@ -8,8 +8,33 @@ import { RestartProcess } from './src/flow-control/restart-process';
 
 import { concurrently } from './src/concurrently';
 import { Logger } from './src/logger';
+import { Readable, Writable } from 'stream';
+import { SuccessCondition } from './src/completion-listener';
 
-export default function(commands, options = {}) {
+export interface ConcurrentlyOptions {
+    cwd?: string;
+    maxProcesses?: number;
+
+    prefix?: string;
+    prefixColors?: string[];
+    prefixLength?: number;
+    timestampFormat?: string;
+
+    handleInput?: boolean;
+    defaultInputTarget?: string | number;
+    pauseInputStreamOnFinish?: boolean;
+    inputStream?: Readable;
+    outputStream?: Writable;
+    hide?: string[];
+    raw?: boolean;
+
+    restartDelay?: number;
+    restartTries?: number;
+    killOthers?: KillOthersCondition[];
+    successCondition?: SuccessCondition;
+}
+
+export default function(commands, options: ConcurrentlyOptions = {}) {
     const logger = new Logger({
         hide: options.hide,
         outputStream: options.outputStream || process.stdout,

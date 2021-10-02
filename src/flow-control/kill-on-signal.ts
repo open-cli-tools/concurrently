@@ -8,6 +8,7 @@ interface KillOnSignalParams {
     process: EventEmitter;
 }
 
+const SIGNALS: NodeJS.Signals[] = ['SIGINT', 'SIGTERM', 'SIGHUP'];
 export class KillOnSignal implements FlowController {
     private readonly process: EventEmitter;
 
@@ -16,8 +17,8 @@ export class KillOnSignal implements FlowController {
     }
 
     handle(commands: Command[]) {
-        let caughtSignal: string;
-        ['SIGINT', 'SIGTERM', 'SIGHUP'].forEach(signal => {
+        let caughtSignal: NodeJS.Signals;
+        SIGNALS.forEach(signal => {
             this.process.on(signal, () => {
                 caughtSignal = signal;
                 commands.forEach(command => command.kill(signal));

@@ -36,12 +36,12 @@ export class InputHandler implements FlowController {
             .pipe(map(data => data.toString()))
             .subscribe(data => {
                 let [targetId, input] = data.split(/:(.+)/);
-                targetId = input ? targetId : this.defaultInputTarget;
+                targetId = input ? targetId : String(this.defaultInputTarget);
                 input = input || data;
 
                 const command = commands.find(command => (
                     command.name === targetId ||
-                    command.index.toString() === targetId.toString()
+                    command.index.toString() === targetId
                 ));
 
                 if (command && command.stdin) {

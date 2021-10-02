@@ -10,7 +10,7 @@ import { ExpandNpmWildcard } from './command-parser/expand-npm-wildcard';
 import { CompletionListener } from './completion-listener';
 
 import { getSpawnOpts } from './get-spawn-opts';
-import { Command } from './command';
+import { CommandImpl } from './command';
 
 const defaults = {
     spawn,
@@ -39,7 +39,7 @@ export function concurrently(commands, options) {
         .map((command, index) => {
             // Use documented behaviour of repeating last color when specifying more commands than colors
             lastColor = options.prefixColors && options.prefixColors[index] || lastColor;
-            return new Command(
+            return new CommandImpl(
                 Object.assign({
                     index,
                     spawnOpts: getSpawnOpts({

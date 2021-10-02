@@ -1,11 +1,57 @@
+import { ChildProcess, SpawnOptions } from 'child_process';
 import * as Rx from 'rxjs';
+import { Writable } from 'stream';
 
-export class Command {
+export interface CommandParams {
+    command: string;
+    index: number;
+    name?: string;
+    prefixColor?: string;
+    env?: object;
+    killProcess(pid: number, code?: string): void;
+    spawn(command: string, opts: SpawnOptions): ChildProcess;
+    spawnOpts?: SpawnOptions;
+}
+
+export interface Command {
+    readonly command: string;
+    readonly index: number;
+    readonly name: string;
+    pid?: number;
+    killed?: boolean;
+    error: Rx.Subject<Error>;
+    close: Rx.Subject<unknown>;
+    stdout: Rx.Subject<string>;
+    stderr: Rx.Subject<string>;
+    stdin?: Writable;
+    start(): void;
+    kill(signal?: NodeJS.Signals): void;
+}
+
+export class CommandImpl implements Command {
     get killable() {
         return !!this.process;
     }
 
-    constructor({ index, name, command, prefixColor, env, killProcess, spawn, spawnOpts }) {
+    pid?: number;
+    process?: ChildProcess;
+    killed = false;
+    readonly index: number;
+    readonly name: string;
+    readonly command: string;
+    readonly prefixColor?: string;
+    readonly env: object;
+    private readonly spawnOpts: SpawnOptions;
+    readonly error = new Rx.Subject<Error>();
+    readonly close = new Rx.Subject();
+    readonly stdout = new Rx.Subject<string>();
+    readonly stderr = new Rx.Subject<string>();
+    stdin?: Writable;
+
+    private readonly spawn: (command: string, opts: SpawnOptions) => ChildProcess;
+    private readonly killProcess: (pid: number, code?: NodeJS.Signals) => void;
+
+    constructor({ index, name, command, prefixColor, env, killProcess, spawn, spawnOpts }: CommandParams) {
         this.index = index;
         this.name = name;
         this.command = command;
@@ -14,12 +60,6 @@ export class Command {
         this.killProcess = killProcess;
         this.spawn = spawn;
         this.spawnOpts = spawnOpts;
-        this.killed = false;
-
-        this.error = new Rx.Subject();
-        this.close = new Rx.Subject();
-        this.stdout = new Rx.Subject();
-        this.stderr = new Rx.Subject();
     }
 
     start() {
@@ -27,11 +67,11 @@ export class Command {
         this.process = child;
         this.pid = child.pid;
 
-        Rx.fromEvent(child, 'error').subscribe(event => {
+        Rx.fromEvent<Error>(child, 'error').subscribe(event => {
             this.process = undefined;
             this.error.next(event);
         });
-        Rx.fromEvent(child, 'close').subscribe(([exitCode, signal]) => {
+        Rx.fromEvent<[number, NodeJS.Signals]>(child, 'close').subscribe(([exitCode, signal]) => {
             this.process = undefined;
             this.close.next({
                 command: {
@@ -50,7 +90,7 @@ export class Command {
         this.stdin = child.stdin;
     }
 
-    kill(code) {
+    kill(code?: NodeJS.Signals) {
         if (this.killable) {
             this.killed = true;
             this.killProcess(this.pid, code);

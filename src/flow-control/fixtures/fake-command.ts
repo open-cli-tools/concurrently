@@ -1,8 +1,9 @@
 import { createMockInstance } from 'jest-create-mock-instance';
 import { Writable } from 'stream';
 import { Subject } from 'rxjs';
+import { Command } from '../../command';
 
-export const createFakeCommand = (name = 'foo', command = 'echo foo', index = 0) => ({
+export const createFakeCommand = (name = 'foo', command = 'echo foo', index = 0): Command => ({
     index,
     name,
     command,

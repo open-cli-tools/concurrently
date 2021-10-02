@@ -1,11 +1,29 @@
 import * as chalk from 'chalk';
 import _ from 'lodash';
 import formatDate from 'date-fns/format';
+import { Writable } from 'stream';
 
 import { defaults } from './defaults';
 
+export interface LoggerParams {
+    outputStream: Writable,
+    hide?: (string | number)[],
+    raw?: boolean,
+    prefixFormat?: string,
+    prefixLength?: number,
+    timestampFormat?: string,
+}
+
 export class Logger {
-    constructor({ hide, outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {
+    private readonly outputStream: Writable;
+    private readonly hide: string[];
+    private readonly raw?: boolean;
+    private readonly prefixFormat?: string;
+    private readonly prefixLength?: number;
+    private readonly timestampFormat?: string;
+    private lastChar?: string;
+
+    constructor({ hide, outputStream, prefixFormat, prefixLength, raw, timestampFormat }: LoggerParams) {
         // To avoid empty strings from hiding the output of commands that don't have a name,
         // keep in the list of commands to hide only strings with some length.
         // This might happen through the CLI when no `--hide` argument is specified, for example.
@@ -17,7 +35,7 @@ export class Logger {
         this.timestampFormat = timestampFormat || defaults.timestampFormat;
     }
 
-    shortenText(text) {
+    private shortenText(text) {
         if (!text || text.length <= this.prefixLength) {
             return text;
         }
@@ -32,7 +50,7 @@ export class Logger {
         return beginnning + ellipsis + end;
     }
 
-    getPrefixesFor(command) {
+    private getPrefixesFor(command) {
         return {
             none: '',
             pid: command.pid,
@@ -43,7 +61,7 @@ export class Logger {
         };
     }
 
-    getPrefix(command) {
+    private getPrefix(command) {
         const prefix = this.prefixFormat || (command.name ? 'name' : 'index');
         if (prefix === 'none') {
             return '';
@@ -60,7 +78,7 @@ export class Logger {
         }, prefix);
     }
 
-    colorText(command, text) {
+    private colorText(command, text) {
         let color;
         if (command.prefixColor && command.prefixColor.startsWith('#')) {
             color = chalk.hex(command.prefixColor);

@@ -13,7 +13,7 @@ beforeEach(() => {
     ];
 
     logger = createMockInstance(Logger);
-    scheduler = new TestScheduler();
+    scheduler = new TestScheduler(() => true);
     controller = new RestartProcess({
         logger,
         scheduler,

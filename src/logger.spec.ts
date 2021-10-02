@@ -1,16 +1,17 @@
 import { Writable } from 'stream';
 import * as chalk from 'chalk';
 import { createMockInstance } from 'jest-create-mock-instance';
-import * as Logger from './logger';
+import { Logger, LoggerParams } from './logger';
+import { createFakeCommand } from './flow-control/fixtures/fake-command';
 
 let outputStream;
 beforeEach(() => {
     outputStream = createMockInstance(Writable);
     // Force chalk to use colours, otherwise tests may pass when they were supposed to be failing.
-    chalk.level = 3;
+    Object.assign(chalk, 'level', { value: 3 });
 });
 
-const createLogger = options => {
+const createLogger = (options: Partial<LoggerParams> = {}) => {
     const logger = new Logger(Object.assign({ outputStream }, options));
     jest.spyOn(logger, 'log');
     return logger;
@@ -195,7 +196,7 @@ describe('#logCommandText()', () => {
 describe('#logCommandEvent()', () => {
     it('does nothing if in raw mode', () => {
         const logger = createLogger({ raw: true });
-        logger.logCommandEvent('foo');
+        logger.logCommandEvent('foo', createFakeCommand());
 
         expect(logger.log).not.toHaveBeenCalled();
     });

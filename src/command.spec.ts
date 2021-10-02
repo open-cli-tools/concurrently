@@ -1,9 +1,10 @@
+import { ChildProcess } from 'child_process';
 import EventEmitter from 'events';
+import { CommandImpl, CommandParams } from './command';
+import { FakeProcess } from './fixtures/fake-process';
 
-const createProcess = () => {
-    const process = new EventEmitter();
-    process.pid = 1;
-    return process;
+const createProcess = (): ChildProcess => {
+    return new FakeProcess();
 };
 
 const createProcessWithIO = () => {
@@ -15,23 +16,30 @@ const createProcessWithIO = () => {
     });
 };
 
+const createCommand = (overrides: Partial<CommandParams>) => new CommandImpl({
+    command: 'echo foo',
+    index: 0,
+    spawn: jest.fn(),
+    killProcess: jest.fn(),
+    ...overrides,
+});
+
 describe('#start()', () => {
     it('spawns process with given command and options', () => {
         const spawn = jest.fn().mockReturnValue(createProcess());
-        const command = new Command({
+        const command = createCommand({
             spawn,
-            spawnOpts: { bla: true },
-            command: 'echo foo',
+            spawnOpts: { cwd: 'bla' },
         });
         command.start();
 
         expect(spawn).toHaveBeenCalledTimes(1);
-        expect(spawn).toHaveBeenCalledWith(command.command, { bla: true });
+        expect(spawn).toHaveBeenCalledWith(command.command, { cwd: 'bla' });
     });
 
     it('sets stdin, process and PID', () => {
         const process = createProcessWithIO();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand({ spawn: () => process });
 
         command.start();
         expect(command.process).toBe(process);
@@ -41,7 +49,7 @@ describe('#start()', () => {
 
     it('shares errors to the error stream', done => {
         const process = createProcess();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand({ spawn: () => process });
 
         command.error.subscribe(data => {
             expect(data).toBe('foo');
@@ -55,7 +63,7 @@ describe('#start()', () => {
 
     it('shares closes to the close stream with exit code', done => {
         const process = createProcess();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand({ spawn: () => process });
 
         command.close.subscribe(data => {
             expect(data.exitCode).toBe(0);
@@ -70,7 +78,7 @@ describe('#start()', () => {
 
     it('shares closes to the close stream with signal', done => {
         const process = createProcess();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand({ spawn: () => process });
 
         command.close.subscribe(data => {
             expect(data.exitCode).toBe('SIGKILL');
@@ -90,7 +98,7 @@ describe('#start()', () => {
             prefixColor: 'green',
             env: { VAR: 'yes' },
         };
-        const command = new Command(
+        const command = createCommand(
             Object.assign({
                 index: 1,
                 spawn: () => process
@@ -110,7 +118,7 @@ describe('#start()', () => {
 
     it('shares stdout to the stdout stream', done => {
         const process = createProcessWithIO();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand({ spawn: () => process });
 
         command.stdout.subscribe(data => {
             expect(data.toString()).toBe('hello');
@@ -123,7 +131,7 @@ describe('#start()', () => {
 
     it('shares stderr to the stdout stream', done => {
         const process = createProcessWithIO();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand({ spawn: () => process });
 
         command.stderr.subscribe(data => {
             expect(data.toString()).toBe('dang');
@@ -140,7 +148,7 @@ describe('#kill()', () => {
     beforeEach(() => {
         process = createProcess();
         killProcess = jest.fn();
-        command = new Command({ spawn: () => process, killProcess });
+        command = createCommand({ spawn: () => process, killProcess });
     });
 
     it('kills process', () => {
