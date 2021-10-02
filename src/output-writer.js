@@ -1,14 +1,6 @@
-// @ts-check
 const Rx = require('rxjs');
-/** @typedef {import('./command')} Command */
 
 module.exports = class OutputWriter {
-    /**
-     * @param {object} options
-     * @param {NodeJS.WriteStream} options.outputStream
-     * @param {boolean} options.group
-     * @param {Command[]} options.commands
-     */
     constructor({ outputStream, group, commands }) {
         this.outputStream = outputStream;
         this.group = group;
@@ -33,10 +25,6 @@ module.exports = class OutputWriter {
         }
     }
 
-    /**
-     * @param {Command} command
-     * @param {string} text
-     */
     write(command, text) {
         if (this.group && command) {
             if (command.index <= this.activeCommandIndex) {
@@ -50,9 +38,6 @@ module.exports = class OutputWriter {
         }
     }
 
-    /**
-     * @param {number} index
-     */
     flushBuffer(index) {
         this.buffers[index].forEach(t => this.outputStream.write(t));
         this.buffers[index] = [];

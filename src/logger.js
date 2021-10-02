@@ -4,7 +4,6 @@ const formatDate = require('date-fns/format');
 const Rx = require('rxjs');
 
 const defaults = require('./defaults');
-/** @typedef {import('./command.js')} Command */
 
 module.exports = class Logger {
     constructor({ hide, prefixFormat, prefixLength, raw, timestampFormat }) {
@@ -16,7 +15,6 @@ module.exports = class Logger {
         this.prefixFormat = prefixFormat;
         this.prefixLength = prefixLength || defaults.prefixLength;
         this.timestampFormat = timestampFormat || defaults.timestampFormat;
-        /** @type {Rx.Subject<{ command: Command, text: string }>} */
         this.observable = new Rx.Subject();
     }
 
@@ -124,10 +122,6 @@ module.exports = class Logger {
         this.emit(command, lines.join('\n'));
     }
 
-    /**
-     * @param {Command} command 
-     * @param {string} text 
-     */
     emit(command, text) {
         this.observable.next({ command, text });
     }
