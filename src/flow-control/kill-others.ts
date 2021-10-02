@@ -32,7 +32,7 @@ export class KillOthers implements FlowController {
 
         const closeStates = commands.map(command => command.close.pipe(
             map(({ exitCode }) => exitCode === 0 ? 'success' : 'failure'),
-            filter(state => conditions.includes(state))
+            filter((state: KillOthersCondition) => conditions.includes(state))
         ));
 
         closeStates.forEach(closeState => closeState.subscribe(() => {

@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as yargs from 'yargs';
 import { defaults } from '../src/defaults';
 import concurrently from '../index';
+import { SuccessCondition } from '../src/completion-listener';
 
 const args = yargs
     .usage('$0 [options] <command ...>')
@@ -151,27 +152,28 @@ const args = yargs
     .epilogue(fs.readFileSync(__dirname + '/epilogue.txt', { encoding: 'utf8' }))
     .argv;
 
-const names = (args.names || '').split(args.nameSeparator);
+// --names
+const names = (args.n || '').split(args['name-separator']);
 
 concurrently(args._.map((command, index) => ({
     command: String(command),
     name: names[index]
 })), {
-    handleInput: args.handleInput,
-    defaultInputTarget: args.defaultInputTarget,
+    handleInput: args.i, // --handle-input
+    defaultInputTarget: args['default-input-target'],
     killOthers: args.killOthers
         ? ['success', 'failure']
         : (args.killOthersOnFail ? ['failure'] : []),
-    maxProcesses: args.maxProcesses,
-    raw: args.raw,
+    maxProcesses: args.m, // --max-processes
+    raw: args.r, // --raw
     hide: args.hide.split(','),
-    prefix: args.prefix,
-    prefixColors: args.prefixColors.split(','),
-    prefixLength: args.prefixLength,
-    restartDelay: args.restartAfter,
-    restartTries: args.restartTries,
-    successCondition: args.success,
-    timestampFormat: args.timestampFormat,
+    prefix: args.p, // --prefix
+    prefixColors: args.c.split(','), // --prefix-colors
+    prefixLength: args.l, // --prefix-length
+    restartDelay: args['restart-after'],
+    restartTries: args['restart-tries'],
+    successCondition: args.s as SuccessCondition, // --success
+    timestampFormat: args.t, // --timestamp-format
 }).then(
     () => process.exit(0),
     () => process.exit(1)

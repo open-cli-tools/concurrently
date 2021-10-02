@@ -16,6 +16,13 @@ export interface CommandParams extends CommandInfo {
     spawnOpts?: SpawnOptions;
 }
 
+export interface CommandCloseEvent {
+    command: CommandInfo;
+    index: number;
+    exitCode: NodeJS.Signals | number;
+    killed: boolean;
+}
+
 export interface Command {
     readonly command: string;
     readonly index: number;
@@ -23,19 +30,12 @@ export interface Command {
     pid?: number;
     killed?: boolean;
     error: Rx.Subject<Error>;
-    close: Rx.Subject<unknown>;
+    close: Rx.Subject<CommandCloseEvent>;
     stdout: Rx.Subject<string>;
     stderr: Rx.Subject<string>;
     stdin?: Writable;
     start(): void;
     kill(signal?: NodeJS.Signals): void;
-}
-
-export interface CommandCloseEvent {
-    command: CommandInfo;
-    index: number;
-    exitCode: NodeJS.Signals | number;
-    killed: boolean;
 }
 
 export class CommandImpl implements Command {

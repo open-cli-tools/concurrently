@@ -43,7 +43,8 @@ export class RestartProcess implements FlowController {
             // Skip the first N emissions (as these would be duplicates of the above),
             // meaning it will be empty because of success, or failed all N times,
             // and no more restarts should be attempted.
-            failure.pipe(skip(this.tries), defaultIfEmpty(false))
+            // mapTo(false) is merely to coerce the TS type into boolean.
+            failure.pipe(skip(this.tries), mapTo(false), defaultIfEmpty(false))
         ).subscribe(restart => {
             const command = commands[index];
             if (restart) {
