@@ -13,11 +13,9 @@ updated.
 Tests can be run with command:
 
 ```bash
-npm run test
+npm test
 ```
 
 ## Release
 
-* Commit all changes
-* Run `./node_modules/.bin/releasor --bump minor`, which will create new tag and publish code to GitHub and npm. See https://github.com/kimmobrunfeldt/releasor for options
-* Edit GitHub release notes
+Use [np](https://www.npmjs.com/package/np) to create a new release

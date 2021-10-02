@@ -59,7 +59,8 @@ describe('#start()', () => {
         const command = new Command({ spawn: () => process });
 
         command.close.subscribe(data => {
-            expect(data).toBe(0);
+            expect(data.exitCode).toBe(0);
+            expect(data.killed).toBe(false);
             expect(command.process).toBeUndefined();
             done();
         });
@@ -73,12 +74,39 @@ describe('#start()', () => {
         const command = new Command({ spawn: () => process });
 
         command.close.subscribe(data => {
-            expect(data).toBe('SIGKILL');
+            expect(data.exitCode).toBe('SIGKILL');
+            expect(data.killed).toBe(false);
             done();
         });
 
         command.start();
         process.emit('close', null, 'SIGKILL');
+    });
+
+    it('shares closes to the close stream with command info and index', done => {
+        const process = createProcess();
+        const commandInfo = {
+            command: 'cmd',
+            name: 'name',
+            prefixColor: 'green',
+            env: { VAR: 'yes' },
+        };
+        const command = new Command(
+            Object.assign({
+                index: 1,
+                spawn: () => process
+            }, commandInfo)
+        );
+
+        command.close.subscribe(data => {
+            expect(data.command).toEqual(commandInfo);
+            expect(data.killed).toBe(false);
+            expect(data.index).toBe(1);
+            done();
+        });
+
+        command.start();
+        process.emit('close', 0, null);
     });
 
     it('shares stdout to the stdout stream', done => {
@@ -138,5 +166,18 @@ describe('#kill()', () => {
         command.kill();
 
         expect(killProcess).not.toHaveBeenCalled();
+    });
+
+    it('marks the command as killed', done => {
+        command.start();
+        
+        command.close.subscribe(data => {
+            expect(data.exitCode).toBe(1);
+            expect(data.killed).toBe(true);
+            done();
+        });
+
+        command.kill();
+        process.emit('close', 1, null);
     });
 });

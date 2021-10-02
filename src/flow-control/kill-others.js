@@ -1,9 +1,12 @@
 const _ = require('lodash');
 const { filter, map } = require('rxjs/operators');
 
-module.exports = class KillOthers {
+const BaseHandler = require('./base-handler');
+
+module.exports = class KillOthers extends BaseHandler {
     constructor({ logger, conditions }) {
-        this.logger = logger;
+        super({ logger });
+
         this.conditions = _.castArray(conditions);
     }
 
@@ -14,11 +17,11 @@ module.exports = class KillOthers {
         ));
 
         if (!conditions.length) {
-            return commands;
+            return { commands };
         }
 
         const closeStates = commands.map(command => command.close.pipe(
-            map(exitCode => exitCode === 0 ? 'success' : 'failure'),
+            map(({ exitCode }) => exitCode === 0 ? 'success' : 'failure'),
             filter(state => conditions.includes(state))
         ));
 
@@ -30,6 +33,6 @@ module.exports = class KillOthers {
             }
         }));
 
-        return commands;
+        return { commands };
     }
 };

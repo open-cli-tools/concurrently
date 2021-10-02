@@ -5,14 +5,16 @@ module.exports = class Command {
         return !!this.process;
     }
 
-    constructor({ index, name, command, prefixColor, killProcess, spawn, spawnOpts }) {
+    constructor({ index, name, command, prefixColor, env, killProcess, spawn, spawnOpts }) {
         this.index = index;
         this.name = name;
         this.command = command;
         this.prefixColor = prefixColor;
+        this.env = env;
         this.killProcess = killProcess;
         this.spawn = spawn;
         this.spawnOpts = spawnOpts;
+        this.killed = false;
 
         this.error = new Rx.Subject();
         this.close = new Rx.Subject();
@@ -31,7 +33,17 @@ module.exports = class Command {
         });
         Rx.fromEvent(child, 'close').subscribe(([exitCode, signal]) => {
             this.process = undefined;
-            this.close.next(exitCode === null ? signal : exitCode);
+            this.close.next({
+                command: {
+                    command: this.command,
+                    name: this.name,
+                    prefixColor: this.prefixColor,
+                    env: this.env,
+                },
+                index: this.index,
+                exitCode: exitCode === null ? signal : exitCode,
+                killed: this.killed,
+            });
         });
         child.stdout && pipeTo(Rx.fromEvent(child.stdout, 'data'), this.stdout);
         child.stderr && pipeTo(Rx.fromEvent(child.stderr, 'data'), this.stderr);
@@ -40,6 +52,7 @@ module.exports = class Command {
 
     kill(code) {
         if (this.killable) {
+            this.killed = true;
             this.killProcess(this.pid, code);
         }
     }

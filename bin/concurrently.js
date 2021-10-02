@@ -91,7 +91,8 @@ const args = yargs
                 'Comma-separated list of chalk colors to use on prefixes. ' +
                 'If there are more commands than colors, the last color will be repeated.\n' +
                 '- Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough\n' +
-                '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray\n' +
+                '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray \n' +
+                'or any hex values for colors, eg #23de43\n' +
                 '- Available background colors: bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite\n' +
                 'See https://www.npmjs.com/package/chalk for more information.',
             default: defaults.prefixColors,
@@ -114,7 +115,9 @@ const args = yargs
 
         // Restarting
         'restart-tries': {
-            describe: 'How many times a process that died should restart.',
+            describe:
+                'How many times a process that died should restart.\n' +
+                'Negative numbers will make the process restart forever.',
             default: defaults.restartTries,
             type: 'number'
         },
@@ -149,20 +152,13 @@ const args = yargs
     .epilogue(fs.readFileSync(__dirname + '/epilogue.txt', { encoding: 'utf8' }))
     .argv;
 
-const prefixColors = args.prefixColors.split(',');
 const names = (args.names || '').split(args.nameSeparator);
 
-let lastColor;
-concurrently(args._.map((command, index) => {
-    // Use documented behaviour of repeating last colour when specifying more commands than colours
-    lastColor = prefixColors[index] || lastColor;
-    return {
-        command,
-        prefixColor: lastColor,
-        name: names[index]
-    };
-}), {
-    inputStream: args.handleInput && process.stdin,
+concurrently(args._.map((command, index) => ({
+    command,
+    name: names[index]
+})), {
+    handleInput: args.handleInput,
     defaultInputTarget: args.defaultInputTarget,
     killOthers: args.killOthers
         ? ['success', 'failure']
@@ -171,11 +167,12 @@ concurrently(args._.map((command, index) => {
     raw: args.raw,
     hide: args.hide,
     prefix: args.prefix,
+    prefixColors: args.prefixColors.split(','),
     prefixLength: args.prefixLength,
     restartDelay: args.restartAfter,
     restartTries: args.restartTries,
     successCondition: args.success,
-    timestampFormat: args.timestampFormat
+    timestampFormat: args.timestampFormat,
 }).then(
     () => process.exit(0),
     () => process.exit(1)

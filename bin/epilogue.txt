@@ -39,4 +39,4 @@ Examples:
 
      $ $0 npm:watch-*
 
-For more details, visit https://github.com/kimmobrunfeldt/concurrently
+For more details, visit https://github.com/open-cli-tools/concurrently

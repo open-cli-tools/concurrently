@@ -9,7 +9,7 @@ const RestartProcess = require('./src/flow-control/restart-process');
 const concurrently = require('./src/concurrently');
 const Logger = require('./src/logger');
 
-module.exports = (commands, options = {}) => {
+module.exports = exports = (commands, options = {}) => {
     const logger = new Logger({
         hide: options.hide,
         outputStream: options.outputStream || process.stdout,
@@ -23,6 +23,7 @@ module.exports = (commands, options = {}) => {
         maxProcesses: options.maxProcesses,
         raw: options.raw,
         successCondition: options.successCondition,
+        cwd: options.cwd,
         controllers: [
             new LogError({ logger }),
             new LogOutput({ logger }),
@@ -30,7 +31,8 @@ module.exports = (commands, options = {}) => {
             new InputHandler({
                 logger,
                 defaultInputTarget: options.defaultInputTarget,
-                inputStream: options.inputStream,
+                inputStream: options.inputStream || (options.handleInput && process.stdin),
+                pauseInputStreamOnFinish: options.pauseInputStreamOnFinish,
             }),
             new KillOnSignal({ process }),
             new RestartProcess({
@@ -42,7 +44,8 @@ module.exports = (commands, options = {}) => {
                 logger,
                 conditions: options.killOthers
             })
-        ]
+        ],
+        prefixColors: options.prefixColors || []
     });
 };
 

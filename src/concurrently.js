@@ -16,7 +16,8 @@ const defaults = {
     spawn,
     kill: treeKill,
     raw: false,
-    controllers: []
+    controllers: [],
+    cwd: undefined,
 };
 
 module.exports = (commands, options) => {
@@ -31,23 +32,40 @@ module.exports = (commands, options) => {
         new ExpandNpmWildcard()
     ];
 
+    let lastColor = '';
     commands = _(commands)
         .map(mapToCommandInfo)
         .flatMap(command => parseCommand(command, commandParsers))
-        .map((command, index) => new Command(
-            Object.assign({
-                index,
-                spawnOpts: getSpawnOpts({ raw: options.raw, env: command.env }),
-                killProcess: options.kill,
-                spawn: options.spawn,
-            }, command)
-        ))
+        .map((command, index) => {
+            // Use documented behaviour of repeating last color when specifying more commands than colors
+            lastColor = options.prefixColors && options.prefixColors[index] || lastColor;
+            return new Command(
+                Object.assign({
+                    index,
+                    spawnOpts: getSpawnOpts({
+                        raw: options.raw,
+                        env: command.env,
+                        cwd: command.cwd || options.cwd,
+                    }),
+                    prefixColor: lastColor,
+                    killProcess: options.kill,
+                    spawn: options.spawn,
+                }, command)
+            );
+        })
         .value();
 
-    commands = options.controllers.reduce(
-        (prevCommands, controller) => controller.handle(prevCommands),
-        commands
+    const handleResult = options.controllers.reduce(
+        ({ commands: prevCommands, onFinishCallbacks }, controller) => {
+            const { commands, onFinish } = controller.handle(prevCommands);
+            return {
+                commands,
+                onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : [])
+            };
+        },
+        { commands, onFinishCallbacks: [] }
     );
+    commands = handleResult.commands;
 
     const commandsLeft = commands.slice();
     const maxProcesses = Math.max(1, Number(options.maxProcesses) || commandsLeft.length);
@@ -55,16 +73,22 @@ module.exports = (commands, options) => {
         maybeRunMore(commandsLeft);
     }
 
-    return new CompletionListener({ successCondition: options.successCondition }).listen(commands);
+    return new CompletionListener({ successCondition: options.successCondition })
+        .listen(commands)
+        .finally(() => {
+            handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
+        });
 };
 
 function mapToCommandInfo(command) {
-    return {
+    return Object.assign({
         command: command.command || command,
         name: command.name || '',
-        prefixColor: command.prefixColor || '',
         env: command.env || {},
-    };
+        cwd: command.cwd || '',
+    }, command.prefixColor ? {
+        prefixColor: command.prefixColor,
+    } : {});
 }
 
 function parseCommand(command, parsers) {

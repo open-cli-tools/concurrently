@@ -213,7 +213,7 @@ describe('--names', () => {
 });
 
 describe('--prefix', () => {
-    it('is alised to -p', done => {
+    it('is aliased to -p', done => {
         const child = run('-p command "echo foo" "echo bar"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('[echo foo] foo'));
@@ -233,7 +233,7 @@ describe('--prefix', () => {
 });
 
 describe('--prefix-length', () => {
-    it('is alised to -l', done => {
+    it('is aliased to -l', done => {
         const child = run('-p command -l 5 "echo foo" "echo bar"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
@@ -267,7 +267,7 @@ describe('--restart-tries', () => {
 });
 
 describe('--kill-others', () => {
-    it('is alised to -k', done => {
+    it('is aliased to -k', done => {
         const child = run('-k "sleep 10" "exit 0"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
@@ -320,7 +320,7 @@ describe('--kill-others-on-fail', () => {
 });
 
 describe('--handle-input', () => {
-    it('is alised to -i', done => {
+    it('is aliased to -i', done => {
         const child = run('-i "node fixtures/read-echo.js"');
         child.log.subscribe(line => {
             if (/READING/.test(line)) {
