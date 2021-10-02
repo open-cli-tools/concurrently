@@ -1,4 +1,4 @@
-module.exports = class ExpandNpmShortcut {
+export class ExpandNpmShortcut {
     parse(commandInfo) {
         const [, npmCmd, cmdName, args] = commandInfo.command.match(/^(npm|yarn|pnpm):(\S+)(.*)/) || [];
         if (!cmdName) {

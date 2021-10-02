@@ -1,4 +1,4 @@
-module.exports = class BaseHandler {
+export class BaseHandler {
     constructor(options = {}) {
         const { logger } = options;
 

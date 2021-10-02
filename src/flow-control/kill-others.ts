@@ -3,7 +3,7 @@ import { filter, map } from 'rxjs/operators';
 
 import * as BaseHandler from './base-handler';
 
-module.exports = class KillOthers extends BaseHandler {
+export class KillOthers extends BaseHandler {
     constructor({ logger, conditions }) {
         super({ logger });
 

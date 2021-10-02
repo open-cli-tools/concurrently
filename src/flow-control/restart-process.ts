@@ -4,7 +4,7 @@ import { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } from 'rxj
 import * as defaults from '../defaults';
 import * as BaseHandler from './base-handler';
 
-module.exports = class RestartProcess extends BaseHandler {
+export class RestartProcess extends BaseHandler {
     constructor({ delay, tries, logger, scheduler }) {
         super({ logger });
 

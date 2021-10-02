@@ -1,7 +1,7 @@
 import * as Rx from 'rxjs';
 import { bufferCount, switchMap, take } from 'rxjs/operators';
 
-module.exports = class CompletionListener {
+export class CompletionListener {
     constructor({ successCondition, scheduler }) {
         this.successCondition = successCondition;
         this.scheduler = scheduler;

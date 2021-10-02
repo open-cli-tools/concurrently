@@ -4,7 +4,7 @@ import * as formatDate from 'date-fns/format';
 
 import * as defaults from './defaults';
 
-module.exports = class Logger {
+export class Logger {
     constructor({ hide, outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {
         // To avoid empty strings from hiding the output of commands that don't have a name,
         // keep in the list of commands to hide only strings with some length.

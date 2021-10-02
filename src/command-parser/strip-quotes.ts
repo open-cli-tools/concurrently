@@ -1,4 +1,4 @@
-module.exports = class StripQuotes {
+export class StripQuotes {
     parse(commandInfo) {
         let { command } = commandInfo;
 

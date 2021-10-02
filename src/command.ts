@@ -1,6 +1,6 @@
 import * as Rx from 'rxjs';
 
-module.exports = class Command {
+export class Command {
     get killable() {
         return !!this.process;
     }

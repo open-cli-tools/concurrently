@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import * as fs from 'fs';
 
-module.exports = class ExpandNpmWildcard {
+export class ExpandNpmWildcard {
     static readPackage() {
         try {
             const json = fs.readFileSync('package.json', { encoding: 'utf-8' });

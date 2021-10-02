@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators';
 import * as defaults from '../defaults';
 import * as BaseHandler from './base-handler';
 
-module.exports = class InputHandler extends BaseHandler {
+export class InputHandler extends BaseHandler {
     constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }) {
         super({ logger });
 

@@ -2,7 +2,7 @@ import { map } from 'rxjs/operators';
 
 import * as BaseHandler from './base-handler';
 
-module.exports = class KillOnSignal extends BaseHandler {
+export class KillOnSignal extends BaseHandler {
     constructor({ process }) {
         super();
 

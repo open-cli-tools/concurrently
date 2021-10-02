@@ -1,6 +1,6 @@
 import * as BaseHandler from '../base-handler';
 
-module.exports = class FakeHandler extends BaseHandler {
+export class FakeHandler extends BaseHandler {
     constructor() {
         super();
 
