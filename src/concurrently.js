@@ -24,9 +24,6 @@ module.exports = (commands, options) => {
     assert.ok(Array.isArray(commands), '[concurrently] commands should be an array');
     assert.notStrictEqual(commands.length, 0, '[concurrently] no commands provided');
 
-    const prefixColors = options.prefixColors;
-
-    delete options.prefixColors;
     options = _.defaults(options, defaults);
 
     const commandParsers = [
@@ -35,12 +32,13 @@ module.exports = (commands, options) => {
         new ExpandNpmWildcard()
     ];
 
-    let lastColor = undefined;
+    let lastColor = '';
     commands = _(commands)
         .map(mapToCommandInfo)
         .flatMap(command => parseCommand(command, commandParsers))
         .map((command, index) => {
-            lastColor = prefixColors && prefixColors[index] || lastColor;
+            // Use documented behaviour of repeating last color when specifying more commands than colors
+            lastColor = options.prefixColors && options.prefixColors[index] || lastColor;
             return new Command(
                 Object.assign({
                     index,
@@ -49,9 +47,10 @@ module.exports = (commands, options) => {
                         env: command.env,
                         cwd: command.cwd || options.cwd,
                     }),
+                    prefixColor: lastColor,
                     killProcess: options.kill,
                     spawn: options.spawn,
-                }, command, lastColor ? { prefixColor: lastColor } : null)
+                }, command)
             );
         })
         .value();
@@ -82,13 +81,14 @@ module.exports = (commands, options) => {
 };
 
 function mapToCommandInfo(command) {
-    return {
+    return Object.assign({
         command: command.command || command,
         name: command.name || '',
-        prefixColor: command.prefixColor || '',
         env: command.env || {},
         cwd: command.cwd || '',
-    };
+    }, command.prefixColor ? {
+        prefixColor: command.prefixColor,
+    } : {});
 }
 
 function parseCommand(command, parsers) {

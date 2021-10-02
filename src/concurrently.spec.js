@@ -84,6 +84,19 @@ it('runs commands with a name or prefix color', () => {
     });
 });
 
+it('runs commands with a list of colors', () => {
+    create(['echo', 'kill'], {
+        prefixColors: ['red']
+    });
+
+    controllers.forEach(controller => {
+        expect(controller.handle).toHaveBeenCalledWith([
+            expect.objectContaining({ command: 'echo', prefixColor: 'red' }),
+            expect.objectContaining({ command: 'kill', prefixColor: 'red' }),
+        ]);
+    });
+});
+
 it('passes commands wrapped from a controller to the next one', () => {
     const fakeCommand = createFakeCommand('banana', 'banana');
     controllers[0].handle.mockReturnValue({ commands: [fakeCommand] });
