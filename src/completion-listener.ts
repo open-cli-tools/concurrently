@@ -1,13 +1,23 @@
 import * as Rx from 'rxjs';
 import { bufferCount, switchMap, take } from 'rxjs/operators';
 
+export type SuccessCondition = 'first' | 'last' | 'all';
+
+interface CompletionListenerParams {
+    successCondition?: SuccessCondition;
+    scheduler?: Rx.SchedulerLike;
+}
+
 export class CompletionListener {
-    constructor({ successCondition, scheduler }) {
-        this.successCondition = successCondition;
+    private readonly successCondition: SuccessCondition;
+    private readonly scheduler: Rx.SchedulerLike;
+
+    constructor({ successCondition, scheduler }: CompletionListenerParams) {
+        this.successCondition = successCondition || 'all';
         this.scheduler = scheduler;
     }
 
-    isSuccess(exitCodes) {
+    private isSuccess(exitCodes) {
         switch (this.successCondition) {
         /* eslint-disable indent */
             case 'first':

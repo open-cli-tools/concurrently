@@ -1,15 +1,15 @@
 import { TestScheduler } from 'rxjs/testing';
 
-import * as createFakeCommand from './flow-control/fixtures/fake-command';
-import * as CompletionListener from './completion-listener';
+import { createFakeCommand } from './flow-control/fixtures/fake-command';
+import { CompletionListener, SuccessCondition } from './completion-listener';
 
 let commands, scheduler;
 beforeEach(() => {
     commands = [createFakeCommand('foo'), createFakeCommand('bar')];
-    scheduler = new TestScheduler();
+    scheduler = new TestScheduler(() => true);
 });
 
-const createController = successCondition =>
+const createController = (successCondition?: SuccessCondition) =>
     new CompletionListener({
         successCondition,
         scheduler
