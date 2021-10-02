@@ -1,8 +1,8 @@
-const Rx = require('rxjs');
-const { map } = require('rxjs/operators');
+import * as Rx from 'rxjs';
+import { map } from 'rxjs/operators';
 
-const defaults = require('../defaults');
-const BaseHandler = require('./base-handler');
+import * as defaults from '../defaults';
+import * as BaseHandler from './base-handler';
 
 module.exports = class InputHandler extends BaseHandler {
     constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }) {

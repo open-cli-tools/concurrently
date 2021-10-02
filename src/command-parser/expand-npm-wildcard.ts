@@ -1,5 +1,5 @@
-const _ = require('lodash');
-const fs = require('fs');
+import * as _ from 'lodash';
+import * as fs from 'fs';
 
 module.exports = class ExpandNpmWildcard {
     static readPackage() {

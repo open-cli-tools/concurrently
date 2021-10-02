@@ -1,4 +1,4 @@
-const Rx = require('rxjs');
+import * as Rx from 'rxjs';
 
 module.exports = class Command {
     get killable() {

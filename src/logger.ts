@@ -1,8 +1,8 @@
-const chalk = require('chalk');
-const _ = require('lodash');
-const formatDate = require('date-fns/format');
+import * as chalk from 'chalk';
+import * as _ from 'lodash';
+import * as formatDate from 'date-fns/format';
 
-const defaults = require('./defaults');
+import * as defaults from './defaults';
 
 module.exports = class Logger {
     constructor({ hide, outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {

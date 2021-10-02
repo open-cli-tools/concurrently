@@ -1,8 +1,8 @@
-const Rx = require('rxjs');
-const { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } = require('rxjs/operators');
+import * as Rx from 'rxjs';
+import { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } from 'rxjs/operators';
 
-const defaults = require('../defaults');
-const BaseHandler = require('./base-handler');
+import * as defaults from '../defaults';
+import * as BaseHandler from './base-handler';
 
 module.exports = class RestartProcess extends BaseHandler {
     constructor({ delay, tries, logger, scheduler }) {

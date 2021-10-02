@@ -1,16 +1,16 @@
-const assert = require('assert');
-const _ = require('lodash');
-const spawn = require('spawn-command');
-const treeKill = require('tree-kill');
+import * as assert from 'assert';
+import * as _ from 'lodash';
+import * as spawn from 'spawn-command';
+import * as treeKill from 'tree-kill';
 
-const StripQuotes = require('./command-parser/strip-quotes');
-const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
-const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
+import * as StripQuotes from './command-parser/strip-quotes';
+import * as ExpandNpmShortcut from './command-parser/expand-npm-shortcut';
+import * as ExpandNpmWildcard from './command-parser/expand-npm-wildcard';
 
-const CompletionListener = require('./completion-listener');
+import * as CompletionListener from './completion-listener';
 
-const getSpawnOpts = require('./get-spawn-opts');
-const Command = require('./command');
+import * as getSpawnOpts from './get-spawn-opts';
+import * as Command from './command';
 
 const defaults = {
     spawn,

@@ -1,4 +1,4 @@
-const StripQuotes = require('./strip-quotes');
+import * as StripQuotes from './strip-quotes';
 const parser = new StripQuotes();
 
 it('returns command as is if no single/double quote at the beginning', () => {

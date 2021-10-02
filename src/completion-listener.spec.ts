@@ -1,7 +1,7 @@
-const { TestScheduler } = require('rxjs/testing');
+import { TestScheduler } from 'rxjs/testing';
 
-const createFakeCommand = require('./flow-control/fixtures/fake-command');
-const CompletionListener = require('./completion-listener');
+import * as createFakeCommand from './flow-control/fixtures/fake-command';
+import * as CompletionListener from './completion-listener';
 
 let commands, scheduler;
 beforeEach(() => {

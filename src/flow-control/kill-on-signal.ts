@@ -1,6 +1,6 @@
-const { map } = require('rxjs/operators');
+import { map } from 'rxjs/operators';
 
-const BaseHandler = require('./base-handler');
+import * as BaseHandler from './base-handler';
 
 module.exports = class KillOnSignal extends BaseHandler {
     constructor({ process }) {

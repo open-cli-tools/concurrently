@@ -277,7 +277,7 @@ concurrently can be used programmatically by using the API documented below:
 Example:
 
 ```js
-const concurrently = require('concurrently');
+import * as concurrently from 'concurrently';
 concurrently([
     'npm:watch-*',
     { command: 'nodemon', name: 'server' },

@@ -1,4 +1,4 @@
-const ExpandNpmWildcard = require('./expand-npm-wildcard');
+import * as ExpandNpmWildcard from './expand-npm-wildcard';
 
 let parser, readPkg;
 

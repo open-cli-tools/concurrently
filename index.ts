@@ -1,13 +1,13 @@
-const InputHandler = require('./src/flow-control/input-handler');
-const KillOnSignal = require('./src/flow-control/kill-on-signal');
-const KillOthers = require('./src/flow-control/kill-others');
-const LogError = require('./src/flow-control/log-error');
-const LogExit = require('./src/flow-control/log-exit');
-const LogOutput = require('./src/flow-control/log-output');
-const RestartProcess = require('./src/flow-control/restart-process');
+import * as InputHandler from './src/flow-control/input-handler';
+import * as KillOnSignal from './src/flow-control/kill-on-signal';
+import * as KillOthers from './src/flow-control/kill-others';
+import * as LogError from './src/flow-control/log-error';
+import * as LogExit from './src/flow-control/log-exit';
+import * as LogOutput from './src/flow-control/log-output';
+import * as RestartProcess from './src/flow-control/restart-process';
 
-const concurrently = require('./src/concurrently');
-const Logger = require('./src/logger');
+import * as concurrently from './src/concurrently';
+import * as Logger from './src/logger';
 
 module.exports = exports = (commands, options = {}) => {
     const logger = new Logger({

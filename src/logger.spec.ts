@@ -1,7 +1,7 @@
-const { Writable } = require('stream');
-const chalk = require('chalk');
-const { createMockInstance } = require('jest-create-mock-instance');
-const Logger = require('./logger');
+import { Writable } from 'stream';
+import * as chalk from 'chalk';
+import { createMockInstance } from 'jest-create-mock-instance';
+import * as Logger from './logger';
 
 let outputStream;
 beforeEach(() => {

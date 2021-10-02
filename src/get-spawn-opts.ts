@@ -1,4 +1,4 @@
-const supportsColor = require('supports-color');
+import * as supportsColor from 'supports-color';
 
 module.exports = ({
     colorSupport = supportsColor.stdout,

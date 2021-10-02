@@ -1,9 +1,9 @@
-const { createMockInstance } = require('jest-create-mock-instance');
-const { TestScheduler } = require('rxjs/testing');
+import { createMockInstance } from 'jest-create-mock-instance';
+import { TestScheduler } from 'rxjs/testing';
 
-const Logger = require('../logger');
-const createFakeCommand = require('./fixtures/fake-command');
-const RestartProcess = require('./restart-process');
+import * as Logger from '../logger';
+import * as createFakeCommand from './fixtures/fake-command';
+import * as RestartProcess from './restart-process';
 
 let commands, controller, logger, scheduler;
 beforeEach(() => {

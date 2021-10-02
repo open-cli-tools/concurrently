@@ -1,6 +1,6 @@
-const { createMockInstance } = require('jest-create-mock-instance');
-const { Writable } = require('stream');
-const { Subject } = require('rxjs');
+import { createMockInstance } from 'jest-create-mock-instance';
+import { Writable } from 'stream';
+import { Subject } from 'rxjs';
 
 module.exports = (name = 'foo', command = 'echo foo', index = 0) => ({
     index,

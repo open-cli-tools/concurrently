@@ -1,4 +1,4 @@
-const ExpandNpmShortcut = require('./expand-npm-shortcut');
+import * as ExpandNpmShortcut from './expand-npm-shortcut';
 const parser = new ExpandNpmShortcut();
 
 it('returns same command if no npm: prefix is present', () => {

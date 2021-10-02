@@ -1,7 +1,7 @@
-const _ = require('lodash');
-const { filter, map } = require('rxjs/operators');
+import * as _ from 'lodash';
+import { filter, map } from 'rxjs/operators';
 
-const BaseHandler = require('./base-handler');
+import * as BaseHandler from './base-handler';
 
 module.exports = class KillOthers extends BaseHandler {
     constructor({ logger, conditions }) {

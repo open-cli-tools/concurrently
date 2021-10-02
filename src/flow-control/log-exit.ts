@@ -1,4 +1,4 @@
-const BaseHandler = require('./base-handler');
+import * as BaseHandler from './base-handler';
 
 module.exports = class LogExit extends BaseHandler {
     handle(commands) {

@@ -1,8 +1,8 @@
-const readline = require('readline');
-const _ = require('lodash');
-const Rx = require('rxjs');
-const { buffer, map } = require('rxjs/operators');
-const spawn = require('spawn-command');
+import * as readline from 'readline';
+import * as _ from 'lodash';
+import * as Rx from 'rxjs';
+import { buffer, map } from 'rxjs/operators';
+import * as spawn from 'spawn-command';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = prefix => new RegExp(

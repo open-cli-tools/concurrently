@@ -1,8 +1,8 @@
-const EventEmitter = require('events');
+import * as EventEmitter from 'events';
 
-const createFakeCommand = require('./flow-control/fixtures/fake-command');
-const FakeHandler = require('./flow-control/fixtures/fake-handler');
-const concurrently = require('./concurrently');
+import * as createFakeCommand from './flow-control/fixtures/fake-command';
+import * as FakeHandler from './flow-control/fixtures/fake-handler';
+import * as concurrently from './concurrently';
 
 let spawn, kill, controllers, processes = [];
 const create = (commands, options = {}) => concurrently(

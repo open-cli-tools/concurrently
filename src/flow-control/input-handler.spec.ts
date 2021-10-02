@@ -1,9 +1,9 @@
-const stream = require('stream');
-const { createMockInstance } = require('jest-create-mock-instance');
+import * as stream from 'stream';
+import { createMockInstance } from 'jest-create-mock-instance';
 
-const Logger = require('../logger');
-const createFakeCommand = require('./fixtures/fake-command');
-const InputHandler = require('./input-handler');
+import * as Logger from '../logger';
+import * as createFakeCommand from './fixtures/fake-command';
+import * as InputHandler from './input-handler';
 
 let commands, controller, inputStream, logger;
 

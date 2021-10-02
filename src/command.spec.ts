@@ -1,5 +1,5 @@
-const EventEmitter = require('events');
-const Command = require('./command');
+import * as EventEmitter from 'events';
+import * as Command from './command';
 
 const createProcess = () => {
     const process = new EventEmitter();
@@ -170,7 +170,7 @@ describe('#kill()', () => {
 
     it('marks the command as killed', done => {
         command.start();
-        
+
         command.close.subscribe(data => {
             expect(data.exitCode).toBe(1);
             expect(data.killed).toBe(true);

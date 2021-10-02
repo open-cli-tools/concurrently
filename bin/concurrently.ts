@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const yargs = require('yargs');
-const defaults = require('../src/defaults');
-const concurrently = require('../index');
+import * as fs from 'fs';
+import * as yargs from 'yargs';
+import * as defaults from '../src/defaults';
+import * as concurrently from '../index';
 
 const args = yargs
     .usage('$0 [options] <command ...>')

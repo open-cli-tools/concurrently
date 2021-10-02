@@ -1,7 +1,7 @@
-const EventEmitter = require('events');
+import * as EventEmitter from 'events';
 
-const createFakeCommand = require('./fixtures/fake-command');
-const KillOnSignal = require('./kill-on-signal');
+import * as createFakeCommand from './fixtures/fake-command';
+import * as KillOnSignal from './kill-on-signal';
 
 let commands, controller, process;
 beforeEach(() => {

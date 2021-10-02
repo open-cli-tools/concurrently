@@ -1,8 +1,8 @@
-const { createMockInstance } = require('jest-create-mock-instance');
+import { createMockInstance } from 'jest-create-mock-instance';
 
-const Logger = require('../logger');
-const createFakeCommand = require('./fixtures/fake-command');
-const KillOthers = require('./kill-others');
+import * as Logger from '../logger';
+import * as createFakeCommand from './fixtures/fake-command';
+import * as KillOthers from './kill-others';
 
 let commands, logger;
 beforeEach(() => {
