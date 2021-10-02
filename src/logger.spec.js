@@ -176,12 +176,40 @@ describe('#logCommandText()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(chalk.hex(prefixColor)('[1]') + ' ', 'foo');
     });
+
+    it('does nothing if command is hidden by name', () => {
+        const logger = createLogger({ hide: ['abc'] });
+        logger.logCommandText('foo', { name: 'abc' });
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does nothing if command is hidden by index', () => {
+        const logger = createLogger({ hide: [3] });
+        logger.logCommandText('foo', { index: 3 });
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
 });
 
 describe('#logCommandEvent()', () => {
     it('does nothing if in raw mode', () => {
         const logger = createLogger({ raw: true });
         logger.logCommandEvent('foo');
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does nothing if command is hidden by name', () => {
+        const logger = createLogger({ hide: ['abc'] });
+        logger.logCommandEvent('foo', { name: 'abc' });
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does nothing if command is hidden by index', () => {
+        const logger = createLogger({ hide: [3] });
+        logger.logCommandEvent('foo', { index: 3 });
 
         expect(logger.log).not.toHaveBeenCalled();
     });

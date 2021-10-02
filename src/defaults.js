@@ -10,6 +10,8 @@ module.exports = {
     handleInput: false,
     // How many processes to run at once
     maxProcesses: 0,
+    // Indices and names of commands whose output to be not logged
+    hide: '',
     nameSeparator: ',',
     // Which prefix style to use when logging processes output.
     prefix: '',
