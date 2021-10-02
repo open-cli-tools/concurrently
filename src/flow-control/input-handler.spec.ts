@@ -1,9 +1,9 @@
 import * as stream from 'stream';
 import { createMockInstance } from 'jest-create-mock-instance';
 
-import * as Logger from '../logger';
-import * as createFakeCommand from './fixtures/fake-command';
-import * as InputHandler from './input-handler';
+import { Logger } from '../logger';
+import { createFakeCommand } from './fixtures/fake-command';
+import { InputHandler } from './input-handler';
 
 let commands, controller, inputStream, logger;
 

@@ -1,7 +1,7 @@
 import * as EventEmitter from 'events';
 
-import * as createFakeCommand from './fixtures/fake-command';
-import * as KillOnSignal from './kill-on-signal';
+import { createFakeCommand } from './fixtures/fake-command';
+import { KillOnSignal } from './kill-on-signal';
 
 let commands, controller, process;
 beforeEach(() => {

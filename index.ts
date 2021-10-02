@@ -1,15 +1,15 @@
-import * as InputHandler from './src/flow-control/input-handler';
-import * as KillOnSignal from './src/flow-control/kill-on-signal';
-import * as KillOthers from './src/flow-control/kill-others';
-import * as LogError from './src/flow-control/log-error';
-import * as LogExit from './src/flow-control/log-exit';
-import * as LogOutput from './src/flow-control/log-output';
-import * as RestartProcess from './src/flow-control/restart-process';
+import { InputHandler } from './src/flow-control/input-handler';
+import { KillOnSignal } from './src/flow-control/kill-on-signal';
+import { KillOthers } from './src/flow-control/kill-others';
+import { LogError } from './src/flow-control/log-error';
+import { LogExit } from './src/flow-control/log-exit';
+import { LogOutput } from './src/flow-control/log-output';
+import { RestartProcess } from './src/flow-control/restart-process';
 
-import * as concurrently from './src/concurrently';
-import * as Logger from './src/logger';
+import { concurrently } from './src/concurrently';
+import { Logger } from './src/logger';
 
-module.exports = exports = (commands, options = {}) => {
+export default function(commands, options = {}) {
     const logger = new Logger({
         hide: options.hide,
         outputStream: options.outputStream || process.stdout,
@@ -51,12 +51,14 @@ module.exports = exports = (commands, options = {}) => {
 
 // Export all flow controllers and the main concurrently function,
 // so that 3rd-parties can use them however they want
-exports.concurrently = concurrently;
-exports.Logger = Logger;
-exports.InputHandler = InputHandler;
-exports.KillOnSignal = KillOnSignal;
-exports.KillOthers = KillOthers;
-exports.LogError = LogError;
-exports.LogExit = LogExit;
-exports.LogOutput = LogOutput;
-exports.RestartProcess = RestartProcess;
+export {
+    concurrently,
+    Logger,
+    InputHandler,
+    KillOnSignal,
+    KillOthers,
+    LogError,
+    LogExit,
+    LogOutput,
+    RestartProcess
+};

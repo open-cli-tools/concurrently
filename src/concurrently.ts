@@ -3,14 +3,14 @@ import * as _ from 'lodash';
 import * as spawn from 'spawn-command';
 import * as treeKill from 'tree-kill';
 
-import * as StripQuotes from './command-parser/strip-quotes';
-import * as ExpandNpmShortcut from './command-parser/expand-npm-shortcut';
-import * as ExpandNpmWildcard from './command-parser/expand-npm-wildcard';
+import { StripQuotes } from './command-parser/strip-quotes';
+import { ExpandNpmShortcut } from './command-parser/expand-npm-shortcut';
+import { ExpandNpmWildcard } from './command-parser/expand-npm-wildcard';
 
-import * as CompletionListener from './completion-listener';
+import { CompletionListener } from './completion-listener';
 
-import * as getSpawnOpts from './get-spawn-opts';
-import * as Command from './command';
+import { getSpawnOpts } from './get-spawn-opts';
+import { Command } from './command';
 
 const defaults = {
     spawn,
@@ -20,7 +20,7 @@ const defaults = {
     cwd: undefined,
 };
 
-module.exports = (commands, options) => {
+export function concurrently(commands, options) {
     assert.ok(Array.isArray(commands), '[concurrently] commands should be an array');
     assert.notStrictEqual(commands.length, 0, '[concurrently] no commands provided');
 
@@ -78,7 +78,7 @@ module.exports = (commands, options) => {
         .finally(() => {
             handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
         });
-};
+}
 
 function mapToCommandInfo(command) {
     return Object.assign({

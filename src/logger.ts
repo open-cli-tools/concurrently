@@ -2,7 +2,7 @@ import * as chalk from 'chalk';
 import * as _ from 'lodash';
 import * as formatDate from 'date-fns/format';
 
-import * as defaults from './defaults';
+import { defaults } from './defaults';
 
 export class Logger {
     constructor({ hide, outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {

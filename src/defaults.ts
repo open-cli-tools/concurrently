@@ -4,7 +4,7 @@
  *
  * Refer to tests for the meaning of the different possible values.
  */
-module.exports = {
+export const defaults = {
     defaultInputTarget: 0,
     // Whether process.stdin should be forwarded to child processes
     handleInput: false,

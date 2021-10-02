@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import * as fs from 'fs';
 import * as yargs from 'yargs';
-import * as defaults from '../src/defaults';
-import * as concurrently from '../index';
+import { defaults } from '../src/defaults';
+import concurrently from '../index';
 
 const args = yargs
     .usage('$0 [options] <command ...>')

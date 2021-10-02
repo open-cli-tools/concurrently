@@ -1,4 +1,4 @@
-import * as BaseHandler from './base-handler';
+import { BaseHandler } from './base-handler';
 
 export class LogExit extends BaseHandler {
     handle(commands) {

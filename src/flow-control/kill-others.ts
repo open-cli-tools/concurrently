@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { filter, map } from 'rxjs/operators';
 
-import * as BaseHandler from './base-handler';
+import { BaseHandler } from './base-handler';
 
 export class KillOthers extends BaseHandler {
     constructor({ logger, conditions }) {

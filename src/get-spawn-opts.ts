@@ -1,6 +1,6 @@
 import * as supportsColor from 'supports-color';
 
-module.exports = ({
+export const getSpawnOpts = ({
     colorSupport = supportsColor.stdout,
     cwd,
     process = global.process,

@@ -1,4 +1,4 @@
-import * as ExpandNpmWildcard from './expand-npm-wildcard';
+import { ExpandNpmWildcard } from './expand-npm-wildcard';
 
 let parser, readPkg;
 

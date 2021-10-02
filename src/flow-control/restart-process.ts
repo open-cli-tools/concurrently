@@ -1,8 +1,8 @@
 import * as Rx from 'rxjs';
 import { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } from 'rxjs/operators';
 
-import * as defaults from '../defaults';
-import * as BaseHandler from './base-handler';
+import { defaults } from '../defaults';
+import { BaseHandler } from './base-handler';
 
 export class RestartProcess extends BaseHandler {
     constructor({ delay, tries, logger, scheduler }) {

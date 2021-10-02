@@ -1,8 +1,8 @@
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import * as defaults from '../defaults';
-import * as BaseHandler from './base-handler';
+import { defaults } from '../defaults';
+import { BaseHandler } from './base-handler';
 
 export class InputHandler extends BaseHandler {
     constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }) {

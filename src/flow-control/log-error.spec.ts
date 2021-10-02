@@ -1,7 +1,7 @@
 import { createMockInstance } from 'jest-create-mock-instance';
-import * as Logger from '../logger';
-import * as LogError from './log-error';
-import * as createFakeCommand from './fixtures/fake-command';
+import { Logger } from '../logger';
+import { LogError } from './log-error';
+import { createFakeCommand } from './fixtures/fake-command';
 
 let controller, logger, commands;
 beforeEach(() => {
