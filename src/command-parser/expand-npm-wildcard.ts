@@ -11,8 +11,9 @@ export class ExpandNpmWildcard {
         }
     }
 
-    constructor(readPackage = ExpandNpmWildcard.readPackage) {
-        this.readPackage = readPackage;
+    private scripts?: string[];
+
+    constructor(private readonly readPackage: () => any = ExpandNpmWildcard.readPackage) {
     }
 
     parse(commandInfo) {
