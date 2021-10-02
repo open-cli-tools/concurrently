@@ -1,5 +1,4 @@
-import * as EventEmitter from 'events';
-import * as Command from './command';
+import EventEmitter from 'events';
 
 const createProcess = () => {
     const process = new EventEmitter();

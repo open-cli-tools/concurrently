@@ -1,4 +1,4 @@
-import * as getSpawnOpts from './get-spawn-opts';
+import { getSpawnOpts } from './get-spawn-opts';
 
 it('sets detached mode to false for Windows platform', () => {
     expect(getSpawnOpts({ process: { platform: 'win32', cwd: jest.fn() } }).detached).toBe(false);

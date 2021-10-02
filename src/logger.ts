@@ -1,6 +1,6 @@
 import * as chalk from 'chalk';
-import * as _ from 'lodash';
-import * as formatDate from 'date-fns/format';
+import _ from 'lodash';
+import formatDate from 'date-fns/format';
 
 import { defaults } from './defaults';
 

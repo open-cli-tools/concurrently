@@ -1,8 +1,8 @@
-import * as EventEmitter from 'events';
+import EventEmitter from 'events';
 
-import * as createFakeCommand from './flow-control/fixtures/fake-command';
-import * as FakeHandler from './flow-control/fixtures/fake-handler';
-import * as concurrently from './concurrently';
+import { createFakeCommand } from './flow-control/fixtures/fake-command';
+import { FakeHandler } from './flow-control/fixtures/fake-handler';
+import { concurrently } from './concurrently';
 
 let spawn, kill, controllers, processes = [];
 const create = (commands, options = {}) => concurrently(

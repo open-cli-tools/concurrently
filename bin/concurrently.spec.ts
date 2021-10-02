@@ -1,8 +1,8 @@
 import * as readline from 'readline';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import * as Rx from 'rxjs';
 import { buffer, map } from 'rxjs/operators';
-import * as spawn from 'spawn-command';
+import spawn from 'spawn-command';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = prefix => new RegExp(

@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { filter, map } from 'rxjs/operators';
 
 import { Logger } from '../logger';

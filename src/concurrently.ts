@@ -1,7 +1,7 @@
 import * as assert from 'assert';
-import * as _ from 'lodash';
-import * as spawn from 'spawn-command';
-import * as treeKill from 'tree-kill';
+import _ from 'lodash';
+import spawn from 'spawn-command';
+import treeKill from 'tree-kill';
 
 import { StripQuotes } from './command-parser/strip-quotes';
 import { ExpandNpmShortcut } from './command-parser/expand-npm-shortcut';

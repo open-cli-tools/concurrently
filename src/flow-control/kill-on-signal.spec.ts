@@ -1,4 +1,4 @@
-import * as EventEmitter from 'events';
+import EventEmitter from 'events';
 
 import { createFakeCommand } from './fixtures/fake-command';
 import { KillOnSignal } from './kill-on-signal';
