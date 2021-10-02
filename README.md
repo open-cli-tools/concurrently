@@ -116,21 +116,25 @@ Help:
 concurrently [options] <command ...>
 
 General
-  -m, --max-processes  How many processes should run at once.
-                       New processes only spawn after all restart tries of a
-                       process.                                         [number]
-  -n, --names          List of custom names to be used in prefix template.
-                       Example names: "main,browser,server"             [string]
-  --name-separator     The character to split <names> on. Example usage:
-                       concurrently -n "styles|scripts|server" --name-separator
-                       "|"                                        [default: ","]
-  -r, --raw            Output only raw output of processes, disables prettifying
-                       and concurrently coloring.                      [boolean]
-  -s, --success        Return exit code of zero or one based on the success or
-                       failure of the "first" child to terminate, the "last
-                       child", or succeed only if "all" child processes succeed.
+  -m, --max-processes   How many processes should run at once.
+                        New processes only spawn after all restart tries of a
+                        process.                                        [number]
+  -n, --names           List of custom names to be used in prefix template.
+                        Example names: "main,browser,server"            [string]
+      --name-separator  The character to split <names> on. Example usage:
+                        concurrently -n "styles|scripts|server" --name-separator
+                        "|"                                       [default: ","]
+  -r, --raw             Output only raw output of processes, disables
+                        prettifying and concurrently coloring.         [boolean]
+  -s, --success         Return exit code of zero or one based on the success or
+                        failure of the "first" child to terminate, the "last
+                        child", or succeed only if "all" child processes
+                        succeed.
                               [choices: "first", "last", "all"] [default: "all"]
-  --no-color           Disables colors from logging                    [boolean]
+      --no-color        Disables colors from logging                   [boolean]
+      --hide            Comma-separated list of processes to hide the output.
+                        The processes can be identified by their name or index.
+                                                          [string] [default: ""]
 
 Prefix styling
   -p, --prefix            Prefix used in logging for each process.
