@@ -1,13 +1,9 @@
-import { BaseHandler } from '../base-handler';
+import { FlowController } from '../flow-controller';
 
-export class FakeHandler extends BaseHandler {
-    constructor() {
-        super();
-
-        this.handle = jest.fn(commands => ({
-            commands,
-            onFinish: this.onFinish,
-        }));
-        this.onFinish = jest.fn();
-    }
+export class FakeHandler implements FlowController {
+    readonly onFinish = jest.fn();
+    readonly handle = jest.fn(commands => ({
+        commands,
+        onFinish: this.onFinish,
+    }));
 };

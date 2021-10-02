@@ -1,16 +1,22 @@
+import EventEmitter from 'events';
 import { map } from 'rxjs/operators';
 
-import { BaseHandler } from './base-handler';
+import { Command } from '../command';
+import { FlowController } from './flow-controller';
 
-export class KillOnSignal extends BaseHandler {
-    constructor({ process }) {
-        super();
+interface KillOnSignalParams {
+    process: EventEmitter;
+}
 
+export class KillOnSignal implements FlowController {
+    private readonly process: EventEmitter;
+
+    constructor({ process }: KillOnSignalParams) {
         this.process = process;
     }
 
-    handle(commands) {
-        let caughtSignal;
+    handle(commands: Command[]) {
+        let caughtSignal: string;
         ['SIGINT', 'SIGTERM', 'SIGHUP'].forEach(signal => {
             this.process.on(signal, () => {
                 caughtSignal = signal;

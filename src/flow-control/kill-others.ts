@@ -1,12 +1,22 @@
 import * as _ from 'lodash';
 import { filter, map } from 'rxjs/operators';
 
-import { BaseHandler } from './base-handler';
+import { Logger } from '../logger';
+import { FlowController } from './flow-controller';
 
-export class KillOthers extends BaseHandler {
-    constructor({ logger, conditions }) {
-        super({ logger });
+export type KillOthersCondition = 'failure' | 'success';
 
+interface KillOthersParams {
+    logger: Logger;
+    conditions: KillOthersCondition | KillOthersCondition[]
+}
+
+export class KillOthers implements FlowController {
+    private readonly logger: Logger;
+    private readonly conditions: KillOthersCondition[];
+
+    constructor({ logger, conditions }: KillOthersParams) {
+        this.logger = logger;
         this.conditions = _.castArray(conditions);
     }
 

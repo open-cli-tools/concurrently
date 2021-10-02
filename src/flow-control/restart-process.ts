@@ -1,20 +1,34 @@
 import * as Rx from 'rxjs';
 import { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } from 'rxjs/operators';
 
+import { Command } from '../command';
 import { defaults } from '../defaults';
-import { BaseHandler } from './base-handler';
+import { Logger } from '../logger';
+import { FlowController } from './flow-controller';
 
-export class RestartProcess extends BaseHandler {
-    constructor({ delay, tries, logger, scheduler }) {
-        super({ logger });
 
+interface RestartProcessParams {
+    logger?: Logger;
+    delay?: number;
+    tries?: number;
+    scheduler?: Rx.SchedulerLike;
+}
+
+export class RestartProcess implements FlowController {
+    private readonly logger: Logger;
+    private readonly delay: number;
+    private readonly tries: number;
+    private readonly scheduler?: Rx.SchedulerLike;
+
+    constructor({ delay, tries, logger, scheduler }: RestartProcessParams) {
+        this.logger = logger;
         this.delay = +delay || defaults.restartDelay;
         this.tries = +tries || defaults.restartTries;
         this.tries = this.tries < 0 ? Infinity : this.tries;
         this.scheduler = scheduler;
     }
 
-    handle(commands) {
+    handle(commands: Command[]) {
         if (this.tries === 0) {
             return { commands };
         }

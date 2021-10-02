@@ -1,19 +1,33 @@
+import { Readable } from 'stream';
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 
+import { Command } from '../command';
 import { defaults } from '../defaults';
-import { BaseHandler } from './base-handler';
+import { Logger } from '../logger';
+import { FlowController } from './flow-controller';
 
-export class InputHandler extends BaseHandler {
-    constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }) {
-        super({ logger });
+interface InputHandlerParams {
+    logger: Logger;
+    inputStream?: Readable,
+    defaultInputTarget?: string | number,
+    pauseInputStreamOnFinish?: boolean
+}
 
+export class InputHandler implements FlowController {
+    private readonly logger: Logger;
+    private readonly defaultInputTarget: string | number;
+    private readonly inputStream: Readable;
+    private readonly pauseInputStreamOnFinish: boolean;
+
+    constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }: InputHandlerParams) {
+        this.logger = logger;
         this.defaultInputTarget = defaultInputTarget || defaults.defaultInputTarget;
         this.inputStream = inputStream;
         this.pauseInputStreamOnFinish = pauseInputStreamOnFinish !== false;
     }
 
-    handle(commands) {
+    handle(commands: Command[]) {
         if (!this.inputStream) {
             return { commands };
         }
