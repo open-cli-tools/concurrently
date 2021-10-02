@@ -154,7 +154,7 @@ const args = yargs
 const names = (args.names || '').split(args.nameSeparator);
 
 concurrently(args._.map((command, index) => ({
-    command,
+    command: String(command),
     name: names[index]
 })), {
     handleInput: args.handleInput,

@@ -6,6 +6,7 @@ import { LogExit } from './src/flow-control/log-exit';
 import { LogOutput } from './src/flow-control/log-output';
 import { RestartProcess } from './src/flow-control/restart-process';
 
+import { CommandInfo } from './src/command';
 import { concurrently } from './src/concurrently';
 import { Logger } from './src/logger';
 import { Readable, Writable } from 'stream';
@@ -34,7 +35,7 @@ export interface ConcurrentlyOptions {
     successCondition?: SuccessCondition;
 }
 
-export default function(commands, options: ConcurrentlyOptions = {}) {
+export default function(commands: CommandInfo[], options: ConcurrentlyOptions = {}) {
     const logger = new Logger({
         hide: options.hide,
         outputStream: options.outputStream || process.stdout,

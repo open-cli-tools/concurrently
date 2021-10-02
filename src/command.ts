@@ -2,12 +2,15 @@ import { ChildProcess, SpawnOptions } from 'child_process';
 import * as Rx from 'rxjs';
 import { Writable } from 'stream';
 
-export interface CommandParams {
+export interface CommandInfo {
     command: string;
-    index: number;
     name?: string;
     prefixColor?: string;
     env?: object;
+    cwd?: string;
+}
+export interface CommandParams extends CommandInfo {
+    index: number;
     killProcess(pid: number, code?: string): void;
     spawn(command: string, opts: SpawnOptions): ChildProcess;
     spawnOpts?: SpawnOptions;
@@ -28,6 +31,13 @@ export interface Command {
     kill(signal?: NodeJS.Signals): void;
 }
 
+export interface CommandCloseEvent {
+    command: CommandInfo;
+    index: number;
+    exitCode: NodeJS.Signals | number;
+    killed: boolean;
+}
+
 export class CommandImpl implements Command {
     get killable() {
         return !!this.process;
@@ -43,7 +53,7 @@ export class CommandImpl implements Command {
     readonly env: object;
     private readonly spawnOpts: SpawnOptions;
     readonly error = new Rx.Subject<Error>();
-    readonly close = new Rx.Subject();
+    readonly close = new Rx.Subject<CommandCloseEvent>();
     readonly stdout = new Rx.Subject<string>();
     readonly stderr = new Rx.Subject<string>();
     stdin?: Writable;
