@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 import * as fs from 'fs';
 import * as yargs from 'yargs';
+import { SuccessCondition } from '../src/completion-listener';
 import { defaults } from '../src/defaults';
 import concurrently from '../index';
-import { SuccessCondition } from '../src/completion-listener';
 
 const args = yargs
     .usage('$0 [options] <command ...>')

@@ -12,7 +12,7 @@ const createKillMessage = prefix => new RegExp(
 );
 
 const run = args => {
-    const child = spawn('node ./concurrently.js ' + args, {
+    const child = spawn('ts-node --transpile-only ./concurrently.ts ' + args, {
         cwd: __dirname,
         env: Object.assign({}, process.env, {
             // When upgrading from jest 23 -> 24, colors started printing in the test output.
