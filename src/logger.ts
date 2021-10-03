@@ -1,4 +1,4 @@
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import _ from 'lodash';
 import formatDate from 'date-fns/format';
 import { Writable } from 'stream';

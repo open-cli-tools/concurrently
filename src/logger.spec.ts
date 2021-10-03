@@ -1,5 +1,5 @@
 import { Writable } from 'stream';
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import { createMockInstance } from 'jest-create-mock-instance';
 import { Logger, LoggerParams } from './logger';
 import { createFakeCommand } from './flow-control/fixtures/fake-command';
