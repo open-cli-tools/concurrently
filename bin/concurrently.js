@@ -11,6 +11,7 @@ const args = yargs
     .version('v', require('../package.json').version)
     .alias('v', 'V')
     .alias('v', 'version')
+    .env('CONCURRENTLY')
     .options({
         // General
         'm': {
