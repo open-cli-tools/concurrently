@@ -4,12 +4,13 @@ import * as yargs from 'yargs';
 import { SuccessCondition } from '../src/completion-listener';
 import { defaults } from '../src/defaults';
 import concurrently from '../index';
+import packageJson from '../package.json';
 
 const args = yargs
     .usage('$0 [options] <command ...>')
     .help('h')
     .alias('h', 'help')
-    .version('v', require('../package.json').version)
+    .version('v', packageJson.version)
     .alias('v', 'V')
     .alias('v', 'version')
     .options({

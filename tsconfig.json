@@ -4,7 +4,8 @@
         "lib": ["ES2019"],
         "moduleResolution": "node",
         "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
     },
     "exclude": ["coverage/**/*"]
 }
