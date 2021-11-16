@@ -17,6 +17,7 @@ module.exports = class Command {
         this.killed = false;
 
         this.error = new Rx.Subject();
+        this.timer = new Rx.Subject();
         this.close = new Rx.Subject();
         this.stdout = new Rx.Subject();
         this.stderr = new Rx.Subject();
@@ -26,13 +27,21 @@ module.exports = class Command {
         const child = this.spawn(this.command, this.spawnOpts);
         this.process = child;
         this.pid = child.pid;
+        const startDate = new Date(Date.now());
+        const highResStartTime = process.hrtime();
+        this.timer.next({startDate});
 
         Rx.fromEvent(child, 'error').subscribe(event => {
             this.process = undefined;
+            const endDate = new Date(Date.now());
+            this.timer.next({startDate, endDate});
             this.error.next(event);
         });
         Rx.fromEvent(child, 'close').subscribe(([exitCode, signal]) => {
             this.process = undefined;
+            const endDate = new Date(Date.now());
+            this.timer.next({startDate, endDate});
+            const [durationSeconds, durationNanoSeconds] = process.hrtime(highResStartTime);
             this.close.next({
                 command: {
                     command: this.command,
@@ -43,6 +52,11 @@ module.exports = class Command {
                 index: this.index,
                 exitCode: exitCode === null ? signal : exitCode,
                 killed: this.killed,
+                timings: {
+                    startDate,
+                    endDate,
+                    durationSeconds: durationSeconds + (durationNanoSeconds / 1e9),
+                }
             });
         });
         child.stdout && pipeTo(Rx.fromEvent(child.stdout, 'data'), this.stdout);

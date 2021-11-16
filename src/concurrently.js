@@ -18,6 +18,7 @@ const defaults = {
     raw: false,
     controllers: [],
     cwd: undefined,
+    showTimings: false
 };
 
 module.exports = (commands, options) => {
@@ -50,6 +51,7 @@ module.exports = (commands, options) => {
                     prefixColor: lastColor,
                     killProcess: options.kill,
                     spawn: options.spawn,
+                    showTimings: options.showTimings,
                 }, command)
             );
         })
@@ -73,9 +75,12 @@ module.exports = (commands, options) => {
         maybeRunMore(commandsLeft);
     }
 
-    return new CompletionListener({ successCondition: options.successCondition })
+    return new CompletionListener({
+        successCondition: options.successCondition,
+        showTimings: options.showTimings
+    })
         .listen(commands)
-        .finally(() => {
+        .finally((...args) => {
             handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
         });
 };
@@ -86,6 +91,7 @@ function mapToCommandInfo(command) {
         name: command.name || '',
         env: command.env || {},
         cwd: command.cwd || '',
+
     }, command.prefixColor ? {
         prefixColor: command.prefixColor,
     } : {});
