@@ -2,10 +2,9 @@ const Rx = require('rxjs');
 const { bufferCount, switchMap, take } = require('rxjs/operators');
 
 module.exports = class CompletionListener {
-    constructor({ successCondition, scheduler, showTimings}) {
+    constructor({ successCondition, scheduler }) {
         this.successCondition = successCondition;
         this.scheduler = scheduler;
-        this.showTimings = showTimings;
     }
 
     isSuccess(exitCodes) {

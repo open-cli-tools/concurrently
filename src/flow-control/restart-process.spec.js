@@ -69,7 +69,15 @@ it('restarts processes up to tries', () => {
     expect(commands[0].start).toHaveBeenCalledTimes(2);
 });
 
-it.todo('restart processes forever, if tries is negative');
+it('restart processes forever, if tries is negative', () => {
+    controller = new RestartProcess({
+        logger,
+        scheduler,
+        delay: 100,
+        tries: -1
+    });
+    expect(controller.tries).toBe(Infinity);
+});
 
 it('restarts processes until they succeed', () => {
     controller.handle(commands);

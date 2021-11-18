@@ -383,14 +383,13 @@ describe('--handle-input', () => {
     });
 });
 
-describe('--show-timings', () => {
-    const dateRegex = '\\d+\/\\d+\/\\d+';
-    const timeRegex = '\\d+:\\d+:\\d+(AM|PM|\\s)*';
+describe('--timings', () => {
+    const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
     const processStartedMessageRegex = (index, command) => {
-        return new RegExp( `^\\[${ index }] ${ command } started at ${ dateRegex }, ${ timeRegex }$` );
+        return new RegExp( `^\\[${ index }] ${ command } started at ${ defaultTimestampFormatRegex.source }$` );
     };
     const processStoppedMessageRegex = (index, command) => {
-        return new RegExp( `^\\[${ index }] ${ command } stopped at ${ dateRegex }, ${ timeRegex } after (\\d|,)+ms$` );
+        return new RegExp( `^\\[${ index }] ${ command } stopped at ${ defaultTimestampFormatRegex.source } after (\\d|,)+ms$` );
     };
     const expectLinesForProcessStartAndStop = (lines, index, command) => {
         const escapedCommand = _.escapeRegExp(command);
@@ -401,14 +400,14 @@ describe('--show-timings', () => {
     const expectLinesForTimingsTable = (lines) => {
         const tableTopBorderRegex = /┌[─┬]+┐/g;
         expect(lines).toContainEqual(expect.stringMatching(tableTopBorderRegex));
-        const tableHeaderRowRegex = /(\W+(\(index\)|call-index|name|duration|exit-code|killed|command)\W+){7}/g;
+        const tableHeaderRowRegex = /(\W+(\(index\)|name|duration|exit code|killed|command)\W+){6}/g;
         expect(lines).toContainEqual(expect.stringMatching(tableHeaderRowRegex));
         const tableBottomBorderRegex = /└[─┴]+┘/g;
         expect(lines).toContainEqual(expect.stringMatching(tableBottomBorderRegex));
     };
 
     it('shows timings on success', done => {
-        const child = run('--show-timings "sleep 0.5" "exit 0"');
+        const child = run('--timings "sleep 0.5" "exit 0"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expectLinesForProcessStartAndStop(lines, 0, 'sleep 0.5');
             expectLinesForProcessStartAndStop(lines, 1, 'exit 0');
@@ -418,7 +417,7 @@ describe('--show-timings', () => {
     });
 
     it('shows timings on failure', done => {
-        const child = run('--show-timings "sleep 0.75" "exit 1"');
+        const child = run('--timings "sleep 0.75" "exit 1"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expectLinesForProcessStartAndStop(lines, 0, 'sleep 0.75');
             expectLinesForProcessStartAndStop(lines, 1, 'exit 1');

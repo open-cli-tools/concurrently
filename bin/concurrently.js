@@ -62,10 +62,10 @@ const args = yargs
             default: defaults.hide,
             type: 'string'
         },
-        'show-timings': {
+        'timings': {
             describe: 'Show timing information for all processes',
             type: 'boolean',
-            default: defaults.showTimings
+            default: defaults.timings
         },
 
         // Kill others
@@ -147,7 +147,7 @@ const args = yargs
                 'Can be either the index or the name of the process.'
         }
     })
-    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color', 'hide', 'show-timings'], 'General')
+    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color', 'hide', 'timings'], 'General')
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
@@ -177,7 +177,7 @@ concurrently(args._.map((command, index) => ({
     restartTries: args.restartTries,
     successCondition: args.success,
     timestampFormat: args.timestampFormat,
-    showTimings: args.showTimings
+    timings: args.timings
 }).then(
     () => process.exit(0),
     () => process.exit(1)

@@ -18,7 +18,7 @@ const defaults = {
     raw: false,
     controllers: [],
     cwd: undefined,
-    showTimings: false
+    timings: false
 };
 
 module.exports = (commands, options) => {
@@ -51,7 +51,7 @@ module.exports = (commands, options) => {
                     prefixColor: lastColor,
                     killProcess: options.kill,
                     spawn: options.spawn,
-                    showTimings: options.showTimings,
+                    timings: options.timings,
                 }, command)
             );
         })
@@ -77,10 +77,9 @@ module.exports = (commands, options) => {
 
     return new CompletionListener({
         successCondition: options.successCondition,
-        showTimings: options.showTimings
     })
         .listen(commands)
-        .finally((...args) => {
+        .finally(() => {
             handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
         });
 };

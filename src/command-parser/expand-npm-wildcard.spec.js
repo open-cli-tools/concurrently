@@ -1,10 +1,39 @@
 const ExpandNpmWildcard = require('./expand-npm-wildcard');
+const fs = require('fs');
 
 let parser, readPkg;
 
 beforeEach(() => {
     readPkg = jest.fn();
     parser = new ExpandNpmWildcard(readPkg);
+});
+
+describe('ExpandNpmWildcard#readPackage', () => {
+    it('can read package', () => {
+        const expectedPackage = {
+            'name': 'concurrently',
+            'version': '6.4.0',
+        };
+        jest.spyOn(fs, 'readFileSync').mockImplementation((path, options) => {
+            if (path === 'package.json') {
+                return JSON.stringify(expectedPackage);
+            }
+            return null;
+        });
+
+        const actualReadPackage = ExpandNpmWildcard.readPackage();
+        expect(actualReadPackage).toEqual(expectedPackage);
+    });
+
+    it('can handle errors reading package', () => {
+        jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+            throw new Error('Error reading package');
+        });
+
+        expect(() => ExpandNpmWildcard.readPackage()).not.toThrow();
+        expect(ExpandNpmWildcard.readPackage()).toEqual({});
+    });
+
 });
 
 it('returns same command if not an npm run command', () => {

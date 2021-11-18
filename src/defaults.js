@@ -31,5 +31,5 @@ module.exports = {
     // Current working dir passed as option to spawn command. Default: process.cwd()
     cwd: undefined,
     // Whether to show timing information for processes in console output
-    showTimings: false,
+    timings: false,
 };

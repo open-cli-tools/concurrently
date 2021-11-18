@@ -1,23 +1,30 @@
 const Rx = require('rxjs');
 const _ = require('lodash');
+const formatDate = require('date-fns/format');
 const { bufferCount, take } = require('rxjs/operators');
 const BaseHandler = require('./base-handler');
 
 module.exports = class LogTimings extends BaseHandler {
+    constructor({ logger, timestampFormat }) {
+        super({ logger });
+
+        this.timestampFormat = timestampFormat;
+    }
+
     printExitInfoTimingTable(exitInfos) {
         const exitInfoTable = _(exitInfos)
-            .map(({ command, timings, index, killed, exitCode }) => {
+            .sortBy(({timings}) => timings.durationSeconds)
+            .reverse()
+            .map(({ command, timings, killed, exitCode }) => {
                 const readableDurationMs = (timings.endDate - timings.startDate).toLocaleString();
                 return {
-                    'call-index': index,
                     name: command.name,
-                    duration: `~${readableDurationMs}ms`,
-                    'exit-code': exitCode,
+                    duration: `${readableDurationMs}ms`,
+                    'exit code': exitCode,
                     killed,
                     command: command.command,
                 };
             })
-            .sortBy('duration')
             .value();
 
         console.log('\nTimings:');
@@ -28,16 +35,18 @@ module.exports = class LogTimings extends BaseHandler {
     handle(commands) {
         if (!this.logger) { return {commands}; }
 
+        const controllerInstance = this;
+
         // individual process timings
         commands.forEach(command => {
             command.timer.subscribe( {
                 next: ({startDate, endDate}) => {
                     if (!endDate) {
-                        this.logger.logCommandEvent( `${ command.command } started at ${ startDate.toLocaleString() }`, command );
+                        controllerInstance.logger.logCommandEvent( `${ command.command } started at ${ formatDate(startDate, controllerInstance.timestampFormat) }`, command );
                     } else {
                         const durationMs = (endDate.getTime() - startDate.getTime());
 
-                        this.logger.logCommandEvent( `${ command.command } stopped at ${ endDate.toLocaleString() } after ${durationMs.toLocaleString()}ms`, command );
+                        controllerInstance.logger.logCommandEvent( `${ command.command } stopped at ${ formatDate(endDate, controllerInstance.timestampFormat) } after ${durationMs.toLocaleString()}ms`, command );
                     }
                 },
             } );

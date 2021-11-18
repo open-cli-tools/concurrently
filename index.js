@@ -46,11 +46,12 @@ module.exports = exports = (commands, options = {}) => {
                 conditions: options.killOthers
             }),
             new LogTimings({
-                logger: options.showTimings ? logger: null
+                logger: options.timings ? logger: null,
+                timestampFormat: options.timestampFormat,
             })
         ],
         prefixColors: options.prefixColors || [],
-        showTimings: options.showTimings
+        timings: options.timings
     });
 };
 
