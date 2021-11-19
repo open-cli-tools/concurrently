@@ -133,6 +133,12 @@ const args = yargs(argsBeforeSep)
             default: defaults.prefixColors,
             type: 'string',
         },
+        color: {
+            describe:
+                'Automatically adds varying prefix colors where commands do not have a prefix color defined',
+            default: defaults.color,
+            type: 'boolean',
+        },
         'prefix-length': {
             alias: 'l',
             describe:
@@ -213,6 +219,7 @@ concurrently(
         group: args.group,
         prefix: args.prefix,
         prefixColors: args.prefixColors.split(','),
+        color: args.color,
         prefixLength: args.prefixLength,
         restartDelay: args.restartAfter,
         restartTries: args.restartTries,
