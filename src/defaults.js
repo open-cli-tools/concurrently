@@ -29,5 +29,7 @@ module.exports = {
     // Refer to https://date-fns.org/v2.0.1/docs/format
     timestampFormat: 'yyyy-MM-dd HH:mm:ss.SSS',
     // Current working dir passed as option to spawn command. Default: process.cwd()
-    cwd: undefined
+    cwd: undefined,
+    // Whether to show timing information for processes in console output
+    timings: false,
 };

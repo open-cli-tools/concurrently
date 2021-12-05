@@ -32,7 +32,7 @@ module.exports = class CompletionListener {
                         ? Rx.of(exitInfos, this.scheduler)
                         : Rx.throwError(exitInfos, this.scheduler)
                 ),
-                take(1)
+                take(1),
             )
             .toPromise();
     }

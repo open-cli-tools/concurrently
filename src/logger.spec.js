@@ -221,3 +221,98 @@ describe('#logCommandEvent()', () => {
         expect(logger.log).toHaveBeenCalledWith(chalk.reset('[1]') + ' ', chalk.reset('foo') + '\n');
     });
 });
+
+describe('#logTable()', () => {
+    it('does not log anything in raw mode', () => {
+        const logger = createLogger({ raw: true });
+        logger.logTable([{ foo: 1, bar: 2 }]);
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does not log anything if value is not an array', () => {
+        const logger = createLogger();
+        logger.logTable({});
+        logger.logTable(null);
+        logger.logTable(0);
+        logger.logTable('');
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does not log anything if array is empy', () => {
+        const logger = createLogger();
+        logger.logTable([]);
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does not log anything if array items have no properties', () => {
+        const logger = createLogger();
+        logger.logTable([{}]);
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('logs a header for each item\'s properties', () => {
+        const logger = createLogger();
+        logger.logTable([{ foo: 1, bar: 2 }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ foo │ bar │') + '\n',
+        );
+    });
+
+    it('logs padded headers according to longest column\'s value', () => {
+        const logger = createLogger();
+        logger.logTable([{ a: 'foo', b: 'barbaz' }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ a   │ b      │') + '\n',
+        );
+    });
+
+    it('logs each items\'s values', () => {
+        const logger = createLogger();
+        logger.logTable([{ foo: 123 }, { foo: 456 }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ 123 │') + '\n',
+        );
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ 456 │') + '\n',
+        );
+    });
+
+    it('logs each items\'s values padded according to longest column\'s value', () => {
+        const logger = createLogger();
+        logger.logTable([{ foo: 1 }, { foo: 123 }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ 1   │') + '\n',
+        );
+    });
+
+    it('logs items with different properties in each', () => {
+        const logger = createLogger();
+        logger.logTable([{ foo: 1 }, { bar: 2 }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ foo │ bar │') + '\n',
+        );
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ 1   │     │') + '\n',
+        );
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│     │ 2   │') + '\n',
+        );
+    });
+});

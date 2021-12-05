@@ -96,6 +96,63 @@ module.exports = class Logger {
         this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n');
     }
 
+    logTable(tableContents) {
+        // For now, can only print array tables with some content.
+        if (this.raw || !Array.isArray(tableContents) || !tableContents.length) {
+            return;
+        }
+
+        let nextColIndex = 0;
+        const headers = {};
+        const contentRows = tableContents.map(row => {
+            const rowContents = [];
+            Object.keys(row).forEach((col) => {
+                if (!headers[col]) {
+                    headers[col] = {
+                        index: nextColIndex++,
+                        //
+                        length: col.length,
+                    };
+                }
+
+                const colIndex = headers[col].index;
+                const formattedValue = String(row[col] == null ? '' : row[col]);
+                // Update the column length in case this rows value is longer than the previous length for the column.
+                headers[col].length = Math.max(formattedValue.length, headers[col].length);
+                rowContents[colIndex] = formattedValue;
+                return rowContents;
+            });
+            return rowContents;
+        });
+
+        const headersFormatted = Object
+            .keys(headers)
+            .map(header => header.padEnd(headers[header].length, ' '));
+
+        if (!headersFormatted.length) {
+            // No columns exist.
+            return;
+        }
+
+        const borderRowFormatted = headersFormatted.map(header => '─'.padEnd(header.length, '─'));
+
+        this.logGlobalEvent(`┌─${borderRowFormatted.join('─┬─')}─┐`);
+        this.logGlobalEvent(`│ ${headersFormatted.join(' │ ')} │`);
+        this.logGlobalEvent(`├─${borderRowFormatted.join('─┼─')}─┤`);
+
+        contentRows.forEach(contentRow => {
+            const contentRowFormatted = headersFormatted.map((header, colIndex) => {
+                // If the table was expanded after this row was processed, it won't have this column.
+                // Use an empty string in this case.
+                const col = contentRow[colIndex] || '';
+                return col.padEnd(header.length, ' ');
+            });
+            this.logGlobalEvent(`│ ${contentRowFormatted.join(' │ ')} │`);
+        });
+
+        this.logGlobalEvent(`└─${borderRowFormatted.join('─┴─')}─┘`);
+    }
+
     log(prefix, text) {
         if (this.raw) {
             return this.outputStream.write(text);

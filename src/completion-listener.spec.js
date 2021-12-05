@@ -85,4 +85,5 @@ describe('with success condition set to last', () => {
 
         return expect(result).rejects.toEqual([{ exitCode: 0 }, { exitCode: 1 }]);
     });
+
 });
