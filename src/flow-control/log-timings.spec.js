@@ -104,43 +104,34 @@ it('logs the timings at the start and end (ie complete or error) event of each c
 });
 
 it('does not log timings summary if there was an error', () => {
-    jest.spyOn(console, 'table').mockImplementation(() => {});
-
     controller.handle(commands);
 
     commands[0].close.next(command0ExitInfo);
     commands[1].error.next();
 
-    expect(console.table).toHaveBeenCalledTimes(0);
+    expect(logger.logTable).toHaveBeenCalledTimes(0);
 
 });
 
 it('logs the sorted timings summary when all processes close successfully', () => {
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-    jest.spyOn(console, 'table').mockImplementation(() => {});
     jest.spyOn(controller, 'printExitInfoTimingTable');
-
     controller.handle(commands);
 
     commands[0].close.next(command0ExitInfo);
     commands[1].close.next(command1ExitInfo);
 
-    expect(console.table).toHaveBeenCalledTimes(1);
+    expect(logger.logTable).toHaveBeenCalledTimes(1);
 
     // un-sorted ie by finish order
-    expect(controller.printExitInfoTimingTable).toHaveBeenCalledWith(
-        [
-            command0ExitInfo,
-            command1ExitInfo
-        ],
-    );
+    expect(controller.printExitInfoTimingTable).toHaveBeenCalledWith([
+        command0ExitInfo,
+        command1ExitInfo
+    ]);
 
     // sorted by duration
-    expect(console.table).toHaveBeenCalledWith(
-        [
-            exitInfoToTimingInfo(command1ExitInfo),
-            exitInfoToTimingInfo(command0ExitInfo),
-        ],
-    );
+    expect(logger.logTable).toHaveBeenCalledWith([
+        exitInfoToTimingInfo(command1ExitInfo),
+        exitInfoToTimingInfo(command0ExitInfo)
+    ]);
 
 });

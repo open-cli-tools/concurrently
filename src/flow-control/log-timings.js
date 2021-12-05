@@ -1,7 +1,7 @@
-const Rx = require('rxjs');
-const _ = require('lodash');
 const formatDate = require('date-fns/format');
+const Rx = require('rxjs');
 const { bufferCount, take } = require('rxjs/operators');
+const _ = require('lodash');
 const BaseHandler = require('./base-handler');
 
 module.exports = class LogTimings extends BaseHandler {
@@ -13,7 +13,7 @@ module.exports = class LogTimings extends BaseHandler {
 
     printExitInfoTimingTable(exitInfos) {
         const exitInfoTable = _(exitInfos)
-            .sortBy(({timings}) => timings.durationSeconds)
+            .sortBy(({ timings }) => timings.durationSeconds)
             .reverse()
             .map(({ command, timings, killed, exitCode }) => {
                 const readableDurationMs = (timings.endDate - timings.startDate).toLocaleString();
@@ -27,40 +27,38 @@ module.exports = class LogTimings extends BaseHandler {
             })
             .value();
 
-        console.log('\nTimings:');
-        console.table(exitInfoTable);
+        this.logger.logGlobalEvent('Timings:');
+        this.logger.logTable(exitInfoTable);
         return exitInfos;
     };
 
     handle(commands) {
-        if (!this.logger) { return {commands}; }
-
-        const controllerInstance = this;
+        if (!this.logger) {
+            return { commands };
+        }
 
         // individual process timings
         commands.forEach(command => {
-            command.timer.subscribe( {
-                next: ({startDate, endDate}) => {
-                    if (!endDate) {
-                        controllerInstance.logger.logCommandEvent( `${ command.command } started at ${ formatDate(startDate, controllerInstance.timestampFormat) }`, command );
-                    } else {
-                        const durationMs = (endDate.getTime() - startDate.getTime());
-
-                        controllerInstance.logger.logCommandEvent( `${ command.command } stopped at ${ formatDate(endDate, controllerInstance.timestampFormat) } after ${durationMs.toLocaleString()}ms`, command );
-                    }
-                },
-            } );
+            command.timer.subscribe(({ startDate, endDate }) => {
+                if (!endDate) {
+                    const formattedStartDate = formatDate(startDate, this.timestampFormat);
+                    this.logger.logCommandEvent(`${command.command} started at ${formattedStartDate}`, command);
+                } else {
+                    const durationMs = endDate.getTime() - startDate.getTime();
+                    const formattedEndDate = formatDate(endDate, this.timestampFormat);
+                    this.logger.logCommandEvent(`${command.command} stopped at ${formattedEndDate} after ${durationMs.toLocaleString()}ms`, command);
+                }
+            });
         });
 
         // overall summary timings
         const closeStreams = commands.map(command => command.close);
-        this.allProcessesClosed = Rx.merge(...closeStreams)
-            .pipe(
-                bufferCount(closeStreams.length),
-                take(1),
-            );
+        this.allProcessesClosed = Rx.merge(...closeStreams).pipe(
+            bufferCount(closeStreams.length),
+            take(1),
+        );
         this.allProcessesClosed.subscribe((exitInfos) => this.printExitInfoTimingTable(exitInfos));
 
-        return {commands};
+        return { commands };
     }
 };

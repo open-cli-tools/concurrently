@@ -400,7 +400,7 @@ describe('--timings', () => {
     const expectLinesForTimingsTable = (lines) => {
         const tableTopBorderRegex = /┌[─┬]+┐/g;
         expect(lines).toContainEqual(expect.stringMatching(tableTopBorderRegex));
-        const tableHeaderRowRegex = /(\W+(\(index\)|name|duration|exit code|killed|command)\W+){6}/g;
+        const tableHeaderRowRegex = /(\W+(name|duration|exit code|killed|command)\W+){5}/g;
         expect(lines).toContainEqual(expect.stringMatching(tableHeaderRowRegex));
         const tableBottomBorderRegex = /└[─┴]+┘/g;
         expect(lines).toContainEqual(expect.stringMatching(tableBottomBorderRegex));
