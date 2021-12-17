@@ -10,6 +10,7 @@ module.exports = (name = 'foo', command = 'echo foo', index = 0) => ({
     error: new Subject(),
     stderr: new Subject(),
     stdout: new Subject(),
+    timer: new Subject(),
     stdin: createMockInstance(Writable),
     start: jest.fn(),
     kill: jest.fn()

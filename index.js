@@ -8,6 +8,7 @@ const RestartProcess = require('./src/flow-control/restart-process');
 
 const concurrently = require('./src/concurrently');
 const Logger = require('./src/logger');
+const LogTimings = require( './src/flow-control/log-timings' );
 
 module.exports = exports = (commands, options = {}) => {
     const logger = new Logger({
@@ -43,9 +44,14 @@ module.exports = exports = (commands, options = {}) => {
             new KillOthers({
                 logger,
                 conditions: options.killOthers
+            }),
+            new LogTimings({
+                logger: options.timings ? logger: null,
+                timestampFormat: options.timestampFormat,
             })
         ],
-        prefixColors: options.prefixColors || []
+        prefixColors: options.prefixColors || [],
+        timings: options.timings
     });
 };
 
@@ -60,3 +66,4 @@ exports.LogError = LogError;
 exports.LogExit = LogExit;
 exports.LogOutput = LogOutput;
 exports.RestartProcess = RestartProcess;
+exports.LogTimings = LogTimings;
