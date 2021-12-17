@@ -203,6 +203,10 @@ Examples:
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold"
      "http-server" "npm run watch"
 
+ - Configuring via environment variables with CONCURRENTLY_ prefix
+
+     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true $0 "echo hello" "echo world"
+
  - Send input to default
 
      $ concurrently --handle-input "nodemon" "npm run watch-js"
