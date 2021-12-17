@@ -205,7 +205,7 @@ Examples:
 
  - Configuring via environment variables with CONCURRENTLY_ prefix
 
-     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true $0 "echo hello" "echo world"
+     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true concurrently "echo hello" "echo world"
 
  - Send input to default
 
