@@ -15,15 +15,15 @@ const args = yargs
     .env('CONCURRENTLY')
     .options({
         // General
-        'm': {
-            alias: 'max-processes',
+        'max-processes': {
+            alias: 'm',
             describe:
                 'How many processes should run at once.\n' +
                 'New processes only spawn after all restart tries of a process.',
             type: 'number'
         },
-        'n': {
-            alias: 'names',
+        'names': {
+            alias: 'n',
             describe:
                 'List of custom names to be used in prefix template.\n' +
                 'Example names: "main,browser,server"',
@@ -35,8 +35,8 @@ const args = yargs
                 'concurrently -n "styles|scripts|server" --name-separator "|"',
             default: defaults.nameSeparator,
         },
-        's': {
-            alias: 'success',
+        'success': {
+            alias: 's',
             describe:
                 'Return exit code of zero or one based on the success or failure ' +
                 'of the "first" child to terminate, the "last child", or succeed ' +
@@ -44,8 +44,8 @@ const args = yargs
             choices: ['first', 'last', 'all'],
             default: defaults.success
         },
-        'r': {
-            alias: 'raw',
+        'raw': {
+            alias: 'r',
             describe:
                 'Output only raw output of processes, disables prettifying ' +
                 'and concurrently coloring.',
@@ -71,8 +71,8 @@ const args = yargs
         },
 
         // Kill others
-        'k': {
-            alias: 'kill-others',
+        'kill-others': {
+            alias: 'k',
             describe: 'kill other processes if one exits or dies',
             type: 'boolean'
         },
@@ -82,8 +82,8 @@ const args = yargs
         },
 
         // Prefix
-        'p': {
-            alias: 'prefix',
+        'prefix': {
+            alias: 'p',
             describe:
                 'Prefix used in logging for each process.\n' +
                 'Possible values: index, pid, time, command, name, none, or a template. ' +
@@ -91,8 +91,8 @@ const args = yargs
             defaultDescription: 'index or name (when --names is set)',
             type: 'string'
         },
-        'c': {
-            alias: 'prefix-colors',
+        'prefix-colors': {
+            alias: 'c',
             describe:
                 'Comma-separated list of chalk colors to use on prefixes. ' +
                 'If there are more commands than colors, the last color will be repeated.\n' +
@@ -104,16 +104,16 @@ const args = yargs
             default: defaults.prefixColors,
             type: 'string'
         },
-        'l': {
-            alias: 'prefix-length',
+        'prefix-length': {
+            alias: 'l',
             describe:
                 'Limit how many characters of the command is displayed in prefix. ' +
                 'The option can be used to shorten the prefix when it is set to "command"',
             default: defaults.prefixLength,
             type: 'number'
         },
-        't': {
-            alias: 'timestamp-format',
+        'timestamp-format': {
+            alias: 't',
             describe: 'Specify the timestamp in moment/date-fns format.',
             default: defaults.timestampFormat,
             type: 'string'
@@ -134,8 +134,8 @@ const args = yargs
         },
 
         // Input
-        'i': {
-            alias: 'handle-input',
+        'handle-input': {
+            alias: 'i',
             describe:
                 'Whether input should be forwarded to the child processes. ' +
                 'See examples for more information.',
