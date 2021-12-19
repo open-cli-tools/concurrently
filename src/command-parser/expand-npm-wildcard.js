@@ -32,6 +32,7 @@ module.exports = class ExpandNpmWildcard {
         const preWildcard = _.escapeRegExp(cmdName.substr(0, wildcardPosition));
         const postWildcard = _.escapeRegExp(cmdName.substr(wildcardPosition + 1));
         const wildcardRegex = new RegExp(`^${preWildcard}(.*?)${postWildcard}$`);
+        const currentName = commandInfo.name || '';
 
         return this.scripts
             .map(script => {
@@ -40,9 +41,9 @@ module.exports = class ExpandNpmWildcard {
                 if (match) {
                     return Object.assign({}, commandInfo, {
                         command: `${npmCmd} run ${script}${args}`,
-                        // Use the wildcard portion of the script match unless it's empty, 
-                        // in which case use the full name of the script
-                        name: match[1] || script
+                        // Will use an empty command name if command has no name and the wildcard match is empty,
+                        // e.g. if `npm:watch-*` matches `npm run watch-`.
+                        name: currentName + match[1],
                     });
                 }
             })
