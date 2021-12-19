@@ -13,6 +13,7 @@
     "build": "tsc --build",
     "clean": "tsc --build --clean",
     "lint": "eslint . --ignore-path .gitignore",
+    "prepublishOnly": "npm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"
   },
