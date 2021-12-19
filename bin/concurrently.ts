@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-const fs = require('fs');
-const yargs = require('yargs');
-const defaults = require('../src/defaults');
-const concurrently = require('../index');
+import * as fs from 'fs';
+import yargs from 'yargs';
+import defaults from '../src/defaults';
+import concurrently from '../index';
+import { epilogue } from './epilogue'
 
 const args = yargs
     .usage('$0 [options] <command ...>')
@@ -154,11 +155,10 @@ const args = yargs
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
     .group(['restart-tries', 'restart-after'], 'Restarting')
-    // Too much text to write as JS strings, .txt file is better
-    .epilogue(fs.readFileSync(__dirname + '/epilogue.txt', { encoding: 'utf8' }))
+    .epilogue(epilogue)
     .argv;
 
-const names = (args.names || '').split(args.nameSeparator);
+const names = (args.names || '').split(args['name-separator']);
 
 concurrently(args._.map((command, index) => ({
     command,
@@ -173,7 +173,7 @@ concurrently(args._.map((command, index) => ({
     raw: args.raw,
     hide: args.hide.split(','),
     prefix: args.prefix,
-    prefixColors: args.prefixColors.split(','),
+    prefixColors: args['prefix-colors'].split(','),
     prefixLength: args.prefixLength,
     restartDelay: args.restartAfter,
     restartTries: args.restartTries,

@@ -1,8 +1,8 @@
-const readline = require('readline');
-const _ = require('lodash');
-const Rx = require('rxjs');
-const { buffer, map } = require('rxjs/operators');
-const spawn = require('spawn-command');
+import * as readline from 'readline';
+import _ from 'lodash';
+import * as Rx from 'rxjs';
+import { buffer, map } from 'rxjs/operators';
+import spawn from 'spawn-command';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = prefix => new RegExp(
@@ -12,7 +12,8 @@ const createKillMessage = prefix => new RegExp(
 );
 
 const run = args => {
-    const child = spawn('node ./concurrently.js ' + args, {
+    // TODO: This should only be transpiled once. Tests become 2.5x slower doing it in every `it`.
+    const child = spawn('ts-node --transpile-only ./concurrently.ts ' + args, {
         cwd: __dirname,
         env: Object.assign({}, process.env, {
             // When upgrading from jest 23 -> 24, colors started printing in the test output.
