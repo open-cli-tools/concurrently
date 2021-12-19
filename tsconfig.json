@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "target": "ES2019",
+        "lib": ["ES2019"],
+        "moduleResolution": "node",
+        "allowJs": true
+    },
+    "include": ["./bin", "./src", "./index.js"]
+}
