@@ -32,12 +32,21 @@ module.exports = class ExpandNpmWildcard {
         const preWildcard = _.escapeRegExp(cmdName.substr(0, wildcardPosition));
         const postWildcard = _.escapeRegExp(cmdName.substr(wildcardPosition + 1));
         const wildcardRegex = new RegExp(`^${preWildcard}(.*?)${postWildcard}$`);
+        const currentName = commandInfo.name || '';
 
         return this.scripts
-            .filter(script => wildcardRegex.test(script))
-            .map(script => Object.assign({}, commandInfo, {
-                command: `${npmCmd} run ${script}${args}`,
-                name: script
-            }));
+            .map(script => {
+                const match = script.match(wildcardRegex);
+
+                if (match) {
+                    return Object.assign({}, commandInfo, {
+                        command: `${npmCmd} run ${script}${args}`,
+                        // Will use an empty command name if command has no name and the wildcard match is empty,
+                        // e.g. if `npm:watch-*` matches `npm run watch-`.
+                        name: currentName + match[1],
+                    });
+                }
+            })
+            .filter(Boolean);
     }
 };

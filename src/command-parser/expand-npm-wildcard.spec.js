@@ -71,8 +71,25 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
             });
 
             expect(parser.parse({ command: `${npmCmd} run foo-*-baz qux` })).toEqual([
-                { name: 'foo-bar-baz', command: `${npmCmd} run foo-bar-baz qux` },
-                { name: 'foo--baz', command: `${npmCmd} run foo--baz qux` },
+                { name: 'bar', command: `${npmCmd} run foo-bar-baz qux` },
+                { name: '', command: `${npmCmd} run foo--baz qux` },
+            ]);
+        });
+
+        it('uses existing command name as prefix to the wildcard match', () => {
+            readPkg.mockReturnValue({
+                scripts: {
+                    'watch-js': '',
+                    'watch-css': '',
+                }
+            });
+
+            expect(parser.parse({
+                name: 'w:',
+                command: `${npmCmd} run watch-*`,
+            })).toEqual([
+                { name: 'w:js', command: `${npmCmd} run watch-js` },
+                { name: 'w:css', command: `${npmCmd} run watch-css` },
             ]);
         });
 
