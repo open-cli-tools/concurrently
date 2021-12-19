@@ -66,6 +66,10 @@
       "/fixtures/",
       "/node_modules/"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist"
+    ]
   }
 }
