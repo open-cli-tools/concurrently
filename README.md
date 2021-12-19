@@ -1,6 +1,7 @@
 # Concurrently
 
-[![Travis Build Status](https://travis-ci.org/kimmobrunfeldt/concurrently.svg)](https://travis-ci.org/kimmobrunfeldt/concurrently) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/kimmobrunfeldt/concurrently?branch=master&svg=true)](https://ci.appveyor.com/project/kimmobrunfeldt/concurrently) *master branch status*
+[![Build Status](https://github.com/open-cli-tools/concurrently/workflows/Tests/badge.svg)](https://github.com/open-cli-tools/concurrently/actions?workflow=Tests) 
+[![Coverage Status](https://coveralls.io/repos/github/open-cli-tools/concurrently/badge.svg?branch=master)](https://coveralls.io/github/open-cli-tools/concurrently?branch=master)
 
 [![NPM Badge](https://nodei.co/npm/concurrently.png?downloads=true)](https://www.npmjs.com/package/concurrently)
 
@@ -10,15 +11,17 @@ Like `npm run watch-js & npm run watch-less` but better.
 ![](docs/demo.gif)
 
 **Table of contents**
-- [Why](#why)
-- [Install](#install)
-- [Usage](#usage)
-- [Programmatic Usage](#programmatic-usage)
-- [FAQ](#faq)
+- [Concurrently](#concurrently)
+  - [Why](#why)
+  - [Install](#install)
+  - [Usage](#usage)
+  - [Programmatic Usage](#programmatic-usage)
+    - [`concurrently(commands[, options])`](#concurrentlycommands-options)
+  - [FAQ](#faq)
 
 ## Why
 
-I like [task automation with npm](http://substack.net/task_automation_with_npm_run)
+I like [task automation with npm](https://github.com/substack/blog/blob/master/npm_run.markdown)
 but the usual way to run multiple commands concurrently is
 `npm run watch-js & npm run watch-css`. That's fine but it's hard to keep
 on track of different outputs. Also if one process fails, others still keep running
@@ -113,18 +116,25 @@ Help:
 concurrently [options] <command ...>
 
 General
-  -n, --names       List of custom names to be used in prefix template.
-                    Example names: "main,browser,server"                [string]
-  --name-separator  The character to split <names> on. Example usage:
-                    concurrently -n "styles|scripts|server" --name-separator "|"
-                                                                  [default: ","]
-  -r, --raw         Output only raw output of processes, disables prettifying
-                    and concurrently coloring.                         [boolean]
-  -s, --success     Return exit code of zero or one based on the success or
-                    failure of the "first" child to terminate, the "last child",
-                    or succeed only if "all" child processes succeed.
+  -m, --max-processes   How many processes should run at once.
+                        New processes only spawn after all restart tries of a
+                        process.                                        [number]
+  -n, --names           List of custom names to be used in prefix template.
+                        Example names: "main,browser,server"            [string]
+      --name-separator  The character to split <names> on. Example usage:
+                        concurrently -n "styles|scripts|server" --name-separator
+                        "|"                                       [default: ","]
+  -r, --raw             Output only raw output of processes, disables
+                        prettifying and concurrently coloring.         [boolean]
+  -s, --success         Return exit code of zero or one based on the success or
+                        failure of the "first" child to terminate, the "last
+                        child", or succeed only if "all" child processes
+                        succeed.
                               [choices: "first", "last", "all"] [default: "all"]
-  --no-color        Disables colors from logging                       [boolean]
+      --no-color        Disables colors from logging                   [boolean]
+      --hide            Comma-separated list of processes to hide the output.
+                        The processes can be identified by their name or index.
+                                                          [string] [default: ""]
 
 Prefix styling
   -p, --prefix            Prefix used in logging for each process.
@@ -137,11 +147,12 @@ Prefix styling
                           - Available modifiers: reset, bold, dim, italic,
                           underline, inverse, hidden, strikethrough
                           - Available colors: black, red, green, yellow, blue,
-                          magenta, cyan, white, gray
+                          magenta, cyan, white, gray, or any hex values for
+                          colors, eg #23de43
                           - Available background colors: bgBlack, bgRed,
                           bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
                           See https://www.npmjs.com/package/chalk for more
-                          information.            [string] [default: "gray.dim"]
+                          information.            [string] [default: "reset"]
   -l, --prefix-length     Limit how many characters of the command is displayed
                           in prefix. The option can be used to shorten the
                           prefix when it is set to "command"
@@ -163,9 +174,10 @@ Killing other processes
                          code                                          [boolean]
 
 Restarting
-  --restart-tries  How many times a process that died should restart.
+      --restart-tries  How many times a process that died should restart.
+                       Negative numbers will make the process restart forever.
                                                            [number] [default: 0]
-  --restart-after  Delay time to respawn the process, in milliseconds.
+      --restart-after  Delay time to respawn the process, in milliseconds.
                                                            [number] [default: 0]
 
 Options:
@@ -191,6 +203,10 @@ Examples:
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold"
      "http-server" "npm run watch"
 
+ - Configuring via environment variables with CONCURRENTLY_ prefix
+
+     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true concurrently "echo hello" "echo world"
+
  - Send input to default
 
      $ concurrently --handle-input "nodemon" "npm run watch-js"
@@ -210,31 +226,41 @@ Examples:
 
      $ concurrently npm:watch-node npm:watch-js npm:watch-css
 
- - Shortened NPM run command with wildcard
+ - Shortened NPM run command with wildcard (make sure to wrap it in quotes!)
 
-     $ concurrently npm:watch-*
+     $ concurrently "npm:watch-*"
 
-For more details, visit https://github.com/kimmobrunfeldt/concurrently
+For more details, visit https://github.com/open-cli-tools/concurrently
 ```
 
 ## Programmatic Usage
 concurrently can be used programmatically by using the API documented below:
 
 ### `concurrently(commands[, options])`
+
 - `commands`: an array of either strings (containing the commands to run) or objects
-  with the shape `{ command, name, prefixColor }`.
+  with the shape `{ command, name, prefixColor, env, cwd }`.
+
 - `options` (optional): an object containing any of the below:
+    - `cwd`: the working directory to be used by all commands. Can be overriden per command.
+    Default: `process.cwd()`.
     - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
+    - `handleInput`: when `true`, reads input from `process.stdin`.
     - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
-    to read the input from, eg `process.stdin`.
+    to read the input from. Should only be used in the rare instance you would like to stream anything other than `process.stdin`. Overrides `handleInput`.
+    - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
     - `killOthers`: an array of exitting conditions that will cause a process to kill others.
     Can contain any of `success` or `failure`.
+    - `maxProcesses`: how many processes should run at once.
     - `outputStream`: a [`Writable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_writable_streams)
     to write logs to. Default: `process.stdout`.
     - `prefix`: the prefix type to use when logging processes output.
       Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
       Default: the name of the process, or its index if no name is set.
+    - `prefixColors`: a list of colors as supported by [chalk](https://www.npmjs.com/package/chalk).
+      If concurrently would run more commands than there are colors, the last color is repeated.
+      Prefix colors specified per-command take precedence over this list.
     - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
     - `raw`: whether raw mode should be used, meaning strictly process output will
     be logged, without any prefixes, colouring or extra stuff.
@@ -247,7 +273,10 @@ concurrently can be used programmatically by using the API documented below:
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
 
 > Returns: a `Promise` that resolves if the run was successful (according to `successCondition` option),
-> or rejects otherwise.
+> or rejects, containing an array of objects with information for each command that has been run, in the order
+> that the commands terminated. The objects have the shape `{ command, index, exitCode, killed }`, where `command` is the object
+> passed in the `commands` array, `index` its index there and `killed` indicates if the process was killed as a result of
+> `killOthers`. Default values (empty strings or objects) are returned for the fields that were not specified.
 
 Example:
 
@@ -255,11 +284,14 @@ Example:
 const concurrently = require('concurrently');
 concurrently([
     'npm:watch-*',
-    { command: 'nodemon', name: 'server' }
+    { command: 'nodemon', name: 'server' },
+    { command: 'deploy', name: 'deploy', env: { PUBLIC_KEY: '...' } },
+    { command: 'watch', name: 'watch', cwd: path.resolve(__dirname, 'scripts/watchers')}
 ], {
     prefix: 'name',
     killOthers: ['failure', 'success'],
     restartTries: 3,
+    cwd: path.resolve(__dirname, 'scripts'),
 }).then(success, failure);
 ```
 
@@ -278,6 +310,6 @@ concurrently([
     So *null* means the process didn't terminate normally. This will make **concurrent**
     to return non-zero exit code too.
 
-* Does this work with the npm-replacement [yarn](https://github.com/yarnpkg/yarn)?
+* Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn) or [pnpm](https://pnpm.js.org/)?
 
-    Yes! In all examples above, you may replace "`npm`" with "`yarn`".
+    Yes! In all examples above, you may replace "`npm`" with "`yarn`" or "`pnpm`".

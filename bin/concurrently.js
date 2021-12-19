@@ -11,8 +11,17 @@ const args = yargs
     .version('v', require('../package.json').version)
     .alias('v', 'V')
     .alias('v', 'version')
+    // TODO: Add some tests for this.
+    .env('CONCURRENTLY')
     .options({
         // General
+        'm': {
+            alias: 'max-processes',
+            describe:
+                'How many processes should run at once.\n' +
+                'New processes only spawn after all restart tries of a process.',
+            type: 'number'
+        },
         'n': {
             alias: 'names',
             describe:
@@ -48,6 +57,18 @@ const args = yargs
             describe: 'Disables colors from logging',
             type: 'boolean'
         },
+        'hide': {
+            describe:
+                'Comma-separated list of processes to hide the output.\n' +
+                'The processes can be identified by their name or index.',
+            default: defaults.hide,
+            type: 'string'
+        },
+        'timings': {
+            describe: 'Show timing information for all processes',
+            type: 'boolean',
+            default: defaults.timings
+        },
 
         // Kill others
         'k': {
@@ -76,7 +97,8 @@ const args = yargs
                 'Comma-separated list of chalk colors to use on prefixes. ' +
                 'If there are more commands than colors, the last color will be repeated.\n' +
                 '- Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough\n' +
-                '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray\n' +
+                '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray \n' +
+                'or any hex values for colors, eg #23de43\n' +
                 '- Available background colors: bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite\n' +
                 'See https://www.npmjs.com/package/chalk for more information.',
             default: defaults.prefixColors,
@@ -99,7 +121,9 @@ const args = yargs
 
         // Restarting
         'restart-tries': {
-            describe: 'How many times a process that died should restart.',
+            describe:
+                'How many times a process that died should restart.\n' +
+                'Negative numbers will make the process restart forever.',
             default: defaults.restartTries,
             type: 'number'
         },
@@ -125,7 +149,7 @@ const args = yargs
                 'Can be either the index or the name of the process.'
         }
     })
-    .group(['n', 'name-separator', 'raw', 's', 'no-color'], 'General')
+    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color', 'hide', 'timings'], 'General')
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
@@ -134,31 +158,28 @@ const args = yargs
     .epilogue(fs.readFileSync(__dirname + '/epilogue.txt', { encoding: 'utf8' }))
     .argv;
 
-const prefixColors = args.prefixColors.split(',');
 const names = (args.names || '').split(args.nameSeparator);
 
-let lastColor;
-concurrently(args._.map((command, index) => {
-    // Use documented behaviour of repeating last colour when specifying more commands than colours
-    lastColor = prefixColors[index] || lastColor;
-    return {
-        command,
-        prefixColor: lastColor,
-        name: names[index]
-    };
-}), {
-    inputStream: args.handleInput && process.stdin,
+concurrently(args._.map((command, index) => ({
+    command,
+    name: names[index]
+})), {
+    handleInput: args.handleInput,
     defaultInputTarget: args.defaultInputTarget,
     killOthers: args.killOthers
         ? ['success', 'failure']
         : (args.killOthersOnFail ? ['failure'] : []),
+    maxProcesses: args.maxProcesses,
     raw: args.raw,
+    hide: args.hide.split(','),
     prefix: args.prefix,
+    prefixColors: args.prefixColors.split(','),
     prefixLength: args.prefixLength,
     restartDelay: args.restartAfter,
     restartTries: args.restartTries,
     successCondition: args.success,
-    timestampFormat: args.timestampFormat
+    timestampFormat: args.timestampFormat,
+    timings: args.timings
 }).then(
     () => process.exit(0),
     () => process.exit(1)

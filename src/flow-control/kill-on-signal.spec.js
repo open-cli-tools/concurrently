@@ -14,7 +14,7 @@ beforeEach(() => {
 });
 
 it('returns commands that keep non-close streams from original commands', () => {
-    const newCommands = controller.handle(commands);
+    const { commands: newCommands } = controller.handle(commands);
     newCommands.forEach((newCommand, i) => {
         expect(newCommand.close).not.toBe(commands[i].close);
         expect(newCommand.error).toBe(commands[i].error);
@@ -24,7 +24,7 @@ it('returns commands that keep non-close streams from original commands', () => 
 });
 
 it('returns commands that map SIGINT to exit code 0', () => {
-    const newCommands = controller.handle(commands);
+    const { commands: newCommands } = controller.handle(commands);
     expect(newCommands).not.toBe(commands);
     expect(newCommands).toHaveLength(commands.length);
 
@@ -33,22 +33,22 @@ it('returns commands that map SIGINT to exit code 0', () => {
     process.emit('SIGINT');
 
     // A fake command's .kill() call won't trigger a close event automatically...
-    commands[0].close.next(1);
+    commands[0].close.next({ exitCode: 1 });
 
-    expect(callback).not.toHaveBeenCalledWith('SIGINT');
-    expect(callback).toHaveBeenCalledWith(0);
+    expect(callback).not.toHaveBeenCalledWith({ exitCode: 'SIGINT' });
+    expect(callback).toHaveBeenCalledWith({ exitCode: 0 });
 });
 
 it('returns commands that keep non-SIGINT exit codes', () => {
-    const newCommands = controller.handle(commands);
+    const { commands: newCommands } = controller.handle(commands);
     expect(newCommands).not.toBe(commands);
     expect(newCommands).toHaveLength(commands.length);
 
     const callback = jest.fn();
     newCommands[0].close.subscribe(callback);
-    commands[0].close.next(1);
+    commands[0].close.next({ exitCode: 1 });
 
-    expect(callback).toHaveBeenCalledWith(1);
+    expect(callback).toHaveBeenCalledWith({ exitCode: 1 });
 });
 
 it('kills all commands on SIGINT', () => {

@@ -6,6 +6,8 @@ const Logger = require('./logger');
 let outputStream;
 beforeEach(() => {
     outputStream = createMockInstance(Writable);
+    // Force chalk to use colours, otherwise tests may pass when they were supposed to be failing.
+    chalk.level = 3;
 });
 
 const createLogger = options => {
@@ -65,8 +67,8 @@ describe('#logGlobalEvent()', () => {
         logger.logGlobalEvent('foo');
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.gray.dim('-->') + ' ',
-            chalk.gray.dim('foo') + '\n'
+            chalk.reset('-->') + ' ',
+            chalk.reset('foo') + '\n'
         );
     });
 });
@@ -76,14 +78,14 @@ describe('#logCommandText()', () => {
         const logger = createLogger();
         logger.logCommandText('foo', { name: 'bla' });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[bla]') + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[bla]') + ' ', 'foo');
     });
 
     it('logs with index if no prefixFormat is set, and command has no name', () => {
         const logger = createLogger();
         logger.logCommandText('foo', { index: 2 });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[2]') + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[2]') + ' ', 'foo');
     });
 
     it('logs with prefixFormat set to pid', () => {
@@ -93,21 +95,21 @@ describe('#logCommandText()', () => {
             info: {}
         });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[123]') + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[123]') + ' ', 'foo');
     });
 
     it('logs with prefixFormat set to name', () => {
         const logger = createLogger({ prefixFormat: 'name' });
         logger.logCommandText('foo', { name: 'bar' });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[bar]') + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[bar]') + ' ', 'foo');
     });
 
     it('logs with prefixFormat set to index', () => {
         const logger = createLogger({ prefixFormat: 'index' });
         logger.logCommandText('foo', { index: 3 });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[3]') + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[3]') + ' ', 'foo');
     });
 
     it('logs with prefixFormat set to time (with timestampFormat)', () => {
@@ -115,35 +117,42 @@ describe('#logCommandText()', () => {
         logger.logCommandText('foo', {});
 
         const year = new Date().getFullYear();
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim(`[${year}]`) + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset(`[${year}]`) + ' ', 'foo');
     });
 
     it('logs with templated prefixFormat', () => {
         const logger = createLogger({ prefixFormat: '{index}-{name}' });
         logger.logCommandText('foo', { index: 0, name: 'bar' });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('0-bar') + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('0-bar') + ' ', 'foo');
+    });
+
+    it('does not strip spaces from beginning or end of prefixFormat', () => {
+        const logger = createLogger({ prefixFormat: ' {index}-{name} ' });
+        logger.logCommandText('foo', { index: 0, name: 'bar' });
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset(' 0-bar ') + ' ', 'foo');
     });
 
     it('logs with no prefix', () => {
         const logger = createLogger({ prefixFormat: 'none' });
         logger.logCommandText('foo', { command: 'echo foo' });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim(''), 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset(''), 'foo');
     });
 
     it('logs prefix using command line itself', () => {
         const logger = createLogger({ prefixFormat: 'command' });
         logger.logCommandText('foo', { command: 'echo foo' });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[echo foo]') + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[echo foo]') + ' ', 'foo');
     });
 
     it('logs prefix using command line itself, capped at prefixLength bytes', () => {
         const logger = createLogger({ prefixFormat: 'command', prefixLength: 6 });
         logger.logCommandText('foo', { command: 'echo foo' });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[ec..oo]') + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[ec..oo]') + ' ', 'foo');
     });
 
     it('logs prefix using prefixColor from command', () => {
@@ -157,7 +166,29 @@ describe('#logCommandText()', () => {
         const logger = createLogger();
         logger.logCommandText('foo', { prefixColor: 'blue.fake', index: 1 });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[1]') + ' ', 'foo');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[1]') + ' ', 'foo');
+    });
+
+    it('logs prefix using prefixColor from command if prefixColor is a hex value', () => {
+        const logger = createLogger();
+        const prefixColor = '#32bd8a';
+        logger.logCommandText('foo', {prefixColor, index: 1});
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.hex(prefixColor)('[1]') + ' ', 'foo');
+    });
+
+    it('does nothing if command is hidden by name', () => {
+        const logger = createLogger({ hide: ['abc'] });
+        logger.logCommandText('foo', { name: 'abc' });
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does nothing if command is hidden by index', () => {
+        const logger = createLogger({ hide: [3] });
+        logger.logCommandText('foo', { index: 3 });
+
+        expect(logger.log).not.toHaveBeenCalled();
     });
 });
 
@@ -169,10 +200,119 @@ describe('#logCommandEvent()', () => {
         expect(logger.log).not.toHaveBeenCalled();
     });
 
+    it('does nothing if command is hidden by name', () => {
+        const logger = createLogger({ hide: ['abc'] });
+        logger.logCommandEvent('foo', { name: 'abc' });
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does nothing if command is hidden by index', () => {
+        const logger = createLogger({ hide: [3] });
+        logger.logCommandEvent('foo', { index: 3 });
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
     it('logs text in gray dim', () => {
         const logger = createLogger();
         logger.logCommandEvent('foo', { index: 1 });
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.gray.dim('[1]') + ' ', chalk.gray.dim('foo') + '\n');
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[1]') + ' ', chalk.reset('foo') + '\n');
+    });
+});
+
+describe('#logTable()', () => {
+    it('does not log anything in raw mode', () => {
+        const logger = createLogger({ raw: true });
+        logger.logTable([{ foo: 1, bar: 2 }]);
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does not log anything if value is not an array', () => {
+        const logger = createLogger();
+        logger.logTable({});
+        logger.logTable(null);
+        logger.logTable(0);
+        logger.logTable('');
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does not log anything if array is empy', () => {
+        const logger = createLogger();
+        logger.logTable([]);
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does not log anything if array items have no properties', () => {
+        const logger = createLogger();
+        logger.logTable([{}]);
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('logs a header for each item\'s properties', () => {
+        const logger = createLogger();
+        logger.logTable([{ foo: 1, bar: 2 }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ foo │ bar │') + '\n',
+        );
+    });
+
+    it('logs padded headers according to longest column\'s value', () => {
+        const logger = createLogger();
+        logger.logTable([{ a: 'foo', b: 'barbaz' }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ a   │ b      │') + '\n',
+        );
+    });
+
+    it('logs each items\'s values', () => {
+        const logger = createLogger();
+        logger.logTable([{ foo: 123 }, { foo: 456 }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ 123 │') + '\n',
+        );
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ 456 │') + '\n',
+        );
+    });
+
+    it('logs each items\'s values padded according to longest column\'s value', () => {
+        const logger = createLogger();
+        logger.logTable([{ foo: 1 }, { foo: 123 }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ 1   │') + '\n',
+        );
+    });
+
+    it('logs items with different properties in each', () => {
+        const logger = createLogger();
+        logger.logTable([{ foo: 1 }, { bar: 2 }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ foo │ bar │') + '\n',
+        );
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ 1   │     │') + '\n',
+        );
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│     │ 2   │') + '\n',
+        );
     });
 });

@@ -5,7 +5,11 @@ const formatDate = require('date-fns/format');
 const defaults = require('./defaults');
 
 module.exports = class Logger {
-    constructor({ outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {
+    constructor({ hide, outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {
+        // To avoid empty strings from hiding the output of commands that don't have a name,
+        // keep in the list of commands to hide only strings with some length.
+        // This might happen through the CLI when no `--hide` argument is specified, for example.
+        this.hide = _.castArray(hide).filter(name => name || name === 0).map(String);
         this.raw = raw;
         this.outputStream = outputStream;
         this.prefixFormat = prefixFormat;
@@ -53,11 +57,17 @@ module.exports = class Logger {
         return _.reduce(prefixes, (prev, val, key) => {
             const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
             return prev.replace(keyRegex, val);
-        }, prefix).trim();
+        }, prefix);
     }
 
     colorText(command, text) {
-        const color = _.get(chalk, command.prefixColor, chalk.gray.dim);
+        let color;
+        if (command.prefixColor && command.prefixColor.startsWith('#')) {
+            color = chalk.hex(command.prefixColor);
+        } else {
+            const defaultColor = _.get(chalk, defaults.prefixColors, chalk.reset);
+            color = _.get(chalk, command.prefixColor, defaultColor);
+        }
         return color(text);
     }
 
@@ -66,10 +76,14 @@ module.exports = class Logger {
             return;
         }
 
-        this.logCommandText(chalk.gray.dim(text) + '\n', command);
+        this.logCommandText(chalk.reset(text) + '\n', command);
     }
 
     logCommandText(text, command) {
+        if (this.hide.includes(String(command.index)) || this.hide.includes(command.name)) {
+            return;
+        }
+
         const prefix = this.colorText(command, this.getPrefix(command));
         return this.log(prefix + (prefix ? ' ' : ''), text);
     }
@@ -79,7 +93,64 @@ module.exports = class Logger {
             return;
         }
 
-        this.log(chalk.gray.dim('-->') + ' ', chalk.gray.dim(text) + '\n');
+        this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n');
+    }
+
+    logTable(tableContents) {
+        // For now, can only print array tables with some content.
+        if (this.raw || !Array.isArray(tableContents) || !tableContents.length) {
+            return;
+        }
+
+        let nextColIndex = 0;
+        const headers = {};
+        const contentRows = tableContents.map(row => {
+            const rowContents = [];
+            Object.keys(row).forEach((col) => {
+                if (!headers[col]) {
+                    headers[col] = {
+                        index: nextColIndex++,
+                        //
+                        length: col.length,
+                    };
+                }
+
+                const colIndex = headers[col].index;
+                const formattedValue = String(row[col] == null ? '' : row[col]);
+                // Update the column length in case this rows value is longer than the previous length for the column.
+                headers[col].length = Math.max(formattedValue.length, headers[col].length);
+                rowContents[colIndex] = formattedValue;
+                return rowContents;
+            });
+            return rowContents;
+        });
+
+        const headersFormatted = Object
+            .keys(headers)
+            .map(header => header.padEnd(headers[header].length, ' '));
+
+        if (!headersFormatted.length) {
+            // No columns exist.
+            return;
+        }
+
+        const borderRowFormatted = headersFormatted.map(header => '─'.padEnd(header.length, '─'));
+
+        this.logGlobalEvent(`┌─${borderRowFormatted.join('─┬─')}─┐`);
+        this.logGlobalEvent(`│ ${headersFormatted.join(' │ ')} │`);
+        this.logGlobalEvent(`├─${borderRowFormatted.join('─┼─')}─┤`);
+
+        contentRows.forEach(contentRow => {
+            const contentRowFormatted = headersFormatted.map((header, colIndex) => {
+                // If the table was expanded after this row was processed, it won't have this column.
+                // Use an empty string in this case.
+                const col = contentRow[colIndex] || '';
+                return col.padEnd(header.length, ' ');
+            });
+            this.logGlobalEvent(`│ ${contentRowFormatted.join(' │ ')} │`);
+        });
+
+        this.logGlobalEvent(`└─${borderRowFormatted.join('─┴─')}─┘`);
     }
 
     log(prefix, text) {

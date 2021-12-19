@@ -8,9 +8,11 @@ const RestartProcess = require('./src/flow-control/restart-process');
 
 const concurrently = require('./src/concurrently');
 const Logger = require('./src/logger');
+const LogTimings = require( './src/flow-control/log-timings' );
 
-module.exports = (commands, options = {}) => {
+module.exports = exports = (commands, options = {}) => {
     const logger = new Logger({
+        hide: options.hide,
         outputStream: options.outputStream || process.stdout,
         prefixFormat: options.prefix,
         prefixLength: options.prefixLength,
@@ -19,8 +21,10 @@ module.exports = (commands, options = {}) => {
     });
 
     return concurrently(commands, {
+        maxProcesses: options.maxProcesses,
         raw: options.raw,
         successCondition: options.successCondition,
+        cwd: options.cwd,
         controllers: [
             new LogError({ logger }),
             new LogOutput({ logger }),
@@ -28,9 +32,10 @@ module.exports = (commands, options = {}) => {
             new InputHandler({
                 logger,
                 defaultInputTarget: options.defaultInputTarget,
-                inputStream: options.inputStream,
+                inputStream: options.inputStream || (options.handleInput && process.stdin),
+                pauseInputStreamOnFinish: options.pauseInputStreamOnFinish,
             }),
-            new KillOnSignal(),
+            new KillOnSignal({ process }),
             new RestartProcess({
                 logger,
                 delay: options.restartDelay,
@@ -39,14 +44,21 @@ module.exports = (commands, options = {}) => {
             new KillOthers({
                 logger,
                 conditions: options.killOthers
+            }),
+            new LogTimings({
+                logger: options.timings ? logger: null,
+                timestampFormat: options.timestampFormat,
             })
-        ]
+        ],
+        prefixColors: options.prefixColors || [],
+        timings: options.timings
     });
 };
 
 // Export all flow controllers and the main concurrently function,
 // so that 3rd-parties can use them however they want
 exports.concurrently = concurrently;
+exports.Logger = Logger;
 exports.InputHandler = InputHandler;
 exports.KillOnSignal = KillOnSignal;
 exports.KillOthers = KillOthers;
@@ -54,3 +66,4 @@ exports.LogError = LogError;
 exports.LogExit = LogExit;
 exports.LogOutput = LogOutput;
 exports.RestartProcess = RestartProcess;
+exports.LogTimings = LogTimings;
