@@ -45,6 +45,7 @@
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.178",
     "@types/node": "^17.0.0",
+    "@types/supports-color": "^8.1.1",
     "coveralls": "^3.1.0",
     "eslint": "^7.17.0",
     "jest": "^26.6.3",

@@ -9,7 +9,7 @@ const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
 const CompletionListener = require('./completion-listener');
 
-const getSpawnOpts = require('./get-spawn-opts');
+const { getSpawnOpts } = require('./get-spawn-opts');
 const Command = require('./command');
 
 const defaults = {
