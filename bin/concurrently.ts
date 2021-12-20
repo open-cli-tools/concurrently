@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import * as fs from 'fs';
 import yargs from 'yargs';
-import defaults from '../src/defaults';
+import * as defaults from '../src/defaults';
 import concurrently from '../index';
 import { epilogue } from './epilogue'
 
