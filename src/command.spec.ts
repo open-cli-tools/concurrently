@@ -1,39 +1,41 @@
-const EventEmitter = require('events');
-const process = require('process');
-const Command = require('./command');
+import { SpawnOptions } from 'child_process';
+import { EventEmitter } from 'events';
+import { Readable, Writable } from 'stream';
+import { ChildProcess, Command, CommandInfo, KillProcess, SpawnCommand } from './command';
 
-const createProcess = () => {
-    const process = new EventEmitter();
-    process.pid = 1;
-    return process;
-};
+let process: ChildProcess;
+let spawn: jest.Mocked<SpawnCommand>;
+let killProcess: KillProcess;
 
-const createProcessWithIO = () => {
-    const process = createProcess();
-    return Object.assign(process, {
-        stdout: new EventEmitter(),
-        stderr: new EventEmitter(),
-        stdin: new EventEmitter()
-    });
-};
+beforeEach(() => {
+    process = new class extends EventEmitter {
+        readonly pid = 1;
+        readonly stdout = new Readable({ read() {} });
+        readonly stderr = new Readable({ read() {} });
+        readonly stdin = new Writable({ write() {} });
+    };
+    spawn = jest.fn().mockReturnValue(process);
+    killProcess = jest.fn();
+});
+
+const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts?: SpawnOptions) => new Command(
+    { index: 0, name: '', command: 'echo foo', ...overrides },
+    spawnOpts,
+    spawn,
+    killProcess,
+);
 
 describe('#start()', () => {
     it('spawns process with given command and options', () => {
-        const spawn = jest.fn().mockReturnValue(createProcess());
-        const command = new Command({
-            spawn,
-            spawnOpts: { bla: true },
-            command: 'echo foo',
-        });
+        const command = createCommand({}, { detached: true });
         command.start();
 
         expect(spawn).toHaveBeenCalledTimes(1);
-        expect(spawn).toHaveBeenCalledWith(command.command, { bla: true });
+        expect(spawn).toHaveBeenCalledWith(command.command, { detached: true });
     });
 
     it('sets stdin, process and PID', () => {
-        const process = createProcessWithIO();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand();
 
         command.start();
         expect(command.process).toBe(process);
@@ -42,9 +44,7 @@ describe('#start()', () => {
     });
 
     it('shares errors to the error stream', done => {
-        const process = createProcess();
-        const command = new Command({ spawn: () => process });
-
+        const command = createCommand();
         command.error.subscribe(data => {
             expect(data).toBe('foo');
             expect(command.process).toBeUndefined();
@@ -56,8 +56,7 @@ describe('#start()', () => {
     });
 
     it('shares start and close timing events to the timing stream', done => {
-        const process = createProcess();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand();
 
         const startDate = new Date();
         const endDate = new Date(startDate.getTime() + 1000);
@@ -89,8 +88,7 @@ describe('#start()', () => {
     });
 
     it('shares start and error timing events to the timing stream', done => {
-        const process = createProcess();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand();
 
         const startDate = new Date();
         const endDate = new Date(startDate.getTime() + 1000);
@@ -122,8 +120,7 @@ describe('#start()', () => {
     });
 
     it('shares closes to the close stream with exit code', done => {
-        const process = createProcess();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand();
 
         command.close.subscribe(data => {
             expect(data.exitCode).toBe(0);
@@ -137,8 +134,7 @@ describe('#start()', () => {
     });
 
     it('shares closes to the close stream with signal', done => {
-        const process = createProcess();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand();
 
         command.close.subscribe(data => {
             expect(data.exitCode).toBe('SIGKILL');
@@ -151,8 +147,7 @@ describe('#start()', () => {
     });
 
     it('shares closes to the close stream with timing information', done => {
-        const process1 = createProcess();
-        const command = new Command({ spawn: () => process1 });
+        const command = createCommand();
 
         const startDate = new Date();
         const endDate = new Date(startDate.getTime() + 1000);
@@ -160,7 +155,7 @@ describe('#start()', () => {
             .mockReturnValueOnce(startDate.getTime())
             .mockReturnValueOnce(endDate.getTime());
 
-        jest.spyOn(process, 'hrtime')
+        jest.spyOn(global.process, 'hrtime')
             .mockReturnValueOnce([0, 0])
             .mockReturnValueOnce([1, 1e8]);
 
@@ -172,28 +167,21 @@ describe('#start()', () => {
         });
 
         command.start();
-        process1.emit('close', null, 'SIGKILL');
+        process.emit('close', null, 'SIGKILL');
     });
 
-    it('shares closes to the close stream with command info and index', done => {
-        const process = createProcess();
+    it('shares closes to the close stream with command info', done => {
         const commandInfo = {
             command: 'cmd',
             name: 'name',
             prefixColor: 'green',
             env: { VAR: 'yes' },
         };
-        const command = new Command(
-            Object.assign({
-                index: 1,
-                spawn: () => process
-            }, commandInfo)
-        );
+        const command = createCommand(commandInfo);
 
         command.close.subscribe(data => {
-            expect(data.command).toEqual(commandInfo);
+            expect(data.command).toEqual(expect.objectContaining(commandInfo));
             expect(data.killed).toBe(false);
-            expect(data.index).toBe(1);
             done();
         });
 
@@ -202,8 +190,7 @@ describe('#start()', () => {
     });
 
     it('shares stdout to the stdout stream', done => {
-        const process = createProcessWithIO();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand();
 
         command.stdout.subscribe(data => {
             expect(data.toString()).toBe('hello');
@@ -215,8 +202,7 @@ describe('#start()', () => {
     });
 
     it('shares stderr to the stdout stream', done => {
-        const process = createProcessWithIO();
-        const command = new Command({ spawn: () => process });
+        const command = createCommand();
 
         command.stderr.subscribe(data => {
             expect(data.toString()).toBe('dang');
@@ -229,11 +215,9 @@ describe('#start()', () => {
 });
 
 describe('#kill()', () => {
-    let process, killProcess, command;
+    let command: Command;
     beforeEach(() => {
-        process = createProcess();
-        killProcess = jest.fn();
-        command = new Command({ spawn: () => process, killProcess });
+        command = createCommand();
     });
 
     it('kills process', () => {

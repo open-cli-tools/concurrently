@@ -10,7 +10,7 @@ const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 const CompletionListener = require('./completion-listener');
 
 const { getSpawnOpts } = require('./get-spawn-opts');
-const Command = require('./command');
+const { Command } = require('./command');
 
 const defaults = {
     spawn,
@@ -40,20 +40,14 @@ module.exports = (commands, options) => {
         .map((command, index) => {
             // Use documented behaviour of repeating last color when specifying more commands than colors
             lastColor = options.prefixColors && options.prefixColors[index] || lastColor;
-            return new Command(
-                Object.assign({
-                    index,
-                    spawnOpts: getSpawnOpts({
-                        raw: options.raw,
-                        env: command.env,
-                        cwd: command.cwd || options.cwd,
-                    }),
-                    prefixColor: lastColor,
-                    killProcess: options.kill,
-                    spawn: options.spawn,
-                    timings: options.timings,
-                }, command)
-            );
+            return new Command(Object.assign({
+                index,
+                prefixColor: lastColor,
+            }, command), getSpawnOpts({
+                raw: options.raw,
+                env: command.env,
+                cwd: command.cwd || options.cwd,
+            }), options.spawn, options.kill);
         })
         .value();
 
