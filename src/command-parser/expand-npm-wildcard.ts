@@ -1,7 +1,9 @@
-const _ = require('lodash');
-const fs = require('fs');
+import * as fs from 'fs';
+import * as _ from 'lodash';
+import { CommandInfo } from '../command';
+import { CommandParser } from "./command-parser";
 
-module.exports = class ExpandNpmWildcard {
+export class ExpandNpmWildcard implements CommandParser {
     static readPackage() {
         try {
             const json = fs.readFileSync('package.json', { encoding: 'utf-8' });
@@ -11,11 +13,11 @@ module.exports = class ExpandNpmWildcard {
         }
     }
 
-    constructor(readPackage = ExpandNpmWildcard.readPackage) {
-        this.readPackage = readPackage;
-    }
+    private scripts?: string[];
 
-    parse(commandInfo) {
+    constructor(private readonly readPackage = ExpandNpmWildcard.readPackage) {}
+
+    parse(commandInfo: CommandInfo) {
         const [, npmCmd, cmdName, args] = commandInfo.command.match(/(npm|yarn|pnpm) run (\S+)([^&]*)/) || [];
         const wildcardPosition = (cmdName || '').indexOf('*');
 

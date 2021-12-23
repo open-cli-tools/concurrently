@@ -1,12 +1,23 @@
-const ExpandNpmWildcard = require('./expand-npm-wildcard');
-const fs = require('fs');
+import fs from 'fs';
+import { CommandInfo } from '../command';
+import { ExpandNpmWildcard } from './expand-npm-wildcard';
 
-let parser, readPkg;
+let parser: ExpandNpmWildcard;
+let readPkg: jest.Mock;
+
+const createCommandInfo = (command: string): CommandInfo => ({
+    command,
+    name: '',
+});
 
 beforeEach(() => {
     readPkg = jest.fn();
     parser = new ExpandNpmWildcard(readPkg);
 });
+
+afterEach(() => {
+    jest.restoreAllMocks();
+})
 
 describe('ExpandNpmWildcard#readPackage', () => {
     it('can read package', () => {
@@ -37,18 +48,14 @@ describe('ExpandNpmWildcard#readPackage', () => {
 });
 
 it('returns same command if not an npm run command', () => {
-    const commandInfo = {
-        command: 'npm test'
-    };
+    const commandInfo = createCommandInfo('npm test');
 
     expect(readPkg).not.toHaveBeenCalled();
     expect(parser.parse(commandInfo)).toBe(commandInfo);
 });
 
 it('returns same command if no wildcard present', () => {
-    const commandInfo = {
-        command: 'npm run foo bar'
-    };
+    const commandInfo = createCommandInfo('npm run foo bar');
 
     expect(readPkg).not.toHaveBeenCalled();
     expect(parser.parse(commandInfo)).toBe(commandInfo);
@@ -57,7 +64,7 @@ it('returns same command if no wildcard present', () => {
 it('expands to nothing if no scripts exist in package.json', () => {
     readPkg.mockReturnValue({});
 
-    expect(parser.parse({ command: 'npm run foo-*-baz qux' })).toEqual([]);
+    expect(parser.parse(createCommandInfo('npm run foo-*-baz qux'))).toEqual([]);
 });
 
 for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
@@ -70,7 +77,7 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
                 }
             });
 
-            expect(parser.parse({ command: `${npmCmd} run foo-*-baz qux` })).toEqual([
+            expect(parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`))).toEqual([
                 { name: 'bar', command: `${npmCmd} run foo-bar-baz qux` },
                 { name: '', command: `${npmCmd} run foo--baz qux` },
             ]);
@@ -95,8 +102,8 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
 
         it('caches scripts upon calls', () => {
             readPkg.mockReturnValue({});
-            parser.parse({ command: `${npmCmd} run foo-*-baz qux` });
-            parser.parse({ command: `${npmCmd} run foo-*-baz qux` });
+            parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`));
+            parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`));
 
             expect(readPkg).toHaveBeenCalledTimes(1);
         });
