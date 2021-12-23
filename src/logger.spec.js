@@ -273,6 +273,7 @@ describe('#logTable()', () => {
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
             chalk.reset('│ foo │ bar │') + '\n',
+            null,
         );
     });
 
@@ -283,6 +284,7 @@ describe('#logTable()', () => {
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
             chalk.reset('│ a   │ b      │') + '\n',
+            null,
         );
     });
 
@@ -293,10 +295,12 @@ describe('#logTable()', () => {
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
             chalk.reset('│ 123 │') + '\n',
+            null,
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
             chalk.reset('│ 456 │') + '\n',
+            null,
         );
     });
 
@@ -307,6 +311,7 @@ describe('#logTable()', () => {
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
             chalk.reset('│ 1   │') + '\n',
+            null,
         );
     });
 
@@ -317,14 +322,17 @@ describe('#logTable()', () => {
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
             chalk.reset('│ foo │ bar │') + '\n',
+            null,
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
             chalk.reset('│ 1   │     │') + '\n',
+            null,
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
             chalk.reset('│     │ 2   │') + '\n',
+            null,
         );
     });
 });
