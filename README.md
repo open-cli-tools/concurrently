@@ -203,6 +203,10 @@ Examples:
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold"
      "http-server" "npm run watch"
 
+ - Configuring via environment variables with CONCURRENTLY_ prefix
+
+     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true concurrently "echo hello" "echo world"
+
  - Send input to default
 
      $ concurrently --handle-input "nodemon" "npm run watch-js"
@@ -222,9 +226,9 @@ Examples:
 
      $ concurrently npm:watch-node npm:watch-js npm:watch-css
 
- - Shortened NPM run command with wildcard
+ - Shortened NPM run command with wildcard (make sure to wrap it in quotes!)
 
-     $ concurrently npm:watch-*
+     $ concurrently "npm:watch-*"
 
 For more details, visit https://github.com/open-cli-tools/concurrently
 ```

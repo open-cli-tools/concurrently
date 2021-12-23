@@ -1,7 +1,9 @@
-const _ = require('lodash');
-const fs = require('fs');
+import * as fs from 'fs';
+import * as _ from 'lodash';
+import { CommandInfo } from '../command';
+import { CommandParser } from "./command-parser";
 
-module.exports = class ExpandNpmWildcard {
+export class ExpandNpmWildcard implements CommandParser {
     static readPackage() {
         try {
             const json = fs.readFileSync('package.json', { encoding: 'utf-8' });
@@ -11,11 +13,11 @@ module.exports = class ExpandNpmWildcard {
         }
     }
 
-    constructor(readPackage = ExpandNpmWildcard.readPackage) {
-        this.readPackage = readPackage;
-    }
+    private scripts?: string[];
 
-    parse(commandInfo) {
+    constructor(private readonly readPackage = ExpandNpmWildcard.readPackage) {}
+
+    parse(commandInfo: CommandInfo) {
         const [, npmCmd, cmdName, args] = commandInfo.command.match(/(npm|yarn|pnpm) run (\S+)([^&]*)/) || [];
         const wildcardPosition = (cmdName || '').indexOf('*');
 
@@ -32,12 +34,21 @@ module.exports = class ExpandNpmWildcard {
         const preWildcard = _.escapeRegExp(cmdName.substr(0, wildcardPosition));
         const postWildcard = _.escapeRegExp(cmdName.substr(wildcardPosition + 1));
         const wildcardRegex = new RegExp(`^${preWildcard}(.*?)${postWildcard}$`);
+        const currentName = commandInfo.name || '';
 
         return this.scripts
-            .filter(script => wildcardRegex.test(script))
-            .map(script => Object.assign({}, commandInfo, {
-                command: `${npmCmd} run ${script}${args}`,
-                name: script
-            }));
+            .map(script => {
+                const match = script.match(wildcardRegex);
+
+                if (match) {
+                    return Object.assign({}, commandInfo, {
+                        command: `${npmCmd} run ${script}${args}`,
+                        // Will use an empty command name if command has no name and the wildcard match is empty,
+                        // e.g. if `npm:watch-*` matches `npm run watch-`.
+                        name: currentName + match[1],
+                    });
+                }
+            })
+            .filter(Boolean);
     }
 };

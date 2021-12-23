@@ -1,8 +1,8 @@
-const readline = require('readline');
-const _ = require('lodash');
-const Rx = require('rxjs');
-const { buffer, map } = require('rxjs/operators');
-const spawn = require('spawn-command');
+import * as readline from 'readline';
+import _ from 'lodash';
+import * as Rx from 'rxjs';
+import { buffer, map } from 'rxjs/operators';
+import spawn from 'spawn-command';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = prefix => new RegExp(
@@ -12,7 +12,8 @@ const createKillMessage = prefix => new RegExp(
 );
 
 const run = args => {
-    const child = spawn('node ./concurrently.js ' + args, {
+    // TODO: This should only be transpiled once. Tests become 2.5x slower doing it in every `it`.
+    const child = spawn('ts-node --transpile-only ./concurrently.ts ' + args, {
         cwd: __dirname,
         env: Object.assign({}, process.env, {
             // When upgrading from jest 23 -> 24, colors started printing in the test output.
@@ -346,7 +347,6 @@ describe('--handle-input', () => {
         }, done);
     });
 
-
     it('forwards input to process --default-input-target', done => {
         const lines = [];
         const child = run('-ki --default-input-target 1 "node fixtures/read-echo.js" "node fixtures/read-echo.js"');
@@ -379,6 +379,50 @@ describe('--handle-input', () => {
             expect(exit[0]).toBeGreaterThan(0);
             expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
             expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js')));
+            done();
+        }, done);
+    });
+});
+
+describe('--timings', () => {
+    const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
+    const processStartedMessageRegex = (index, command) => {
+        return new RegExp( `^\\[${ index }] ${ command } started at ${ defaultTimestampFormatRegex.source }$` );
+    };
+    const processStoppedMessageRegex = (index, command) => {
+        return new RegExp( `^\\[${ index }] ${ command } stopped at ${ defaultTimestampFormatRegex.source } after (\\d|,)+ms$` );
+    };
+    const expectLinesForProcessStartAndStop = (lines, index, command) => {
+        const escapedCommand = _.escapeRegExp(command);
+        expect(lines).toContainEqual(expect.stringMatching(processStartedMessageRegex(index, escapedCommand)));
+        expect(lines).toContainEqual(expect.stringMatching(processStoppedMessageRegex(index, escapedCommand)));
+    };
+
+    const expectLinesForTimingsTable = (lines) => {
+        const tableTopBorderRegex = /┌[─┬]+┐/g;
+        expect(lines).toContainEqual(expect.stringMatching(tableTopBorderRegex));
+        const tableHeaderRowRegex = /(\W+(name|duration|exit code|killed|command)\W+){5}/g;
+        expect(lines).toContainEqual(expect.stringMatching(tableHeaderRowRegex));
+        const tableBottomBorderRegex = /└[─┴]+┘/g;
+        expect(lines).toContainEqual(expect.stringMatching(tableBottomBorderRegex));
+    };
+
+    it('shows timings on success', done => {
+        const child = run('--timings "sleep 0.5" "exit 0"');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expectLinesForProcessStartAndStop(lines, 0, 'sleep 0.5');
+            expectLinesForProcessStartAndStop(lines, 1, 'exit 0');
+            expectLinesForTimingsTable(lines);
+            done();
+        }, done);
+    });
+
+    it('shows timings on failure', done => {
+        const child = run('--timings "sleep 0.75" "exit 1"');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expectLinesForProcessStartAndStop(lines, 0, 'sleep 0.75');
+            expectLinesForProcessStartAndStop(lines, 1, 'exit 1');
+            expectLinesForTimingsTable(lines);
             done();
         }, done);
     });

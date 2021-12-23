@@ -3,14 +3,14 @@ const _ = require('lodash');
 const spawn = require('spawn-command');
 const treeKill = require('tree-kill');
 
-const StripQuotes = require('./command-parser/strip-quotes');
-const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
-const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
+const { StripQuotes } = require('./command-parser/strip-quotes');
+const { ExpandNpmShortcut } = require('./command-parser/expand-npm-shortcut');
+const { ExpandNpmWildcard } = require('./command-parser/expand-npm-wildcard');
 
 const CompletionListener = require('./completion-listener');
 
-const getSpawnOpts = require('./get-spawn-opts');
-const Command = require('./command');
+const { getSpawnOpts } = require('./get-spawn-opts');
+const { Command } = require('./command');
 const OutputWriter = require('./output-writer');
 
 const defaults = {
@@ -19,6 +19,7 @@ const defaults = {
     raw: false,
     controllers: [],
     cwd: undefined,
+    timings: false
 };
 
 module.exports = (commands, options) => {
@@ -40,19 +41,14 @@ module.exports = (commands, options) => {
         .map((command, index) => {
             // Use documented behaviour of repeating last color when specifying more commands than colors
             lastColor = options.prefixColors && options.prefixColors[index] || lastColor;
-            return new Command(
-                Object.assign({
-                    index,
-                    spawnOpts: getSpawnOpts({
-                        raw: options.raw,
-                        env: command.env,
-                        cwd: command.cwd || options.cwd,
-                    }),
-                    prefixColor: lastColor,
-                    killProcess: options.kill,
-                    spawn: options.spawn,
-                }, command)
-            );
+            return new Command(Object.assign({
+                index,
+                prefixColor: lastColor,
+            }, command), getSpawnOpts({
+                raw: options.raw,
+                env: command.env,
+                cwd: command.cwd || options.cwd,
+            }), options.spawn, options.kill);
         })
         .value();
 
@@ -83,7 +79,9 @@ module.exports = (commands, options) => {
         options.logger.observable.subscribe(({command, text}) => outputWriter.write(command, text));
     }
 
-    return new CompletionListener({ successCondition: options.successCondition })
+    return new CompletionListener({
+        successCondition: options.successCondition,
+    })
         .listen(commands)
         .finally(() => {
             handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
@@ -96,6 +94,7 @@ function mapToCommandInfo(command) {
         name: command.name || '',
         env: command.env || {},
         cwd: command.cwd || '',
+
     }, command.prefixColor ? {
         prefixColor: command.prefixColor,
     } : {});

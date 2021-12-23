@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "target": "ES2019",
+        "lib": ["ES2019"],
+        "module": "CommonJS",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "allowJs": true
+    },
+    "include": ["./bin", "./src", "./index.js"]
+}

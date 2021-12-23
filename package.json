@@ -1,16 +1,19 @@
 {
   "name": "concurrently",
-  "version": "6.3.0",
+  "version": "6.5.1",
   "description": "Run commands concurrently",
-  "main": "index.js",
+  "main": "dist/index.js",
   "bin": {
-    "concurrently": "./bin/concurrently.js"
+    "concurrently": "./dist/bin/concurrently.js"
   },
   "engines": {
     "node": ">=10.0.0"
   },
   "scripts": {
+    "build": "tsc --build",
+    "clean": "tsc --build --clean",
     "lint": "eslint . --ignore-path .gitignore",
+    "prepublishOnly": "npm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"
   },
@@ -39,19 +42,25 @@
     "yargs": "^16.2.0"
   },
   "devDependencies": {
+    "@types/jest": "^27.0.3",
+    "@types/lodash": "^4.14.178",
+    "@types/node": "^17.0.0",
+    "@types/supports-color": "^8.1.1",
     "coveralls": "^3.1.0",
     "eslint": "^7.17.0",
     "jest": "^26.6.3",
-    "jest-create-mock-instance": "^1.1.0"
+    "jest-create-mock-instance": "^1.1.0",
+    "ts-jest": "^26.5.6",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
   },
   "files": [
-    "bin",
+    "dist",
     "!**/fixtures",
-    "index.js",
-    "src",
-    "!*.spec.js"
+    "!**/*.spec.js"
   ],
   "jest": {
+    "preset": "ts-jest",
     "collectCoverage": true,
     "collectCoverageFrom": [
       "src/**/*.js"
@@ -60,6 +69,10 @@
       "/fixtures/",
       "/node_modules/"
     ],
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist"
+    ]
   }
 }
