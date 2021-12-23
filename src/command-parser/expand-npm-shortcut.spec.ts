@@ -5,7 +5,6 @@ const parser = new ExpandNpmShortcut();
 const createCommandInfo = (command: string, name?: string): CommandInfo => ({
     name,
     command,
-    index: 0,
 });
 
 it('returns same command if no npm: prefix is present', () => {

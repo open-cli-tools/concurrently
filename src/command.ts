@@ -1,9 +1,9 @@
 import { ChildProcess as BaseChildProcess, SpawnOptions } from 'child_process';
 import * as Rx from 'rxjs';
 import { EventEmitter, Writable } from 'stream';
+import { number } from 'yargs';
 
 export interface CommandInfo {
-    index: number,
     name: string,
     command: string,
     env?: Record<string, any>,
@@ -12,6 +12,7 @@ export interface CommandInfo {
 
 export interface CloseEvent {
     command: CommandInfo;
+    index: number,
     killed: boolean;
     exitCode: string | number;
     timings: {
@@ -34,8 +35,6 @@ export class Command implements CommandInfo {
     private readonly killProcess: KillProcess;
     private readonly spawn: SpawnCommand;
     private readonly spawnOpts: SpawnOptions;
-
-    /** @inheritdoc */
     readonly index: number;
 
     /** @inheritdoc */
@@ -66,7 +65,7 @@ export class Command implements CommandInfo {
     }
 
     constructor(
-        { index, name, command, prefixColor, env }: CommandInfo,
+        { index, name, command, prefixColor, env }: CommandInfo & { index: number },
         spawnOpts: SpawnOptions,
         spawn: SpawnCommand,
         killProcess: KillProcess,
@@ -102,6 +101,7 @@ export class Command implements CommandInfo {
             const [durationSeconds, durationNanoSeconds] = process.hrtime(highResStartTime);
             this.close.next({
                 command: this,
+                index: this.index,
                 exitCode: exitCode === null ? signal : exitCode,
                 killed: this.killed,
                 timings: {

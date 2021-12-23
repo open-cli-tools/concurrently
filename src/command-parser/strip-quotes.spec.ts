@@ -6,7 +6,6 @@ const parser = new StripQuotes();
 const createCommandInfo = (command: string): CommandInfo => ({
     command,
     name: '',
-    index: 0
 });
 
 it('returns command as is if no single/double quote at the beginning', () => {
