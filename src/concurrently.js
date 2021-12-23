@@ -3,8 +3,8 @@ const _ = require('lodash');
 const spawn = require('spawn-command');
 const treeKill = require('tree-kill');
 
-const StripQuotes = require('./command-parser/strip-quotes');
-const ExpandNpmShortcut = require('./command-parser/expand-npm-shortcut');
+const { StripQuotes } = require('./command-parser/strip-quotes');
+const { ExpandNpmShortcut } = require('./command-parser/expand-npm-shortcut');
 const ExpandNpmWildcard = require('./command-parser/expand-npm-wildcard');
 
 const CompletionListener = require('./completion-listener');
