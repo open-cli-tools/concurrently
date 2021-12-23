@@ -1,6 +1,6 @@
 const { Writable } = require('stream');
 const { createMockInstance } = require('jest-create-mock-instance');
-const Command = require('./command');
+const { Command } = require('./command');
 const OutputWriter = require('./output-writer');
 
 function createWriter(overrides=null) {
