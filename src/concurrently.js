@@ -64,11 +64,6 @@ module.exports = (commands, options) => {
     );
     commands = handleResult.commands;
 
-    const commandsLeft = commands.slice();
-    const maxProcesses = Math.max(1, Number(options.maxProcesses) || commandsLeft.length);
-    for (let i = 0; i < maxProcesses; i++) {
-        maybeRunMore(commandsLeft);
-    }
 
     if (options.logger) {
         const outputWriter = new OutputWriter({
@@ -77,6 +72,12 @@ module.exports = (commands, options) => {
             commands,
         });
         options.logger.observable.subscribe(({command, text}) => outputWriter.write(command, text));
+    }
+
+    const commandsLeft = commands.slice();
+    const maxProcesses = Math.max(1, Number(options.maxProcesses) || commandsLeft.length);
+    for (let i = 0; i < maxProcesses; i++) {
+        maybeRunMore(commandsLeft);
     }
 
     return new CompletionListener({
