@@ -11,7 +11,7 @@ const CompletionListener = require('./completion-listener');
 
 const { getSpawnOpts } = require('./get-spawn-opts');
 const { Command } = require('./command');
-const OutputWriter = require('./output-writer');
+const { OutputWriter } = require('./output-writer');
 
 const defaults = {
     spawn,
