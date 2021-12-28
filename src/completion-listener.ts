@@ -1,13 +1,22 @@
-const Rx = require('rxjs');
-const { bufferCount, switchMap, take } = require('rxjs/operators');
+import * as Rx from 'rxjs';
+import { bufferCount, switchMap, take } from 'rxjs/operators';
+import { CloseEvent, Command } from './command';
 
-module.exports = class CompletionListener {
-    constructor({ successCondition, scheduler }) {
+export type SuccessCondition = 'first' | 'last' | 'all';
+
+export class CompletionListener {
+    private readonly successCondition: SuccessCondition;
+    private readonly scheduler?: Rx.SchedulerLike;
+
+    constructor({ successCondition = 'all', scheduler }: {
+        successCondition?: SuccessCondition,
+        scheduler?: Rx.SchedulerLike,
+    }) {
         this.successCondition = successCondition;
         this.scheduler = scheduler;
     }
 
-    isSuccess(exitCodes) {
+    private isSuccess(exitCodes: (string | number)[]) {
         switch (this.successCondition) {
         /* eslint-disable indent */
             case 'first':
@@ -22,7 +31,7 @@ module.exports = class CompletionListener {
         }
     }
 
-    listen(commands) {
+    listen(commands: Command[]): Promise<unknown> {
         const closeStreams = commands.map(command => command.close);
         return Rx.merge(...closeStreams)
             .pipe(
