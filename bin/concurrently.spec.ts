@@ -189,10 +189,10 @@ describe('--group', () => {
         const child = run('--group "echo foo && sleep 1 && echo bar" "echo baz"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines.slice(0, 4)).toEqual([
-                expect.stringMatching(/foo$/),
-                expect.stringMatching(/bar$/),
+                expect.stringContaining('foo'),
+                expect.stringContaining('bar'),
                 expect.any(String),
-                expect.stringMatching(/baz$/),
+                expect.stringContaining('baz'),
             ]);
             done();
         }, done);
