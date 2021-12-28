@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import { CommandInfo } from '../command';
-import { CommandParser } from "./command-parser";
+import { CommandParser } from './command-parser';
 
 export class ExpandNpmWildcard implements CommandParser {
     static readPackage() {

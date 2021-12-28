@@ -1,6 +1,6 @@
-import { TestScheduler } from "rxjs/testing";
-import { CompletionListener, SuccessCondition } from "./completion-listener";
-import { createFakeCloseEvent, FakeCommand } from "./fixtures/fake-command";
+import { TestScheduler } from 'rxjs/testing';
+import { CompletionListener, SuccessCondition } from './completion-listener';
+import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
 
 let commands: FakeCommand[];
 let scheduler: TestScheduler;

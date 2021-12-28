@@ -2,6 +2,7 @@ import { Writable } from 'stream';
 import { createMockInstance } from 'jest-create-mock-instance';
 import { Command } from './command';
 import { OutputWriter } from './output-writer';
+import { FakeCommand } from './fixtures/fake-command';
 
 function createWriter(overrides=null) {
     const options = Object.assign({
@@ -28,7 +29,11 @@ let outputStream: jest.Mocked<Writable>;
 let commands: Command[];
 beforeEach(() => {
     outputStream = createMockInstance(Writable);
-    commands = [createCommand(0), createCommand(1), createCommand(2)]
+    commands = [
+        new FakeCommand('', undefined, 0),
+        new FakeCommand('', undefined, 1),
+        new FakeCommand('', undefined, 2),
+    ];
 });
 
 describe('#write group=false', () => {

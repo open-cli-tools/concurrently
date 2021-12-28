@@ -1,6 +1,6 @@
-import { Command } from "../command";
-import { Logger } from "../logger";
-import { FlowController } from "./flow-controller";
+import { Command } from '../command';
+import { Logger } from '../logger';
+import { FlowController } from './flow-controller';
 
 import _ from 'lodash';
 import { filter, map } from 'rxjs/operators';

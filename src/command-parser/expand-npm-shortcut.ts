@@ -1,5 +1,5 @@
-import { CommandInfo } from "../command";
-import { CommandParser } from "./command-parser";
+import { CommandInfo } from '../command';
+import { CommandParser } from './command-parser';
 
 export class ExpandNpmShortcut implements CommandParser {
     parse(commandInfo: CommandInfo) {

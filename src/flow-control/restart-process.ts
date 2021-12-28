@@ -1,9 +1,9 @@
-import * as Rx from "rxjs";
+import * as Rx from 'rxjs';
 import { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } from 'rxjs/operators';
-import { Command } from "../command";
+import { Command } from '../command';
 import * as defaults from '../defaults';
-import { Logger } from "../logger";
-import { FlowController } from "./flow-controller";
+import { Logger } from '../logger';
+import { FlowController } from './flow-controller';
 
 export class RestartProcess implements FlowController {
     private readonly logger: Logger;

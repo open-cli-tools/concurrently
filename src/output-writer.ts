@@ -1,5 +1,5 @@
-import { Writable } from "stream";
-import { Command } from "./command";
+import { Writable } from 'stream';
+import { Command } from './command';
 import * as Rx from 'rxjs';
 
 export class OutputWriter {

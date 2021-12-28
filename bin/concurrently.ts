@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import yargs from 'yargs';
 import * as defaults from '../src/defaults';
 import concurrently from '../index';
-import { epilogue } from './epilogue'
+import { epilogue } from './epilogue';
 
 const args = yargs
     .usage('$0 [options] <command ...>')

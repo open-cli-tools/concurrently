@@ -1,6 +1,6 @@
-import { Command } from "../command";
-import { Logger } from "../logger";
-import { FlowController } from "./flow-controller";
+import { Command } from '../command';
+import { Logger } from '../logger';
+import { FlowController } from './flow-controller';
 
 export class LogError implements FlowController {
     private readonly logger: Logger;

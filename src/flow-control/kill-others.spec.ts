@@ -1,7 +1,7 @@
-import { createMockInstance } from "jest-create-mock-instance";
-import { createFakeCloseEvent, FakeCommand } from "../fixtures/fake-command";
-import { Logger } from "../logger";
-import { KillOthers, ProcessCloseCondition } from "./kill-others";
+import { createMockInstance } from 'jest-create-mock-instance';
+import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
+import { Logger } from '../logger';
+import { KillOthers, ProcessCloseCondition } from './kill-others';
 
 let commands: FakeCommand[];
 let logger: Logger;

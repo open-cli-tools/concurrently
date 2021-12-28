@@ -17,7 +17,7 @@ beforeEach(() => {
 
 afterEach(() => {
     jest.restoreAllMocks();
-})
+});
 
 describe('ExpandNpmWildcard#readPackage', () => {
     it('can read package', () => {

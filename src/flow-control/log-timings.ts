@@ -2,9 +2,9 @@ import formatDate from 'date-fns/format';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
 import { bufferCount, take } from 'rxjs/operators';
-import { CloseEvent, Command } from "../command";
-import { Logger } from "../logger";
-import { FlowController } from "./flow-controller";
+import { CloseEvent, Command } from '../command';
+import { Logger } from '../logger';
+import { FlowController } from './flow-controller';
 import * as defaults from '../defaults';
 
 export class LogTimings implements FlowController {

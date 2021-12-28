@@ -1,6 +1,6 @@
-import { Readable } from "stream";
-import { CommandIdentifier } from "./src/command";
-import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions as BaseConcurrentlyOptions } from "./src/concurrently";
+import { Readable } from 'stream';
+import { CommandIdentifier } from './src/command';
+import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions as BaseConcurrentlyOptions } from './src/concurrently';
 import { InputHandler } from './src/flow-control/input-handler';
 import { KillOnSignal } from './src/flow-control/kill-on-signal';
 import { KillOthers, ProcessCloseCondition } from './src/flow-control/kill-others';

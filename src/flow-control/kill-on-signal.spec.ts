@@ -1,7 +1,7 @@
-import { EventEmitter } from "events";
-import { Command } from "../command";
-import { createFakeCloseEvent, FakeCommand } from "../fixtures/fake-command";
-import { KillOnSignal } from "./kill-on-signal";
+import { EventEmitter } from 'events';
+import { Command } from '../command';
+import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
+import { KillOnSignal } from './kill-on-signal';
 
 let commands: Command[];
 let controller: KillOnSignal;
