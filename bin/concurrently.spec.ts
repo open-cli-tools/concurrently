@@ -186,7 +186,7 @@ describe('--hide', () => {
 
 describe('--group', () => {
     it('groups output per process', done => {
-        const child = run('--group "echo foo; sleep 1; echo bar" "echo baz"');
+        const child = run('--group "echo foo && sleep 1 && echo bar" "echo baz"');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
             expect(lines.slice(0, 4)).toEqual([
                 expect.stringMatching(/foo$/),
