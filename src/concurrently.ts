@@ -1,17 +1,18 @@
-const assert = require('assert');
-const _ = require('lodash');
-const spawn = require('spawn-command');
-const treeKill = require('tree-kill');
-
-const { StripQuotes } = require('./command-parser/strip-quotes');
-const { ExpandNpmShortcut } = require('./command-parser/expand-npm-shortcut');
-const { ExpandNpmWildcard } = require('./command-parser/expand-npm-wildcard');
-
-const { CompletionListener } = require('./completion-listener');
-
-const { getSpawnOpts } = require('./get-spawn-opts');
-const { Command } = require('./command');
-const { OutputWriter } = require('./output-writer');
+import assert from 'assert';
+import _ from 'lodash';
+import spawn from 'spawn-command';
+import { Writable } from 'stream';
+import treeKill from 'tree-kill';
+import { Command, CommandInfo, KillProcess, SpawnCommand } from './command';
+import { CommandParser } from './command-parser/command-parser';
+import { ExpandNpmShortcut } from './command-parser/expand-npm-shortcut';
+import { ExpandNpmWildcard } from './command-parser/expand-npm-wildcard';
+import { StripQuotes } from './command-parser/strip-quotes';
+import { CompletionListener, SuccessCondition } from './completion-listener';
+import { FlowController } from './flow-control/flow-controller';
+import { getSpawnOpts } from './get-spawn-opts';
+import { Logger } from './logger';
+import { OutputWriter } from './output-writer';
 
 const defaults = {
     spawn,
@@ -19,14 +20,28 @@ const defaults = {
     raw: false,
     controllers: [],
     cwd: undefined,
-    timings: false
 };
 
-module.exports = (commands, options) => {
-    assert.ok(Array.isArray(commands), '[concurrently] commands should be an array');
-    assert.notStrictEqual(commands.length, 0, '[concurrently] no commands provided');
+export type ConcurrentlyCommandInput = string | Partial<CommandInfo>;
+export type ConcurrentlyOptions = {
+    logger?: Logger,
+    outputStream?: Writable,
+    group?: boolean,
+    prefixColors?: string[],
+    maxProcesses?: number,
+    raw?: boolean,
+    cwd?: string,
+    successCondition?: SuccessCondition,
+    controllers?: FlowController[],
+    spawn?: SpawnCommand,
+    kill?: KillProcess,
+};
 
-    options = _.defaults(options, defaults);
+export function concurrently(baseCommands: ConcurrentlyCommandInput[], baseOptions?: Partial<ConcurrentlyOptions>) {
+    assert.ok(Array.isArray(baseCommands), '[concurrently] commands should be an array');
+    assert.notStrictEqual(baseCommands.length, 0, '[concurrently] no commands provided');
+
+    const options = _.defaults(baseOptions, defaults);
 
     const commandParsers = [
         new StripQuotes(),
@@ -35,7 +50,7 @@ module.exports = (commands, options) => {
     ];
 
     let lastColor = '';
-    commands = _(commands)
+    let commands = _(baseCommands)
         .map(mapToCommandInfo)
         .flatMap(command => parseCommand(command, commandParsers))
         .map((command, index) => {
@@ -89,26 +104,34 @@ module.exports = (commands, options) => {
         });
 };
 
-function mapToCommandInfo(command) {
+function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
+    if (typeof command === 'string') {
+        return {
+            command,
+            name: '',
+            env: {},
+            cwd: '',
+        };
+    }
+
     return Object.assign({
-        command: command.command || command,
+        command: command.command,
         name: command.name || '',
         env: command.env || {},
         cwd: command.cwd || '',
-
     }, command.prefixColor ? {
         prefixColor: command.prefixColor,
     } : {});
 }
 
-function parseCommand(command, parsers) {
+function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
         (commands, parser) => _.flatMap(commands, command => parser.parse(command)),
         _.castArray(command)
     );
 }
 
-function maybeRunMore(commandsLeft) {
+function maybeRunMore(commandsLeft: Command[]) {
     const command = commandsLeft.shift();
     if (!command) {
         return;

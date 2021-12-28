@@ -1,21 +1,21 @@
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Readable } from 'stream';
-import { Command } from '../command';
+import { Command, CommandIdentifier } from '../command';
 import * as defaults from '../defaults';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 
 export class InputHandler implements FlowController {
     private readonly logger: Logger;
-    private readonly defaultInputTarget: string | number;
+    private readonly defaultInputTarget: CommandIdentifier;
     private readonly inputStream: Readable;
     private readonly pauseInputStreamOnFinish: boolean;
 
     constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }: {
         inputStream: Readable,
         logger: Logger,
-        defaultInputTarget?: string | number,
+        defaultInputTarget?: CommandIdentifier,
         pauseInputStreamOnFinish?: boolean,
     }) {
         this.logger = logger;

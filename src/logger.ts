@@ -4,9 +4,7 @@ import formatDate from 'date-fns/format';
 import * as Rx from 'rxjs';
 
 import * as defaults from './defaults';
-import { Command } from './command';
-
-type CommandIdentifier = string | number;
+import { Command, CommandIdentifier } from './command';
 
 export class Logger {
     private readonly hide: CommandIdentifier[];

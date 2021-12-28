@@ -2,6 +2,8 @@
 // It's read by the flow controllers, the executable, etc.
 // Refer to tests for the meaning of the different possible values.
 
+import { SuccessCondition } from "./completion-listener";
+
 export const defaultInputTarget = 0;
 
 /**
@@ -50,7 +52,7 @@ export const restartDelay = 0;
 /**
  * Condition of success for concurrently itself.
  */
-export const success = 'all';
+export const success = 'all' as SuccessCondition;
 
 /**
  * Date format used when logging date/time.

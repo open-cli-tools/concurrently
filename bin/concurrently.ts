@@ -42,7 +42,7 @@ const args = yargs
                 'Return exit code of zero or one based on the success or failure ' +
                 'of the "first" child to terminate, the "last child", or succeed ' +
                 'only if "all" child processes succeed.',
-            choices: ['first', 'last', 'all'],
+            choices: ['first', 'last', 'all'] as const,
             default: defaults.success
         },
         'raw': {
@@ -166,25 +166,25 @@ const args = yargs
 const names = (args.names || '').split(args['name-separator']);
 
 concurrently(args._.map((command, index) => ({
-    command,
+    command: String(command),
     name: names[index]
 })), {
-    handleInput: args.handleInput,
-    defaultInputTarget: args.defaultInputTarget,
+    handleInput: args['handle-input'],
+    defaultInputTarget: args['default-input-target'],
     killOthers: args.killOthers
         ? ['success', 'failure']
         : (args.killOthersOnFail ? ['failure'] : []),
-    maxProcesses: args.maxProcesses,
+    maxProcesses: args['max-processes'],
     raw: args.raw,
     hide: args.hide.split(','),
     group: args.group,
     prefix: args.prefix,
     prefixColors: args['prefix-colors'].split(','),
-    prefixLength: args.prefixLength,
-    restartDelay: args.restartAfter,
-    restartTries: args.restartTries,
+    prefixLength: args['prefix-length'],
+    restartDelay: args['restart-after'],
+    restartTries: args['restart-tries'],
     successCondition: args.success,
-    timestampFormat: args.timestampFormat,
+    timestampFormat: args['timestamp-format'],
     timings: args.timings
 }).then(
     () => process.exit(0),

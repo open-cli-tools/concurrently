@@ -1,11 +1,14 @@
-const EventEmitter = require('events');
+import { KillProcess, SpawnCommand } from './command';
+import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';
+import { createFakeProcess, FakeCommand } from './fixtures/fake-command';
+import { FlowController } from './flow-control/flow-controller';
 
-const createFakeCommand = require('./flow-control/fixtures/fake-command');
-const FakeHandler = require('./flow-control/fixtures/fake-handler');
-const concurrently = require('./concurrently');
-
-let spawn, kill, controllers, processes = [];
-const create = (commands, options = {}) => concurrently(
+let spawn: SpawnCommand;
+let kill: KillProcess;
+let onFinishHooks: (() => void)[];
+let controllers: jest.Mocked<FlowController>[];
+let processes = [];
+const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) => concurrently(
     commands,
     Object.assign(options, { controllers, spawn, kill })
 );
@@ -13,17 +16,21 @@ const create = (commands, options = {}) => concurrently(
 beforeEach(() => {
     processes = [];
     spawn = jest.fn(() => {
-        const process = new EventEmitter();
+        const process = createFakeProcess(processes.length);
         processes.push(process);
-        process.pid = processes.length;
         return process;
     });
     kill = jest.fn();
-    controllers = [new FakeHandler(), new FakeHandler()];
+
+    onFinishHooks = [jest.fn(), jest.fn()];
+    controllers = [
+        { handle: jest.fn(commands => ({ commands, onFinish: onFinishHooks[0] })) },
+        { handle: jest.fn(commands => ({ commands, onFinish: onFinishHooks[1] })) },
+    ];
 });
 
 it('fails if commands is not an array', () => {
-    const bomb = () => create('foo');
+    const bomb = () => create('foo' as any);
     expect(bomb).toThrowError();
 });
 
@@ -98,7 +105,7 @@ it('runs commands with a list of colors', () => {
 });
 
 it('passes commands wrapped from a controller to the next one', () => {
-    const fakeCommand = createFakeCommand('banana', 'banana');
+    const fakeCommand = new FakeCommand('banana', 'banana');
     controllers[0].handle.mockReturnValue({ commands: [fakeCommand] });
 
     create(['echo']);
@@ -183,17 +190,17 @@ it('uses overridden cwd option for each command if specified', () => {
 it('runs onFinish hook after all commands run', async () => {
     const promise = create(['foo', 'bar'], { maxProcesses: 1 });
     expect(spawn).toHaveBeenCalledTimes(1);
-    expect(controllers[0].onFinish).not.toHaveBeenCalled();
-    expect(controllers[1].onFinish).not.toHaveBeenCalled();
+    expect(onFinishHooks[0]).not.toHaveBeenCalled();
+    expect(onFinishHooks[1]).not.toHaveBeenCalled();
 
     processes[0].emit('close', 0, null);
     expect(spawn).toHaveBeenCalledTimes(2);
-    expect(controllers[0].onFinish).not.toHaveBeenCalled();
-    expect(controllers[1].onFinish).not.toHaveBeenCalled();
+    expect(onFinishHooks[0]).not.toHaveBeenCalled();
+    expect(onFinishHooks[1]).not.toHaveBeenCalled();
 
     processes[1].emit('close', 0, null);
     await promise;
 
-    expect(controllers[0].onFinish).toHaveBeenCalled();
-    expect(controllers[1].onFinish).toHaveBeenCalled();
+    expect(onFinishHooks[0]).toHaveBeenCalled();
+    expect(onFinishHooks[1]).toHaveBeenCalled();
 });

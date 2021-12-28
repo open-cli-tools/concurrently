@@ -1,6 +1,7 @@
+import EventEmitter from "events";
 import { createMockInstance } from "jest-create-mock-instance";
-import { Writable } from "stream";
-import { CloseEvent, Command, CommandInfo } from "../command";
+import { PassThrough, Writable } from "stream";
+import { ChildProcess, CloseEvent, Command, CommandInfo } from "../command";
 
 export class FakeCommand extends Command {
     // Type-safe workaround for setting `killable` to a custom value.
@@ -22,6 +23,13 @@ export class FakeCommand extends Command {
         this.kill = jest.fn();
     }
 }
+
+export const createFakeProcess = (pid: number): ChildProcess => Object.assign(new EventEmitter(), {
+    pid,
+    stdin: new PassThrough(),
+    stdout: new PassThrough(),
+    stderr: new PassThrough(),
+});
 
 export const createFakeCloseEvent = (overrides?: Partial<CloseEvent>): CloseEvent => ({
     command: new FakeCommand(),
