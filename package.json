@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc --build",
     "clean": "tsc --build --clean",
-    "lint": "eslint . --ignore-path .gitignore",
+    "lint": "eslint . --ext js,ts --ignore-path .gitignore",
     "prepublishOnly": "npm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"
@@ -46,6 +46,8 @@
     "@types/lodash": "^4.14.178",
     "@types/node": "^17.0.0",
     "@types/supports-color": "^8.1.1",
+    "@typescript-eslint/eslint-plugin": "^5.8.1",
+    "@typescript-eslint/parser": "^5.8.1",
     "coveralls": "^3.1.0",
     "eslint": "^7.17.0",
     "jest": "^26.6.3",

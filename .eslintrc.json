@@ -4,6 +4,7 @@
         "browser": false,
         "node": true
     },
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 8
     },
