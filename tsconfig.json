@@ -10,5 +10,5 @@
         "resolveJsonModule": true,
         "allowJs": true
     },
-    "include": ["./bin", "./src", "index.ts", "package.json"]
+    "include": ["./bin", "./declarations", "./src", "index.ts", "package.json"]
 }
