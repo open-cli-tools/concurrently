@@ -3,6 +3,10 @@ import * as _ from 'lodash';
 import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
 
+/**
+ * Finds wildcards in npm/yarn/pnpm run commands and replaces them with all matching scripts in the
+ * `package.json` file of the current directory.
+ */
 export class ExpandNpmWildcard implements CommandParser {
     static readPackage() {
         try {
