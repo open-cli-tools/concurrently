@@ -65,6 +65,11 @@ const args = yargs
             default: defaults.hide,
             type: 'string'
         },
+        'group': {
+            alias: 'g',
+            describe: 'Order the output as if the commands were run sequentially.',
+            type: 'boolean'
+        },
         'timings': {
             describe: 'Show timing information for all processes',
             type: 'boolean',
@@ -150,7 +155,7 @@ const args = yargs
                 'Can be either the index or the name of the process.'
         }
     })
-    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color', 'hide', 'timings'], 'General')
+    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color', 'hide', 'group', 'timings'], 'General')
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
@@ -172,6 +177,7 @@ concurrently(args._.map((command, index) => ({
     maxProcesses: args.maxProcesses,
     raw: args.raw,
     hide: args.hide.split(','),
+    group: args.group,
     prefix: args.prefix,
     prefixColors: args['prefix-colors'].split(','),
     prefixLength: args.prefixLength,

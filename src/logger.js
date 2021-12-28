@@ -1,20 +1,21 @@
 const chalk = require('chalk');
 const _ = require('lodash');
 const formatDate = require('date-fns/format');
+const Rx = require('rxjs');
 
 const defaults = require('./defaults');
 
 module.exports = class Logger {
-    constructor({ hide, outputStream, prefixFormat, prefixLength, raw, timestampFormat }) {
+    constructor({ hide, prefixFormat, prefixLength, raw, timestampFormat }) {
         // To avoid empty strings from hiding the output of commands that don't have a name,
         // keep in the list of commands to hide only strings with some length.
         // This might happen through the CLI when no `--hide` argument is specified, for example.
         this.hide = _.castArray(hide).filter(name => name || name === 0).map(String);
         this.raw = raw;
-        this.outputStream = outputStream;
         this.prefixFormat = prefixFormat;
         this.prefixLength = prefixLength || defaults.prefixLength;
         this.timestampFormat = timestampFormat || defaults.timestampFormat;
+        this.output = new Rx.Subject();
     }
 
     shortenText(text) {
@@ -85,7 +86,7 @@ module.exports = class Logger {
         }
 
         const prefix = this.colorText(command, this.getPrefix(command));
-        return this.log(prefix + (prefix ? ' ' : ''), text);
+        return this.log(prefix + (prefix ? ' ' : ''), text, command);
     }
 
     logGlobalEvent(text) {
@@ -93,7 +94,7 @@ module.exports = class Logger {
             return;
         }
 
-        this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n');
+        this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n', null);
     }
 
     logTable(tableContents) {
@@ -153,9 +154,9 @@ module.exports = class Logger {
         this.logGlobalEvent(`└─${borderRowFormatted.join('─┴─')}─┘`);
     }
 
-    log(prefix, text) {
+    log(prefix, text, command) {
         if (this.raw) {
-            return this.outputStream.write(text);
+            return this.emit(command, text);
         }
 
         // #70 - replace some ANSI code that would impact clearing lines
@@ -171,10 +172,14 @@ module.exports = class Logger {
         });
 
         if (!this.lastChar || this.lastChar === '\n') {
-            this.outputStream.write(prefix);
+            this.emit(command, prefix);
         }
 
         this.lastChar = text[text.length - 1];
-        this.outputStream.write(lines.join('\n'));
+        this.emit(command, lines.join('\n'));
+    }
+
+    emit(command, text) {
+        this.output.next({ command, text });
     }
 };

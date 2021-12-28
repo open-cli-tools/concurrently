@@ -59,6 +59,7 @@ export class Command implements CommandInfo {
     stdin?: Writable;
     pid?: number;
     killed = false;
+    exited = false;
 
     get killable() {
         return !!this.process;
@@ -96,6 +97,8 @@ export class Command implements CommandInfo {
         });
         Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'close').subscribe(([exitCode, signal]) => {
             this.process = undefined;
+            this.exited = true;
+
             const endDate = new Date(Date.now());
             this.timer.next({ startDate, endDate });
             const [durationSeconds, durationNanoSeconds] = process.hrtime(highResStartTime);
