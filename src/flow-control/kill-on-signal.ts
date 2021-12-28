@@ -26,7 +26,7 @@ export class KillOnSignal implements FlowController {
                     return Object.assign({}, exitInfo, { exitCode });
                 }));
                 return new Proxy(command, {
-                    get(target, prop) {
+                    get(target, prop: keyof Command) {
                         return prop === 'close' ? closeStream : target[prop];
                     }
                 });

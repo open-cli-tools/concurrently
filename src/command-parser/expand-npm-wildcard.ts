@@ -49,6 +49,6 @@ export class ExpandNpmWildcard implements CommandParser {
                     });
                 }
             })
-            .filter(Boolean);
+            .filter((commandInfo): commandInfo is CommandInfo => !!commandInfo);
     }
 };

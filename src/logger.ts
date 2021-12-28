@@ -9,7 +9,7 @@ import { Command, CommandIdentifier } from './command';
 export class Logger {
     private readonly hide: CommandIdentifier[];
     private readonly raw: boolean;
-    private readonly prefixFormat: string;
+    private readonly prefixFormat?: string;
     private readonly prefixLength: number;
     private readonly timestampFormat: string;
     private lastChar?: string;
@@ -47,14 +47,13 @@ export class Logger {
         return beginnning + ellipsis + end;
     }
 
-    getPrefixesFor(command: Command) {
+    private getPrefixesFor(command: Command): Record<string, string> {
         return {
-            none: '',
-            pid: command.pid,
-            index: command.index,
+            pid: String(command.pid),
+            index: String(command.index),
             name: command.name,
             command: this.shortenText(command.command),
-            time: formatDate(Date.now(), this.timestampFormat)
+            time: formatDate(Date.now(), this.timestampFormat),
         };
     }
 
@@ -108,7 +107,7 @@ export class Logger {
             return;
         }
 
-        this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n', null);
+        this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n');
     }
 
     logTable(tableContents: any[]) {
@@ -118,14 +117,13 @@ export class Logger {
         }
 
         let nextColIndex = 0;
-        const headers = {};
+        const headers: Record<string, { index: number, length: number }> = {};
         const contentRows = tableContents.map(row => {
-            const rowContents = [];
+            const rowContents: string[] = [];
             Object.keys(row).forEach((col) => {
                 if (!headers[col]) {
                     headers[col] = {
                         index: nextColIndex++,
-                        //
                         length: col.length,
                     };
                 }

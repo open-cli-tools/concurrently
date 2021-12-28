@@ -18,8 +18,8 @@ export class RestartProcess implements FlowController {
         scheduler?: Rx.SchedulerLike
     }) {
         this.logger = logger;
-        this.delay = +delay || defaults.restartDelay;
-        this.tries = +tries || defaults.restartTries;
+        this.delay = delay != null ? +delay : defaults.restartDelay;
+        this.tries = tries != null ? +tries : defaults.restartTries;
         this.tries = this.tries < 0 ? Infinity : this.tries;
         this.scheduler = scheduler;
     }
@@ -56,7 +56,7 @@ export class RestartProcess implements FlowController {
                 }));
 
                 return new Proxy(command, {
-                    get(target, prop) {
+                    get(target, prop: keyof Command) {
                         return prop === 'close' ? closeStream : target[prop];
                     }
                 });

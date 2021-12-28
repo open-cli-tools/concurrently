@@ -5,13 +5,17 @@ import { buffer, map } from 'rxjs/operators';
 import spawn from 'spawn-command';
 
 const isWindows = process.platform === 'win32';
-const createKillMessage = prefix => new RegExp(
+const createKillMessage = (prefix: string) => new RegExp(
     _.escapeRegExp(prefix) +
     ' exited with code ' +
     (isWindows ? 1 : '(SIGTERM|143)')
 );
 
-const run = args => {
+/**
+ * Creates a child process running concurrently with the given args.
+ * Returns observables for its combined stdout + stderr output, close events, pid, and stdin stream.
+ */
+const run = (args: string) => {
     // TODO: This should only be transpiled once. Tests become 2.5x slower doing it in every `it`.
     const child = spawn('ts-node --transpile-only ./concurrently.ts ' + args, {
         cwd: __dirname,
@@ -32,10 +36,10 @@ const run = args => {
         output: null
     });
 
-    const close = Rx.fromEvent(child, 'close');
+    const close = Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'close');
     const log = Rx.merge(
-        Rx.fromEvent(stdout, 'line'),
-        Rx.fromEvent(stderr, 'line')
+        Rx.fromEvent<Buffer>(stdout, 'line'),
+        Rx.fromEvent<Buffer>(stderr, 'line')
     ).pipe(map(data => data.toString()));
 
     return {
@@ -363,7 +367,7 @@ describe('--handle-input', () => {
     });
 
     it('forwards input to process --default-input-target', done => {
-        const lines = [];
+        const lines: string[] = [];
         const child = run('-ki --default-input-target 1 "node fixtures/read-echo.js" "node fixtures/read-echo.js"');
         child.log.subscribe(line => {
             lines.push(line);
@@ -381,7 +385,7 @@ describe('--handle-input', () => {
     });
 
     it('forwards input to specified process', done => {
-        const lines = [];
+        const lines: string[] = [];
         const child = run('-ki "node fixtures/read-echo.js" "node fixtures/read-echo.js"');
         child.log.subscribe(line => {
             lines.push(line);
@@ -401,19 +405,19 @@ describe('--handle-input', () => {
 
 describe('--timings', () => {
     const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
-    const processStartedMessageRegex = (index, command) => {
+    const processStartedMessageRegex = (index: number, command: string) => {
         return new RegExp( `^\\[${ index }] ${ command } started at ${ defaultTimestampFormatRegex.source }$` );
     };
-    const processStoppedMessageRegex = (index, command) => {
+    const processStoppedMessageRegex = (index: number, command: string) => {
         return new RegExp( `^\\[${ index }] ${ command } stopped at ${ defaultTimestampFormatRegex.source } after (\\d|,)+ms$` );
     };
-    const expectLinesForProcessStartAndStop = (lines, index, command) => {
+    const expectLinesForProcessStartAndStop = (lines: string[], index: number, command: string) => {
         const escapedCommand = _.escapeRegExp(command);
         expect(lines).toContainEqual(expect.stringMatching(processStartedMessageRegex(index, escapedCommand)));
         expect(lines).toContainEqual(expect.stringMatching(processStoppedMessageRegex(index, escapedCommand)));
     };
 
-    const expectLinesForTimingsTable = (lines) => {
+    const expectLinesForTimingsTable = (lines: string[]) => {
         const tableTopBorderRegex = /┌[─┬]+┐/g;
         expect(lines).toContainEqual(expect.stringMatching(tableTopBorderRegex));
         const tableHeaderRowRegex = /(\W+(name|duration|exit code|killed|command)\W+){5}/g;

@@ -5,6 +5,7 @@
         "lib": ["ES2019"],
         "module": "CommonJS",
         "moduleResolution": "node",
+        "noImplicitAny": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
         "resolveJsonModule": true,

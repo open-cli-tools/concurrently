@@ -1,4 +1,4 @@
-import { KillProcess, SpawnCommand } from './command';
+import { ChildProcess, KillProcess, SpawnCommand } from './command';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';
 import { createFakeProcess, FakeCommand } from './fixtures/fake-command';
 import { FlowController } from './flow-control/flow-controller';
@@ -7,7 +7,7 @@ let spawn: SpawnCommand;
 let kill: KillProcess;
 let onFinishHooks: (() => void)[];
 let controllers: jest.Mocked<FlowController>[];
-let processes = [];
+let processes: ChildProcess[];
 const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) => concurrently(
     commands,
     Object.assign(options, { controllers, spawn, kill })

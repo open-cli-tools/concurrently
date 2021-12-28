@@ -14,7 +14,7 @@ import { getSpawnOpts } from './get-spawn-opts';
 import { Logger } from './logger';
 import { OutputWriter } from './output-writer';
 
-const defaults = {
+const defaults: ConcurrentlyOptions = {
     spawn,
     kill: treeKill,
     raw: false,
@@ -32,9 +32,9 @@ export type ConcurrentlyOptions = {
     raw?: boolean,
     cwd?: string,
     successCondition?: SuccessCondition,
-    controllers?: FlowController[],
-    spawn?: SpawnCommand,
-    kill?: KillProcess,
+    controllers: FlowController[],
+    spawn: SpawnCommand,
+    kill: KillProcess,
 };
 
 export function concurrently(baseCommands: ConcurrentlyCommandInput[], baseOptions?: Partial<ConcurrentlyOptions>) {
@@ -43,7 +43,7 @@ export function concurrently(baseCommands: ConcurrentlyCommandInput[], baseOptio
 
     const options = _.defaults(baseOptions, defaults);
 
-    const commandParsers = [
+    const commandParsers: CommandParser[] = [
         new StripQuotes(),
         new ExpandNpmShortcut(),
         new ExpandNpmWildcard()

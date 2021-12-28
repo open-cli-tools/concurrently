@@ -7,8 +7,26 @@ import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 import * as defaults from '../defaults';
 
+interface TimingInfo {
+    name: string,
+    duration: string,
+    'exit code': string | number,
+    killed: boolean,
+    command: string,
+}
 export class LogTimings implements FlowController {
-    private readonly logger: Logger;
+    static mapCloseEventToTimingInfo({ command, timings, killed, exitCode }: CloseEvent): TimingInfo {
+        const readableDurationMs = (timings.endDate.getTime() - timings.startDate.getTime()).toLocaleString();
+        return {
+            name: command.name,
+            duration: readableDurationMs,
+            'exit code': exitCode,
+            killed,
+            command: command.command,
+        };
+    }
+
+    private readonly logger?: Logger;
     private readonly timestampFormat: string;
 
     constructor({ logger, timestampFormat = defaults.timestampFormat }: {
@@ -23,20 +41,11 @@ export class LogTimings implements FlowController {
         const exitInfoTable = _(exitInfos)
             .sortBy(({ timings }) => timings.durationSeconds)
             .reverse()
-            .map(({ command, timings, killed, exitCode }) => {
-                const readableDurationMs = (timings.endDate.getTime() - timings.startDate.getTime()).toLocaleString();
-                return {
-                    name: command.name,
-                    duration: `${readableDurationMs}ms`,
-                    'exit code': exitCode,
-                    killed,
-                    command: command.command,
-                };
-            })
+            .map(LogTimings.mapCloseEventToTimingInfo)
             .value();
 
-        this.logger.logGlobalEvent('Timings:');
-        this.logger.logTable(exitInfoTable);
+        this.logger?.logGlobalEvent('Timings:');
+        this.logger?.logTable(exitInfoTable);
         return exitInfos;
     };
 
@@ -50,11 +59,11 @@ export class LogTimings implements FlowController {
             command.timer.subscribe(({ startDate, endDate }) => {
                 if (!endDate) {
                     const formattedStartDate = formatDate(startDate, this.timestampFormat);
-                    this.logger.logCommandEvent(`${command.command} started at ${formattedStartDate}`, command);
+                    this.logger?.logCommandEvent(`${command.command} started at ${formattedStartDate}`, command);
                 } else {
                     const durationMs = endDate.getTime() - startDate.getTime();
                     const formattedEndDate = formatDate(endDate, this.timestampFormat);
-                    this.logger.logCommandEvent(`${command.command} stopped at ${formattedEndDate} after ${durationMs.toLocaleString()}ms`, command);
+                    this.logger?.logCommandEvent(`${command.command} stopped at ${formattedEndDate} after ${durationMs.toLocaleString()}ms`, command);
                 }
             });
         });

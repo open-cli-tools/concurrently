@@ -34,7 +34,7 @@ export class OutputWriter {
         }
     }
 
-    write(command, text) {
+    write(command: Command | undefined, text: string) {
         if (this.group && command) {
             if (command.index <= this.activeCommandIndex) {
                 this.outputStream.write(text);
@@ -47,7 +47,7 @@ export class OutputWriter {
         }
     }
 
-    flushBuffer(index) {
+    private flushBuffer(index: number) {
         this.buffers[index].forEach(t => this.outputStream.write(t));
         this.buffers[index] = [];
     }

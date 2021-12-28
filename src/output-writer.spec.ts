@@ -1,10 +1,9 @@
 import { Writable } from 'stream';
 import { createMockInstance } from 'jest-create-mock-instance';
-import { Command } from './command';
 import { OutputWriter } from './output-writer';
-import { FakeCommand } from './fixtures/fake-command';
+import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
 
-function createWriter(overrides=null) {
+function createWriter(overrides?: { group: boolean }) {
     const options = Object.assign({
         outputStream,
         group: false,
@@ -13,20 +12,13 @@ function createWriter(overrides=null) {
     return new OutputWriter(options);
 }
 
-const createCommand = (index: number) => new Command(
-    { index, name: '', command: 'echo foo' },
-    {},
-    jest.fn(),
-    jest.fn(),
-);
-
-function closeCommand(command) {
+function closeCommand(command: FakeCommand) {
     command.exited = true;
-    command.close.next(command);
+    command.close.next(createFakeCloseEvent({ command, index: command.index }));
 }
 
 let outputStream: jest.Mocked<Writable>;
-let commands: Command[];
+let commands: FakeCommand[];
 beforeEach(() => {
     outputStream = createMockInstance(Writable);
     commands = [
@@ -48,7 +40,7 @@ describe('#write group=false', () => {
 describe('#write group=true', () => {
     it('writes for null commands', () => {
         const writer = createWriter({ group: true });
-        writer.write(null, 'hello');
+        writer.write(undefined, 'hello');
         expect(outputStream.write).toHaveBeenCalledTimes(1);
         expect(outputStream.write).toHaveBeenCalledWith('hello');
     });
@@ -62,7 +54,7 @@ describe('#write group=true', () => {
 
     it('write instantly for active command', () => {
         const writer = createWriter({ group: true });
-        writer.write({index: 0}, 'hello');
+        writer.write(commands[0], 'hello');
         expect(outputStream.write).toHaveBeenCalledTimes(1);
         expect(outputStream.write).toHaveBeenCalledWith('hello');
     });
@@ -77,7 +69,7 @@ describe('#write group=true', () => {
         expect(writer.activeCommandIndex).toBe(1);
         outputStream.write.mockClear();
 
-        writer.write({index: 1}, 'blah');
+        writer.write(commands[1], 'blah');
         expect(outputStream.write).toHaveBeenCalledTimes(1);
     });
 
@@ -94,7 +86,7 @@ describe('#write group=true', () => {
 
     it('flushes multiple commands at a time if necessary', () => {
         const writer = createWriter({ group: true });
-        writer.write({index: 2}, 'hello');
+        writer.write(commands[2], 'hello');
         closeCommand(commands[1]);
         closeCommand(commands[2]);
         expect(outputStream.write).toHaveBeenCalledTimes(0);

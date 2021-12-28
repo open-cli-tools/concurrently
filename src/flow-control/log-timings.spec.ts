@@ -16,17 +16,6 @@ const getDurationText = (startDate: Date, endDate: Date) => `${(endDate.getTime(
 const command0DurationTextMs = getDurationText(startDate0, endDate0);
 const command1DurationTextMs = getDurationText(startDate1, endDate1);
 
-const exitInfoToTimingInfo = ({ command, timings, killed, exitCode }) => {
-    const readableDurationMs = getDurationText(timings.startDate, timings.endDate);
-    return {
-        name: command.name,
-        duration: readableDurationMs,
-        'exit code': exitCode,
-        killed,
-        command: command.command,
-    };
-};
-
 let controller: LogTimings;
 let logger: Logger;
 let commands: FakeCommand[];
@@ -133,8 +122,8 @@ it('logs the sorted timings summary when all processes close successfully', () =
 
     // sorted by duration
     expect(logger.logTable).toHaveBeenCalledWith([
-        exitInfoToTimingInfo(command1ExitInfo),
-        exitInfoToTimingInfo(command0ExitInfo)
+        LogTimings.mapCloseEventToTimingInfo(command1ExitInfo),
+        LogTimings.mapCloseEventToTimingInfo(command0ExitInfo)
     ]);
 
 });

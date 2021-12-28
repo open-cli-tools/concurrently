@@ -64,7 +64,7 @@ export const timestampFormat = 'yyyy-MM-dd HH:mm:ss.SSS';
  * Current working dir passed as option to spawn command.
  * Defaults to process.cwd()
  */
-export const cwd = undefined;
+export const cwd: string | undefined = undefined;
 
 /**
  * Whether to show timing information for processes in console output
