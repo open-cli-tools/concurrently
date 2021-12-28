@@ -2,7 +2,7 @@ import * as Rx from "rxjs";
 import { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } from 'rxjs/operators';
 import { Command } from "../command";
 import * as defaults from '../defaults';
-import Logger from "../logger";
+import { Logger } from "../logger";
 import { FlowController } from "./flow-controller";
 
 export class RestartProcess implements FlowController {

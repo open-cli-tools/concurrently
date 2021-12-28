@@ -3,7 +3,7 @@ import { map } from 'rxjs/operators';
 import { Readable } from 'stream';
 import { Command } from '../command';
 import * as defaults from '../defaults';
-import Logger from '../logger';
+import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 
 export class InputHandler implements FlowController {

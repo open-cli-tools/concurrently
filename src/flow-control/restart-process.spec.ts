@@ -1,7 +1,7 @@
 import { createMockInstance } from "jest-create-mock-instance";
 import { TestScheduler } from "rxjs/testing";
 import { createFakeCloseEvent, FakeCommand } from "../fixtures/fake-command";
-import Logger from "../logger";
+import { Logger } from "../logger";
 import { RestartProcess } from "./restart-process";
 
 let commands: FakeCommand[];

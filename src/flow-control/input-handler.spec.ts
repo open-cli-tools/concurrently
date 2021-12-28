@@ -2,7 +2,7 @@ import { createMockInstance } from 'jest-create-mock-instance';
 import { PassThrough } from 'stream';
 import { Command } from '../command';
 import { FakeCommand } from '../fixtures/fake-command';
-import Logger from '../logger';
+import { Logger } from '../logger';
 import { InputHandler } from './input-handler';
 
 let commands: Command[];

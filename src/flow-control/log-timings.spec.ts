@@ -2,7 +2,7 @@ import formatDate from 'date-fns/format';
 import { createMockInstance } from 'jest-create-mock-instance';
 import { CloseEvent } from '../command';
 import { createFakeCloseEvent, FakeCommand } from "../fixtures/fake-command";
-import Logger from "../logger";
+import { Logger } from "../logger";
 import { LogTimings } from "./log-timings";
 
 // shown in timing order

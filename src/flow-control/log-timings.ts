@@ -3,7 +3,7 @@ import _ from 'lodash';
 import * as Rx from 'rxjs';
 import { bufferCount, take } from 'rxjs/operators';
 import { CloseEvent, Command } from "../command";
-import Logger from "../logger";
+import { Logger } from "../logger";
 import { FlowController } from "./flow-controller";
 import * as defaults from '../defaults';
 

@@ -1,5 +1,5 @@
 import { Command } from "../command";
-import Logger from "../logger";
+import { Logger } from "../logger";
 import { FlowController } from "./flow-controller";
 
 export class LogError implements FlowController {
@@ -16,7 +16,8 @@ export class LogError implements FlowController {
                 command
             );
 
-            this.logger.logCommandEvent(event instanceof Error ? (event.stack || event) : event, command);
+            const errorText = String(event instanceof Error ? (event.stack || event) : event);
+            this.logger.logCommandEvent(errorText, command);
         }));
 
         return { commands };

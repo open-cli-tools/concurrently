@@ -7,7 +7,7 @@ const { StripQuotes } = require('./command-parser/strip-quotes');
 const { ExpandNpmShortcut } = require('./command-parser/expand-npm-shortcut');
 const { ExpandNpmWildcard } = require('./command-parser/expand-npm-wildcard');
 
-const CompletionListener = require('./completion-listener');
+const { CompletionListener } = require('./completion-listener');
 
 const { getSpawnOpts } = require('./get-spawn-opts');
 const { Command } = require('./command');

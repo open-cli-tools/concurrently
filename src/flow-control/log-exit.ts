@@ -1,5 +1,5 @@
 import { Command } from "../command";
-import Logger from "../logger";
+import { Logger } from "../logger";
 import { FlowController } from "./flow-controller";
 
 export class LogExit implements FlowController {

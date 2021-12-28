@@ -4,11 +4,11 @@ const { KillOthers } = require('./src/flow-control/kill-others');
 const { LogError } = require('./src/flow-control/log-error');
 const { LogExit } = require('./src/flow-control/log-exit');
 const { LogOutput } = require('./src/flow-control/log-output');
+const { LogTimings } = require( './src/flow-control/log-timings' );
 const { RestartProcess } = require('./src/flow-control/restart-process');
 
 const concurrently = require('./src/concurrently');
-const Logger = require('./src/logger');
-const LogTimings = require( './src/flow-control/log-timings' );
+const { Logger } = require('./src/logger');
 
 module.exports = exports = (commands, options = {}) => {
     const logger = new Logger({
@@ -67,5 +67,5 @@ exports.KillOthers = KillOthers;
 exports.LogError = LogError;
 exports.LogExit = LogExit;
 exports.LogOutput = LogOutput;
-exports.RestartProcess = RestartProcess;
 exports.LogTimings = LogTimings;
+exports.RestartProcess = RestartProcess;

@@ -1,6 +1,6 @@
 import { createMockInstance } from "jest-create-mock-instance";
 import { Writable } from "stream";
-import { CloseEvent, Command } from "../command";
+import { CloseEvent, Command, CommandInfo } from "../command";
 
 export class FakeCommand extends Command {
     // Type-safe workaround for setting `killable` to a custom value.
@@ -9,11 +9,12 @@ export class FakeCommand extends Command {
         return this.isKillable;
     }
 
-    constructor(name = 'foo', command = 'bar', index = 0) {
+    constructor(name = 'foo', command = 'echo foo', index = 0, info?: Partial<CommandInfo>) {
         super({
             index,
             name,
             command,
+            ...info,
         }, {}, jest.fn(), jest.fn());
 
         this.stdin = createMockInstance(Writable);

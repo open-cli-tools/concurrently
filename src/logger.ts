@@ -1,12 +1,29 @@
-const chalk = require('chalk');
-const _ = require('lodash');
-const formatDate = require('date-fns/format');
-const Rx = require('rxjs');
+import chalk from 'chalk';
+import _ from 'lodash';
+import formatDate from 'date-fns/format';
+import * as Rx from 'rxjs';
 
-const defaults = require('./defaults');
+import * as defaults from './defaults';
+import { Command } from './command';
 
-module.exports = class Logger {
-    constructor({ hide, prefixFormat, prefixLength, raw, timestampFormat }) {
+type CommandIdentifier = string | number;
+
+export class Logger {
+    private readonly hide: CommandIdentifier[];
+    private readonly raw: boolean;
+    private readonly prefixFormat: string;
+    private readonly prefixLength: number;
+    private readonly timestampFormat: string;
+    private lastChar?: string;
+    readonly output = new Rx.Subject<{ command: Command | undefined, text: string }>();
+
+    constructor({ hide, prefixFormat, prefixLength, raw = false, timestampFormat }: {
+        hide?: CommandIdentifier | CommandIdentifier[],
+        raw?: boolean,
+        prefixFormat?: string,
+        prefixLength?: number,
+        timestampFormat?: string,
+    }) {
         // To avoid empty strings from hiding the output of commands that don't have a name,
         // keep in the list of commands to hide only strings with some length.
         // This might happen through the CLI when no `--hide` argument is specified, for example.
@@ -15,10 +32,9 @@ module.exports = class Logger {
         this.prefixFormat = prefixFormat;
         this.prefixLength = prefixLength || defaults.prefixLength;
         this.timestampFormat = timestampFormat || defaults.timestampFormat;
-        this.output = new Rx.Subject();
     }
 
-    shortenText(text) {
+    private shortenText(text: string) {
         if (!text || text.length <= this.prefixLength) {
             return text;
         }
@@ -33,7 +49,7 @@ module.exports = class Logger {
         return beginnning + ellipsis + end;
     }
 
-    getPrefixesFor(command) {
+    getPrefixesFor(command: Command) {
         return {
             none: '',
             pid: command.pid,
@@ -44,7 +60,7 @@ module.exports = class Logger {
         };
     }
 
-    getPrefix(command) {
+    getPrefix(command: Command) {
         const prefix = this.prefixFormat || (command.name ? 'name' : 'index');
         if (prefix === 'none') {
             return '';
@@ -57,12 +73,12 @@ module.exports = class Logger {
 
         return _.reduce(prefixes, (prev, val, key) => {
             const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
-            return prev.replace(keyRegex, val);
+            return prev.replace(keyRegex, String(val));
         }, prefix);
     }
 
-    colorText(command, text) {
-        let color;
+    colorText(command: Command, text: string) {
+        let color: chalk.Chalk;
         if (command.prefixColor && command.prefixColor.startsWith('#')) {
             color = chalk.hex(command.prefixColor);
         } else {
@@ -72,7 +88,7 @@ module.exports = class Logger {
         return color(text);
     }
 
-    logCommandEvent(text, command) {
+    logCommandEvent(text: string, command: Command) {
         if (this.raw) {
             return;
         }
@@ -80,7 +96,7 @@ module.exports = class Logger {
         this.logCommandText(chalk.reset(text) + '\n', command);
     }
 
-    logCommandText(text, command) {
+    logCommandText(text: string, command: Command) {
         if (this.hide.includes(String(command.index)) || this.hide.includes(command.name)) {
             return;
         }
@@ -89,7 +105,7 @@ module.exports = class Logger {
         return this.log(prefix + (prefix ? ' ' : ''), text, command);
     }
 
-    logGlobalEvent(text) {
+    logGlobalEvent(text: string) {
         if (this.raw) {
             return;
         }
@@ -97,7 +113,7 @@ module.exports = class Logger {
         this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n', null);
     }
 
-    logTable(tableContents) {
+    logTable(tableContents: any[]) {
         // For now, can only print array tables with some content.
         if (this.raw || !Array.isArray(tableContents) || !tableContents.length) {
             return;
@@ -154,7 +170,7 @@ module.exports = class Logger {
         this.logGlobalEvent(`└─${borderRowFormatted.join('─┴─')}─┘`);
     }
 
-    log(prefix, text, command) {
+    log(prefix: string, text: string, command?: Command) {
         if (this.raw) {
             return this.emit(command, text);
         }
@@ -179,7 +195,7 @@ module.exports = class Logger {
         this.emit(command, lines.join('\n'));
     }
 
-    emit(command, text) {
+    emit(command: Command | undefined, text: string) {
         this.output.next({ command, text });
     }
 };
