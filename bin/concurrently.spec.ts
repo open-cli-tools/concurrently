@@ -184,6 +184,21 @@ describe('--hide', () => {
     });
 });
 
+describe('--group', () => {
+    it('groups output per process', done => {
+        const child = run('--group "echo foo; sleep 1; echo bar" "echo baz"');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expect(lines.slice(0, 4)).toEqual([
+                expect.stringMatching(/foo$/),
+                expect.stringMatching(/bar$/),
+                expect.any(String),
+                expect.stringMatching(/baz$/),
+            ]);
+            done();
+        }, done);
+    });
+});
+
 describe('--names', () => {
     it('is aliased to -n', done => {
         const child = run('-n foo,bar "echo foo" "echo bar"');

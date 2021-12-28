@@ -66,6 +66,7 @@ const args = yargs
             type: 'string'
         },
         'group': {
+            alias: 'g',
             describe: 'Order the output as if the commands were run sequentially.',
             type: 'boolean'
         },
