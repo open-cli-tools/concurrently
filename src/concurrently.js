@@ -71,7 +71,7 @@ module.exports = (commands, options) => {
             group: options.group,
             commands,
         });
-        options.logger.observable.subscribe(({command, text}) => outputWriter.write(command, text));
+        options.logger.output.subscribe(({command, text}) => outputWriter.write(command, text));
     }
 
     const commandsLeft = commands.slice();

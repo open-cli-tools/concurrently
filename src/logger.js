@@ -15,7 +15,7 @@ module.exports = class Logger {
         this.prefixFormat = prefixFormat;
         this.prefixLength = prefixLength || defaults.prefixLength;
         this.timestampFormat = timestampFormat || defaults.timestampFormat;
-        this.observable = new Rx.Subject();
+        this.output = new Rx.Subject();
     }
 
     shortenText(text) {
@@ -180,6 +180,6 @@ module.exports = class Logger {
     }
 
     emit(command, text) {
-        this.observable.next({ command, text });
+        this.output.next({ command, text });
     }
 };
