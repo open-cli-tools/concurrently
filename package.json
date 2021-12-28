@@ -65,7 +65,7 @@
     "preset": "ts-jest",
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "src/**/*.js"
+      "src/**/*.ts"
     ],
     "coveragePathIgnorePatterns": [
       "/fixtures/",
