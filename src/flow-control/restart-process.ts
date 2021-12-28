@@ -1,20 +1,30 @@
-const Rx = require('rxjs');
-const { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } = require('rxjs/operators');
+import * as Rx from "rxjs";
+import { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } from 'rxjs/operators';
+import { Command } from "../command";
+import * as defaults from '../defaults';
+import Logger from "../logger";
+import { FlowController } from "./flow-controller";
 
-const defaults = require('../defaults');
-const BaseHandler = require('./base-handler');
+export class RestartProcess implements FlowController {
+    private readonly logger: Logger;
+    private readonly scheduler?: Rx.SchedulerLike;
+    readonly delay: number;
+    readonly tries: number;
 
-module.exports = class RestartProcess extends BaseHandler {
-    constructor({ delay, tries, logger, scheduler }) {
-        super({ logger });
-
+    constructor({ delay, tries, logger, scheduler }: {
+        delay?: number,
+        tries?: number,
+        logger: Logger,
+        scheduler?: Rx.SchedulerLike
+    }) {
+        this.logger = logger;
         this.delay = +delay || defaults.restartDelay;
         this.tries = +tries || defaults.restartTries;
         this.tries = this.tries < 0 ? Infinity : this.tries;
         this.scheduler = scheduler;
     }
 
-    handle(commands) {
+    handle(commands: Command[]) {
         if (this.tries === 0) {
             return { commands };
         }
@@ -29,7 +39,7 @@ module.exports = class RestartProcess extends BaseHandler {
             // Skip the first N emissions (as these would be duplicates of the above),
             // meaning it will be empty because of success, or failed all N times,
             // and no more restarts should be attempted.
-            failure.pipe(skip(this.tries), defaultIfEmpty(false))
+            failure.pipe(skip(this.tries), mapTo(false), defaultIfEmpty(false))
         ).subscribe(restart => {
             const command = commands[index];
             if (restart) {

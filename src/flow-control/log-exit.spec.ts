@@ -1,13 +1,15 @@
-const { createMockInstance } = require('jest-create-mock-instance');
-const Logger = require('../logger');
-const LogExit = require('./log-exit');
-const createFakeCommand = require('./fixtures/fake-command');
+import { createMockInstance } from "jest-create-mock-instance";
+import { createFakeCloseEvent, FakeCommand } from "../fixtures/fake-command";
+import Logger from "../logger";
+import { LogExit } from "./log-exit";
 
-let controller, logger, commands;
+let controller: LogExit;
+let logger: Logger;
+let commands: FakeCommand[];
 beforeEach(() => {
     commands = [
-        createFakeCommand(),
-        createFakeCommand(),
+        new FakeCommand(),
+        new FakeCommand(),
     ];
 
     logger = createMockInstance(Logger);
@@ -21,8 +23,8 @@ it('returns same commands', () => {
 it('logs the close event of each command', () => {
     controller.handle(commands);
 
-    commands[0].close.next({ exitCode: 0 });
-    commands[1].close.next({ exitCode: 'SIGTERM' });
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
+    commands[1].close.next(createFakeCloseEvent({ exitCode: 'SIGTERM' }));
 
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(2);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(

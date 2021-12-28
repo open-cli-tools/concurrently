@@ -1,19 +1,21 @@
-const { createMockInstance } = require('jest-create-mock-instance');
-const { TestScheduler } = require('rxjs/testing');
+import { createMockInstance } from "jest-create-mock-instance";
+import { TestScheduler } from "rxjs/testing";
+import { createFakeCloseEvent, FakeCommand } from "../fixtures/fake-command";
+import Logger from "../logger";
+import { RestartProcess } from "./restart-process";
 
-const Logger = require('../logger');
-const createFakeCommand = require('./fixtures/fake-command');
-const RestartProcess = require('./restart-process');
-
-let commands, controller, logger, scheduler;
+let commands: FakeCommand[];
+let controller: RestartProcess;
+let logger: Logger;
+let scheduler: TestScheduler;
 beforeEach(() => {
     commands = [
-        createFakeCommand(),
-        createFakeCommand()
+        new FakeCommand(),
+        new FakeCommand()
     ];
 
     logger = createMockInstance(Logger);
-    scheduler = new TestScheduler();
+    scheduler = new TestScheduler(() => true);
     controller = new RestartProcess({
         logger,
         scheduler,
@@ -25,8 +27,8 @@ beforeEach(() => {
 it('does not restart processes that complete with success', () => {
     controller.handle(commands);
 
-    commands[0].close.next({ exitCode: 0 });
-    commands[1].close.next({ exitCode: 0 });
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
+    commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
 
     scheduler.flush();
 
@@ -37,8 +39,8 @@ it('does not restart processes that complete with success', () => {
 it('restarts processes that fail after delay has passed', () => {
     controller.handle(commands);
 
-    commands[0].close.next({ exitCode: 1 });
-    commands[1].close.next({ exitCode: 0 });
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+    commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
 
     scheduler.flush();
 
@@ -54,10 +56,10 @@ it('restarts processes that fail after delay has passed', () => {
 it('restarts processes up to tries', () => {
     controller.handle(commands);
 
-    commands[0].close.next({ exitCode: 1 });
-    commands[0].close.next({ exitCode: 'SIGTERM' });
-    commands[0].close.next({ exitCode: 'SIGTERM' });
-    commands[1].close.next({ exitCode: 0 });
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 'SIGTERM' }));
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 'SIGTERM' }));
+    commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
 
     scheduler.flush();
 
@@ -82,9 +84,9 @@ it('restart processes forever, if tries is negative', () => {
 it('restarts processes until they succeed', () => {
     controller.handle(commands);
 
-    commands[0].close.next({ exitCode: 1 });
-    commands[0].close.next({ exitCode: 0 });
-    commands[1].close.next({ exitCode: 0 });
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
+    commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
 
     scheduler.flush();
 
@@ -115,11 +117,11 @@ describe('returned commands', () => {
         newCommands[0].close.subscribe(callback);
         newCommands[1].close.subscribe(callback);
 
-        commands[0].close.next({ exitCode: 1 });
-        commands[0].close.next({ exitCode: 1 });
-        commands[0].close.next({ exitCode: 1 });
-        commands[1].close.next({ exitCode: 1 });
-        commands[1].close.next({ exitCode: 0 });
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[1].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
 
         scheduler.flush();
 

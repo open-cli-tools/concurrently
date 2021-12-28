@@ -1,22 +1,30 @@
-const formatDate = require('date-fns/format');
-const Rx = require('rxjs');
-const { bufferCount, take } = require('rxjs/operators');
-const _ = require('lodash');
-const BaseHandler = require('./base-handler');
+import formatDate from 'date-fns/format';
+import _ from 'lodash';
+import * as Rx from 'rxjs';
+import { bufferCount, take } from 'rxjs/operators';
+import { CloseEvent, Command } from "../command";
+import Logger from "../logger";
+import { FlowController } from "./flow-controller";
+import * as defaults from '../defaults';
 
-module.exports = class LogTimings extends BaseHandler {
-    constructor({ logger, timestampFormat }) {
-        super({ logger });
+export class LogTimings implements FlowController {
+    private readonly logger: Logger;
+    private readonly timestampFormat: string;
 
+    constructor({ logger, timestampFormat = defaults.timestampFormat }: {
+        logger?: Logger,
+        timestampFormat?: string,
+    }) {
+        this.logger = logger;
         this.timestampFormat = timestampFormat;
     }
 
-    printExitInfoTimingTable(exitInfos) {
+    printExitInfoTimingTable(exitInfos: CloseEvent[]) {
         const exitInfoTable = _(exitInfos)
             .sortBy(({ timings }) => timings.durationSeconds)
             .reverse()
             .map(({ command, timings, killed, exitCode }) => {
-                const readableDurationMs = (timings.endDate - timings.startDate).toLocaleString();
+                const readableDurationMs = (timings.endDate.getTime() - timings.startDate.getTime()).toLocaleString();
                 return {
                     name: command.name,
                     duration: `${readableDurationMs}ms`,
@@ -32,7 +40,7 @@ module.exports = class LogTimings extends BaseHandler {
         return exitInfos;
     };
 
-    handle(commands) {
+    handle(commands: Command[]) {
         if (!this.logger) {
             return { commands };
         }
@@ -53,12 +61,11 @@ module.exports = class LogTimings extends BaseHandler {
 
         // overall summary timings
         const closeStreams = commands.map(command => command.close);
-        this.allProcessesClosed = Rx.merge(...closeStreams).pipe(
+        const allProcessesClosed = Rx.merge(...closeStreams).pipe(
             bufferCount(closeStreams.length),
             take(1),
         );
-        this.allProcessesClosed.subscribe((exitInfos) => this.printExitInfoTimingTable(exitInfos));
-
+        allProcessesClosed.subscribe((exitInfos) => this.printExitInfoTimingTable(exitInfos));
         return { commands };
     }
 };

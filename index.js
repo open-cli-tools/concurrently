@@ -2,9 +2,9 @@ const { InputHandler } = require('./src/flow-control/input-handler');
 const { KillOnSignal } = require('./src/flow-control/kill-on-signal');
 const { KillOthers } = require('./src/flow-control/kill-others');
 const { LogError } = require('./src/flow-control/log-error');
-const LogExit = require('./src/flow-control/log-exit');
-const LogOutput = require('./src/flow-control/log-output');
-const RestartProcess = require('./src/flow-control/restart-process');
+const { LogExit } = require('./src/flow-control/log-exit');
+const { LogOutput } = require('./src/flow-control/log-output');
+const { RestartProcess } = require('./src/flow-control/restart-process');
 
 const concurrently = require('./src/concurrently');
 const Logger = require('./src/logger');

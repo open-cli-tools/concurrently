@@ -1,17 +1,18 @@
-const { createMockInstance } = require('jest-create-mock-instance');
-const formatDate = require('date-fns/format');
-const Logger = require('../logger');
-const LogTimings = require( './log-timings' );
-const createFakeCommand = require('./fixtures/fake-command');
+import formatDate from 'date-fns/format';
+import { createMockInstance } from 'jest-create-mock-instance';
+import { CloseEvent } from '../command';
+import { createFakeCloseEvent, FakeCommand } from "../fixtures/fake-command";
+import Logger from "../logger";
+import { LogTimings } from "./log-timings";
 
 // shown in timing order
 const startDate0 = new Date();
 const startDate1 = new Date(startDate0.getTime() + 1000);
-const endDate1 = new Date(startDate0.getTime() + 3000);
-const endDate0 = new Date(startDate0.getTime() + 5000);
+const endDate1 = new Date(startDate0.getTime() + 5000);
+const endDate0 = new Date(startDate0.getTime() + 3000);
 
 const timestampFormat = 'yyyy-MM-dd HH:mm:ss.SSS';
-const getDurationText = (startDate, endDate) => `${(endDate.getTime() - startDate.getTime()).toLocaleString()}ms`;
+const getDurationText = (startDate: Date, endDate: Date) => `${(endDate.getTime() - startDate.getTime()).toLocaleString()}ms`;
 const command0DurationTextMs = getDurationText(startDate0, endDate0);
 const command1DurationTextMs = getDurationText(startDate1, endDate1);
 
@@ -26,35 +27,37 @@ const exitInfoToTimingInfo = ({ command, timings, killed, exitCode }) => {
     };
 };
 
-let controller, logger, commands, command0ExitInfo, command1ExitInfo;
+let controller: LogTimings;
+let logger: Logger;
+let commands: FakeCommand[];
+let command0ExitInfo: CloseEvent;
+let command1ExitInfo: CloseEvent;
 
 beforeEach(() => {
     commands = [
-        createFakeCommand('foo', 'command 1', 0),
-        createFakeCommand('bar', 'command 2', 1),
+        new FakeCommand('foo', 'command 1', 0),
+        new FakeCommand('bar', 'command 2', 1),
     ];
 
-    command0ExitInfo = {
-        command: commands[0].command,
+    command0ExitInfo = createFakeCloseEvent({
+        command: commands[0],
         timings: {
             startDate: startDate0,
             endDate: endDate0,
+            durationSeconds: endDate0.getTime() - startDate0.getTime(),
         },
         index: commands[0].index,
-        killed: false,
-        exitCode: 0,
-    };
+    });
 
-    command1ExitInfo = {
-        command: commands[1].command,
+    command1ExitInfo = createFakeCloseEvent({
+        command: commands[1],
         timings: {
             startDate: startDate1,
             endDate: endDate1,
+            durationSeconds: endDate1.getTime() - startDate1.getTime(),
         },
         index: commands[1].index,
-        killed: false,
-        exitCode: 0,
-    };
+    });
 
     logger = createMockInstance(Logger);
     controller = new LogTimings({ logger, timestampFormat });
@@ -65,7 +68,7 @@ it('returns same commands', () => {
 });
 
 it('does not log timings and doesn\'t throw if no logger is provided', () => {
-    controller = new LogTimings({  });
+    controller = new LogTimings({});
     controller.handle(commands);
 
     commands[0].timer.next({ startDate: startDate0 });

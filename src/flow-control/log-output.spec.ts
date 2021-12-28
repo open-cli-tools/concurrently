@@ -1,13 +1,15 @@
-const { createMockInstance } = require('jest-create-mock-instance');
-const Logger = require('../logger');
-const LogOutput = require('./log-output');
-const createFakeCommand = require('./fixtures/fake-command');
+import { createMockInstance } from "jest-create-mock-instance";
+import { FakeCommand } from "../fixtures/fake-command";
+import Logger from "../logger";
+import { LogOutput } from "./log-output";
 
-let controller, logger, commands;
+let controller: LogOutput;
+let logger: Logger;
+let commands: FakeCommand[];
 beforeEach(() => {
     commands = [
-        createFakeCommand(),
-        createFakeCommand(),
+        new FakeCommand(),
+        new FakeCommand(),
     ];
 
     logger = createMockInstance(Logger);
