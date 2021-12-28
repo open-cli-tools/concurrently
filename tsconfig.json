@@ -7,7 +7,8 @@
         "moduleResolution": "node",
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
         "allowJs": true
     },
-    "include": ["./bin", "./src", "./index.js"]
+    "include": ["./bin", "./src", "./index.js", "package.json"]
 }
