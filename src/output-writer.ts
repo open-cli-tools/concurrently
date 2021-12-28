@@ -1,23 +1,32 @@
-const Rx = require('rxjs');
+import { Writable } from "stream";
+import { Command } from "./command";
+import * as Rx from 'rxjs';
 
-module.exports = class OutputWriter {
-    constructor({ outputStream, group, commands }) {
+export class OutputWriter {
+    private readonly outputStream: Writable;
+    private readonly group: boolean;
+    readonly buffers: string[][];
+    activeCommandIndex = 0;
+
+    constructor({ outputStream, group, commands }: {
+        outputStream: Writable,
+        group: boolean,
+        commands: Command[],
+    }) {
         this.outputStream = outputStream;
         this.group = group;
-        this.commands = commands;
-        this.buffers = this.commands.map(() => []);
-        this.activeCommandIndex = 0;
+        this.buffers = commands.map(() => []);
 
         if (this.group) {
-            Rx.merge(...this.commands.map(c => c.close))
+            Rx.merge(...commands.map(c => c.close))
                 .subscribe(command => {
                     if (command.index !== this.activeCommandIndex) {
                         return;
                     }
-                    for (let i = command.index + 1; i < this.commands.length; i++) {
+                    for (let i = command.index + 1; i < commands.length; i++) {
                         this.activeCommandIndex = i;
                         this.flushBuffer(i);
-                        if (!this.commands[i].exited) {
+                        if (!commands[i].exited) {
                             break;
                         }
                     }
