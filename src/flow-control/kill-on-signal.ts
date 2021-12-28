@@ -1,17 +1,18 @@
-const { map } = require('rxjs/operators');
+import EventEmitter from 'events';
+import { map } from 'rxjs/operators';
+import { Command } from '../command';
+import { FlowController } from './flow-controller';
 
-const BaseHandler = require('./base-handler');
+export class KillOnSignal implements FlowController {
+    private readonly process: EventEmitter;
 
-module.exports = class KillOnSignal extends BaseHandler {
-    constructor({ process }) {
-        super();
-
+    constructor({ process }: { process: EventEmitter }) {
         this.process = process;
     }
 
-    handle(commands) {
-        let caughtSignal;
-        ['SIGINT', 'SIGTERM', 'SIGHUP'].forEach(signal => {
+    handle(commands: Command[]) {
+        let caughtSignal: NodeJS.Signals;
+        (['SIGINT', 'SIGTERM', 'SIGHUP'] as NodeJS.Signals[]).forEach(signal => {
             this.process.on(signal, () => {
                 caughtSignal = signal;
                 commands.forEach(command => command.kill(signal));

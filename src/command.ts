@@ -50,7 +50,7 @@ export class Command implements CommandInfo {
     readonly env: Record<string, any>;
 
     readonly close = new Rx.Subject<CloseEvent>();
-    readonly error = new Rx.Subject<Error>();
+    readonly error = new Rx.Subject<unknown>();
     readonly stdout = new Rx.Subject<Buffer>();
     readonly stderr = new Rx.Subject<Buffer>();
     readonly timer = new Rx.Subject<TimerEvent>();
@@ -89,7 +89,7 @@ export class Command implements CommandInfo {
         const highResStartTime = process.hrtime();
         this.timer.next({ startDate });
 
-        Rx.fromEvent<Error>(child, 'error').subscribe(event => {
+        Rx.fromEvent<unknown>(child, 'error').subscribe(event => {
             this.process = undefined;
             const endDate = new Date(Date.now());
             this.timer.next({ startDate, endDate });

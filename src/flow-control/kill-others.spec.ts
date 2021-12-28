@@ -1,33 +1,33 @@
-const { createMockInstance } = require('jest-create-mock-instance');
+import { createMockInstance } from "jest-create-mock-instance";
+import { createFakeCloseEvent, FakeCommand } from "../fixtures/fake-command";
+import Logger from "../logger";
+import { KillOthers, ProcessCloseCondition } from "./kill-others";
 
-const Logger = require('../logger');
-const createFakeCommand = require('./fixtures/fake-command');
-const KillOthers = require('./kill-others');
-
-let commands, logger;
+let commands: FakeCommand[];
+let logger: Logger;
 beforeEach(() => {
     commands = [
-        createFakeCommand(),
-        createFakeCommand()
+        new FakeCommand(),
+        new FakeCommand()
     ];
 
     logger = createMockInstance(Logger);
 });
 
-const createWithConditions = conditions => new KillOthers({
+const createWithConditions = (conditions: ProcessCloseCondition[]) => new KillOthers({
     logger,
     conditions
 });
 
 it('returns same commands', () => {
-    expect(createWithConditions(['foo']).handle(commands)).toMatchObject({ commands });
+    expect(createWithConditions(['success']).handle(commands)).toMatchObject({ commands });
     expect(createWithConditions(['failure']).handle(commands)).toMatchObject({ commands });
 });
 
 it('does not kill others if condition does not match', () => {
     createWithConditions(['failure']).handle(commands);
-    commands[1].killable = true;
-    commands[0].close.next({ exitCode: 0 });
+    commands[1].isKillable = true;
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
 
     expect(logger.logGlobalEvent).not.toHaveBeenCalled();
     expect(commands[0].kill).not.toHaveBeenCalled();
@@ -36,8 +36,8 @@ it('does not kill others if condition does not match', () => {
 
 it('kills other killable processes on success', () => {
     createWithConditions(['success']).handle(commands);
-    commands[1].killable = true;
-    commands[0].close.next({ exitCode: 0 });
+    commands[1].isKillable = true;
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
 
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
@@ -47,8 +47,8 @@ it('kills other killable processes on success', () => {
 
 it('kills other killable processes on failure', () => {
     createWithConditions(['failure']).handle(commands);
-    commands[1].killable = true;
-    commands[0].close.next({ exitCode: 1 });
+    commands[1].isKillable = true;
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
 
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
@@ -58,7 +58,7 @@ it('kills other killable processes on failure', () => {
 
 it('does not try to kill processes already dead', () => {
     createWithConditions(['failure']).handle(commands);
-    commands[0].close.next({ exitCode: 1 });
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
 
     expect(logger.logGlobalEvent).not.toHaveBeenCalled();
     expect(commands[0].kill).not.toHaveBeenCalled();

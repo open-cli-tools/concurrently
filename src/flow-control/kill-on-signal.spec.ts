@@ -1,14 +1,16 @@
-const EventEmitter = require('events');
+import { EventEmitter } from "events";
+import { Command } from "../command";
+import { createFakeCloseEvent, FakeCommand } from "../fixtures/fake-command";
+import { KillOnSignal } from "./kill-on-signal";
 
-const createFakeCommand = require('./fixtures/fake-command');
-const KillOnSignal = require('./kill-on-signal');
-
-let commands, controller, process;
+let commands: Command[];
+let controller: KillOnSignal;
+let process: EventEmitter;
 beforeEach(() => {
     process = new EventEmitter();
     commands = [
-        createFakeCommand(),
-        createFakeCommand(),
+        new FakeCommand(),
+        new FakeCommand(),
     ];
     controller = new KillOnSignal({ process });
 });
@@ -33,10 +35,10 @@ it('returns commands that map SIGINT to exit code 0', () => {
     process.emit('SIGINT');
 
     // A fake command's .kill() call won't trigger a close event automatically...
-    commands[0].close.next({ exitCode: 1 });
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
 
-    expect(callback).not.toHaveBeenCalledWith({ exitCode: 'SIGINT' });
-    expect(callback).toHaveBeenCalledWith({ exitCode: 0 });
+    expect(callback).not.toHaveBeenCalledWith(expect.objectContaining({ exitCode: 'SIGINT' }));
+    expect(callback).toHaveBeenCalledWith(expect.objectContaining({ exitCode: 0 }));
 });
 
 it('returns commands that keep non-SIGINT exit codes', () => {
@@ -46,9 +48,9 @@ it('returns commands that keep non-SIGINT exit codes', () => {
 
     const callback = jest.fn();
     newCommands[0].close.subscribe(callback);
-    commands[0].close.next({ exitCode: 1 });
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
 
-    expect(callback).toHaveBeenCalledWith({ exitCode: 1 });
+    expect(callback).toHaveBeenCalledWith(expect.objectContaining({ exitCode: 1 }));
 });
 
 it('kills all commands on SIGINT', () => {

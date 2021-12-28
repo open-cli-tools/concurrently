@@ -1,19 +1,30 @@
-const Rx = require('rxjs');
-const { map } = require('rxjs/operators');
+import * as Rx from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Readable } from 'stream';
+import { Command } from '../command';
+import * as defaults from '../defaults';
+import Logger from '../logger';
+import { FlowController } from './flow-controller';
 
-const defaults = require('../defaults');
-const BaseHandler = require('./base-handler');
+export class InputHandler implements FlowController {
+    private readonly logger: Logger;
+    private readonly defaultInputTarget: string | number;
+    private readonly inputStream: Readable;
+    private readonly pauseInputStreamOnFinish: boolean;
 
-module.exports = class InputHandler extends BaseHandler {
-    constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }) {
-        super({ logger });
-
+    constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }: {
+        inputStream: Readable,
+        logger: Logger,
+        defaultInputTarget?: string | number,
+        pauseInputStreamOnFinish?: boolean,
+    }) {
+        this.logger = logger;
         this.defaultInputTarget = defaultInputTarget || defaults.defaultInputTarget;
         this.inputStream = inputStream;
         this.pauseInputStreamOnFinish = pauseInputStreamOnFinish !== false;
     }
 
-    handle(commands) {
+    handle(commands: Command[]) {
         if (!this.inputStream) {
             return { commands };
         }
@@ -21,9 +32,9 @@ module.exports = class InputHandler extends BaseHandler {
         Rx.fromEvent(this.inputStream, 'data')
             .pipe(map(data => data.toString()))
             .subscribe(data => {
-                let [targetId, input] = data.split(/:(.+)/);
-                targetId = input ? targetId : this.defaultInputTarget;
-                input = input || data;
+                const dataParts = data.split(/:(.+)/);
+                const targetId = dataParts.length > 1 ? dataParts[0] : this.defaultInputTarget;
+                const input = dataParts[1] || data;
 
                 const command = commands.find(command => (
                     command.name === targetId ||

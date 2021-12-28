@@ -1,16 +1,25 @@
-const _ = require('lodash');
-const { filter, map } = require('rxjs/operators');
+import { Command } from "../command";
+import Logger from "../logger";
+import { FlowController } from "./flow-controller";
 
-const BaseHandler = require('./base-handler');
+import _ from 'lodash';
+import { filter, map } from 'rxjs/operators';
 
-module.exports = class KillOthers extends BaseHandler {
-    constructor({ logger, conditions }) {
-        super({ logger });
+export type ProcessCloseCondition = 'failure' | 'success';
 
+export class KillOthers implements FlowController {
+    private readonly logger: Logger;
+    private readonly conditions: ProcessCloseCondition[];
+
+    constructor({ logger, conditions }: {
+        logger: Logger,
+        conditions: ProcessCloseCondition | ProcessCloseCondition[]
+    }) {
+        this.logger = logger;
         this.conditions = _.castArray(conditions);
     }
 
-    handle(commands) {
+    handle(commands: Command[]) {
         const conditions = this.conditions.filter(condition => (
             condition === 'failure' ||
             condition === 'success'
@@ -21,7 +30,7 @@ module.exports = class KillOthers extends BaseHandler {
         }
 
         const closeStates = commands.map(command => command.close.pipe(
-            map(({ exitCode }) => exitCode === 0 ? 'success' : 'failure'),
+            map(({ exitCode }) => exitCode === 0 ? 'success' as const : 'failure' as const),
             filter(state => conditions.includes(state))
         ));
 

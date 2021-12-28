@@ -1,18 +1,21 @@
-const stream = require('stream');
-const { createMockInstance } = require('jest-create-mock-instance');
+import { createMockInstance } from 'jest-create-mock-instance';
+import { PassThrough } from 'stream';
+import { Command } from '../command';
+import { FakeCommand } from '../fixtures/fake-command';
+import Logger from '../logger';
+import { InputHandler } from './input-handler';
 
-const Logger = require('../logger');
-const createFakeCommand = require('./fixtures/fake-command');
-const InputHandler = require('./input-handler');
-
-let commands, controller, inputStream, logger;
+let commands: Command[];
+let controller: InputHandler;
+let inputStream: PassThrough;
+let logger: Logger;
 
 beforeEach(() => {
     commands = [
-        createFakeCommand('foo', 'echo foo', 0),
-        createFakeCommand('bar', 'echo bar', 1),
+        new FakeCommand('foo', 'echo foo', 0),
+        new FakeCommand('bar', 'echo bar', 1),
     ];
-    inputStream = new stream.PassThrough();
+    inputStream = new PassThrough();
     logger = createMockInstance(Logger);
     controller = new InputHandler({
         defaultInputTarget: 0,
@@ -24,7 +27,7 @@ beforeEach(() => {
 it('returns same commands', () => {
     expect(controller.handle(commands)).toMatchObject({ commands });
 
-    controller = new InputHandler({ logger });
+    controller = new InputHandler({ logger, inputStream });
     expect(controller.handle(commands)).toMatchObject({ commands });
 });
 
@@ -101,7 +104,7 @@ it('pauses input stream when finished', () => {
 });
 
 it('does not pause input stream when pauseInputStreamOnFinish is set to false', () => {
-    controller = new InputHandler({ inputStream, pauseInputStreamOnFinish: false });
+    controller = new InputHandler({ logger, inputStream, pauseInputStreamOnFinish: false });
 
     expect(inputStream.readableFlowing).toBeNull();
 
