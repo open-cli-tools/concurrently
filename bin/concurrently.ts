@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import * as fs from 'fs';
 import yargs from 'yargs';
 import * as defaults from '../src/defaults';
 import concurrently from '../index';
@@ -9,9 +8,9 @@ const args = yargs
     .usage('$0 [options] <command ...>')
     .help('h')
     .alias('h', 'help')
-    .version('v', require('../package.json').version)
-    .alias('v', 'V')
-    .alias('v', 'version')
+    .version()
+    .alias('version', 'v')
+    .alias('version', 'V')
     // TODO: Add some tests for this.
     .env('CONCURRENTLY')
     .options({
