@@ -1,6 +1,7 @@
 import { Readable } from 'stream';
 import { CommandIdentifier } from './command';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions as BaseConcurrentlyOptions } from './concurrently';
+import { FlowController } from './flow-control/flow-controller';
 import { InputHandler } from './flow-control/input-handler';
 import { KillOnSignal } from './flow-control/kill-on-signal';
 import { KillOthers, ProcessCloseCondition } from './flow-control/kill-others';
@@ -87,6 +88,7 @@ export default (commands: ConcurrentlyCommandInput[], options: Partial<Concurren
 export {
     concurrently,
     Logger,
+    FlowController,
     InputHandler,
     KillOnSignal,
     KillOthers,

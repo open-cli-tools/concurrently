@@ -3,6 +3,7 @@
   "version": "6.5.1",
   "description": "Run commands concurrently",
   "main": "index.js",
+  "types": "dist/src/index.d.ts",
   "type": "commonjs",
   "bin": {
     "concurrently": "./dist/bin/concurrently.js"
