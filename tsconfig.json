@@ -8,8 +8,7 @@
         "noImplicitAny": true,
         "esModuleInterop": true,
         "allowSyntheticDefaultImports": true,
-        "resolveJsonModule": true,
-        "allowJs": true
+        "allowJs": false
     },
-    "include": ["./bin", "./declarations", "./src", "index.ts", "package.json"]
+    "include": ["./bin", "./declarations", "./src"]
 }
