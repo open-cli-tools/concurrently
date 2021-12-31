@@ -1,15 +1,15 @@
 import { Readable } from 'stream';
-import { CommandIdentifier } from './src/command';
-import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions as BaseConcurrentlyOptions } from './src/concurrently';
-import { InputHandler } from './src/flow-control/input-handler';
-import { KillOnSignal } from './src/flow-control/kill-on-signal';
-import { KillOthers, ProcessCloseCondition } from './src/flow-control/kill-others';
-import { LogError } from './src/flow-control/log-error';
-import { LogExit } from './src/flow-control/log-exit';
-import { LogOutput } from './src/flow-control/log-output';
-import { LogTimings } from './src/flow-control/log-timings';
-import { RestartProcess } from './src/flow-control/restart-process';
-import { Logger } from './src/logger';
+import { CommandIdentifier } from './command';
+import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions as BaseConcurrentlyOptions } from './concurrently';
+import { InputHandler } from './flow-control/input-handler';
+import { KillOnSignal } from './flow-control/kill-on-signal';
+import { KillOthers, ProcessCloseCondition } from './flow-control/kill-others';
+import { LogError } from './flow-control/log-error';
+import { LogExit } from './flow-control/log-exit';
+import { LogOutput } from './flow-control/log-output';
+import { LogTimings } from './flow-control/log-timings';
+import { RestartProcess } from './flow-control/restart-process';
+import { Logger } from './logger';
 
 export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
     // Logger options
