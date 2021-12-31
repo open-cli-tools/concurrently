@@ -2,12 +2,18 @@
   "name": "concurrently",
   "version": "6.5.1",
   "description": "Run commands concurrently",
-  "main": "dist/index.js",
+  "main": "index.js",
+  "type": "commonjs",
   "bin": {
     "concurrently": "./dist/bin/concurrently.js"
   },
   "engines": {
-    "node": ">=10.0.0"
+    "node": "^12.20.0 || ^14.13.0 || >=16.0.0"
+  },
+  "exports": {
+    "import": "./index.mjs",
+    "require": "./index.js",
+    "default": "./index.js"
   },
   "scripts": {
     "build": "tsc --build",
@@ -58,6 +64,8 @@
   },
   "files": [
     "dist",
+    "index.js",
+    "index.mjs",
     "!**/fixtures",
     "!**/*.spec.js"
   ],
@@ -65,7 +73,8 @@
     "preset": "ts-jest",
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "src/**/*.ts"
+      "src/**/*.ts",
+      "!src/index.ts"
     ],
     "coveragePathIgnorePatterns": [
       "/fixtures/",
