@@ -1,6 +1,6 @@
 import * as Rx from 'rxjs';
 import { bufferCount, switchMap, take } from 'rxjs/operators';
-import { Command } from './command';
+import { CloseEvent, Command } from './command';
 
 /**
  * Defines which command(s) in a list must exit successfully (with an exit code of `0`):
@@ -56,7 +56,7 @@ export class CompletionListener {
      *
      * @returns A Promise that resolves if the success condition is met, or rejects otherwise.
      */
-    listen(commands: Command[]): Promise<unknown> {
+    listen(commands: Command[]): Promise<CloseEvent[]> {
         const closeStreams = commands.map(command => command.close);
         return Rx.merge(...closeStreams)
             .pipe(
