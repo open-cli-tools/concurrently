@@ -3,7 +3,7 @@ import _ from 'lodash';
 import spawn from 'spawn-command';
 import { Writable } from 'stream';
 import treeKill from 'tree-kill';
-import { Command, CommandInfo, KillProcess, SpawnCommand } from './command';
+import { CloseEvent, Command, CommandInfo, KillProcess, SpawnCommand } from './command';
 import { CommandParser } from './command-parser/command-parser';
 import { ExpandNpmShortcut } from './command-parser/expand-npm-shortcut';
 import { ExpandNpmWildcard } from './command-parser/expand-npm-wildcard';
@@ -28,6 +28,21 @@ const defaults: ConcurrentlyOptions = {
  * Fine grained options can be defined by using the object format.
  */
 export type ConcurrentlyCommandInput = string | Partial<CommandInfo>;
+
+export type ConcurrentlyResult = {
+    /**
+     * All commands created and ran by concurrently.
+     */
+     commands: Command[],
+
+    /**
+     * A promise that resolves when concurrently ran successfully according to the specified
+     * success condition, or reject otherwise.
+     *
+     * Both the resolved and rejected value is the list of all command's close events.
+     */
+    result: Promise<CloseEvent[]>,
+};
 
 export type ConcurrentlyOptions = {
     logger?: Logger,
@@ -85,12 +100,14 @@ export type ConcurrentlyOptions = {
 
 /**
  * Core concurrently functionality -- spawns the given commands concurrently and
- * returns a promise that will await for them to finish.
+ * returns the commands themselves + the result according to the specified success condition.
  *
  * @see CompletionListener
- * @returns A promise that resolves when the commands ran successfully, or rejects otherwise.
  */
-export function concurrently(baseCommands: ConcurrentlyCommandInput[], baseOptions?: Partial<ConcurrentlyOptions>) {
+export function concurrently(
+    baseCommands: ConcurrentlyCommandInput[],
+    baseOptions?: Partial<ConcurrentlyOptions>,
+): ConcurrentlyResult {
     assert.ok(Array.isArray(baseCommands), '[concurrently] commands should be an array');
     assert.notStrictEqual(baseCommands.length, 0, '[concurrently] no commands provided');
 
@@ -148,13 +165,16 @@ export function concurrently(baseCommands: ConcurrentlyCommandInput[], baseOptio
         maybeRunMore(commandsLeft);
     }
 
-    return new CompletionListener({
-        successCondition: options.successCondition,
-    })
+    const result = new CompletionListener({ successCondition: options.successCondition })
         .listen(commands)
         .finally(() => {
             handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
         });
+
+    return {
+        result,
+        commands,
+    };
 };
 
 function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
