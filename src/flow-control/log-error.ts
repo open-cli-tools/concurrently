@@ -2,6 +2,9 @@ import { Command } from '../command';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 
+/**
+ * Logs when commands failed executing, e.g. due to the executable not existing in the system.
+ */
 export class LogError implements FlowController {
     private readonly logger: Logger;
 

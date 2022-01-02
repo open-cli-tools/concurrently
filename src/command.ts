@@ -2,20 +2,50 @@ import { ChildProcess as BaseChildProcess, SpawnOptions } from 'child_process';
 import * as Rx from 'rxjs';
 import { EventEmitter, Writable } from 'stream';
 
+/**
+ * Identifier for a command; if string, it's the command's name, if number, it's the index.
+ */
 export type CommandIdentifier = string | number;
 
 export interface CommandInfo {
+    /**
+     * Command's name.
+     */
     name: string,
+
+    /**
+     * Which command line the command has.
+     */
     command: string,
+
+    /**
+     * Which environment variables should the spawned process have.
+     */
     env?: Record<string, any>,
+
+    /**
+     * The current working directory of the process when spawned.
+     */
     cwd?: string,
     prefixColor?: string,
 }
 
 export interface CloseEvent {
     command: CommandInfo;
+
+    /**
+     * The command's index among all commands ran.
+     */
     index: number,
+
+    /**
+     * Whether the command exited because it was killed.
+     */
     killed: boolean;
+
+    /**
+     * The exit code or signal for the command.
+     */
     exitCode: string | number;
     timings: {
         startDate: Date,
@@ -29,8 +59,19 @@ export interface TimerEvent {
     endDate?: Date;
 }
 
+/**
+ * Subtype of NodeJS's child_process including only what's actually needed for a command to work.
+ */
 export type ChildProcess = EventEmitter & Pick<BaseChildProcess, 'pid' | 'stdin' | 'stdout' | 'stderr'>;
-export type KillProcess = (pid: number, signal?: string | number) => void;
+
+/**
+ * Interface for a function that must kill the process with `pid`, optionally sending `signal` to it.
+ */
+export type KillProcess = (pid: number, signal?: string) => void;
+
+/**
+ * Interface for a function that spawns a command and returns its child process instance.
+ */
 export type SpawnCommand = (command: string, options: SpawnOptions) => ChildProcess;
 
 export class Command implements CommandInfo {
@@ -87,6 +128,9 @@ export class Command implements CommandInfo {
         this.spawnOpts = spawnOpts;
     }
 
+    /**
+     * Starts this command, piping output, error and close events onto the corresponding observables.
+     */
     start() {
         const child = this.spawn(this.command, this.spawnOpts);
         this.process = child;
@@ -125,7 +169,10 @@ export class Command implements CommandInfo {
         this.stdin = child.stdin;
     }
 
-    kill(code?: string | number) {
+    /**
+     * Kills this command, optionally specifying a signal to send to it.
+     */
+    kill(code?: string) {
         if (this.killable) {
             this.killed = true;
             this.killProcess(this.pid, code);
@@ -133,6 +180,9 @@ export class Command implements CommandInfo {
     }
 };
 
+/**
+ * Pipes all events emitted by `stream` into `subject`.
+ */
 function pipeTo<T>(stream: Rx.Observable<T>, subject: Rx.Subject<T>) {
     stream.subscribe(event => subject.next(event));
 }

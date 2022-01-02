@@ -5,6 +5,9 @@ import * as defaults from '../defaults';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 
+/**
+ * Restarts commands that fail up to a defined number of times.
+ */
 export class RestartProcess implements FlowController {
     private readonly logger: Logger;
     private readonly scheduler?: Rx.SchedulerLike;

@@ -14,6 +14,10 @@ interface TimingInfo {
     killed: boolean,
     command: string,
 }
+
+/**
+ * Logs timing information about commands as they start/stop and then a summary when all commands finish.
+ */
 export class LogTimings implements FlowController {
     static mapCloseEventToTimingInfo({ command, timings, killed, exitCode }: CloseEvent): TimingInfo {
         const readableDurationMs = (timings.endDate.getTime() - timings.startDate.getTime()).toLocaleString();

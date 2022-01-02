@@ -22,21 +22,74 @@ const defaults: ConcurrentlyOptions = {
     cwd: undefined,
 };
 
+/**
+ * A command that is to be passed into `concurrently()`.
+ * If value is a string, then that's the command's command line.
+ * Fine grained options can be defined by using the object format.
+ */
 export type ConcurrentlyCommandInput = string | Partial<CommandInfo>;
+
 export type ConcurrentlyOptions = {
     logger?: Logger,
+
+    /**
+     * Which stream should the commands output be written to.
+     */
     outputStream?: Writable,
     group?: boolean,
     prefixColors?: string[],
+
+    /**
+     * Maximum number of commands to run at once.
+     *
+     * If undefined, then all processes will start in parallel.
+     * Setting this value to 1 will achieve sequential running.
+     */
     maxProcesses?: number,
+
+    /**
+     * Whether commands should be spawned in raw mode.
+     * Defaults to false.
+     */
     raw?: boolean,
+
+    /**
+     * The current working directory of commands which didn't specify one.
+     * Defaults to `process.cwd()`.
+     */
     cwd?: string,
+
+    /**
+     * @see CompletionListener
+     */
     successCondition?: SuccessCondition,
+
+    /**
+     * Which flow controllers should be applied on commands spawned by concurrently.
+     * Defaults to an empty array.
+     */
     controllers: FlowController[],
+
+    /**
+     * A function that will spawn commands.
+     * Defaults to the `spawn-command` module.
+     */
     spawn: SpawnCommand,
+
+    /**
+     * A function that will kill processes.
+     * Defaults to the `tree-kill` module.
+     */
     kill: KillProcess,
 };
 
+/**
+ * Core concurrently functionality -- spawns the given commands concurrently and
+ * returns a promise that will await for them to finish.
+ *
+ * @see CompletionListener
+ * @returns A promise that resolves when the commands ran successfully, or rejects otherwise.
+ */
 export function concurrently(baseCommands: ConcurrentlyCommandInput[], baseOptions?: Partial<ConcurrentlyOptions>) {
     assert.ok(Array.isArray(baseCommands), '[concurrently] commands should be an array');
     assert.notStrictEqual(baseCommands.length, 0, '[concurrently] no commands provided');

@@ -2,6 +2,9 @@ import { Command } from '../command';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 
+/**
+ * Logs the stdout and stderr output of commands.
+ */
 export class LogOutput implements FlowController {
     private readonly logger: Logger;
     constructor({ logger }: { logger: Logger }) {

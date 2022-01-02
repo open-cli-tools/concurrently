@@ -2,6 +2,9 @@ import { Command } from '../command';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 
+/**
+ * Logs the exit code/signal of commands.
+ */
 export class LogExit implements FlowController {
     private readonly logger: Logger;
 

@@ -12,14 +12,46 @@ export class Logger {
     private readonly prefixFormat?: string;
     private readonly prefixLength: number;
     private readonly timestampFormat: string;
+
+    /**
+     * Last character emitted.
+     * If `undefined`, then nothing has been logged yet.
+     */
     private lastChar?: string;
+
+    /**
+     * Observable that emits when there's been output logged.
+     * If `command` is is `undefined`, then the log is for a global event.
+     */
     readonly output = new Rx.Subject<{ command: Command | undefined, text: string }>();
 
     constructor({ hide, prefixFormat, prefixLength, raw = false, timestampFormat }: {
+        /**
+         * Which command(s) should have their output hidden.
+         */
         hide?: CommandIdentifier | CommandIdentifier[],
+
+        /**
+         * Whether output should be formatted to include prefixes and whether "event" logs will be
+         * logged.
+         */
         raw?: boolean,
+
+        /**
+         * The prefix format to use when logging a command's output.
+         * Defaults to the command's index.
+         */
         prefixFormat?: string,
+
+        /**
+         * How many characters should a prefix have at most, used when the prefix format is `command`.
+         */
         prefixLength?: number,
+
+        /**
+         * Date format used when logging date/time.
+         * @see https://date-fns.org/v2.0.1/docs/format
+         */
         timestampFormat?: string,
     }) {
         // To avoid empty strings from hiding the output of commands that don't have a name,
@@ -85,6 +117,11 @@ export class Logger {
         return color(text);
     }
 
+    /**
+     * Logs an event for a command (e.g. start, stop).
+     *
+     * If raw mode is on, then nothing is logged.
+     */
     logCommandEvent(text: string, command: Command) {
         if (this.raw) {
             return;
@@ -102,6 +139,11 @@ export class Logger {
         return this.log(prefix + (prefix ? ' ' : ''), text, command);
     }
 
+    /**
+     * Logs a global event (e.g. sending signals to processes).
+     *
+     * If raw mode is on, then nothing is logged.
+     */
     logGlobalEvent(text: string) {
         if (this.raw) {
             return;
@@ -110,6 +152,11 @@ export class Logger {
         this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n');
     }
 
+    /**
+     * Logs a table from an input object array, like `console.table`.
+     *
+     * Each row is a single input item, and they are presented in the input order.
+     */
     logTable(tableContents: any[]) {
         // For now, can only print array tables with some content.
         if (this.raw || !Array.isArray(tableContents) || !tableContents.length) {

@@ -2,6 +2,9 @@ import { Writable } from 'stream';
 import { Command } from './command';
 import * as Rx from 'rxjs';
 
+/**
+ * Class responsible for actually writing output onto a writable stream.
+ */
 export class OutputWriter {
     private readonly outputStream: Writable;
     private readonly group: boolean;

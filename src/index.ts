@@ -14,10 +14,31 @@ import { Logger } from './logger';
 
 export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
     // Logger options
+    /**
+     * Which command(s) should have their output hidden.
+     */
     hide?: CommandIdentifier | CommandIdentifier[],
+
+    /**
+     * The prefix format to use when logging a command's output.
+     * Defaults to the command's index.
+     */
     prefix?: string,
+
+    /**
+     * How many characters should a prefix have at most, used when the prefix format is `command`.
+     */
     prefixLength?: number,
+
+    /**
+     * Whether output should be formatted to include prefixes and whether "event" logs will be logged.
+     */
     raw?: boolean,
+
+    /**
+     * Date format used when logging date/time.
+     * @see https://date-fns.org/v2.0.1/docs/format
+     */
     timestampFormat?: string,
 
     // Input handling options
@@ -27,13 +48,34 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
     pauseInputStreamOnFinish?: boolean,
 
     // Restarting options
+    /**
+     * How much time in milliseconds to wait before restarting a command.
+     *
+     * @see RestartProcess
+     */
     restartDelay?: number,
+
+    /**
+     * How many times commands should be restarted when they exit with a failure.
+     *
+     * @see RestartProcess
+     */
     restartTries?: number,
 
     // Process killing options
+    /**
+     * Under which condition(s) should other commands be killed when the first one exits.
+     *
+     * @see KillOthers
+     */
     killOthers?: ProcessCloseCondition | ProcessCloseCondition[],
 
     // Timing options
+    /**
+     * Whether to output timing information for processes.
+     *
+     * @see LogTimings
+     */
     timings?: boolean,
 };
 

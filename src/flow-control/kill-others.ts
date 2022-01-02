@@ -7,6 +7,9 @@ import { filter, map } from 'rxjs/operators';
 
 export type ProcessCloseCondition = 'failure' | 'success';
 
+/**
+ * Sends a SIGTERM signal to all commands when one of the exits with a matching condition.
+ */
 export class KillOthers implements FlowController {
     private readonly logger: Logger;
     private readonly conditions: ProcessCloseCondition[];

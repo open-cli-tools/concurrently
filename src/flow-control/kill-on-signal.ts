@@ -3,6 +3,10 @@ import { map } from 'rxjs/operators';
 import { Command } from '../command';
 import { FlowController } from './flow-controller';
 
+/**
+ * Watches the main concurrently process for signals and sends the same signal down to each spawned
+ * command.
+ */
 export class KillOnSignal implements FlowController {
     private readonly process: EventEmitter;
 
