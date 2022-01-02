@@ -18,6 +18,7 @@
   },
   "scripts": {
     "build": "tsc --build",
+    "postbuild": "chmod +x dist/bin/concurrently.js",
     "clean": "tsc --build --clean",
     "lint": "eslint . --ext js,ts --ignore-path .gitignore",
     "prepublishOnly": "npm run build",
