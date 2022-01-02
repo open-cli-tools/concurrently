@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
-import { CommandIdentifier } from './command';
-import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions as BaseConcurrentlyOptions } from './concurrently';
+import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
+import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions as BaseConcurrentlyOptions, ConcurrentlyResult } from './concurrently';
 import { FlowController } from './flow-control/flow-controller';
 import { InputHandler } from './flow-control/input-handler';
 import { KillOnSignal } from './flow-control/kill-on-signal';
@@ -125,11 +125,21 @@ export default (commands: ConcurrentlyCommandInput[], options: Partial<Concurren
     });
 };
 
-// Export all flow controllers and the main concurrently function,
+// Export all flow controllers, types, and the main concurrently function,
 // so that 3rd-parties can use them however they want
 export {
     concurrently,
+    ConcurrentlyCommandInput,
+    ConcurrentlyResult,
     Logger,
+
+    // Command specific
+    Command,
+    CloseEvent,
+    TimerEvent,
+    CommandIdentifier,
+
+    // Flow controllers
     FlowController,
     InputHandler,
     KillOnSignal,
