@@ -15,8 +15,10 @@ Like `npm run watch-js & npm run watch-less` but better.
   - [Why](#why)
   - [Install](#install)
   - [Usage](#usage)
-  - [Programmatic Usage](#programmatic-usage)
+  - [API](#api)
     - [`concurrently(commands[, options])`](#concurrentlycommands-options)
+    - [`Command`](#command)
+    - [`CloseEvent`](#closeevent)
   - [FAQ](#faq)
 
 ## Why
@@ -135,6 +137,10 @@ General
       --hide            Comma-separated list of processes to hide the output.
                         The processes can be identified by their name or index.
                                                           [string] [default: ""]
+  -g, --group           Order the output as if the commands were run
+                        sequentially.                                  [boolean]
+      --timings         Show timing information for all processes
+                                                      [boolean] [default: false]
 
 Prefix styling
   -p, --prefix            Prefix used in logging for each process.
@@ -147,12 +153,12 @@ Prefix styling
                           - Available modifiers: reset, bold, dim, italic,
                           underline, inverse, hidden, strikethrough
                           - Available colors: black, red, green, yellow, blue,
-                          magenta, cyan, white, gray, or any hex values for
-                          colors, eg #23de43
+                          magenta, cyan, white, gray
+                          or any hex values for colors, eg #23de43
                           - Available background colors: bgBlack, bgRed,
                           bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
                           See https://www.npmjs.com/package/chalk for more
-                          information.            [string] [default: "reset"]
+                          information.               [string] [default: "reset"]
   -l, --prefix-length     Limit how many characters of the command is displayed
                           in prefix. The option can be used to shorten the
                           prefix when it is set to "command"
@@ -161,17 +167,19 @@ Prefix styling
                                    [string] [default: "yyyy-MM-dd HH:mm:ss.SSS"]
 
 Input handling
-  -i, --handle-input      Whether input should be forwarded to the child
-                          processes. See examples for more information.[boolean]
-  --default-input-target  Identifier for child process to which input on stdin
-                          should be sent if not specified at start of input.
-                          Can be either the index or the name of the process.
-                                                                    [default: 0]
+  -i, --handle-input          Whether input should be forwarded to the child
+                              processes. See examples for more information.
+                                                                       [boolean]
+      --default-input-target  Identifier for child process to which input on
+                              stdin should be sent if not specified at start of
+                              input.
+                              Can be either the index or the name of the
+                              process.                              [default: 0]
 
 Killing other processes
-  -k, --kill-others      kill other processes if one exits or dies     [boolean]
-  --kill-others-on-fail  kill other processes if one exits with non zero status
-                         code                                          [boolean]
+  -k, --kill-others          kill other processes if one exits or dies [boolean]
+      --kill-others-on-fail  kill other processes if one exits with non zero
+                             status code                               [boolean]
 
 Restarting
       --restart-tries  How many times a process that died should restart.
@@ -233,7 +241,7 @@ Examples:
 For more details, visit https://github.com/open-cli-tools/concurrently
 ```
 
-## Programmatic Usage
+## API
 concurrently can be used programmatically by using the API documented below:
 
 ### `concurrently(commands[, options])`
@@ -272,11 +280,10 @@ concurrently can be used programmatically by using the API documented below:
     - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
 
-> Returns: a `Promise` that resolves if the run was successful (according to `successCondition` option),
-> or rejects, containing an array of objects with information for each command that has been run, in the order
-> that the commands terminated. The objects have the shape `{ command, index, exitCode, killed }`, where `command` is the object
-> passed in the `commands` array, `index` its index there and `killed` indicates if the process was killed as a result of
-> `killOthers`. Default values (empty strings or objects) are returned for the fields that were not specified.
+> **Returns:** an object in the shape `{ commands, result }`.
+> - `result`: a `Promise` that resolves if the run was successful (according to `successCondition` option),
+>   or rejects, containing an array of [`CloseEvent`](#CloseEvent), in the order that the commands terminated.
+> - `commands`: an array of all spawned [`Command`s](#Command).
 
 Example:
 
@@ -294,6 +301,38 @@ concurrently([
     cwd: path.resolve(__dirname, 'scripts'),
 }).then(success, failure);
 ```
+
+### `Command`
+An object that contains all information about a spawned command, and ways to interact with it.  
+It has the following properties:
+
+- `index`: the index of the command among all commands spawned.
+- `command`: the command line of the command.
+- `name`: the name of the command; defaults to an empty string.
+- `cwd`: the current working directory of the command.
+- `env`: an object with all the environment variables that the command will be spawned with.
+- `killed`: whether the command has been killed.
+- `exited`: whether the command exited yet.
+- `pid`: the command's process ID.
+- `stdin`: a Writable stream to the command's `stdin`.
+- `stdout`: an RxJS observable to the command's `stdout`.
+- `stderr`: an RxJS observable to the command's `stderr`.
+- `error`: an RxJS observable to the command's error events (e.g. when it fails to spawn).
+- `timer`: an RxJS observable to the command's timing events (e.g. starting, stopping).
+- `close`: an RxJS observable to the command's close events.
+  See [`CloseEvent`](#CloseEvent) for more information.
+- `start()`: starts the command, setting up all 
+- `kill([signal])`: kills the command, optionally specifying a signal (e.g. `SIGTERM`, `SIGKILL`, etc).
+
+### `CloseEvent`
+An object with information about a command's closing event.  
+It contains the following properties:
+
+- `command`: a stripped down version of [`Command`](#command), including only `name`, `command`, `env` and `cwd` properties.
+- `index`: the index of the command among all commands spawned.
+- `killed`: whether the command exited because it was killed.
+- `exitCode`: the exit code of the command's process, or the signal which it was killed with.
+- `timings`: an object in the shape `{ startDate, endDate, durationSeconds }`.
 
 ## FAQ
 
