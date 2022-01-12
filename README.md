@@ -280,7 +280,7 @@ concurrently can be used programmatically by using the API documented below:
     - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
 
-> **Returns:** an object in the shape `{ commands, result }`.
+> **Returns:** an object in the shape `{ result, commands }`.
 > - `result`: a `Promise` that resolves if the run was successful (according to `successCondition` option),
 >   or rejects, containing an array of [`CloseEvent`](#CloseEvent), in the order that the commands terminated.
 > - `commands`: an array of all spawned [`Command`s](#Command).
@@ -289,7 +289,7 @@ Example:
 
 ```js
 const concurrently = require('concurrently');
-concurrently([
+const { result } = concurrently([
     'npm:watch-*',
     { command: 'nodemon', name: 'server' },
     { command: 'deploy', name: 'deploy', env: { PUBLIC_KEY: '...' } },
@@ -299,7 +299,8 @@ concurrently([
     killOthers: ['failure', 'success'],
     restartTries: 3,
     cwd: path.resolve(__dirname, 'scripts'),
-}).then(success, failure);
+});
+result.then(success, failure);
 ```
 
 ### `Command`
