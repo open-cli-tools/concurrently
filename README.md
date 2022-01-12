@@ -289,7 +289,7 @@ Example:
 
 ```js
 const concurrently = require('concurrently');
-concurrently([
+const { result } = concurrently([
     'npm:watch-*',
     { command: 'nodemon', name: 'server' },
     { command: 'deploy', name: 'deploy', env: { PUBLIC_KEY: '...' } },
@@ -299,7 +299,8 @@ concurrently([
     killOthers: ['failure', 'success'],
     restartTries: 3,
     cwd: path.resolve(__dirname, 'scripts'),
-}).then(success, failure);
+});
+result.then(success, failure);
 ```
 
 ### `Command`
