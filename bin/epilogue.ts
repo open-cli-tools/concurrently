@@ -49,6 +49,10 @@ const examples = [
     {
         description: 'Shortened NPM run command with wildcard (make sure to wrap it in quotes!)',
         example: '$ $0 "npm:watch-*"',
+    },
+    {
+      description: 'Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js" is ran',
+      example: '$ $0 "npm:*(!fix)"'
     }
 ];
 
