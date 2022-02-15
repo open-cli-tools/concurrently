@@ -43,5 +43,5 @@ export const getSpawnOpts = ({
     },
     raw && { stdio: 'inherit' as const },
     /^win/.test(process.platform) && { detached: false },
-    { env: Object.assign(colorSupport ? { FORCE_COLOR: colorSupport.level } : {}, process.env, env) }
+    { env: Object.assign(colorSupport ? { FORCE_COLOR: colorSupport.level } : {}, process.env, env) },
 );

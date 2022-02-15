@@ -12,7 +12,7 @@ beforeEach(() => {
 const createController = (successCondition?: SuccessCondition) =>
     new CompletionListener({
         successCondition,
-        scheduler
+        scheduler,
     });
 
 describe('with default success condition set', () => {

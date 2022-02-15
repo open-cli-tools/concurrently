@@ -114,12 +114,12 @@ export default (commands: ConcurrentlyCommandInput[], options: Partial<Concurren
             }),
             new KillOthers({
                 logger,
-                conditions: options.killOthers
+                conditions: options.killOthers,
             }),
             new LogTimings({
                 logger: options.timings ? logger : null,
                 timestampFormat: options.timestampFormat,
-            })
+            }),
         ],
         prefixColors: options.prefixColors || [],
     });

@@ -19,7 +19,7 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
             expect(parser.parse(commandInfo)).toEqual({
                 ...commandInfo,
                 name: 'echo',
-                command: `${npmCmd} run foo -- bar`
+                command: `${npmCmd} run foo -- bar`,
             });
         });
 
@@ -28,7 +28,7 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
             expect(parser.parse(commandInfo)).toEqual({
                 ...commandInfo,
                 name: 'foo',
-                command: `${npmCmd} run foo -- bar`
+                command: `${npmCmd} run foo -- bar`,
             });
         });
     });

@@ -64,7 +64,7 @@ export class CompletionListener {
                 switchMap(exitInfos =>
                     this.isSuccess(exitInfos.map(({ exitCode }) => exitCode))
                         ? Rx.of(exitInfos, this.scheduler)
-                        : Rx.throwError(exitInfos, this.scheduler)
+                        : Rx.throwError(exitInfos, this.scheduler),
                 ),
                 take(1),
             )

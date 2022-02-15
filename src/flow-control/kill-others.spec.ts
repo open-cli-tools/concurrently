@@ -8,7 +8,7 @@ let logger: Logger;
 beforeEach(() => {
     commands = [
         new FakeCommand(),
-        new FakeCommand()
+        new FakeCommand(),
     ];
 
     logger = createMockInstance(Logger);
@@ -16,7 +16,7 @@ beforeEach(() => {
 
 const createWithConditions = (conditions: ProcessCloseCondition[]) => new KillOthers({
     logger,
-    conditions
+    conditions,
 });
 
 it('returns same commands', () => {

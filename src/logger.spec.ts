@@ -168,7 +168,7 @@ describe('#logCommandText()', () => {
     it('logs prefix using prefixColor from command', () => {
         const logger = createLogger({});
         const cmd = new FakeCommand('', undefined, 1, {
-            prefixColor: 'blue'
+            prefixColor: 'blue',
         });
         logger.logCommandText('foo', cmd);
 
@@ -178,7 +178,7 @@ describe('#logCommandText()', () => {
     it('logs prefix in gray dim if prefixColor from command does not exist', () => {
         const logger = createLogger({});
         const cmd = new FakeCommand('', undefined, 1, {
-            prefixColor: 'blue.fake'
+            prefixColor: 'blue.fake',
         });
         logger.logCommandText('foo', cmd);
 

@@ -74,7 +74,7 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
                 scripts: {
                     'foo-bar-baz': '',
                     'foo--baz': '',
-                }
+                },
             });
 
             expect(parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`))).toEqual([
@@ -88,7 +88,7 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
                 scripts: {
                     'watch-js': '',
                     'watch-css': '',
-                }
+                },
             });
 
             expect(parser.parse({
@@ -107,7 +107,7 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
                     'lint:ts': '',
                     'lint:fix:js': '',
                     'lint:fix:ts': '',
-                }
+                },
             });
 
             expect(parser.parse(createCommandInfo(`${npmCmd} run lint:*(!fix)`))).toEqual([

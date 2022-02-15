@@ -13,7 +13,7 @@ export class ExpandNpmShortcut implements CommandParser {
 
         return Object.assign({}, commandInfo, {
             name: commandInfo.name || cmdName,
-            command: `${npmCmd} run ${cmdName}${args}`
+            command: `${npmCmd} run ${cmdName}${args}`,
         });
     }
 };

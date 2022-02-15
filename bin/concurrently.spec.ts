@@ -8,7 +8,7 @@ const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string) => new RegExp(
     _.escapeRegExp(prefix) +
     ' exited with code ' +
-    (isWindows ? 1 : '(SIGTERM|143)')
+    (isWindows ? 1 : '(SIGTERM|143)'),
 );
 
 /**
@@ -22,31 +22,31 @@ const run = (args: string) => {
         env: Object.assign({}, process.env, {
             // When upgrading from jest 23 -> 24, colors started printing in the test output.
             // They are forcibly disabled here
-            FORCE_COLOR: 0
+            FORCE_COLOR: 0,
         }),
     });
 
     const stdout = readline.createInterface({
         input: child.stdout,
-        output: null
+        output: null,
     });
 
     const stderr = readline.createInterface({
         input: child.stderr,
-        output: null
+        output: null,
     });
 
     const close = Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'close');
     const log = Rx.merge(
         Rx.fromEvent<Buffer>(stdout, 'line'),
-        Rx.fromEvent<Buffer>(stderr, 'line')
+        Rx.fromEvent<Buffer>(stderr, 'line'),
     ).pipe(map(data => data.toString()));
 
     return {
         close,
         log,
         stdin: child.stdin,
-        pid: child.pid
+        pid: child.pid,
     };
 };
 
@@ -61,7 +61,7 @@ it('has version command', done => {
     Rx.combineLatest(
         run('--version').close,
         run('-V').close,
-        run('-v').close
+        run('-v').close,
     ).subscribe(events => {
         expect(events[0][0]).toBe(0);
         expect(events[1][0]).toBe(0);

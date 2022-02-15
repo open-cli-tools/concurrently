@@ -32,9 +32,9 @@ export class KillOnSignal implements FlowController {
                 return new Proxy(command, {
                     get(target, prop: keyof Command) {
                         return prop === 'close' ? closeStream : target[prop];
-                    }
+                    },
                 });
-            })
+            }),
         };
     }
 };
