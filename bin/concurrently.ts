@@ -1,10 +1,16 @@
 #!/usr/bin/env node
 import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import * as defaults from '../src/defaults';
 import concurrently from '../src/index';
 import { epilogue } from './epilogue';
 
-const args = yargs
+// Clean-up arguments (yargs expects only the arguments after the program name)
+const cleanArgs = hideBin(process.argv);
+// Find argument separator (double dash)
+const argsSepIdx = cleanArgs.findIndex((arg) => arg === '--');
+// If separator has been found, only pass arguments before it to yargs, otherwise pass all arguments
+const args = yargs(argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs)
     .usage('$0 [options] <command ...>')
     .help('h')
     .alias('h', 'help')
@@ -160,13 +166,15 @@ const args = yargs
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
     .group(['restart-tries', 'restart-after'], 'Restarting')
     .epilogue(epilogue)
-    .argv;
+    .parseSync();
 
 const names = (args.names || '').split(args['name-separator']);
 
 concurrently(args._.map((command, index) => ({
     command: String(command),
     name: names[index],
+    // Pass arguments after separator, if there are any
+    passthroughArgs: argsSepIdx >= 0 ? cleanArgs.slice(argsSepIdx + 1) : [],
 })), {
     handleInput: args['handle-input'],
     defaultInputTarget: args['default-input-target'],

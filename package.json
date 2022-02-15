@@ -47,13 +47,14 @@
     "spawn-command": "^0.0.2-1",
     "supports-color": "^8.1.0",
     "tree-kill": "^1.2.2",
-    "yargs": "^16.2.0"
+    "yargs": "^17.3.1"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.178",
     "@types/node": "^17.0.0",
     "@types/supports-color": "^8.1.1",
+    "@types/yargs": "^17.0.8",
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
     "coveralls": "^3.1.0",

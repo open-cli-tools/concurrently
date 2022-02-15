@@ -258,6 +258,18 @@ Examples:
 
      $ concurrently "npm:watch-*"
 
+ - Passthrough some additional arguments via '{<number>}' placeholder
+
+     $ concurrently "echo {1}" -- foo
+
+ - Passthrough all additional arguments via '{@}' placeholder
+
+     $ concurrently "npm:dev-* -- {@}" -- --watch --noEmit
+
+ - Passthrough all additional arguments combined via '{*}' placeholder
+
+     $ concurrently "npm:dev-* -- {*}" -- --watch --noEmit
+
 For more details, visit https://github.com/open-cli-tools/concurrently
 ```
 
@@ -267,7 +279,7 @@ concurrently can be used programmatically by using the API documented below:
 ### `concurrently(commands[, options])`
 
 - `commands`: an array of either strings (containing the commands to run) or objects
-  with the shape `{ command, name, prefixColor, env, cwd }`.
+  with the shape `{ command, name, prefixColor, env, cwd, passthroughArgs }`.
 
 - `options` (optional): an object containing any of the below:
     - `cwd`: the working directory to be used by all commands. Can be overriden per command.
@@ -332,6 +344,7 @@ It has the following properties:
 - `name`: the name of the command; defaults to an empty string.
 - `cwd`: the current working directory of the command.
 - `env`: an object with all the environment variables that the command will be spawned with.
+- `passthroughArgs`: list of additional arguments which can be used in command via placeholders.
 - `killed`: whether the command has been killed.
 - `exited`: whether the command exited yet.
 - `pid`: the command's process ID.

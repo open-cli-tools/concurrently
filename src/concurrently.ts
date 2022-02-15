@@ -5,6 +5,7 @@ import { Writable } from 'stream';
 import treeKill from 'tree-kill';
 import { CloseEvent, Command, CommandInfo, KillProcess, SpawnCommand } from './command';
 import { CommandParser } from './command-parser/command-parser';
+import { ExpandArguments } from './command-parser/expand-arguments';
 import { ExpandNpmShortcut } from './command-parser/expand-npm-shortcut';
 import { ExpandNpmWildcard } from './command-parser/expand-npm-wildcard';
 import { StripQuotes } from './command-parser/strip-quotes';
@@ -117,6 +118,7 @@ export function concurrently(
         new StripQuotes(),
         new ExpandNpmShortcut(),
         new ExpandNpmWildcard(),
+        new ExpandArguments(),
     ];
 
     let lastColor = '';
@@ -184,6 +186,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
             name: '',
             env: {},
             cwd: '',
+            passthroughArgs: [],
         };
     }
 
@@ -192,6 +195,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
         name: command.name || '',
         env: command.env || {},
         cwd: command.cwd || '',
+        passthroughArgs: command.passthroughArgs || [],
     }, command.prefixColor ? {
         prefixColor: command.prefixColor,
     } : {});

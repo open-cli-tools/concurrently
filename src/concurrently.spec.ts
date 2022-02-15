@@ -187,6 +187,22 @@ it('uses overridden cwd option for each command if specified', () => {
     }));
 });
 
+it('argument placeholders are properly replaced', () => {
+    const passthroughArgs = ['foo', 'bar'];
+    create([
+        { command: 'echo {1}', passthroughArgs },
+        { command: 'echo {@}', passthroughArgs },
+        { command: 'echo {*}', passthroughArgs },
+        { command: 'echo \\{@}', passthroughArgs },
+    ]);
+
+    expect(spawn).toHaveBeenCalledTimes(4);
+    expect(spawn).toHaveBeenCalledWith('echo \'foo\'', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo \'foo\' \'bar\'', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo \'foo bar\'', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
+});
+
 it('runs onFinish hook after all commands run', async () => {
     const promise = create(['foo', 'bar'], { maxProcesses: 1 });
     expect(spawn).toHaveBeenCalledTimes(1);
