@@ -51,8 +51,8 @@ const examples = [
         example: '$ $0 "npm:watch-*"',
     },
     {
-      description: 'Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js" is ran',
-      example: '$ $0 "npm:*(!fix)"'
+        description: 'Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js" is ran',
+        example: '$ $0 "npm:*(!fix)"'
     }
 ];
 
