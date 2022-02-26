@@ -100,6 +100,22 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
             ]);
         });
 
+        it('allows negation', () => {
+            readPkg.mockReturnValue({
+                scripts: {
+                    'lint:js': '',
+                    'lint:ts': '',
+                    'lint:fix:js': '',
+                    'lint:fix:ts': '',
+                }
+            });
+
+            expect(parser.parse(createCommandInfo(`${npmCmd} run lint:*(!fix)`))).toEqual([
+                { name: 'js', command: `${npmCmd} run lint:js` },
+                { name: 'ts', command: `${npmCmd} run lint:ts` },
+            ]);
+        });
+
         it('caches scripts upon calls', () => {
             readPkg.mockReturnValue({});
             parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`));

@@ -1,6 +1,6 @@
 # Concurrently
 
-[![Build Status](https://github.com/open-cli-tools/concurrently/workflows/Tests/badge.svg)](https://github.com/open-cli-tools/concurrently/actions?workflow=Tests) 
+[![Build Status](https://github.com/open-cli-tools/concurrently/workflows/Tests/badge.svg)](https://github.com/open-cli-tools/concurrently/actions?workflow=Tests)
 [![Coverage Status](https://coveralls.io/repos/github/open-cli-tools/concurrently/badge.svg?branch=master)](https://coveralls.io/github/open-cli-tools/concurrently?branch=master)
 
 [![NPM Badge](https://nodei.co/npm/concurrently.png?downloads=true)](https://www.npmjs.com/package/concurrently)
@@ -107,6 +107,26 @@ concurrently -n w: npm:watch-*
 
 # Equivalent to:
 concurrently -n w:js,w:css,w:node "npm run watch-js" "npm run watch-css" "npm run watch-node"
+```
+
+Exclusion is also supported. Given the following scripts in package.json:
+```javascript
+{
+    // ...
+    "scripts": {
+      "lint:js": "...",
+      "lint:ts": "...",
+      "lint:fix:js": "...",
+      "lint:fix:ts": "...",
+      // ...
+    }
+    // ...
+}
+```
+```bash
+# Running only lint:js and lint:ts
+#   with lint:fix:js and lint:fix:ts excluded
+concurrently "npm:lint:*(!fix)"
 ```
 
 Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-copy-paste-this-frontend-template/blob/5cd2bde719654941bdfc0a42c6f1b8e69ae79980/package.json#L9).
@@ -304,7 +324,7 @@ result.then(success, failure);
 ```
 
 ### `Command`
-An object that contains all information about a spawned command, and ways to interact with it.  
+An object that contains all information about a spawned command, and ways to interact with it.<br>
 It has the following properties:
 
 - `index`: the index of the command among all commands spawned.
@@ -322,11 +342,11 @@ It has the following properties:
 - `timer`: an RxJS observable to the command's timing events (e.g. starting, stopping).
 - `close`: an RxJS observable to the command's close events.
   See [`CloseEvent`](#CloseEvent) for more information.
-- `start()`: starts the command, setting up all 
+- `start()`: starts the command, setting up all
 - `kill([signal])`: kills the command, optionally specifying a signal (e.g. `SIGTERM`, `SIGKILL`, etc).
 
 ### `CloseEvent`
-An object with information about a command's closing event.  
+An object with information about a command's closing event.<br>
 It contains the following properties:
 
 - `command`: a stripped down version of [`Command`](#command), including only `name`, `command`, `env` and `cwd` properties.
