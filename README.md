@@ -129,8 +129,6 @@ Exclusion is also supported. Given the following scripts in package.json:
 concurrently "npm:lint:*(!fix)"
 ```
 
-
-
 Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-copy-paste-this-frontend-template/blob/5cd2bde719654941bdfc0a42c6f1b8e69ae79980/package.json#L9).
 
 Help:
@@ -326,7 +324,7 @@ result.then(success, failure);
 ```
 
 ### `Command`
-An object that contains all information about a spawned command, and ways to interact with it.
+An object that contains all information about a spawned command, and ways to interact with it.<br>
 It has the following properties:
 
 - `index`: the index of the command among all commands spawned.
@@ -348,7 +346,7 @@ It has the following properties:
 - `kill([signal])`: kills the command, optionally specifying a signal (e.g. `SIGTERM`, `SIGKILL`, etc).
 
 ### `CloseEvent`
-An object with information about a command's closing event.
+An object with information about a command's closing event.<br>
 It contains the following properties:
 
 - `command`: a stripped down version of [`Command`](#command), including only `name`, `command`, `env` and `cwd` properties.
