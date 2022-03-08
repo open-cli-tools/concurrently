@@ -187,19 +187,45 @@ it('uses overridden cwd option for each command if specified', () => {
     }));
 });
 
-it('argument placeholders are properly replaced', () => {
-    const passthroughArgs = ['foo', 'bar'];
-    create([
-        { command: 'echo {1}', passthroughArgs },
-        { command: 'echo {@}', passthroughArgs },
-        { command: 'echo {*}', passthroughArgs },
-        { command: 'echo \\{@}', passthroughArgs },
-    ]);
+it('argument placeholders are properly replaced when passthrough-arguments is enabled', () => {
+    const additionalArguments = ['foo', 'bar'];
+    create(
+        [
+            { command: 'echo {1}', additionalArguments },
+            { command: 'echo {@}', additionalArguments },
+            { command: 'echo {*}', additionalArguments },
+            { command: 'echo \\{@}', additionalArguments },
+        ],
+        {
+            passthroughArguments: true,
+        },
+    );
 
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('echo \'foo\'', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo \'foo\' \'bar\'', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo \'foo bar\'', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
+});
+
+it('argument placeholders are not replaced when passthrough-arguments is disabled', () => {
+    const additionalArguments = ['foo', 'bar'];
+    create(
+        [
+            { command: 'echo {1}', additionalArguments },
+            { command: 'echo {@}', additionalArguments },
+            { command: 'echo {*}', additionalArguments },
+            { command: 'echo \\{@}', additionalArguments },
+        ],
+        {
+            passthroughArguments: false,
+        },
+    );
+
+    expect(spawn).toHaveBeenCalledTimes(4);
+    expect(spawn).toHaveBeenCalledWith('echo {1}', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo {*}', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
 });
 

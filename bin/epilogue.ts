@@ -56,15 +56,15 @@ const examples = [
     },
     {
         description: 'Passthrough some additional arguments via \'{<number>}\' placeholder',
-        example: '$ $0 "echo {1}" -- foo',
+        example: '$ $0 -P "echo {1}" -- foo',
     },
     {
         description: 'Passthrough all additional arguments via \'{@}\' placeholder',
-        example: '$ $0 "npm:dev-* -- {@}" -- --watch --noEmit',
+        example: '$ $0 -P "npm:dev-* -- {@}" -- --watch --noEmit',
     },
     {
         description: 'Passthrough all additional arguments combined via \'{*}\' placeholder',
-        example: '$ $0 "npm:dev-* -- {*}" -- --watch --noEmit',
+        example: '$ $0 -P "npm:dev-* -- {*}" -- --watch --noEmit',
     },
 ];
 

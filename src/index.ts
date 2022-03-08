@@ -77,6 +77,11 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
      * @see LogTimings
      */
     timings?: boolean,
+
+    /**
+     * Passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands.
+     */
+     passthroughArguments?: boolean,
 };
 
 export default (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) => {
@@ -122,6 +127,7 @@ export default (commands: ConcurrentlyCommandInput[], options: Partial<Concurren
             }),
         ],
         prefixColors: options.prefixColors || [],
+        passthroughArguments: options.passthroughArguments,
     });
 };
 

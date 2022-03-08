@@ -97,6 +97,11 @@ export type ConcurrentlyOptions = {
      * Defaults to the `tree-kill` module.
      */
     kill: KillProcess,
+
+    /**
+     * Passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands.
+     */
+    passthroughArguments?: boolean,
 };
 
 /**
@@ -118,8 +123,11 @@ export function concurrently(
         new StripQuotes(),
         new ExpandNpmShortcut(),
         new ExpandNpmWildcard(),
-        new ExpandArguments(),
     ];
+
+    if (options.passthroughArguments) {
+        commandParsers.push(new ExpandArguments());
+    }
 
     let lastColor = '';
     let commands = _(baseCommands)
@@ -186,7 +194,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
             name: '',
             env: {},
             cwd: '',
-            passthroughArgs: [],
+            additionalArguments: [],
         };
     }
 
@@ -195,7 +203,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
         name: command.name || '',
         env: command.env || {},
         cwd: command.cwd || '',
-        passthroughArgs: command.passthroughArgs || [],
+        additionalArguments: command.additionalArguments || [],
     }, command.prefixColor ? {
         prefixColor: command.prefixColor,
     } : {});

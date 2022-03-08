@@ -3,10 +3,10 @@ import { ExpandArguments } from './expand-arguments';
 
 const parser = new ExpandArguments();
 
-const createCommandInfo = (command: string, passthroughArgs: string[]): CommandInfo => ({
+const createCommandInfo = (command: string, additionalArguments: string[]): CommandInfo => ({
     command,
     name: '',
-    passthroughArgs,
+    additionalArguments,
 });
 
 it('returns command as is when no placeholders', () => {

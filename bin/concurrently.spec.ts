@@ -58,11 +58,11 @@ it('has help command', done => {
 });
 
 it('has version command', done => {
-    Rx.combineLatest(
+    Rx.combineLatest([
         run('--version').close,
         run('-V').close,
         run('-v').close,
-    ).subscribe(events => {
+    ]).subscribe(events => {
         expect(events[0][0]).toBe(0);
         expect(events[1][0]).toBe(0);
         expect(events[2][0]).toBe(0);
@@ -442,6 +442,25 @@ describe('--timings', () => {
             expectLinesForProcessStartAndStop(lines, 0, 'sleep 0.75');
             expectLinesForProcessStartAndStop(lines, 1, 'exit 1');
             expectLinesForTimingsTable(lines);
+            done();
+        }, done);
+    });
+});
+
+describe('--passthrough-arguments', () => {
+    it('argument placeholders are properly replaced when passthrough-arguments is enabled', done => {
+        const child = run('--passthrough-arguments "echo {1}" -- echo');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expect(lines).toContainEqual(expect.stringContaining('[0] echo \'echo\' exited with code 0'));
+            done();
+        }, done);
+    });
+
+    it('argument placeholders are not replaced when passthrough-arguments is disabled', done => {
+        const child = run('"echo {1}" -- echo');
+        child.log.pipe(buffer(child.close)).subscribe(lines => {
+            expect(lines).toContainEqual(expect.stringContaining('[0] echo {1} exited with code 0'));
+            expect(lines).toContainEqual(expect.stringContaining('[1] echo exited with code 0'));
             done();
         }, done);
     });

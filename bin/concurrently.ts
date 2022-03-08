@@ -9,8 +9,12 @@ import { epilogue } from './epilogue';
 const cleanArgs = hideBin(process.argv);
 // Find argument separator (double dash)
 const argsSepIdx = cleanArgs.findIndex((arg) => arg === '--');
-// If separator has been found, only pass arguments before it to yargs, otherwise pass all arguments
-const args = yargs(argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs)
+// Arguments before separator
+const argsBeforeSep = argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs;
+// Arguments after separator
+const argsAfterSep = argsSepIdx >= 0 ? cleanArgs.slice(argsSepIdx + 1) : [];
+
+const args = yargs(argsBeforeSep)
     .usage('$0 [options] <command ...>')
     .help('h')
     .alias('h', 'help')
@@ -76,19 +80,27 @@ const args = yargs(argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs)
             type: 'boolean',
         },
         'timings': {
-            describe: 'Show timing information for all processes',
+            describe: 'Show timing information for all processes.',
             type: 'boolean',
             default: defaults.timings,
+        },
+        'passthrough-arguments': {
+            alias: 'P',
+            describe:
+                'Passthrough additional arguments to commands (accessible via placeholders) ' +
+                'instead of treating them as commands.',
+            type: 'boolean',
+            default: defaults.passthroughArguments,
         },
 
         // Kill others
         'kill-others': {
             alias: 'k',
-            describe: 'kill other processes if one exits or dies',
+            describe: 'Kill other processes if one exits or dies.',
             type: 'boolean',
         },
         'kill-others-on-fail': {
-            describe: 'kill other processes if one exits with non zero status code',
+            describe: 'Kill other processes if one exits with non zero status code.',
             type: 'boolean',
         },
 
@@ -160,7 +172,7 @@ const args = yargs(argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs)
                 'Can be either the index or the name of the process.',
         },
     })
-    .group(['m', 'n', 'name-separator', 'raw', 's', 'no-color', 'hide', 'group', 'timings'], 'General')
+    .group(['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P'], 'General')
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
@@ -169,31 +181,37 @@ const args = yargs(argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs)
     .parseSync();
 
 const names = (args.names || '').split(args['name-separator']);
+// If "passthrough-arguments" is disabled, treat additional arguments as commands
+const commands = args.passthroughArguments ? args._ : [...args._, ...argsAfterSep];
 
-concurrently(args._.map((command, index) => ({
-    command: String(command),
-    name: names[index],
-    // Pass arguments after separator, if there are any
-    passthroughArgs: argsSepIdx >= 0 ? cleanArgs.slice(argsSepIdx + 1) : [],
-})), {
-    handleInput: args['handle-input'],
-    defaultInputTarget: args['default-input-target'],
-    killOthers: args.killOthers
-        ? ['success', 'failure']
-        : (args.killOthersOnFail ? ['failure'] : []),
-    maxProcesses: args['max-processes'],
-    raw: args.raw,
-    hide: args.hide.split(','),
-    group: args.group,
-    prefix: args.prefix,
-    prefixColors: args['prefix-colors'].split(','),
-    prefixLength: args['prefix-length'],
-    restartDelay: args['restart-after'],
-    restartTries: args['restart-tries'],
-    successCondition: args.success,
-    timestampFormat: args['timestamp-format'],
-    timings: args.timings,
-}).result.then(
+concurrently(
+    commands.map((command, index) => ({
+        command: String(command),
+        name: names[index],
+        // If enabled, make additional arguments accessible in command
+        additionalArguments: args.passthroughArguments ? argsAfterSep : [],
+    })),
+    {
+        handleInput: args['handle-input'],
+        defaultInputTarget: args['default-input-target'],
+        killOthers: args.killOthers
+            ? ['success', 'failure']
+            : (args.killOthersOnFail ? ['failure'] : []),
+        maxProcesses: args['max-processes'],
+        raw: args.raw,
+        hide: args.hide.split(','),
+        group: args.group,
+        prefix: args.prefix,
+        prefixColors: args['prefix-colors'].split(','),
+        prefixLength: args['prefix-length'],
+        restartDelay: args['restart-after'],
+        restartTries: args['restart-tries'],
+        successCondition: args.success,
+        timestampFormat: args['timestamp-format'],
+        timings: args.timings,
+        passthroughArguments: args.passthroughArguments,
+    },
+).result.then(
     () => process.exit(0),
     () => process.exit(1),
 );
