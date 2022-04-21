@@ -6,17 +6,18 @@ import { CommandParser } from './command-parser';
  */
 export class ExpandArguments implements CommandParser {
     parse(commandInfo: CommandInfo) {
-        const command = commandInfo.command.replace(/\\?{([@\*]|\d+)\}/g, (match, p1) => {
+        const command = commandInfo.command.replace(/\\?{([@\*]|\d+)\}/g, (match, placeholderTarget) => {
+            // Don't replace the placeholder if it is escaped by a backslash.
             if (match.startsWith('\\')) {
                 return match.substring(1);
             }
-            if (!isNaN(p1) && p1 > 0 && commandInfo.additionalArguments[p1-1]) {
-                return `'${commandInfo.additionalArguments[p1-1]}'`;
+            if (!isNaN(placeholderTarget) && placeholderTarget > 0 && commandInfo.additionalArguments[placeholderTarget-1]) {
+                return `'${commandInfo.additionalArguments[placeholderTarget-1]}'`;
             }
-            if (p1 === '@') {
+            if (placeholderTarget === '@') {
                 return commandInfo.additionalArguments.map((arg) => `'${arg}'`).join(' ');
             }
-            if (p1 === '*' && commandInfo.additionalArguments.length > 0) {
+            if (placeholderTarget === '*' && commandInfo.additionalArguments.length > 0) {
                 return `'${commandInfo.additionalArguments.join(' ')}'`;
             }
             return '';
