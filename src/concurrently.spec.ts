@@ -202,8 +202,8 @@ it('argument placeholders are properly replaced when passthrough-arguments is en
     );
 
     expect(spawn).toHaveBeenCalledTimes(4);
-    expect(spawn).toHaveBeenCalledWith('echo \'foo\'', expect.objectContaining({}));
-    expect(spawn).toHaveBeenCalledWith('echo \'foo\' \'bar\'', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo foo', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo foo bar', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo \'foo bar\'', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
 });

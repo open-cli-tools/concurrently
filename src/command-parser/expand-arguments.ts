@@ -1,5 +1,6 @@
 import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
+import { quote } from 'shell-quote';
 
 /**
  * Replace placeholders with additional arguments.
@@ -12,13 +13,13 @@ export class ExpandArguments implements CommandParser {
                 return match.substring(1);
             }
             if (!isNaN(placeholderTarget) && placeholderTarget > 0 && commandInfo.additionalArguments[placeholderTarget-1]) {
-                return `'${commandInfo.additionalArguments[placeholderTarget-1]}'`;
+                return quote([commandInfo.additionalArguments[placeholderTarget-1]]);
             }
             if (placeholderTarget === '@') {
-                return commandInfo.additionalArguments.map((arg) => `'${arg}'`).join(' ');
+                return quote(commandInfo.additionalArguments);
             }
             if (placeholderTarget === '*' && commandInfo.additionalArguments.length > 0) {
-                return `'${commandInfo.additionalArguments.join(' ')}'`;
+                return quote([commandInfo.additionalArguments.join(' ')]);
             }
             return '';
         });

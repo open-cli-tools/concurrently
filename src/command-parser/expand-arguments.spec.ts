@@ -16,12 +16,17 @@ it('returns command as is when no placeholders', () => {
 
 it('single argument placeholder is replaced', () => {
     const commandInfo = createCommandInfo('echo {1}', ['foo', 'bar']);
-    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo \'foo\'' });
+    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo foo' });
+});
+
+it('argument placeholder is replaced and quoted properly', () => {
+    const commandInfo = createCommandInfo('echo {1}', ['foo bar']);
+    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo \'foo bar\'' });
 });
 
 it('multiple single argument placeholders are replaced', () => {
     const commandInfo = createCommandInfo('echo {2} {1}', ['foo', 'bar']);
-    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo \'bar\' \'foo\'' });
+    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo bar foo' });
 });
 
 it('empty replacement with single placeholder and no passthrough arguments', () => {
@@ -41,7 +46,7 @@ it('empty replacement with combined placeholder and no passthrough arguments', (
 
 it('all arguments placeholder is replaced', () => {
     const commandInfo = createCommandInfo('echo {@}', ['foo', 'bar']);
-    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo \'foo\' \'bar\'' });
+    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo foo bar' });
 });
 
 it('combined arguments placeholder is replaced', () => {

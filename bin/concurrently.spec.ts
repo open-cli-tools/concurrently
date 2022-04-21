@@ -451,7 +451,7 @@ describe('--passthrough-arguments', () => {
     it('argument placeholders are properly replaced when passthrough-arguments is enabled', done => {
         const child = run('--passthrough-arguments "echo {1}" -- echo');
         child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[0] echo \'echo\' exited with code 0'));
+            expect(lines).toContainEqual(expect.stringContaining('[0] echo echo exited with code 0'));
             done();
         }, done);
     });
