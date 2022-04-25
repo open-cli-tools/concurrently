@@ -21,6 +21,7 @@ const defaults: ConcurrentlyOptions = {
     raw: false,
     controllers: [],
     cwd: undefined,
+    additionalArguments: [],
 };
 
 /**
@@ -52,7 +53,15 @@ export type ConcurrentlyOptions = {
      * Which stream should the commands output be written to.
      */
     outputStream?: Writable,
+
+    /**
+     * Whether the output should be ordered as if the commands were run sequentially.
+     */
     group?: boolean,
+
+    /**
+     * Comma-separated list of chalk colors to use on prefixes.
+     */
     prefixColors?: string[],
 
     /**
@@ -102,6 +111,12 @@ export type ConcurrentlyOptions = {
      * Passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands.
      */
     passthroughArguments?: boolean,
+
+    /**
+     * List of additional arguments passed to concurrently.
+     * Defaults to an empty array.
+     */
+    additionalArguments?: string[],
 };
 
 /**
@@ -126,7 +141,7 @@ export function concurrently(
     ];
 
     if (options.passthroughArguments) {
-        commandParsers.push(new ExpandArguments());
+        commandParsers.push(new ExpandArguments(options.additionalArguments));
     }
 
     let lastColor = '';
@@ -158,7 +173,6 @@ export function concurrently(
         { commands, onFinishCallbacks: [] },
     );
     commands = handleResult.commands;
-
 
     if (options.logger) {
         const outputWriter = new OutputWriter({
@@ -194,7 +208,6 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
             name: '',
             env: {},
             cwd: '',
-            additionalArguments: [],
         };
     }
 
@@ -203,7 +216,6 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
         name: command.name || '',
         env: command.env || {},
         cwd: command.cwd || '',
-        additionalArguments: command.additionalArguments || [],
     }, command.prefixColor ? {
         prefixColor: command.prefixColor,
     } : {});

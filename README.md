@@ -290,7 +290,7 @@ concurrently can be used programmatically by using the API documented below:
 ### `concurrently(commands[, options])`
 
 - `commands`: an array of either strings (containing the commands to run) or objects
-  with the shape `{ command, name, prefixColor, env, cwd, additionalArguments }`.
+  with the shape `{ command, name, prefixColor, env, cwd }`.
 
 - `options` (optional): an object containing any of the below:
     - `cwd`: the working directory to be used by all commands. Can be overriden per command.
@@ -322,7 +322,8 @@ concurrently can be used programmatically by using the API documented below:
     - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
     - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
-    - `passthroughArguments`: Passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands. Default: `false`
+    - `passthroughArguments`: passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands. Default: `false`
+    - `additionalArguments`: list of additional arguments passed to concurrently.
 
 > **Returns:** an object in the shape `{ result, commands }`.
 > - `result`: a `Promise` that resolves if the run was successful (according to `successCondition` option),
@@ -356,7 +357,6 @@ It has the following properties:
 - `name`: the name of the command; defaults to an empty string.
 - `cwd`: the current working directory of the command.
 - `env`: an object with all the environment variables that the command will be spawned with.
-- `additionalArguments`: list of additional arguments which can be used in command via placeholders.
 - `killed`: whether the command has been killed.
 - `exited`: whether the command exited yet.
 - `pid`: the command's process ID.

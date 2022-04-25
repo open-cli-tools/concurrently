@@ -82,6 +82,12 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
      * Passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands.
      */
      passthroughArguments?: boolean,
+
+
+    /**
+     * List of additional arguments passed to concurrently.
+     */
+    additionalArguments?: string[],
 };
 
 export default (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) => {
@@ -128,6 +134,7 @@ export default (commands: ConcurrentlyCommandInput[], options: Partial<Concurren
         ],
         prefixColors: options.prefixColors || [],
         passthroughArguments: options.passthroughArguments,
+        additionalArguments: options.additionalArguments,
     });
 };
 

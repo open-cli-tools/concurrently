@@ -32,11 +32,6 @@ export interface CommandInfo {
      * Color to use on prefix of command.
      */
     prefixColor?: string,
-
-    /**
-     * Additional arguments which can be used in command via placeholders.
-     */
-    additionalArguments?: string[]
 }
 
 export interface CloseEvent {
@@ -104,9 +99,6 @@ export class Command implements CommandInfo {
     /** @inheritdoc */
     readonly cwd?: string;
 
-    /** @inheritdoc */
-    readonly additionalArguments: string[];
-
     readonly close = new Rx.Subject<CloseEvent>();
     readonly error = new Rx.Subject<unknown>();
     readonly stdout = new Rx.Subject<Buffer>();
@@ -124,7 +116,7 @@ export class Command implements CommandInfo {
     }
 
     constructor(
-        { index, name, command, prefixColor, env, cwd, additionalArguments }: CommandInfo & { index: number },
+        { index, name, command, prefixColor, env, cwd }: CommandInfo & { index: number },
         spawnOpts: SpawnOptions,
         spawn: SpawnCommand,
         killProcess: KillProcess,
@@ -135,7 +127,6 @@ export class Command implements CommandInfo {
         this.prefixColor = prefixColor;
         this.env = env;
         this.cwd = cwd;
-        this.additionalArguments = additionalArguments;
         this.killProcess = killProcess;
         this.spawn = spawn;
         this.spawnOpts = spawnOpts;

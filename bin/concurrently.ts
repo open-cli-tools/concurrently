@@ -180,6 +180,7 @@ const args = yargs(argsBeforeSep)
     .epilogue(epilogue)
     .parseSync();
 
+// Get names of commands by the specified separator
 const names = (args.names || '').split(args['name-separator']);
 // If "passthrough-arguments" is disabled, treat additional arguments as commands
 const commands = args.passthroughArguments ? args._ : [...args._, ...argsAfterSep];
@@ -188,8 +189,6 @@ concurrently(
     commands.map((command, index) => ({
         command: String(command),
         name: names[index],
-        // If enabled, make additional arguments accessible in command
-        additionalArguments: args.passthroughArguments ? argsAfterSep : [],
     })),
     {
         handleInput: args['handle-input'],
@@ -210,6 +209,7 @@ concurrently(
         timestampFormat: args['timestamp-format'],
         timings: args.timings,
         passthroughArguments: args.passthroughArguments,
+        additionalArguments: argsAfterSep,
     },
 ).result.then(
     () => process.exit(0),

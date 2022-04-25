@@ -188,16 +188,16 @@ it('uses overridden cwd option for each command if specified', () => {
 });
 
 it('argument placeholders are properly replaced when passthrough-arguments is enabled', () => {
-    const additionalArguments = ['foo', 'bar'];
     create(
         [
-            { command: 'echo {1}', additionalArguments },
-            { command: 'echo {@}', additionalArguments },
-            { command: 'echo {*}', additionalArguments },
-            { command: 'echo \\{@}', additionalArguments },
+            { command: 'echo {1}' },
+            { command: 'echo {@}' },
+            { command: 'echo {*}' },
+            { command: 'echo \\{@}' },
         ],
         {
             passthroughArguments: true,
+            additionalArguments: ['foo', 'bar'],
         },
     );
 
@@ -209,16 +209,16 @@ it('argument placeholders are properly replaced when passthrough-arguments is en
 });
 
 it('argument placeholders are not replaced when passthrough-arguments is disabled', () => {
-    const additionalArguments = ['foo', 'bar'];
     create(
         [
-            { command: 'echo {1}', additionalArguments },
-            { command: 'echo {@}', additionalArguments },
-            { command: 'echo {*}', additionalArguments },
-            { command: 'echo \\{@}', additionalArguments },
+            { command: 'echo {1}'  },
+            { command: 'echo {@}' },
+            { command: 'echo {*}' },
+            { command: 'echo \\{@}' },
         ],
         {
             passthroughArguments: false,
+            additionalArguments: ['foo', 'bar'],
         },
     );
 
@@ -241,7 +241,7 @@ it('runs onFinish hook after all commands run', async () => {
     expect(onFinishHooks[1]).not.toHaveBeenCalled();
 
     processes[1].emit('close', 0, null);
-    await promise;
+    await promise.result;
 
     expect(onFinishHooks[0]).toHaveBeenCalled();
     expect(onFinishHooks[1]).toHaveBeenCalled();
