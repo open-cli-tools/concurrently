@@ -20,7 +20,7 @@ beforeEach(() => {
     controller = new InputHandler({
         defaultInputTarget: 0,
         inputStream,
-        logger
+        logger,
     });
 });
 

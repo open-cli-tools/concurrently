@@ -10,7 +10,7 @@ let controllers: jest.Mocked<FlowController>[];
 let processes: ChildProcess[];
 const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) => concurrently(
     commands,
-    Object.assign(options, { controllers, spawn, kill })
+    Object.assign(options, { controllers, spawn, kill }),
 );
 
 beforeEach(() => {
@@ -80,7 +80,7 @@ it('runs controllers with the commands', () => {
 it('runs commands with a name or prefix color', () => {
     create([
         { command: 'echo', prefixColor: 'red', name: 'foo' },
-        'kill'
+        'kill',
     ]);
 
     controllers.forEach(controller => {
@@ -93,7 +93,7 @@ it('runs commands with a name or prefix color', () => {
 
 it('runs commands with a list of colors', () => {
     create(['echo', 'kill'], {
-        prefixColors: ['red']
+        prefixColors: ['red'],
     });
 
     controllers.forEach(controller => {
@@ -111,7 +111,7 @@ it('passes commands wrapped from a controller to the next one', () => {
     create(['echo']);
 
     expect(controllers[0].handle).toHaveBeenCalledWith([
-        expect.objectContaining({ command: 'echo', index: 0 })
+        expect.objectContaining({ command: 'echo', index: 0 }),
     ]);
 
     expect(controllers[1].handle).toHaveBeenCalledWith([fakeCommand]);
@@ -123,18 +123,18 @@ it('merges extra env vars into each command', () => {
     create([
         { command: 'echo', env: { foo: 'bar' } },
         { command: 'echo', env: { foo: 'baz' } },
-        'kill'
+        'kill',
     ]);
 
     expect(spawn).toHaveBeenCalledTimes(3);
     expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'bar' })
+        env: expect.objectContaining({ foo: 'bar' }),
     }));
     expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'baz' })
+        env: expect.objectContaining({ foo: 'baz' }),
     }));
     expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({
-        env: expect.not.objectContaining({ foo: expect.anything() })
+        env: expect.not.objectContaining({ foo: expect.anything() }),
     }));
 });
 
@@ -143,11 +143,11 @@ it('uses cwd from options for each command', () => {
         [
             { command: 'echo', env: { foo: 'bar' } },
             { command: 'echo', env: { foo: 'baz' } },
-            'kill'
+            'kill',
         ],
         {
             cwd: 'foobar',
-        }
+        },
     );
 
     expect(spawn).toHaveBeenCalledTimes(3);
@@ -173,7 +173,7 @@ it('uses overridden cwd option for each command if specified', () => {
         ],
         {
             cwd: 'foobar',
-        }
+        },
     );
 
     expect(spawn).toHaveBeenCalledTimes(2);

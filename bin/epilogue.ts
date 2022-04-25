@@ -3,11 +3,11 @@
 const examples = [
     {
         description: 'Output nothing more than stdout+stderr of child processes',
-        example: '$ $0 --raw "npm run watch-less" "npm run watch-js"'
+        example: '$ $0 --raw "npm run watch-less" "npm run watch-js"',
     },
     {
         description: 'Normal output but without colors e.g. when logging to file',
-        example: '$ $0 --no-color "grunt watch" "http-server" > log'
+        example: '$ $0 --no-color "grunt watch" "http-server" > log',
     },
     {
         description: 'Custom prefix',
@@ -25,21 +25,21 @@ const examples = [
         description: 'Send input to default',
         example: [
             '$ $0 --handle-input "nodemon" "npm run watch-js"',
-            'rs  # Sends rs command to nodemon process'
+            'rs  # Sends rs command to nodemon process',
         ].join('\n'),
     },
     {
         description: 'Send input to specific child identified by index',
         example: [
             '$ $0 --handle-input "npm run watch-js" nodemon',
-            '1:rs'
+            '1:rs',
         ].join('\n'),
     },
     {
         description: 'Send input to specific child identified by name',
         example: [
             '$ $0 --handle-input -n js,srv "npm run watch-js" nodemon',
-            'srv:rs'
+            'srv:rs',
         ].join('\n'),
     },
     {
@@ -52,8 +52,8 @@ const examples = [
     },
     {
         description: 'Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js" is ran',
-        example: '$ $0 "npm:*(!fix)"'
-    }
+        example: '$ $0 "npm:*(!fix)"',
+    },
 ];
 
 export const epilogue = `

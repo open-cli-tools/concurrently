@@ -16,7 +16,7 @@ export class LogError implements FlowController {
         commands.forEach(command => command.error.subscribe(event => {
             this.logger.logCommandEvent(
                 `Error occurred when executing command: ${command.command}`,
-                command
+                command,
             );
 
             const errorText = String(event instanceof Error ? (event.stack || event) : event);

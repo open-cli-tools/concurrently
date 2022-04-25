@@ -30,13 +30,13 @@ it('logs the error event of each command', () => {
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(4);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `Error occurred when executing command: ${commands[0].command}`,
-        commands[0]
+        commands[0],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith('error from command 0', commands[0]);
 
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `Error occurred when executing command: ${commands[1].command}`,
-        commands[1]
+        commands[1],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(error.stack, commands[1]);
 });

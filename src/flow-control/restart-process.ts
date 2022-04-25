@@ -34,7 +34,7 @@ export class RestartProcess implements FlowController {
 
         commands.map(command => command.close.pipe(
             take(this.tries),
-            takeWhile(({ exitCode }) => exitCode !== 0)
+            takeWhile(({ exitCode }) => exitCode !== 0),
         )).map((failure, index) => Rx.merge(
             // Delay the emission (so that the restarts happen on time),
             // explicitly telling the subscriber that a restart is needed
@@ -42,7 +42,7 @@ export class RestartProcess implements FlowController {
             // Skip the first N emissions (as these would be duplicates of the above),
             // meaning it will be empty because of success, or failed all N times,
             // and no more restarts should be attempted.
-            failure.pipe(skip(this.tries), mapTo(false), defaultIfEmpty(false))
+            failure.pipe(skip(this.tries), mapTo(false), defaultIfEmpty(false)),
         ).subscribe(restart => {
             const command = commands[index];
             if (restart) {
@@ -61,9 +61,9 @@ export class RestartProcess implements FlowController {
                 return new Proxy(command, {
                     get(target, prop: keyof Command) {
                         return prop === 'close' ? closeStream : target[prop];
-                    }
+                    },
                 });
-            })
+            }),
         };
     }
 };

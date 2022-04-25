@@ -161,7 +161,7 @@ export class Command implements CommandInfo {
                     startDate,
                     endDate,
                     durationSeconds: durationSeconds + (durationNanoSeconds / 1e9),
-                }
+                },
             });
         });
         child.stdout && pipeTo(Rx.fromEvent<Buffer>(child.stdout, 'data'), this.stdout);

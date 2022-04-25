@@ -116,7 +116,7 @@ export function concurrently(
     const commandParsers: CommandParser[] = [
         new StripQuotes(),
         new ExpandNpmShortcut(),
-        new ExpandNpmWildcard()
+        new ExpandNpmWildcard(),
     ];
 
     let lastColor = '';
@@ -142,10 +142,10 @@ export function concurrently(
             const { commands, onFinish } = controller.handle(prevCommands);
             return {
                 commands,
-                onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : [])
+                onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : []),
             };
         },
-        { commands, onFinishCallbacks: [] }
+        { commands, onFinishCallbacks: [] },
     );
     commands = handleResult.commands;
 
@@ -200,7 +200,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
         (commands, parser) => _.flatMap(commands, command => parser.parse(command)),
-        _.castArray(command)
+        _.castArray(command),
     );
 }
 
