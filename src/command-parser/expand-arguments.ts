@@ -6,10 +6,7 @@ import { quote } from 'shell-quote';
  * Replace placeholders with additional arguments.
  */
 export class ExpandArguments implements CommandParser {
-    additionalArguments: string[];
-
-    constructor(additionalArguments: string[]) {
-        this.additionalArguments = additionalArguments;
+    constructor(private readonly additionalArguments: string[]) {
     }
 
     parse(commandInfo: CommandInfo) {
