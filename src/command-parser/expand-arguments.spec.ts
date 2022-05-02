@@ -30,7 +30,7 @@ it('multiple single argument placeholders are replaced', () => {
     expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo bar foo' });
 });
 
-it('empty replacement with single placeholder and no passthrough arguments', () => {
+it('empty replacement with single placeholder and not enough passthrough arguments', () => {
     const parser = new ExpandArguments(['foo', 'bar']);
     const commandInfo = createCommandInfo('echo {3}');
     expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo ' });
