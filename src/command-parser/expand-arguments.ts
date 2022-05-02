@@ -15,7 +15,7 @@ export class ExpandArguments implements CommandParser {
             if (match.startsWith('\\')) {
                 return match.substring(1);
             }
-            if (!isNaN(placeholderTarget) && placeholderTarget > 0 && this.additionalArguments[placeholderTarget-1]) {
+            if (!isNaN(placeholderTarget) && placeholderTarget > 0 && placeholderTarget <= this.additionalArguments.length) {
                 return quote([this.additionalArguments[placeholderTarget-1]]);
             }
             if (placeholderTarget === '@') {
