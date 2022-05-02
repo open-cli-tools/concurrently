@@ -208,8 +208,7 @@ concurrently(
         successCondition: args.success,
         timestampFormat: args['timestamp-format'],
         timings: args.timings,
-        passthroughArguments: args.passthroughArguments,
-        additionalArguments: argsAfterSep,
+        additionalArguments: args.passthroughArguments ? argsAfterSep : undefined,
     },
 ).result.then(
     () => process.exit(0),

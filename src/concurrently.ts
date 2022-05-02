@@ -21,7 +21,6 @@ const defaults: ConcurrentlyOptions = {
     raw: false,
     controllers: [],
     cwd: undefined,
-    additionalArguments: [],
 };
 
 /**
@@ -108,13 +107,10 @@ export type ConcurrentlyOptions = {
     kill: KillProcess,
 
     /**
-     * Passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands.
-     */
-    passthroughArguments?: boolean,
-
-    /**
-     * List of additional arguments passed to concurrently.
-     * Defaults to an empty array.
+     * List of additional arguments passed that will get replaced in each command.
+     * If not defined, no argument replacing will happen.
+     *
+     * @see ExpandArguments
      */
     additionalArguments?: string[],
 };
@@ -140,7 +136,7 @@ export function concurrently(
         new ExpandNpmWildcard(),
     ];
 
-    if (options.passthroughArguments) {
+    if (options.additionalArguments) {
         commandParsers.push(new ExpandArguments(options.additionalArguments));
     }
 

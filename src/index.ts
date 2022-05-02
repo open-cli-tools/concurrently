@@ -79,13 +79,8 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
     timings?: boolean,
 
     /**
-     * Passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands.
-     */
-     passthroughArguments?: boolean,
-
-
-    /**
-     * List of additional arguments passed to concurrently.
+     * List of additional arguments passed that will get replaced in each command.
+     * If not defined, no argument replacing will happen.
      */
     additionalArguments?: string[],
 };
@@ -133,7 +128,6 @@ export default (commands: ConcurrentlyCommandInput[], options: Partial<Concurren
             }),
         ],
         prefixColors: options.prefixColors || [],
-        passthroughArguments: options.passthroughArguments,
         additionalArguments: options.additionalArguments,
     });
 };

@@ -187,7 +187,7 @@ it('uses overridden cwd option for each command if specified', () => {
     }));
 });
 
-it('argument placeholders are properly replaced when passthrough-arguments is enabled', () => {
+it('argument placeholders are properly replaced when additional arguments are passed', () => {
     create(
         [
             { command: 'echo {1}' },
@@ -196,7 +196,6 @@ it('argument placeholders are properly replaced when passthrough-arguments is en
             { command: 'echo \\{@}' },
         ],
         {
-            passthroughArguments: true,
             additionalArguments: ['foo', 'bar'],
         },
     );
@@ -208,7 +207,7 @@ it('argument placeholders are properly replaced when passthrough-arguments is en
     expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
 });
 
-it('argument placeholders are not replaced when passthrough-arguments is disabled', () => {
+it('argument placeholders are not replaced when additional arguments are not defined', () => {
     create(
         [
             { command: 'echo {1}'  },
@@ -216,10 +215,6 @@ it('argument placeholders are not replaced when passthrough-arguments is disable
             { command: 'echo {*}' },
             { command: 'echo \\{@}' },
         ],
-        {
-            passthroughArguments: false,
-            additionalArguments: ['foo', 'bar'],
-        },
     );
 
     expect(spawn).toHaveBeenCalledTimes(4);

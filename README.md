@@ -322,8 +322,7 @@ concurrently can be used programmatically by using the API documented below:
     - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
     - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
-    - `passthroughArguments`: passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands. Default: `false`
-    - `additionalArguments`: list of additional arguments passed to concurrently.
+    - `additionalArguments`: list of additional arguments passed that will get replaced in each command. If not defined, no argument replacing will happen.
 
 > **Returns:** an object in the shape `{ result, commands }`.
 > - `result`: a `Promise` that resolves if the run was successful (according to `successCondition` option),
