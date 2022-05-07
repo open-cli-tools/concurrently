@@ -8,8 +8,10 @@ import { CloseEvent, Command } from './command';
  * - `first`: only the first specified command;
  * - `last`: only the last specified command;
  * - `all`: all commands.
+ * - `command-{name|index}`: only the command with the specified name or index.
+ * - `!command-{name|index}`: all commands but the one with the specified name or index.
  */
-export type SuccessCondition = 'first' | 'last' | 'all';
+export type SuccessCondition = 'first' | 'last' | 'all' | `command-${string|number}` | `!command-${string|number}`;
 
 /**
  * Provides logic to determine whether lists of commands ran successfully.
@@ -36,19 +38,24 @@ export class CompletionListener {
         this.scheduler = scheduler;
     }
 
-    private isSuccess(exitCodes: (string | number)[]) {
-        switch (this.successCondition) {
-        /* eslint-disable indent */
-            case 'first':
-                return exitCodes[0] === 0;
-
-            case 'last':
-                return exitCodes[exitCodes.length - 1] === 0;
-
-            default:
-                return exitCodes.every(exitCode => exitCode === 0);
-            /* eslint-enable indent */
+    private isSuccess(events: CloseEvent[]) {
+        if (this.successCondition === 'first') {
+            return events[0].exitCode === 0;
+        } else if (this.successCondition === 'last') {
+            return events[events.length - 1].exitCode === 0;
+        } else if (!/^!?command-.+$/.test(this.successCondition)) {
+            // If not a `command-` syntax, then it's an 'all' condition.
+            return events.every(({ exitCode }) => exitCode === 0);
         }
+
+        const [, nameOrIndex] = this.successCondition.split('-');
+        const targetCommandEvent = events.find(({ command, index }) => (
+            command.name === nameOrIndex
+            || index === Number(nameOrIndex)
+        ));
+        return this.successCondition.startsWith('!')
+            ? events.every((event) => event === targetCommandEvent || event.exitCode === 0)
+            : targetCommandEvent && targetCommandEvent.exitCode === 0;
     }
 
     /**
@@ -62,7 +69,7 @@ export class CompletionListener {
             .pipe(
                 bufferCount(closeStreams.length),
                 switchMap(exitInfos =>
-                    this.isSuccess(exitInfos.map(({ exitCode }) => exitCode))
+                    this.isSuccess(exitInfos)
                         ? Rx.of(exitInfos, this.scheduler)
                         : Rx.throwError(exitInfos, this.scheduler),
                 ),
