@@ -27,6 +27,10 @@ export interface CommandInfo {
      * The current working directory of the process when spawned.
      */
     cwd?: string,
+
+    /**
+     * Color to use on prefix of command.
+     */
     prefixColor?: string,
 }
 

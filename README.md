@@ -134,38 +134,43 @@ Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-co
 Help:
 
 ```
-
 concurrently [options] <command ...>
 
 General
-  -m, --max-processes   How many processes should run at once.
-                        New processes only spawn after all restart tries of a
-                        process.                                        [number]
-  -n, --names           List of custom names to be used in prefix template.
-                        Example names: "main,browser,server"            [string]
-      --name-separator  The character to split <names> on. Example usage:
-                        concurrently -n "styles|scripts|server" --name-separator
-                        "|"                                       [default: ","]
-  -r, --raw             Output only raw output of processes, disables
-                        prettifying and concurrently coloring.         [boolean]
-  -s, --success         Which command(s) must exit with code 0 in order for
-                        concurrently exit with code 0 too. Options are:
-                        - "first" for the first command to exit;
-                        - "last" for the last command to exit;
-                        - "all" for all commands;
-                        - "command-{name}"/"command-{index}" for the command
-                        with that name or index;
-                        - "!command-{name}"/"!command-{index}" for all commands
-                        but the one with that name or index.
+  -m, --max-processes          How many processes should run at once.
+                               New processes only spawn after all restart tries
+                               of a process.                            [number]
+  -n, --names                  List of custom names to be used in prefix
+                               template.
+                               Example names: "main,browser,server"     [string]
+      --name-separator         The character to split <names> on. Example usage:
+                               concurrently -n "styles|scripts|server"
+                               --name-separator "|"               [default: ","]
+  -s, --success                Which command(s) must exit with code 0 in order
+                               for concurrently exit with code 0 too. Options
+                               are:
+                               - "first" for the first command to exit;
+                               - "last" for the last command to exit;
+                               - "all" for all commands;
+                               - "command-{name}"/"command-{index}" for the
+                               command with that name or index;
+                               - "!command-{name}"/"!command-{index}" for all
+                               commands but the one with that name or index.
                                                                 [default: "all"]
-      --no-color        Disables colors from logging                   [boolean]
-      --hide            Comma-separated list of processes to hide the output.
-                        The processes can be identified by their name or index.
-                                                          [string] [default: ""]
-  -g, --group           Order the output as if the commands were run
-                        sequentially.                                  [boolean]
-      --timings         Show timing information for all processes
+  -r, --raw                    Output only raw output of processes, disables
+                               prettifying and concurrently coloring.  [boolean]
+      --no-color               Disables colors from logging.           [boolean]
+      --hide                   Comma-separated list of processes to hide the
+                               output.
+                               The processes can be identified by their name or
+                               index.                     [string] [default: ""]
+  -g, --group                  Order the output as if the commands were run
+                               sequentially.                           [boolean]
+      --timings                Show timing information for all processes.
                                                       [boolean] [default: false]
+  -P, --passthrough-arguments  Passthrough additional arguments to commands
+                               (accessible via placeholders) instead of treating
+                               them as commands.      [boolean] [default: false]
 
 Prefix styling
   -p, --prefix            Prefix used in logging for each process.
@@ -202,9 +207,9 @@ Input handling
                               process.                              [default: 0]
 
 Killing other processes
-  -k, --kill-others          kill other processes if one exits or dies [boolean]
-      --kill-others-on-fail  kill other processes if one exits with non zero
-                             status code                               [boolean]
+  -k, --kill-others          Kill other processes if one exits or dies.[boolean]
+      --kill-others-on-fail  Kill other processes if one exits with non zero
+                             status code.                              [boolean]
 
 Restarting
       --restart-tries  How many times a process that died should restart.
@@ -216,6 +221,7 @@ Restarting
 Options:
   -h, --help         Show help                                         [boolean]
   -v, -V, --version  Show version number                               [boolean]
+
 
 Examples:
 
@@ -238,7 +244,8 @@ Examples:
 
  - Configuring via environment variables with CONCURRENTLY_ prefix
 
-     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true concurrently "echo hello" "echo world"
+     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true concurrently "echo
+     hello" "echo world"
 
  - Send input to default
 
@@ -262,6 +269,23 @@ Examples:
  - Shortened NPM run command with wildcard (make sure to wrap it in quotes!)
 
      $ concurrently "npm:watch-*"
+
+ - Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js"
+ is ran
+
+     $ concurrently "npm:*(!fix)"
+
+ - Passthrough some additional arguments via '{<number>}' placeholder
+
+     $ concurrently -P "echo {1}" -- foo
+
+ - Passthrough all additional arguments via '{@}' placeholder
+
+     $ concurrently -P "npm:dev-* -- {@}" -- --watch --noEmit
+
+ - Passthrough all additional arguments combined via '{*}' placeholder
+
+     $ concurrently -P "npm:dev-* -- {*}" -- --watch --noEmit
 
 For more details, visit https://github.com/open-cli-tools/concurrently
 ```
@@ -304,6 +328,7 @@ concurrently can be used programmatically by using the API documented below:
     - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
     - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
+    - `additionalArguments`: list of additional arguments passed that will get replaced in each command. If not defined, no argument replacing will happen.
 
 > **Returns:** an object in the shape `{ result, commands }`.
 > - `result`: a `Promise` that resolves if the run was successful (according to `successCondition` option),
