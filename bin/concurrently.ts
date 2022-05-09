@@ -181,7 +181,7 @@ const args = yargs(argsBeforeSep)
     .parseSync();
 
 // Get names of commands by the specified separator
-const names = (args.names || '').split(args['name-separator']);
+const names = (args.names || '').split(args.nameSeparator);
 // If "passthrough-arguments" is disabled, treat additional arguments as commands
 const commands = args.passthroughArguments ? args._ : [...args._, ...argsAfterSep];
 
@@ -191,22 +191,22 @@ concurrently(
         name: names[index],
     })),
     {
-        handleInput: args['handle-input'],
-        defaultInputTarget: args['default-input-target'],
+        handleInput: args.handleInput,
+        defaultInputTarget: args.defaultInputTarget,
         killOthers: args.killOthers
             ? ['success', 'failure']
             : (args.killOthersOnFail ? ['failure'] : []),
-        maxProcesses: args['max-processes'],
+        maxProcesses: args.maxProcesses,
         raw: args.raw,
         hide: args.hide.split(','),
         group: args.group,
         prefix: args.prefix,
-        prefixColors: args['prefix-colors'].split(','),
-        prefixLength: args['prefix-length'],
-        restartDelay: args['restart-after'],
-        restartTries: args['restart-tries'],
+        prefixColors: args.prefixColors.split(','),
+        prefixLength: args.prefixLength,
+        restartDelay: args.restartAfter,
+        restartTries: args.restartTries,
         successCondition: args.success,
-        timestampFormat: args['timestamp-format'],
+        timestampFormat: args.timestampFormat,
         timings: args.timings,
         additionalArguments: args.passthroughArguments ? argsAfterSep : undefined,
     },
