@@ -54,6 +54,18 @@ const examples = [
         description: 'Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js" is ran',
         example: '$ $0 "npm:*(!fix)"',
     },
+    {
+        description: 'Passthrough some additional arguments via \'{<number>}\' placeholder',
+        example: '$ $0 -P "echo {1}" -- foo',
+    },
+    {
+        description: 'Passthrough all additional arguments via \'{@}\' placeholder',
+        example: '$ $0 -P "npm:dev-* -- {@}" -- --watch --noEmit',
+    },
+    {
+        description: 'Passthrough all additional arguments combined via \'{*}\' placeholder',
+        example: '$ $0 -P "npm:dev-* -- {*}" -- --watch --noEmit',
+    },
 ];
 
 export const epilogue = `

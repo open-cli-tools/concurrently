@@ -187,6 +187,43 @@ it('uses overridden cwd option for each command if specified', () => {
     }));
 });
 
+it('argument placeholders are properly replaced when additional arguments are passed', () => {
+    create(
+        [
+            { command: 'echo {1}' },
+            { command: 'echo {@}' },
+            { command: 'echo {*}' },
+            { command: 'echo \\{@}' },
+        ],
+        {
+            additionalArguments: ['foo', 'bar'],
+        },
+    );
+
+    expect(spawn).toHaveBeenCalledTimes(4);
+    expect(spawn).toHaveBeenCalledWith('echo foo', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo foo bar', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo \'foo bar\'', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
+});
+
+it('argument placeholders are not replaced when additional arguments are not defined', () => {
+    create(
+        [
+            { command: 'echo {1}'  },
+            { command: 'echo {@}' },
+            { command: 'echo {*}' },
+            { command: 'echo \\{@}' },
+        ],
+    );
+
+    expect(spawn).toHaveBeenCalledTimes(4);
+    expect(spawn).toHaveBeenCalledWith('echo {1}', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo {*}', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
+});
+
 it('runs onFinish hook after all commands run', async () => {
     const promise = create(['foo', 'bar'], { maxProcesses: 1 });
     expect(spawn).toHaveBeenCalledTimes(1);
@@ -199,7 +236,7 @@ it('runs onFinish hook after all commands run', async () => {
     expect(onFinishHooks[1]).not.toHaveBeenCalled();
 
     processes[1].emit('close', 0, null);
-    await promise;
+    await promise.result;
 
     expect(onFinishHooks[0]).toHaveBeenCalled();
     expect(onFinishHooks[1]).toHaveBeenCalled();
