@@ -3,7 +3,7 @@
 # top-most EditorConfig file
 root = true
 
-# Unix-style newlines with a newline ending and space indentation for all files
+# Unix-style newlines with newline ending and space indentation for all files
 [*]
 end_of_line = lf
 insert_final_newline = true
