@@ -133,6 +133,15 @@ describe.each([
 
         return expect(result).rejects.toEqual(expect.anything());
     });
+
+    it(`fails if command ${nameOrIndex} doesn't exist`, () => {
+        const result = createController(condition).listen([commands[0]]);
+
+        emitFakeCloseEvent(commands[0], { exitCode: 0 });
+        scheduler.flush();
+
+        return expect(result).rejects.toEqual(expect.anything());
+    });
 });
 
 describe.each([
@@ -163,5 +172,14 @@ describe.each([
         scheduler.flush();
 
         return expect(result).rejects.toEqual(expect.anything());
+    });
+
+    it(`succeeds if command ${nameOrIndex} doesn't exist`, () => {
+        const result = createController(condition).listen([commands[0]]);
+
+        emitFakeCloseEvent(commands[0], { exitCode: 0 });
+        scheduler.flush();
+
+        return expect(result).resolves.toEqual(expect.anything());
     });
 });
