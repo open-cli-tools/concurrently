@@ -48,17 +48,24 @@ export class CompletionListener {
             return events.every(({ exitCode }) => exitCode === 0);
         }
 
-        // Check `command-` syntax condition
+        // Check `command-` syntax condition.
+        // Note that a command's `name` is not necessarily unique,
+        // in which case all of them must meet the success condition.
         const [, nameOrIndex] = this.successCondition.split('-');
-        const targetCommandEvent = events.find(({ command, index }) => (
+        const targetCommandsEvents = events.filter(({ command, index }) => (
             command.name === nameOrIndex
             || index === Number(nameOrIndex)
         ));
-        return this.successCondition.startsWith('!')
-            // All commands except the specified one must exit succesfully
-            ? events.every((event) => event === targetCommandEvent || event.exitCode === 0)
-            // Only the specified command must exit succesfully
-            : targetCommandEvent && targetCommandEvent.exitCode === 0;
+        if (this.successCondition.startsWith('!')) {
+            // All commands except the specified ones must exit succesfully
+            return events.every((event) => (
+                targetCommandsEvents.includes(event)
+                || event.exitCode === 0
+            ));
+        }
+        // Only the specified commands must exit succesfully
+        return targetCommandsEvents.length > 0
+            && targetCommandsEvents.every(event => event.exitCode === 0);
     }
 
     /**

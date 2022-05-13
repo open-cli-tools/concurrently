@@ -53,8 +53,9 @@ const args = yargs(argsBeforeSep)
                 '- "first" for the first command to exit;\n' +
                 '- "last" for the last command to exit;\n' +
                 '- "all" for all commands;\n' +
-                '- "command-{name}"/"command-{index}" for the command with that name or index;\n' +
-                '- "!command-{name}"/"!command-{index}" for all commands but the one with that ' +
+                // Note: not a typo. Multiple commands can have the same name.
+                '- "command-{name}"/"command-{index}" for the commands with that name or index;\n' +
+                '- "!command-{name}"/"!command-{index}" for all commands but the ones with that ' +
                 'name or index.\n',
             default: defaults.success,
         },

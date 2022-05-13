@@ -122,6 +122,19 @@ describe.each([
         return expect(result).resolves.toEqual(expect.anything());
     });
 
+    it(`succeeds if all commands ${nameOrIndex} exit with code 0`, () => {
+        commands = [commands[0], commands[1], commands[1]];
+        const result = createController(condition).listen(commands);
+
+        emitFakeCloseEvent(commands[0], { exitCode: 1 });
+        emitFakeCloseEvent(commands[1], { exitCode: 0 });
+        emitFakeCloseEvent(commands[2], { exitCode: 0 });
+
+        scheduler.flush();
+
+        return expect(result).resolves.toEqual(expect.anything());
+    });
+
     it(`fails if command ${nameOrIndex} exits with non-0 code`, () => {
         const result = createController(condition).listen(commands);
 
@@ -132,6 +145,19 @@ describe.each([
         scheduler.flush();
 
         return expect(result).rejects.toEqual(expect.anything());
+    });
+
+    it(`fails if some commands ${nameOrIndex} exit with non-0 code`, () => {
+        commands = [commands[0], commands[1], commands[1]];
+        const result = createController(condition).listen(commands);
+
+        emitFakeCloseEvent(commands[0], { exitCode: 1 });
+        emitFakeCloseEvent(commands[1], { exitCode: 0 });
+        emitFakeCloseEvent(commands[2], { exitCode: 1 });
+
+        scheduler.flush();
+
+        return expect(result).resolves.toEqual(expect.anything());
     });
 
     it(`fails if command ${nameOrIndex} doesn't exist`, () => {
