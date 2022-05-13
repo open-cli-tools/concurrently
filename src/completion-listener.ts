@@ -44,17 +44,20 @@ export class CompletionListener {
         } else if (this.successCondition === 'last') {
             return events[events.length - 1].exitCode === 0;
         } else if (!/^!?command-.+$/.test(this.successCondition)) {
-            // If not a `command-` syntax, then it's an 'all' condition.
+            // If not a `command-` syntax, then it's an 'all' condition or it's treated as such.
             return events.every(({ exitCode }) => exitCode === 0);
         }
 
+        // Check `command-` syntax condition
         const [, nameOrIndex] = this.successCondition.split('-');
         const targetCommandEvent = events.find(({ command, index }) => (
             command.name === nameOrIndex
             || index === Number(nameOrIndex)
         ));
         return this.successCondition.startsWith('!')
+            // All commands except the specified one must exit succesfully
             ? events.every((event) => event === targetCommandEvent || event.exitCode === 0)
+            // Only the specified command must exit succesfully
             : targetCommandEvent && targetCommandEvent.exitCode === 0;
     }
 
