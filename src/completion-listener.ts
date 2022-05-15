@@ -8,8 +8,10 @@ import { CloseEvent, Command } from './command';
  * - `first`: only the first specified command;
  * - `last`: only the last specified command;
  * - `all`: all commands.
+ * - `command-{name|index}`: only the commands with the specified names or index.
+ * - `!command-{name|index}`: all commands but the ones with the specified names or index.
  */
-export type SuccessCondition = 'first' | 'last' | 'all';
+export type SuccessCondition = 'first' | 'last' | 'all' | `command-${string|number}` | `!command-${string|number}`;
 
 /**
  * Provides logic to determine whether lists of commands ran successfully.
@@ -36,19 +38,34 @@ export class CompletionListener {
         this.scheduler = scheduler;
     }
 
-    private isSuccess(exitCodes: (string | number)[]) {
-        switch (this.successCondition) {
-        /* eslint-disable indent */
-            case 'first':
-                return exitCodes[0] === 0;
-
-            case 'last':
-                return exitCodes[exitCodes.length - 1] === 0;
-
-            default:
-                return exitCodes.every(exitCode => exitCode === 0);
-            /* eslint-enable indent */
+    private isSuccess(events: CloseEvent[]) {
+        if (this.successCondition === 'first') {
+            return events[0].exitCode === 0;
+        } else if (this.successCondition === 'last') {
+            return events[events.length - 1].exitCode === 0;
+        } else if (!/^!?command-.+$/.test(this.successCondition)) {
+            // If not a `command-` syntax, then it's an 'all' condition or it's treated as such.
+            return events.every(({ exitCode }) => exitCode === 0);
         }
+
+        // Check `command-` syntax condition.
+        // Note that a command's `name` is not necessarily unique,
+        // in which case all of them must meet the success condition.
+        const [, nameOrIndex] = this.successCondition.split('-');
+        const targetCommandsEvents = events.filter(({ command, index }) => (
+            command.name === nameOrIndex
+            || index === Number(nameOrIndex)
+        ));
+        if (this.successCondition.startsWith('!')) {
+            // All commands except the specified ones must exit succesfully
+            return events.every((event) => (
+                targetCommandsEvents.includes(event)
+                || event.exitCode === 0
+            ));
+        }
+        // Only the specified commands must exit succesfully
+        return targetCommandsEvents.length > 0
+            && targetCommandsEvents.every(event => event.exitCode === 0);
     }
 
     /**
@@ -62,7 +79,7 @@ export class CompletionListener {
             .pipe(
                 bufferCount(closeStreams.length),
                 switchMap(exitInfos =>
-                    this.isSuccess(exitInfos.map(({ exitCode }) => exitCode))
+                    this.isSuccess(exitInfos)
                         ? Rx.of(exitInfos, this.scheduler)
                         : Rx.throwError(exitInfos, this.scheduler),
                 ),

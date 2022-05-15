@@ -48,10 +48,15 @@ const args = yargs(argsBeforeSep)
         'success': {
             alias: 's',
             describe:
-                'Return exit code of zero or one based on the success or failure ' +
-                'of the "first" child to terminate, the "last child", or succeed ' +
-                'only if "all" child processes succeed.',
-            choices: ['first', 'last', 'all'] as const,
+                'Which command(s) must exit with code 0 in order for concurrently exit with ' +
+                'code 0 too. Options are:\n' +
+                '- "first" for the first command to exit;\n' +
+                '- "last" for the last command to exit;\n' +
+                '- "all" for all commands;\n' +
+                // Note: not a typo. Multiple commands can have the same name.
+                '- "command-{name}"/"command-{index}" for the commands with that name or index;\n' +
+                '- "!command-{name}"/"!command-{index}" for all commands but the ones with that ' +
+                'name or index.\n',
             default: defaults.success,
         },
         'raw': {

@@ -146,14 +146,20 @@ General
       --name-separator         The character to split <names> on. Example usage:
                                concurrently -n "styles|scripts|server"
                                --name-separator "|"               [default: ","]
-  -s, --success                Return exit code of zero or one based on the
-                               success or failure of the "first" child to
-                               terminate, the "last child", or succeed only if
-                               "all" child processes succeed.
-                              [choices: "first", "last", "all"] [default: "all"]
+  -s, --success                Which command(s) must exit with code 0 in order
+                               for concurrently exit with code 0 too. Options
+                               are:
+                               - "first" for the first command to exit;
+                               - "last" for the last command to exit;
+                               - "all" for all commands;
+                               - "command-{name}"/"command-{index}" for the
+                               commands with that name or index;
+                               - "!command-{name}"/"!command-{index}" for all
+                               commands but the ones with that name or index.
+                                                                [default: "all"]
   -r, --raw                    Output only raw output of processes, disables
                                prettifying and concurrently coloring.  [boolean]
-      --no-color               Disables colors from logging.           [boolean]
+      --no-color               Disables colors from logging            [boolean]
       --hide                   Comma-separated list of processes to hide the
                                output.
                                The processes can be identified by their name or
