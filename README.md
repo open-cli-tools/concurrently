@@ -153,13 +153,13 @@ General
                                - "last" for the last command to exit;
                                - "all" for all commands;
                                - "command-{name}"/"command-{index}" for the
-                               command with that name or index;
+                               commands with that name or index;
                                - "!command-{name}"/"!command-{index}" for all
-                               commands but the one with that name or index.
+                               commands but the ones with that name or index.
                                                                 [default: "all"]
   -r, --raw                    Output only raw output of processes, disables
                                prettifying and concurrently coloring.  [boolean]
-      --no-color               Disables colors from logging.           [boolean]
+      --no-color               Disables colors from logging            [boolean]
       --hide                   Comma-separated list of processes to hide the
                                output.
                                The processes can be identified by their name or

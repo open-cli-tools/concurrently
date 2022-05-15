@@ -8,8 +8,8 @@ import { CloseEvent, Command } from './command';
  * - `first`: only the first specified command;
  * - `last`: only the last specified command;
  * - `all`: all commands.
- * - `command-{name|index}`: only the command with the specified name or index.
- * - `!command-{name|index}`: all commands but the one with the specified name or index.
+ * - `command-{name|index}`: only the commands with the specified names or index.
+ * - `!command-{name|index}`: all commands but the ones with the specified names or index.
  */
 export type SuccessCondition = 'first' | 'last' | 'all' | `command-${string|number}` | `!command-${string|number}`;
 
