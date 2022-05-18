@@ -69,6 +69,7 @@
     "jest": "^27.5.1",
     "jest-create-mock-instance": "^2.0.0",
     "lint-staged": "^12.4.1",
+    "prettier": "^2.6.2",
     "simple-git-hooks": "^2.7.0",
     "ts-jest": "^27.1.4",
     "ts-node": "^10.4.0",
@@ -103,7 +104,7 @@
     "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
-    "*.{js,ts}": "eslint --cache --fix",
+    "*.{js,ts}": "eslint --fix",
     "!(package-lock).json": "prettier --write",
     "*.{y?(a)ml,md}": "prettier --write"
   }
