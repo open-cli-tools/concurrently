@@ -7,25 +7,17 @@
   "parserOptions": {
     "ecmaVersion": 8
   },
+  "plugins": ["@typescript-eslint", "prettier"],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier"
+  ],
   "rules": {
-    "block-spacing": "error",
     "curly": "error",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
-    "indent": ["error", 4],
-    "keyword-spacing": "error",
     "no-var": "error",
     "prefer-const": "error",
-    "quotes": ["error", "single"],
-    "comma-dangle": ["error", "always-multiline"],
-    "semi": "error",
-    "space-before-blocks": "error",
-    "space-before-function-paren": [
-      "error",
-      {
-        "anonymous": "never",
-        "named": "never",
-        "asyncArrow": "always"
-      }
-    ]
+    "prettier/prettier": ["error"]
   }
 }

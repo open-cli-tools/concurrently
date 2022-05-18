@@ -13,7 +13,3 @@ indent_style = space
 [*.ts]
 indent_size = 4
 max_line_length = 100
-
-# 2 space indentation in package.json
-[package.json]
-indent_size = 2

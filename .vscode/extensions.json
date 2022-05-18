@@ -1,7 +1,7 @@
 {
   "recommendations": [
     "dbaeumer.vscode-eslint",
-    "orta.vscode-jest",
-    "editorconfig.editorconfig"
+    "esbenp.prettier-vscode",
+    "orta.vscode-jest"
   ]
 }
