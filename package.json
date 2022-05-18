@@ -104,6 +104,7 @@
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --cache --fix",
-    "*.{json,y?(a)ml,md}": "prettier --write"
+    "!(package-lock).json": "prettier --write",
+    "*.{y?(a)ml,md}": "prettier --write"
   }
 }

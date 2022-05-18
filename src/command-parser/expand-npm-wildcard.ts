@@ -3,8 +3,7 @@ import * as _ from 'lodash';
 import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
 
-
-const OMISSION = /\(!([^\)]+)\)/;
+const OMISSION = /\(!([^)]+)\)/;
 
 /**
  * Finds wildcards in npm/yarn/pnpm run commands and replaces them with all matching scripts in the
@@ -25,7 +24,8 @@ export class ExpandNpmWildcard implements CommandParser {
     constructor(private readonly readPackage = ExpandNpmWildcard.readPackage) {}
 
     parse(commandInfo: CommandInfo) {
-        const [, npmCmd, cmdName, args] = commandInfo.command.match(/(npm|yarn|pnpm) run (\S+)([^&]*)/) || [];
+        const [, npmCmd, cmdName, args] =
+            commandInfo.command.match(/(npm|yarn|pnpm) run (\S+)([^&]*)/) || [];
         const wildcardPosition = (cmdName || '').indexOf('*');
 
         // If the regex didn't match an npm script, or it has no wildcard,
@@ -68,4 +68,4 @@ export class ExpandNpmWildcard implements CommandParser {
             })
             .filter((commandInfo): commandInfo is CommandInfo => !!commandInfo);
     }
-};
+}

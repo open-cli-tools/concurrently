@@ -15,4 +15,4 @@ export class StripQuotes implements CommandParser {
 
         return Object.assign({}, commandInfo, { command });
     }
-};
+}

@@ -8,10 +8,7 @@ let controller: KillOnSignal;
 let process: EventEmitter;
 beforeEach(() => {
     process = new EventEmitter();
-    commands = [
-        new FakeCommand(),
-        new FakeCommand(),
-    ];
+    commands = [new FakeCommand(), new FakeCommand()];
     controller = new KillOnSignal({ process });
 });
 

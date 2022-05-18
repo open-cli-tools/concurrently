@@ -7,5 +7,5 @@ import { Command } from '../command';
  * actually finish.
  */
 export interface FlowController {
-    handle(commands: Command[]): { commands: Command[], onFinish?: () => void };
+    handle(commands: Command[]): { commands: Command[]; onFinish?: () => void };
 }

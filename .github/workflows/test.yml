@@ -45,7 +45,7 @@ jobs:
         run: npm test
         shell: bash
         env:
-          SHELL: "/bin/bash"
+          SHELL: '/bin/bash'
 
       - name: Lint
         run: npm run lint

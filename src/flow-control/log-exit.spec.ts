@@ -7,10 +7,7 @@ let controller: LogExit;
 let logger: Logger;
 let commands: FakeCommand[];
 beforeEach(() => {
-    commands = [
-        new FakeCommand(),
-        new FakeCommand(),
-    ];
+    commands = [new FakeCommand(), new FakeCommand()];
 
     logger = createMockInstance(Logger);
     controller = new LogExit({ logger });
@@ -29,10 +26,10 @@ it('logs the close event of each command', () => {
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(2);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} exited with code 0`,
-        commands[0],
+        commands[0]
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[1].command} exited with code SIGTERM`,
-        commands[1],
+        commands[1]
     );
 });

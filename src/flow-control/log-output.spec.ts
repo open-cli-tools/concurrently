@@ -7,10 +7,7 @@ let controller: LogOutput;
 let logger: Logger;
 let commands: FakeCommand[];
 beforeEach(() => {
-    commands = [
-        new FakeCommand(),
-        new FakeCommand(),
-    ];
+    commands = [new FakeCommand(), new FakeCommand()];
 
     logger = createMockInstance(Logger);
     controller = new LogOutput({ logger });

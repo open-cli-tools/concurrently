@@ -13,16 +13,18 @@ export class LogError implements FlowController {
     }
 
     handle(commands: Command[]) {
-        commands.forEach(command => command.error.subscribe(event => {
-            this.logger.logCommandEvent(
-                `Error occurred when executing command: ${command.command}`,
-                command,
-            );
+        commands.forEach(command =>
+            command.error.subscribe(event => {
+                this.logger.logCommandEvent(
+                    `Error occurred when executing command: ${command.command}`,
+                    command
+                );
 
-            const errorText = String(event instanceof Error ? (event.stack || event) : event);
-            this.logger.logCommandEvent(errorText, command);
-        }));
+                const errorText = String(event instanceof Error ? event.stack || event : event);
+                this.logger.logCommandEvent(errorText, command);
+            })
+        );
 
         return { commands };
     }
-};
+}

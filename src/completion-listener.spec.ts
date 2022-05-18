@@ -20,10 +20,8 @@ const createController = (successCondition?: SuccessCondition) =>
         scheduler,
     });
 
-const emitFakeCloseEvent = (
-    command: FakeCommand,
-    event?: Partial<CloseEvent>,
-) => command.close.next(createFakeCloseEvent({ ...event, command, index: command.index }));
+const emitFakeCloseEvent = (command: FakeCommand, event?: Partial<CloseEvent>) =>
+    command.close.next(createFakeCloseEvent({ ...event, command, index: command.index }));
 
 describe('with default success condition set', () => {
     it('succeeds if all processes exited with code 0', () => {
@@ -101,7 +99,6 @@ describe('with success condition set to last', () => {
 
         return expect(result).rejects.toEqual(expect.anything());
     });
-
 });
 
 describe.each([

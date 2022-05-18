@@ -2,7 +2,6 @@ import chalk from 'chalk';
 import { FakeCommand } from './fixtures/fake-command';
 import { Logger } from './logger';
 
-let logSpy: jest.SpyInstance;
 let emitSpy: jest.SpyInstance;
 
 beforeEach(() => {
@@ -12,7 +11,7 @@ beforeEach(() => {
 
 const createLogger = (...options: ConstructorParameters<typeof Logger>) => {
     const logger = new Logger(...options);
-    logSpy = jest.spyOn(logger, 'log');
+    jest.spyOn(logger, 'log');
     emitSpy = jest.spyOn(logger, 'emit');
     return logger;
 };
@@ -69,7 +68,7 @@ describe('#logGlobalEvent()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('foo') + '\n',
+            chalk.reset('foo') + '\n'
         );
     });
 });
@@ -242,7 +241,11 @@ describe('#logCommandEvent()', () => {
         const cmd = new FakeCommand('', undefined, 1);
         logger.logCommandEvent('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[1]') + ' ', chalk.reset('foo') + '\n', cmd);
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('[1]') + ' ',
+            chalk.reset('foo') + '\n',
+            cmd
+        );
     });
 });
 
@@ -256,10 +259,10 @@ describe('#logTable()', () => {
 
     it('does not log anything if value is not an array', () => {
         const logger = createLogger({});
-        logger.logTable({} as any);
+        logger.logTable({} as never);
         logger.logTable(null);
-        logger.logTable(0 as any);
-        logger.logTable('' as any);
+        logger.logTable(0 as never);
+        logger.logTable('' as never);
 
         expect(logger.log).not.toHaveBeenCalled();
     });
@@ -278,47 +281,47 @@ describe('#logTable()', () => {
         expect(logger.log).not.toHaveBeenCalled();
     });
 
-    it('logs a header for each item\'s properties', () => {
+    it("logs a header for each item's properties", () => {
         const logger = createLogger({});
         logger.logTable([{ foo: 1, bar: 2 }]);
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ foo │ bar │') + '\n',
+            chalk.reset('│ foo │ bar │') + '\n'
         );
     });
 
-    it('logs padded headers according to longest column\'s value', () => {
+    it("logs padded headers according to longest column's value", () => {
         const logger = createLogger({});
         logger.logTable([{ a: 'foo', b: 'barbaz' }]);
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ a   │ b      │') + '\n',
+            chalk.reset('│ a   │ b      │') + '\n'
         );
     });
 
-    it('logs each items\'s values', () => {
+    it("logs each items's values", () => {
         const logger = createLogger({});
         logger.logTable([{ foo: 123 }, { foo: 456 }]);
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ 123 │') + '\n',
+            chalk.reset('│ 123 │') + '\n'
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ 456 │') + '\n',
+            chalk.reset('│ 456 │') + '\n'
         );
     });
 
-    it('logs each items\'s values padded according to longest column\'s value', () => {
+    it("logs each items's values padded according to longest column's value", () => {
         const logger = createLogger({});
         logger.logTable([{ foo: 1 }, { foo: 123 }]);
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ 1   │') + '\n',
+            chalk.reset('│ 1   │') + '\n'
         );
     });
 
@@ -328,15 +331,15 @@ describe('#logTable()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ foo │ bar │') + '\n',
+            chalk.reset('│ foo │ bar │') + '\n'
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ 1   │     │') + '\n',
+            chalk.reset('│ 1   │     │') + '\n'
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│     │ 2   │') + '\n',
+            chalk.reset('│     │ 2   │') + '\n'
         );
     });
 });

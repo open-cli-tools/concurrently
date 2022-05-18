@@ -21,11 +21,16 @@ export class InputHandler implements FlowController {
     private readonly inputStream: Readable;
     private readonly pauseInputStreamOnFinish: boolean;
 
-    constructor({ defaultInputTarget, inputStream, pauseInputStreamOnFinish, logger }: {
-        inputStream: Readable,
-        logger: Logger,
-        defaultInputTarget?: CommandIdentifier,
-        pauseInputStreamOnFinish?: boolean,
+    constructor({
+        defaultInputTarget,
+        inputStream,
+        pauseInputStreamOnFinish,
+        logger,
+    }: {
+        inputStream: Readable;
+        logger: Logger;
+        defaultInputTarget?: CommandIdentifier;
+        pauseInputStreamOnFinish?: boolean;
     }) {
         this.logger = logger;
         this.defaultInputTarget = defaultInputTarget || defaults.defaultInputTarget;
@@ -45,15 +50,18 @@ export class InputHandler implements FlowController {
                 const targetId = dataParts.length > 1 ? dataParts[0] : this.defaultInputTarget;
                 const input = dataParts[1] || data;
 
-                const command = commands.find(command => (
-                    command.name === targetId ||
-                    command.index.toString() === targetId.toString()
-                ));
+                const command = commands.find(
+                    command =>
+                        command.name === targetId ||
+                        command.index.toString() === targetId.toString()
+                );
 
                 if (command && command.stdin) {
                     command.stdin.write(input);
                 } else {
-                    this.logger.logGlobalEvent(`Unable to find command ${targetId}, or it has no stdin open\n`);
+                    this.logger.logGlobalEvent(
+                        `Unable to find command ${targetId}, or it has no stdin open\n`
+                    );
                 }
             });
 
@@ -67,4 +75,4 @@ export class InputHandler implements FlowController {
             },
         };
     }
-};
+}

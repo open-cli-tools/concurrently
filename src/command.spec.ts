@@ -8,22 +8,35 @@ let spawn: jest.Mocked<SpawnCommand>;
 let killProcess: KillProcess;
 
 beforeEach(() => {
-    process = new class extends EventEmitter {
+    process = new (class extends EventEmitter {
         readonly pid = 1;
-        readonly stdout = new Readable({ read() {} });
-        readonly stderr = new Readable({ read() {} });
-        readonly stdin = new Writable({ write() {} });
-    };
+        readonly stdout = new Readable({
+            read() {
+                // do nothing
+            },
+        });
+        readonly stderr = new Readable({
+            read() {
+                // do nothing
+            },
+        });
+        readonly stdin = new Writable({
+            write() {
+                // do nothing
+            },
+        });
+    })();
     spawn = jest.fn().mockReturnValue(process);
     killProcess = jest.fn();
 });
 
-const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts?: SpawnOptions) => new Command(
-    { index: 0, name: '', command: 'echo foo', ...overrides },
-    spawnOpts,
-    spawn,
-    killProcess,
-);
+const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts?: SpawnOptions) =>
+    new Command(
+        { index: 0, name: '', command: 'echo foo', ...overrides },
+        spawnOpts,
+        spawn,
+        killProcess
+    );
 
 describe('#start()', () => {
     it('spawns process with given command and options', () => {
@@ -65,26 +78,25 @@ describe('#start()', () => {
             .mockReturnValueOnce(endDate.getTime());
 
         let callCount = 0;
-        command.timer.subscribe(({startDate: actualStartDate, endDate: actualEndDate}) => {
+        command.timer.subscribe(({ startDate: actualStartDate, endDate: actualEndDate }) => {
             switch (callCount) {
-            case 0:
-                expect(actualStartDate).toStrictEqual(startDate);
-                expect(actualEndDate).toBeUndefined();
-                break;
-            case 1:
-                expect(actualStartDate).toStrictEqual(startDate);
-                expect(actualEndDate).toStrictEqual(endDate);
-                done();
-                break;
-            default:
-                throw new Error('Unexpected call count');
+                case 0:
+                    expect(actualStartDate).toStrictEqual(startDate);
+                    expect(actualEndDate).toBeUndefined();
+                    break;
+                case 1:
+                    expect(actualStartDate).toStrictEqual(startDate);
+                    expect(actualEndDate).toStrictEqual(endDate);
+                    done();
+                    break;
+                default:
+                    throw new Error('Unexpected call count');
             }
             callCount++;
         });
 
         command.start();
         process.emit('close', 0, null);
-
     });
 
     it('shares start and error timing events to the timing stream', done => {
@@ -97,26 +109,25 @@ describe('#start()', () => {
             .mockReturnValueOnce(endDate.getTime());
 
         let callCount = 0;
-        command.timer.subscribe(({startDate: actualStartDate, endDate: actualEndDate}) => {
+        command.timer.subscribe(({ startDate: actualStartDate, endDate: actualEndDate }) => {
             switch (callCount) {
-            case 0:
-                expect(actualStartDate).toStrictEqual(startDate);
-                expect(actualEndDate).toBeUndefined();
-                break;
-            case 1:
-                expect(actualStartDate).toStrictEqual(startDate);
-                expect(actualEndDate).toStrictEqual(endDate);
-                done();
-                break;
-            default:
-                throw new Error('Unexpected call count');
+                case 0:
+                    expect(actualStartDate).toStrictEqual(startDate);
+                    expect(actualEndDate).toBeUndefined();
+                    break;
+                case 1:
+                    expect(actualStartDate).toStrictEqual(startDate);
+                    expect(actualEndDate).toStrictEqual(endDate);
+                    done();
+                    break;
+                default:
+                    throw new Error('Unexpected call count');
             }
             callCount++;
         });
 
         command.start();
         process.emit('error', 0, null);
-
     });
 
     it('shares closes to the close stream with exit code', done => {

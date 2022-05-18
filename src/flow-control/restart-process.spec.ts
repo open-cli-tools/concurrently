@@ -9,10 +9,7 @@ let controller: RestartProcess;
 let logger: Logger;
 let scheduler: TestScheduler;
 beforeEach(() => {
-    commands = [
-        new FakeCommand(),
-        new FakeCommand(),
-    ];
+    commands = [new FakeCommand(), new FakeCommand()];
 
     logger = createMockInstance(Logger);
     scheduler = new TestScheduler(() => true);
@@ -47,7 +44,7 @@ it('restarts processes that fail after delay has passed', () => {
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(1);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} restarted`,
-        commands[0],
+        commands[0]
     );
     expect(commands[0].start).toHaveBeenCalledTimes(1);
     expect(commands[1].start).not.toHaveBeenCalled();
@@ -66,7 +63,7 @@ it('restarts processes up to tries', () => {
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(2);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} restarted`,
-        commands[0],
+        commands[0]
     );
     expect(commands[0].start).toHaveBeenCalledTimes(2);
 });
@@ -93,7 +90,7 @@ it('restarts processes until they succeed', () => {
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(1);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} restarted`,
-        commands[0],
+        commands[0]
     );
     expect(commands[0].start).toHaveBeenCalledTimes(1);
 });

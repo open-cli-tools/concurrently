@@ -12,7 +12,8 @@ const endDate1 = new Date(startDate0.getTime() + 5000);
 const endDate0 = new Date(startDate0.getTime() + 3000);
 
 const timestampFormat = 'yyyy-MM-dd HH:mm:ss.SSS';
-const getDurationText = (startDate: Date, endDate: Date) => `${(endDate.getTime() - startDate.getTime()).toLocaleString()}ms`;
+const getDurationText = (startDate: Date, endDate: Date) =>
+    `${(endDate.getTime() - startDate.getTime()).toLocaleString()}ms`;
 const command0DurationTextMs = getDurationText(startDate0, endDate0);
 const command1DurationTextMs = getDurationText(startDate1, endDate1);
 
@@ -23,10 +24,7 @@ let command0ExitInfo: CloseEvent;
 let command1ExitInfo: CloseEvent;
 
 beforeEach(() => {
-    commands = [
-        new FakeCommand('foo', 'command 1', 0),
-        new FakeCommand('bar', 'command 2', 1),
-    ];
+    commands = [new FakeCommand('foo', 'command 1', 0), new FakeCommand('bar', 'command 2', 1)];
 
     command0ExitInfo = createFakeCloseEvent({
         command: commands[0],
@@ -56,7 +54,7 @@ it('returns same commands', () => {
     expect(controller.handle(commands)).toMatchObject({ commands });
 });
 
-it('does not log timings and doesn\'t throw if no logger is provided', () => {
+it("does not log timings and doesn't throw if no logger is provided", () => {
     controller = new LogTimings({});
     controller.handle(commands);
 
@@ -79,19 +77,25 @@ it('logs the timings at the start and end (ie complete or error) event of each c
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(4);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} started at ${formatDate(startDate0, timestampFormat)}`,
-        commands[0],
+        commands[0]
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[1].command} started at ${formatDate(startDate1, timestampFormat)}`,
-        commands[1],
+        commands[1]
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
-        `${commands[1].command} stopped at ${formatDate(endDate1, timestampFormat)} after ${command1DurationTextMs}`,
-        commands[1],
+        `${commands[1].command} stopped at ${formatDate(
+            endDate1,
+            timestampFormat
+        )} after ${command1DurationTextMs}`,
+        commands[1]
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
-        `${commands[0].command} stopped at ${formatDate(endDate0, timestampFormat)} after ${command0DurationTextMs}`,
-        commands[0],
+        `${commands[0].command} stopped at ${formatDate(
+            endDate0,
+            timestampFormat
+        )} after ${command0DurationTextMs}`,
+        commands[0]
     );
 });
 
@@ -102,7 +106,6 @@ it('does not log timings summary if there was an error', () => {
     commands[1].error.next(undefined);
 
     expect(logger.logTable).toHaveBeenCalledTimes(0);
-
 });
 
 it('logs the sorted timings summary when all processes close successfully', () => {
@@ -125,5 +128,4 @@ it('logs the sorted timings summary when all processes close successfully', () =
         LogTimings.mapCloseEventToTimingInfo(command1ExitInfo),
         LogTimings.mapCloseEventToTimingInfo(command0ExitInfo),
     ]);
-
 });

@@ -8,7 +8,7 @@ import { epilogue } from './epilogue';
 // Clean-up arguments (yargs expects only the arguments after the program name)
 const cleanArgs = hideBin(process.argv);
 // Find argument separator (double dash)
-const argsSepIdx = cleanArgs.findIndex((arg) => arg === '--');
+const argsSepIdx = cleanArgs.findIndex(arg => arg === '--');
 // Arguments before separator
 const argsBeforeSep = argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs;
 // Arguments after separator
@@ -32,7 +32,7 @@ const args = yargs(argsBeforeSep)
                 'New processes only spawn after all restart tries of a process.',
             type: 'number',
         },
-        'names': {
+        names: {
             alias: 'n',
             describe:
                 'List of custom names to be used in prefix template.\n' +
@@ -45,7 +45,7 @@ const args = yargs(argsBeforeSep)
                 'concurrently -n "styles|scripts|server" --name-separator "|"',
             default: defaults.nameSeparator,
         },
-        'success': {
+        success: {
             alias: 's',
             describe:
                 'Which command(s) must exit with code 0 in order for concurrently exit with ' +
@@ -59,7 +59,7 @@ const args = yargs(argsBeforeSep)
                 'name or index.\n',
             default: defaults.success,
         },
-        'raw': {
+        raw: {
             alias: 'r',
             describe:
                 'Output only raw output of processes, disables prettifying ' +
@@ -72,19 +72,19 @@ const args = yargs(argsBeforeSep)
             describe: 'Disables colors from logging',
             type: 'boolean',
         },
-        'hide': {
+        hide: {
             describe:
                 'Comma-separated list of processes to hide the output.\n' +
                 'The processes can be identified by their name or index.',
             default: defaults.hide,
             type: 'string',
         },
-        'group': {
+        group: {
             alias: 'g',
             describe: 'Order the output as if the commands were run sequentially.',
             type: 'boolean',
         },
-        'timings': {
+        timings: {
             describe: 'Show timing information for all processes.',
             type: 'boolean',
             default: defaults.timings,
@@ -110,7 +110,7 @@ const args = yargs(argsBeforeSep)
         },
 
         // Prefix
-        'prefix': {
+        prefix: {
             alias: 'p',
             describe:
                 'Prefix used in logging for each process.\n' +
@@ -177,7 +177,10 @@ const args = yargs(argsBeforeSep)
                 'Can be either the index or the name of the process.',
         },
     })
-    .group(['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P'], 'General')
+    .group(
+        ['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P'],
+        'General'
+    )
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail'], 'Killing other processes')
@@ -200,7 +203,9 @@ concurrently(
         defaultInputTarget: args.defaultInputTarget,
         killOthers: args.killOthers
             ? ['success', 'failure']
-            : (args.killOthersOnFail ? ['failure'] : []),
+            : args.killOthersOnFail
+            ? ['failure']
+            : [],
         maxProcesses: args.maxProcesses,
         raw: args.raw,
         hide: args.hide.split(','),
@@ -214,8 +219,8 @@ concurrently(
         timestampFormat: args.timestampFormat,
         timings: args.timings,
         additionalArguments: args.passthroughArguments ? argsAfterSep : undefined,
-    },
+    }
 ).result.then(
     () => process.exit(0),
-    () => process.exit(1),
+    () => process.exit(1)
 );

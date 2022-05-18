@@ -11,27 +11,27 @@ export interface CommandInfo {
     /**
      * Command's name.
      */
-    name: string,
+    name: string;
 
     /**
      * Which command line the command has.
      */
-    command: string,
+    command: string;
 
     /**
      * Which environment variables should the spawned process have.
      */
-    env?: Record<string, any>,
+    env?: Record<string, unknown>;
 
     /**
      * The current working directory of the process when spawned.
      */
-    cwd?: string,
+    cwd?: string;
 
     /**
      * Color to use on prefix of command.
      */
-    prefixColor?: string,
+    prefixColor?: string;
 }
 
 export interface CloseEvent {
@@ -40,7 +40,7 @@ export interface CloseEvent {
     /**
      * The command's index among all commands ran.
      */
-    index: number,
+    index: number;
 
     /**
      * Whether the command exited because it was killed.
@@ -52,10 +52,10 @@ export interface CloseEvent {
      */
     exitCode: string | number;
     timings: {
-        startDate: Date,
-        endDate: Date,
-        durationSeconds: number,
-    }
+        startDate: Date;
+        endDate: Date;
+        durationSeconds: number;
+    };
 }
 
 export interface TimerEvent {
@@ -66,7 +66,8 @@ export interface TimerEvent {
 /**
  * Subtype of NodeJS's child_process including only what's actually needed for a command to work.
  */
-export type ChildProcess = EventEmitter & Pick<BaseChildProcess, 'pid' | 'stdin' | 'stdout' | 'stderr'>;
+export type ChildProcess = EventEmitter &
+    Pick<BaseChildProcess, 'pid' | 'stdin' | 'stdout' | 'stderr'>;
 
 /**
  * Interface for a function that must kill the process with `pid`, optionally sending `signal` to it.
@@ -94,7 +95,7 @@ export class Command implements CommandInfo {
     readonly prefixColor: string;
 
     /** @inheritdoc */
-    readonly env: Record<string, any>;
+    readonly env: Record<string, unknown>;
 
     /** @inheritdoc */
     readonly cwd?: string;
@@ -119,7 +120,7 @@ export class Command implements CommandInfo {
         { index, name, command, prefixColor, env, cwd }: CommandInfo & { index: number },
         spawnOpts: SpawnOptions,
         spawn: SpawnCommand,
-        killProcess: KillProcess,
+        killProcess: KillProcess
     ) {
         this.index = index;
         this.name = name;
@@ -149,25 +150,27 @@ export class Command implements CommandInfo {
             this.timer.next({ startDate, endDate });
             this.error.next(event);
         });
-        Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'close').subscribe(([exitCode, signal]) => {
-            this.process = undefined;
-            this.exited = true;
+        Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'close').subscribe(
+            ([exitCode, signal]) => {
+                this.process = undefined;
+                this.exited = true;
 
-            const endDate = new Date(Date.now());
-            this.timer.next({ startDate, endDate });
-            const [durationSeconds, durationNanoSeconds] = process.hrtime(highResStartTime);
-            this.close.next({
-                command: this,
-                index: this.index,
-                exitCode: exitCode === null ? signal : exitCode,
-                killed: this.killed,
-                timings: {
-                    startDate,
-                    endDate,
-                    durationSeconds: durationSeconds + (durationNanoSeconds / 1e9),
-                },
-            });
-        });
+                const endDate = new Date(Date.now());
+                this.timer.next({ startDate, endDate });
+                const [durationSeconds, durationNanoSeconds] = process.hrtime(highResStartTime);
+                this.close.next({
+                    command: this,
+                    index: this.index,
+                    exitCode: exitCode === null ? signal : exitCode,
+                    killed: this.killed,
+                    timings: {
+                        startDate,
+                        endDate,
+                        durationSeconds: durationSeconds + durationNanoSeconds / 1e9,
+                    },
+                });
+            }
+        );
         child.stdout && pipeTo(Rx.fromEvent<Buffer>(child.stdout, 'data'), this.stdout);
         child.stderr && pipeTo(Rx.fromEvent<Buffer>(child.stderr, 'data'), this.stderr);
         this.stdin = child.stdin;
@@ -182,7 +185,7 @@ export class Command implements CommandInfo {
             this.killProcess(this.pid, code);
         }
     }
-};
+}
 
 /**
  * Pipes all events emitted by `stream` into `subject`.

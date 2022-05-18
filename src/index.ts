@@ -1,6 +1,11 @@
 import { Readable } from 'stream';
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
-import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions as BaseConcurrentlyOptions, ConcurrentlyResult } from './concurrently';
+import {
+    concurrently,
+    ConcurrentlyCommandInput,
+    ConcurrentlyOptions as BaseConcurrentlyOptions,
+    ConcurrentlyResult,
+} from './concurrently';
 import { FlowController } from './flow-control/flow-controller';
 import { InputHandler } from './flow-control/input-handler';
 import { KillOnSignal } from './flow-control/kill-on-signal';
@@ -17,35 +22,35 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
     /**
      * Which command(s) should have their output hidden.
      */
-    hide?: CommandIdentifier | CommandIdentifier[],
+    hide?: CommandIdentifier | CommandIdentifier[];
 
     /**
      * The prefix format to use when logging a command's output.
      * Defaults to the command's index.
      */
-    prefix?: string,
+    prefix?: string;
 
     /**
      * How many characters should a prefix have at most, used when the prefix format is `command`.
      */
-    prefixLength?: number,
+    prefixLength?: number;
 
     /**
      * Whether output should be formatted to include prefixes and whether "event" logs will be logged.
      */
-    raw?: boolean,
+    raw?: boolean;
 
     /**
      * Date format used when logging date/time.
      * @see https://date-fns.org/v2.0.1/docs/format
      */
-    timestampFormat?: string,
+    timestampFormat?: string;
 
     // Input handling options
-    defaultInputTarget?: CommandIdentifier,
-    inputStream?: Readable,
-    handleInput?: boolean,
-    pauseInputStreamOnFinish?: boolean,
+    defaultInputTarget?: CommandIdentifier;
+    inputStream?: Readable;
+    handleInput?: boolean;
+    pauseInputStreamOnFinish?: boolean;
 
     // Restarting options
     /**
@@ -53,14 +58,14 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
      *
      * @see RestartProcess
      */
-    restartDelay?: number,
+    restartDelay?: number;
 
     /**
      * How many times commands should be restarted when they exit with a failure.
      *
      * @see RestartProcess
      */
-    restartTries?: number,
+    restartTries?: number;
 
     // Process killing options
     /**
@@ -68,7 +73,7 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
      *
      * @see KillOthers
      */
-    killOthers?: ProcessCloseCondition | ProcessCloseCondition[],
+    killOthers?: ProcessCloseCondition | ProcessCloseCondition[];
 
     // Timing options
     /**
@@ -76,16 +81,19 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
      *
      * @see LogTimings
      */
-    timings?: boolean,
+    timings?: boolean;
 
     /**
      * List of additional arguments passed that will get replaced in each command.
      * If not defined, no argument replacing will happen.
      */
-    additionalArguments?: string[],
+    additionalArguments?: string[];
 };
 
-export default (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) => {
+export default (
+    commands: ConcurrentlyCommandInput[],
+    options: Partial<ConcurrentlyOptions> = {}
+) => {
     const logger = new Logger({
         hide: options.hide,
         prefixFormat: options.prefix,
@@ -139,13 +147,11 @@ export {
     ConcurrentlyCommandInput,
     ConcurrentlyResult,
     Logger,
-
     // Command specific
     Command,
     CloseEvent,
     TimerEvent,
     CommandIdentifier,
-
     // Flow controllers
     FlowController,
     InputHandler,
