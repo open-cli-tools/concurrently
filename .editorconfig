@@ -1,6 +1,6 @@
 # EditorConfig is awesome: http://EditorConfig.org
 
-# top-most EditorConfig file
+# Top-most EditorConfig file
 root = true
 
 # Unix-style newlines with newline ending and space indentation for all files
@@ -9,7 +9,8 @@ end_of_line = lf
 insert_final_newline = true
 indent_style = space
 
-# 4 space indentation and max line length of 100 in *.ts files
-[*.ts]
+# 4 space indentation and max line length of 100 in JavaScript/TypeScript files
+[*.{js,ts}]
 indent_size = 4
 max_line_length = 100
+
