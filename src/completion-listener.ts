@@ -43,7 +43,10 @@ export class CompletionListener {
             return events[0].exitCode === 0;
         } else if (this.successCondition === 'last') {
             return events[events.length - 1].exitCode === 0;
-        } else if (!/^!?command-.+$/.test(this.successCondition)) {
+        }
+
+        const commandSyntaxMatch = this.successCondition.match(/^!?command-(.+)$/);
+        if (commandSyntaxMatch === null) {
             // If not a `command-` syntax, then it's an 'all' condition or it's treated as such.
             return events.every(({ exitCode }) => exitCode === 0);
         }
@@ -51,7 +54,7 @@ export class CompletionListener {
         // Check `command-` syntax condition.
         // Note that a command's `name` is not necessarily unique,
         // in which case all of them must meet the success condition.
-        const [, nameOrIndex] = this.successCondition.split('-');
+        const nameOrIndex = commandSyntaxMatch[1];
         const targetCommandsEvents = events.filter(({ command, index }) => (
             command.name === nameOrIndex
             || index === Number(nameOrIndex)
