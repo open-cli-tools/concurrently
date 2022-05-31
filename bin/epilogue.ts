@@ -65,19 +65,22 @@ const examples = [
     },
 ];
 
+const examplesString = examples
+    .map(({ example, description }) =>
+        [
+            ` - ${description}`,
+            example
+                .split('\n')
+                .map(line => `     ${line}`)
+                .join('\n'),
+        ].join('\n\n')
+    )
+    .join('\n\n');
+
 export const epilogue = `
 Examples:
-${examples
-    .map(
-        ({ example, description }) => `
- - ${description}
 
-${example
-    .split('\n')
-    .map(line => `     ${line}`)
-    .join('\n')}
-`
-    )
-    .join('')}
+${examplesString}
+
 For more details, visit https://github.com/open-cli-tools/concurrently
 `;
