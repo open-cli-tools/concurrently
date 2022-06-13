@@ -99,7 +99,7 @@ it('does not log timings summary if there was an error', () => {
     controller.handle(commands);
 
     commands[0].close.next(command0ExitInfo);
-    commands[1].error.next();
+    commands[1].error.next(undefined);
 
     expect(logger.logTable).toHaveBeenCalledTimes(0);
 

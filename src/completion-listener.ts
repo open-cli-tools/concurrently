@@ -78,16 +78,14 @@ export class CompletionListener {
      */
     listen(commands: Command[]): Promise<CloseEvent[]> {
         const closeStreams = commands.map(command => command.close);
-        return Rx.merge(...closeStreams)
+        return Rx.lastValueFrom(Rx.merge(...closeStreams)
             .pipe(
                 bufferCount(closeStreams.length),
                 switchMap(exitInfos =>
                     this.isSuccess(exitInfos)
                         ? Rx.of(exitInfos, this.scheduler)
-                        : Rx.throwError(exitInfos, this.scheduler),
-                ),
+                        : Rx.throwError(exitInfos, this.scheduler)),
                 take(1),
-            )
-            .toPromise();
+            ));
     }
 };
