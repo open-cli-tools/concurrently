@@ -14,7 +14,8 @@
   "exports": {
     "import": "./index.mjs",
     "require": "./index.js",
-    "default": "./index.js"
+    "default": "./index.js",
+    "types": "./dist/src/index.d.ts"
   },
   "scripts": {
     "build": "tsc --build",
