@@ -64,7 +64,7 @@ it('has version command', done => {
         },
         done
     );
-});
+}, 10000);
 
 describe('exiting conditions', () => {
     it('is of success by default when running successful commands', done => {
