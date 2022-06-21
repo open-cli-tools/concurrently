@@ -6,18 +6,16 @@ import { KillOthers, ProcessCloseCondition } from './kill-others';
 let commands: FakeCommand[];
 let logger: Logger;
 beforeEach(() => {
-    commands = [
-        new FakeCommand(),
-        new FakeCommand(),
-    ];
+    commands = [new FakeCommand(), new FakeCommand()];
 
     logger = createMockInstance(Logger);
 });
 
-const createWithConditions = (conditions: ProcessCloseCondition[]) => new KillOthers({
-    logger,
-    conditions,
-});
+const createWithConditions = (conditions: ProcessCloseCondition[]) =>
+    new KillOthers({
+        logger,
+        conditions,
+    });
 
 it('returns same commands', () => {
     expect(createWithConditions(['success']).handle(commands)).toMatchObject({ commands });

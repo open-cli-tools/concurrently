@@ -23,41 +23,49 @@ export class Logger {
      * Observable that emits when there's been output logged.
      * If `command` is is `undefined`, then the log is for a global event.
      */
-    readonly output = new Rx.Subject<{ command: Command | undefined, text: string }>();
+    readonly output = new Rx.Subject<{ command: Command | undefined; text: string }>();
 
-    constructor({ hide, prefixFormat, prefixLength, raw = false, timestampFormat }: {
+    constructor({
+        hide,
+        prefixFormat,
+        prefixLength,
+        raw = false,
+        timestampFormat,
+    }: {
         /**
          * Which command(s) should have their output hidden.
          */
-        hide?: CommandIdentifier | CommandIdentifier[],
+        hide?: CommandIdentifier | CommandIdentifier[];
 
         /**
          * Whether output should be formatted to include prefixes and whether "event" logs will be
          * logged.
          */
-        raw?: boolean,
+        raw?: boolean;
 
         /**
          * The prefix format to use when logging a command's output.
          * Defaults to the command's index.
          */
-        prefixFormat?: string,
+        prefixFormat?: string;
 
         /**
          * How many characters should a prefix have at most, used when the prefix format is `command`.
          */
-        prefixLength?: number,
+        prefixLength?: number;
 
         /**
          * Date format used when logging date/time.
          * @see https://date-fns.org/v2.0.1/docs/format
          */
-        timestampFormat?: string,
+        timestampFormat?: string;
     }) {
         // To avoid empty strings from hiding the output of commands that don't have a name,
         // keep in the list of commands to hide only strings with some length.
         // This might happen through the CLI when no `--hide` argument is specified, for example.
-        this.hide = _.castArray(hide).filter(name => name || name === 0).map(String);
+        this.hide = _.castArray(hide)
+            .filter(name => name || name === 0)
+            .map(String);
         this.raw = raw;
         this.prefixFormat = prefixFormat;
         this.prefixLength = prefixLength || defaults.prefixLength;
@@ -100,10 +108,14 @@ export class Logger {
             return `[${prefixes[prefix]}]`;
         }
 
-        return _.reduce(prefixes, (prev, val, key) => {
-            const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
-            return prev.replace(keyRegex, String(val));
-        }, prefix);
+        return _.reduce(
+            prefixes,
+            (prev, val, key) => {
+                const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
+                return prev.replace(keyRegex, String(val));
+            },
+            prefix
+        );
     }
 
     colorText(command: Command, text: string) {
@@ -157,17 +169,17 @@ export class Logger {
      *
      * Each row is a single input item, and they are presented in the input order.
      */
-    logTable(tableContents: any[]) {
+    logTable(tableContents: unknown[]) {
         // For now, can only print array tables with some content.
         if (this.raw || !Array.isArray(tableContents) || !tableContents.length) {
             return;
         }
 
         let nextColIndex = 0;
-        const headers: Record<string, { index: number, length: number }> = {};
+        const headers: Record<string, { index: number; length: number }> = {};
         const contentRows = tableContents.map(row => {
             const rowContents: string[] = [];
-            Object.keys(row).forEach((col) => {
+            Object.keys(row).forEach(col => {
                 if (!headers[col]) {
                     headers[col] = {
                         index: nextColIndex++,
@@ -185,9 +197,9 @@ export class Logger {
             return rowContents;
         });
 
-        const headersFormatted = Object
-            .keys(headers)
-            .map(header => header.padEnd(headers[header].length, ' '));
+        const headersFormatted = Object.keys(headers).map(header =>
+            header.padEnd(headers[header].length, ' ')
+        );
 
         if (!headersFormatted.length) {
             // No columns exist.
@@ -241,4 +253,4 @@ export class Logger {
     emit(command: Command | undefined, text: string) {
         this.output.next({ command, text });
     }
-};
+}

@@ -34,7 +34,7 @@ export type ConcurrentlyResult = {
     /**
      * All commands created and ran by concurrently.
      */
-     commands: Command[],
+    commands: Command[];
 
     /**
      * A promise that resolves when concurrently ran successfully according to the specified
@@ -42,26 +42,26 @@ export type ConcurrentlyResult = {
      *
      * Both the resolved and rejected value is the list of all command's close events.
      */
-    result: Promise<CloseEvent[]>,
+    result: Promise<CloseEvent[]>;
 };
 
 export type ConcurrentlyOptions = {
-    logger?: Logger,
+    logger?: Logger;
 
     /**
      * Which stream should the commands output be written to.
      */
-    outputStream?: Writable,
+    outputStream?: Writable;
 
     /**
      * Whether the output should be ordered as if the commands were run sequentially.
      */
-    group?: boolean,
+    group?: boolean;
 
     /**
      * Comma-separated list of chalk colors to use on prefixes.
      */
-    prefixColors?: string[],
+    prefixColors?: string[];
 
     /**
      * Maximum number of commands to run at once.
@@ -69,42 +69,42 @@ export type ConcurrentlyOptions = {
      * If undefined, then all processes will start in parallel.
      * Setting this value to 1 will achieve sequential running.
      */
-    maxProcesses?: number,
+    maxProcesses?: number;
 
     /**
      * Whether commands should be spawned in raw mode.
      * Defaults to false.
      */
-    raw?: boolean,
+    raw?: boolean;
 
     /**
      * The current working directory of commands which didn't specify one.
      * Defaults to `process.cwd()`.
      */
-    cwd?: string,
+    cwd?: string;
 
     /**
      * @see CompletionListener
      */
-    successCondition?: SuccessCondition,
+    successCondition?: SuccessCondition;
 
     /**
      * Which flow controllers should be applied on commands spawned by concurrently.
      * Defaults to an empty array.
      */
-    controllers: FlowController[],
+    controllers: FlowController[];
 
     /**
      * A function that will spawn commands.
      * Defaults to the `spawn-command` module.
      */
-    spawn: SpawnCommand,
+    spawn: SpawnCommand;
 
     /**
      * A function that will kill processes.
      * Defaults to the `tree-kill` module.
      */
-    kill: KillProcess,
+    kill: KillProcess;
 
     /**
      * List of additional arguments passed that will get replaced in each command.
@@ -112,7 +112,7 @@ export type ConcurrentlyOptions = {
      *
      * @see ExpandArguments
      */
-    additionalArguments?: string[],
+    additionalArguments?: string[];
 };
 
 /**
@@ -123,7 +123,7 @@ export type ConcurrentlyOptions = {
  */
 export function concurrently(
     baseCommands: ConcurrentlyCommandInput[],
-    baseOptions?: Partial<ConcurrentlyOptions>,
+    baseOptions?: Partial<ConcurrentlyOptions>
 ): ConcurrentlyResult {
     assert.ok(Array.isArray(baseCommands), '[concurrently] commands should be an array');
     assert.notStrictEqual(baseCommands.length, 0, '[concurrently] no commands provided');
@@ -146,15 +146,23 @@ export function concurrently(
         .flatMap(command => parseCommand(command, commandParsers))
         .map((command, index) => {
             // Use documented behaviour of repeating last color when specifying more commands than colors
-            lastColor = options.prefixColors && options.prefixColors[index] || lastColor;
-            return new Command(Object.assign({
-                index,
-                prefixColor: lastColor,
-            }, command), getSpawnOpts({
-                raw: options.raw,
-                env: command.env,
-                cwd: command.cwd || options.cwd,
-            }), options.spawn, options.kill);
+            lastColor = (options.prefixColors && options.prefixColors[index]) || lastColor;
+            return new Command(
+                Object.assign(
+                    {
+                        index,
+                        prefixColor: lastColor,
+                    },
+                    command
+                ),
+                getSpawnOpts({
+                    raw: options.raw,
+                    env: command.env,
+                    cwd: command.cwd || options.cwd,
+                }),
+                options.spawn,
+                options.kill
+            );
         })
         .value();
 
@@ -166,7 +174,7 @@ export function concurrently(
                 onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : []),
             };
         },
-        { commands, onFinishCallbacks: [] },
+        { commands, onFinishCallbacks: [] }
     );
     commands = handleResult.commands;
 
@@ -176,7 +184,7 @@ export function concurrently(
             group: options.group,
             commands,
         });
-        options.logger.output.subscribe(({command, text}) => outputWriter.write(command, text));
+        options.logger.output.subscribe(({ command, text }) => outputWriter.write(command, text));
     }
 
     const commandsLeft = commands.slice();
@@ -188,14 +196,14 @@ export function concurrently(
     const result = new CompletionListener({ successCondition: options.successCondition })
         .listen(commands)
         .finally(() => {
-            handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
+            handleResult.onFinishCallbacks.forEach(onFinish => onFinish());
         });
 
     return {
         result,
         commands,
     };
-};
+}
 
 function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
     if (typeof command === 'string') {
@@ -207,20 +215,25 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
         };
     }
 
-    return Object.assign({
-        command: command.command,
-        name: command.name || '',
-        env: command.env || {},
-        cwd: command.cwd || '',
-    }, command.prefixColor ? {
-        prefixColor: command.prefixColor,
-    } : {});
+    return Object.assign(
+        {
+            command: command.command,
+            name: command.name || '',
+            env: command.env || {},
+            cwd: command.cwd || '',
+        },
+        command.prefixColor
+            ? {
+                  prefixColor: command.prefixColor,
+              }
+            : {}
+    );
 }
 
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
         (commands, parser) => _.flatMap(commands, command => parser.parse(command)),
-        _.castArray(command),
+        _.castArray(command)
     );
 }
 

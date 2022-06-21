@@ -8,19 +8,26 @@ import { FlowController } from './flow-controller';
 import * as defaults from '../defaults';
 
 interface TimingInfo {
-    name: string,
-    duration: string,
-    'exit code': string | number,
-    killed: boolean,
-    command: string,
+    name: string;
+    duration: string;
+    'exit code': string | number;
+    killed: boolean;
+    command: string;
 }
 
 /**
  * Logs timing information about commands as they start/stop and then a summary when all commands finish.
  */
 export class LogTimings implements FlowController {
-    static mapCloseEventToTimingInfo({ command, timings, killed, exitCode }: CloseEvent): TimingInfo {
-        const readableDurationMs = (timings.endDate.getTime() - timings.startDate.getTime()).toLocaleString();
+    static mapCloseEventToTimingInfo({
+        command,
+        timings,
+        killed,
+        exitCode,
+    }: CloseEvent): TimingInfo {
+        const readableDurationMs = (
+            timings.endDate.getTime() - timings.startDate.getTime()
+        ).toLocaleString();
         return {
             name: command.name,
             duration: readableDurationMs,
@@ -33,9 +40,12 @@ export class LogTimings implements FlowController {
     private readonly logger?: Logger;
     private readonly timestampFormat: string;
 
-    constructor({ logger, timestampFormat = defaults.timestampFormat }: {
-        logger?: Logger,
-        timestampFormat?: string,
+    constructor({
+        logger,
+        timestampFormat = defaults.timestampFormat,
+    }: {
+        logger?: Logger;
+        timestampFormat?: string;
     }) {
         this.logger = logger;
         this.timestampFormat = timestampFormat;
@@ -51,7 +61,7 @@ export class LogTimings implements FlowController {
         this.logger?.logGlobalEvent('Timings:');
         this.logger?.logTable(exitInfoTable);
         return exitInfos;
-    };
+    }
 
     handle(commands: Command[]) {
         if (!this.logger) {
@@ -63,11 +73,19 @@ export class LogTimings implements FlowController {
             command.timer.subscribe(({ startDate, endDate }) => {
                 if (!endDate) {
                     const formattedStartDate = formatDate(startDate, this.timestampFormat);
-                    this.logger?.logCommandEvent(`${command.command} started at ${formattedStartDate}`, command);
+                    this.logger?.logCommandEvent(
+                        `${command.command} started at ${formattedStartDate}`,
+                        command
+                    );
                 } else {
                     const durationMs = endDate.getTime() - startDate.getTime();
                     const formattedEndDate = formatDate(endDate, this.timestampFormat);
-                    this.logger?.logCommandEvent(`${command.command} stopped at ${formattedEndDate} after ${durationMs.toLocaleString()}ms`, command);
+                    this.logger?.logCommandEvent(
+                        `${
+                            command.command
+                        } stopped at ${formattedEndDate} after ${durationMs.toLocaleString()}ms`,
+                        command
+                    );
                 }
             });
         });
@@ -76,9 +94,9 @@ export class LogTimings implements FlowController {
         const closeStreams = commands.map(command => command.close);
         const allProcessesClosed = Rx.merge(...closeStreams).pipe(
             bufferCount(closeStreams.length),
-            take(1),
+            take(1)
         );
-        allProcessesClosed.subscribe((exitInfos) => this.printExitInfoTimingTable(exitInfos));
+        allProcessesClosed.subscribe(exitInfos => this.printExitInfoTimingTable(exitInfos));
         return { commands };
     }
-};
+}

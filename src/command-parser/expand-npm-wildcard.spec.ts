@@ -22,10 +22,10 @@ afterEach(() => {
 describe('ExpandNpmWildcard#readPackage', () => {
     it('can read package', () => {
         const expectedPackage = {
-            'name': 'concurrently',
-            'version': '6.4.0',
+            name: 'concurrently',
+            version: '6.4.0',
         };
-        jest.spyOn(fs, 'readFileSync').mockImplementation((path, options) => {
+        jest.spyOn(fs, 'readFileSync').mockImplementation(path => {
             if (path === 'package.json') {
                 return JSON.stringify(expectedPackage);
             }
@@ -44,7 +44,6 @@ describe('ExpandNpmWildcard#readPackage', () => {
         expect(() => ExpandNpmWildcard.readPackage()).not.toThrow();
         expect(ExpandNpmWildcard.readPackage()).toEqual({});
     });
-
 });
 
 it('returns same command if not an npm run command', () => {
@@ -91,10 +90,12 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
                 },
             });
 
-            expect(parser.parse({
-                name: 'w:',
-                command: `${npmCmd} run watch-*`,
-            })).toEqual([
+            expect(
+                parser.parse({
+                    name: 'w:',
+                    command: `${npmCmd} run watch-*`,
+                })
+            ).toEqual([
                 { name: 'w:js', command: `${npmCmd} run watch-js` },
                 { name: 'w:css', command: `${npmCmd} run watch-css` },
             ]);

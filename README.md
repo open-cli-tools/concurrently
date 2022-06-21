@@ -11,6 +11,7 @@ Like `npm run watch-js & npm run watch-less` but better.
 ![](docs/demo.gif)
 
 **Table of contents**
+
 - [Concurrently](#concurrently)
   - [Why](#why)
   - [Install](#install)
@@ -34,10 +35,10 @@ tired of opening terminals and made **concurrently**.
 
 **Features:**
 
-* Cross platform (including Windows)
-* Output is easy to follow with prefixes
-* With `--kill-others` switch, all commands are killed if one dies
-* Spawns commands with [spawn-command](https://github.com/mmalecki/spawn-command)
+- Cross platform (including Windows)
+- Output is easy to follow with prefixes
+- With `--kill-others` switch, all commands are killed if one dies
+- Spawns commands with [spawn-command](https://github.com/mmalecki/spawn-command)
 
 ## Install
 
@@ -56,6 +57,7 @@ npm install concurrently --save
 ## Usage
 
 Remember to surround separate commands with quotes:
+
 ```bash
 concurrently "command1 arg" "command2 arg"
 ```
@@ -110,6 +112,7 @@ concurrently -n w:js,w:css,w:node "npm run watch-js" "npm run watch-css" "npm ru
 ```
 
 Exclusion is also supported. Given the following scripts in package.json:
+
 ```javascript
 {
     // ...
@@ -123,6 +126,7 @@ Exclusion is also supported. Given the following scripts in package.json:
     // ...
 }
 ```
+
 ```bash
 # Running only lint:js and lint:ts
 #   with lint:fix:js and lint:fix:ts excluded
@@ -291,6 +295,7 @@ For more details, visit https://github.com/open-cli-tools/concurrently
 ```
 
 ## API
+
 concurrently can be used programmatically by using the API documented below:
 
 ### `concurrently(commands[, options])`
@@ -299,38 +304,39 @@ concurrently can be used programmatically by using the API documented below:
   with the shape `{ command, name, prefixColor, env, cwd }`.
 
 - `options` (optional): an object containing any of the below:
-    - `cwd`: the working directory to be used by all commands. Can be overriden per command.
+  - `cwd`: the working directory to be used by all commands. Can be overriden per command.
     Default: `process.cwd()`.
-    - `defaultInputTarget`: the default input target when reading from `inputStream`.
+  - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
-    - `handleInput`: when `true`, reads input from `process.stdin`.
-    - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
+  - `handleInput`: when `true`, reads input from `process.stdin`.
+  - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
     to read the input from. Should only be used in the rare instance you would like to stream anything other than `process.stdin`. Overrides `handleInput`.
-    - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
-    - `killOthers`: an array of exitting conditions that will cause a process to kill others.
+  - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
+  - `killOthers`: an array of exitting conditions that will cause a process to kill others.
     Can contain any of `success` or `failure`.
-    - `maxProcesses`: how many processes should run at once.
-    - `outputStream`: a [`Writable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_writable_streams)
+  - `maxProcesses`: how many processes should run at once.
+  - `outputStream`: a [`Writable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_writable_streams)
     to write logs to. Default: `process.stdout`.
-    - `prefix`: the prefix type to use when logging processes output.
-      Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
-      Default: the name of the process, or its index if no name is set.
-    - `prefixColors`: a list of colors as supported by [chalk](https://www.npmjs.com/package/chalk).
-      If concurrently would run more commands than there are colors, the last color is repeated.
-      Prefix colors specified per-command take precedence over this list.
-    - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
-    - `raw`: whether raw mode should be used, meaning strictly process output will
+  - `prefix`: the prefix type to use when logging processes output.
+    Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
+    Default: the name of the process, or its index if no name is set.
+  - `prefixColors`: a list of colors as supported by [chalk](https://www.npmjs.com/package/chalk).
+    If concurrently would run more commands than there are colors, the last color is repeated.
+    Prefix colors specified per-command take precedence over this list.
+  - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
+  - `raw`: whether raw mode should be used, meaning strictly process output will
     be logged, without any prefixes, colouring or extra stuff.
-    - `successCondition`: the condition to consider the run was successful.
+  - `successCondition`: the condition to consider the run was successful.
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.
-    - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
-    - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
-    - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
+  - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
+  - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
+  - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
-    - `additionalArguments`: list of additional arguments passed that will get replaced in each command. If not defined, no argument replacing will happen.
+  - `additionalArguments`: list of additional arguments passed that will get replaced in each command. If not defined, no argument replacing will happen.
 
 > **Returns:** an object in the shape `{ result, commands }`.
+>
 > - `result`: a `Promise` that resolves if the run was successful (according to `successCondition` option),
 >   or rejects, containing an array of [`CloseEvent`](#CloseEvent), in the order that the commands terminated.
 > - `commands`: an array of all spawned [`Command`s](#Command).
@@ -339,21 +345,29 @@ Example:
 
 ```js
 const concurrently = require('concurrently');
-const { result } = concurrently([
+const { result } = concurrently(
+  [
     'npm:watch-*',
     { command: 'nodemon', name: 'server' },
     { command: 'deploy', name: 'deploy', env: { PUBLIC_KEY: '...' } },
-    { command: 'watch', name: 'watch', cwd: path.resolve(__dirname, 'scripts/watchers')}
-], {
+    {
+      command: 'watch',
+      name: 'watch',
+      cwd: path.resolve(__dirname, 'scripts/watchers'),
+    },
+  ],
+  {
     prefix: 'name',
     killOthers: ['failure', 'success'],
     restartTries: 3,
     cwd: path.resolve(__dirname, 'scripts'),
-});
+  }
+);
 result.then(success, failure);
 ```
 
 ### `Command`
+
 An object that contains all information about a spawned command, and ways to interact with it.<br>
 It has the following properties:
 
@@ -376,6 +390,7 @@ It has the following properties:
 - `kill([signal])`: kills the command, optionally specifying a signal (e.g. `SIGTERM`, `SIGKILL`, etc).
 
 ### `CloseEvent`
+
 An object with information about a command's closing event.<br>
 It contains the following properties:
 
@@ -387,19 +402,18 @@ It contains the following properties:
 
 ## FAQ
 
-* Process exited with code *null*?
+- Process exited with code _null_?
 
-    From [Node child_process documentation](http://nodejs.org/api/child_process.html#child_process_event_exit), `exit` event:
+  From [Node child_process documentation](http://nodejs.org/api/child_process.html#child_process_event_exit), `exit` event:
 
-    > This event is emitted after the child process ends. If the process
-    > terminated normally, code is the final exit code of the process,
-    > otherwise null. If the process terminated due to receipt of a signal,
-    > signal is the string name of the signal, otherwise null.
+  > This event is emitted after the child process ends. If the process
+  > terminated normally, code is the final exit code of the process,
+  > otherwise null. If the process terminated due to receipt of a signal,
+  > signal is the string name of the signal, otherwise null.
 
+  So _null_ means the process didn't terminate normally. This will make **concurrent**
+  to return non-zero exit code too.
 
-    So *null* means the process didn't terminate normally. This will make **concurrent**
-    to return non-zero exit code too.
+- Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn) or [pnpm](https://pnpm.js.org/)?
 
-* Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn) or [pnpm](https://pnpm.js.org/)?
-
-    Yes! In all examples above, you may replace "`npm`" with "`yarn`" or "`pnpm`".
+  Yes! In all examples above, you may replace "`npm`" with "`yarn`" or "`pnpm`".

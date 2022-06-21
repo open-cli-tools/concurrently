@@ -32,5 +32,4 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
             });
         });
     });
-
 }

@@ -1,5 +1,10 @@
 {
-  "eslint.enable": true,
   "jest.showCoverageOnLoad": true,
+  "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "[javascript, typescript]": {
+    "editor.formatOnSave": false
+  },
   "editor.rulers": [100]
 }

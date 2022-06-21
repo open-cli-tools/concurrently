@@ -4,11 +4,14 @@ import { OutputWriter } from './output-writer';
 import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
 
 function createWriter(overrides?: { group: boolean }) {
-    const options = Object.assign({
-        outputStream,
-        group: false,
-        commands,
-    }, overrides);
+    const options = Object.assign(
+        {
+            outputStream,
+            group: false,
+            commands,
+        },
+        overrides
+    );
     return new OutputWriter(options);
 }
 

@@ -11,12 +11,17 @@ export class FakeCommand extends Command {
     }
 
     constructor(name = 'foo', command = 'echo foo', index = 0, info?: Partial<CommandInfo>) {
-        super({
-            index,
-            name,
-            command,
-            ...info,
-        }, {}, jest.fn(), jest.fn());
+        super(
+            {
+                index,
+                name,
+                command,
+                ...info,
+            },
+            {},
+            jest.fn(),
+            jest.fn()
+        );
 
         this.stdin = createMockInstance(Writable);
         this.start = jest.fn();
@@ -24,12 +29,13 @@ export class FakeCommand extends Command {
     }
 }
 
-export const createFakeProcess = (pid: number): ChildProcess => Object.assign(new EventEmitter(), {
-    pid,
-    stdin: new PassThrough(),
-    stdout: new PassThrough(),
-    stderr: new PassThrough(),
-});
+export const createFakeProcess = (pid: number): ChildProcess =>
+    Object.assign(new EventEmitter(), {
+        pid,
+        stdin: new PassThrough(),
+        stdout: new PassThrough(),
+        stderr: new PassThrough(),
+    });
 
 export const createFakeCloseEvent = (overrides?: Partial<CloseEvent>): CloseEvent => ({
     command: new FakeCommand(),

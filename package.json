@@ -21,7 +21,10 @@
     "build": "tsc --build",
     "postbuild": "chmod +x dist/bin/concurrently.js",
     "clean": "tsc --build --clean",
+    "format": "prettier --ignore-path .gitignore --check .",
+    "format:fix": "prettier --ignore-path .gitignore --write .",
     "lint": "eslint . --ext js,ts --ignore-path .gitignore",
+    "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"
@@ -62,8 +65,13 @@
     "@typescript-eslint/parser": "^5.8.1",
     "coveralls-next": "^4.1.2",
     "eslint": "^8.15.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.5.1",
     "jest-create-mock-instance": "^2.0.0",
+    "lint-staged": "^12.4.1",
+    "prettier": "^2.6.2",
+    "simple-git-hooks": "^2.7.0",
     "ts-jest": "^27.1.4",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
@@ -92,5 +100,13 @@
       "/node_modules/",
       "/dist"
     ]
+  },
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint --fix",
+    "!(package-lock).json": "prettier --write",
+    "*.{y?(a)ml,md}": "prettier --write"
   }
 }

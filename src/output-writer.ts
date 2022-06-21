@@ -11,29 +11,32 @@ export class OutputWriter {
     readonly buffers: string[][];
     activeCommandIndex = 0;
 
-    constructor({ outputStream, group, commands }: {
-        outputStream: Writable,
-        group: boolean,
-        commands: Command[],
+    constructor({
+        outputStream,
+        group,
+        commands,
+    }: {
+        outputStream: Writable;
+        group: boolean;
+        commands: Command[];
     }) {
         this.outputStream = outputStream;
         this.group = group;
         this.buffers = commands.map(() => []);
 
         if (this.group) {
-            Rx.merge(...commands.map(c => c.close))
-                .subscribe(command => {
-                    if (command.index !== this.activeCommandIndex) {
-                        return;
+            Rx.merge(...commands.map(c => c.close)).subscribe(command => {
+                if (command.index !== this.activeCommandIndex) {
+                    return;
+                }
+                for (let i = command.index + 1; i < commands.length; i++) {
+                    this.activeCommandIndex = i;
+                    this.flushBuffer(i);
+                    if (!commands[i].exited) {
+                        break;
                     }
-                    for (let i = command.index + 1; i < commands.length; i++) {
-                        this.activeCommandIndex = i;
-                        this.flushBuffer(i);
-                        if (!commands[i].exited) {
-                            break;
-                        }
-                    }
-                });
+                }
+            });
         }
     }
 
@@ -54,4 +57,4 @@ export class OutputWriter {
         this.buffers[index].forEach(t => this.outputStream.write(t));
         this.buffers[index] = [];
     }
-};
+}

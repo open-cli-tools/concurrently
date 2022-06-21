@@ -6,7 +6,8 @@ import { CommandParser } from './command-parser';
  */
 export class ExpandNpmShortcut implements CommandParser {
     parse(commandInfo: CommandInfo) {
-        const [, npmCmd, cmdName, args] = commandInfo.command.match(/^(npm|yarn|pnpm):(\S+)(.*)/) || [];
+        const [, npmCmd, cmdName, args] =
+            commandInfo.command.match(/^(npm|yarn|pnpm):(\S+)(.*)/) || [];
         if (!cmdName) {
             return commandInfo;
         }
@@ -16,4 +17,4 @@ export class ExpandNpmShortcut implements CommandParser {
             command: `${npmCmd} run ${cmdName}${args}`,
         });
     }
-};
+}

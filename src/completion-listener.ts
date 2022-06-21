@@ -11,28 +11,36 @@ import { CloseEvent, Command } from './command';
  * - `command-{name|index}`: only the commands with the specified names or index.
  * - `!command-{name|index}`: all commands but the ones with the specified names or index.
  */
-export type SuccessCondition = 'first' | 'last' | 'all' | `command-${string|number}` | `!command-${string|number}`;
+export type SuccessCondition =
+    | 'first'
+    | 'last'
+    | 'all'
+    | `command-${string | number}`
+    | `!command-${string | number}`;
 
 /**
  * Provides logic to determine whether lists of commands ran successfully.
-*/
+ */
 export class CompletionListener {
     private readonly successCondition: SuccessCondition;
     private readonly scheduler?: Rx.SchedulerLike;
 
-    constructor({ successCondition = 'all', scheduler }: {
+    constructor({
+        successCondition = 'all',
+        scheduler,
+    }: {
         /**
          * How this instance will define that a list of commands ran successfully.
          * Defaults to `all`.
          *
          * @see {SuccessCondition}
          */
-        successCondition?: SuccessCondition,
+        successCondition?: SuccessCondition;
 
         /**
          * For testing only.
          */
-        scheduler?: Rx.SchedulerLike,
+        scheduler?: Rx.SchedulerLike;
     }) {
         this.successCondition = successCondition;
         this.scheduler = scheduler;
@@ -55,20 +63,20 @@ export class CompletionListener {
         // Note that a command's `name` is not necessarily unique,
         // in which case all of them must meet the success condition.
         const nameOrIndex = commandSyntaxMatch[1];
-        const targetCommandsEvents = events.filter(({ command, index }) => (
-            command.name === nameOrIndex
-            || index === Number(nameOrIndex)
-        ));
+        const targetCommandsEvents = events.filter(
+            ({ command, index }) => command.name === nameOrIndex || index === Number(nameOrIndex)
+        );
         if (this.successCondition.startsWith('!')) {
             // All commands except the specified ones must exit succesfully
-            return events.every((event) => (
-                targetCommandsEvents.includes(event)
-                || event.exitCode === 0
-            ));
+            return events.every(
+                event => targetCommandsEvents.includes(event) || event.exitCode === 0
+            );
         }
         // Only the specified commands must exit succesfully
-        return targetCommandsEvents.length > 0
-            && targetCommandsEvents.every(event => event.exitCode === 0);
+        return (
+            targetCommandsEvents.length > 0 &&
+            targetCommandsEvents.every(event => event.exitCode === 0)
+        );
     }
 
     /**
@@ -78,14 +86,16 @@ export class CompletionListener {
      */
     listen(commands: Command[]): Promise<CloseEvent[]> {
         const closeStreams = commands.map(command => command.close);
-        return Rx.lastValueFrom(Rx.merge(...closeStreams)
-            .pipe(
+        return Rx.lastValueFrom(
+            Rx.merge(...closeStreams).pipe(
                 bufferCount(closeStreams.length),
                 switchMap(exitInfos =>
                     this.isSuccess(exitInfos)
                         ? Rx.of(exitInfos, this.scheduler)
-                        : Rx.throwError(exitInfos, this.scheduler)),
-                take(1),
-            ));
+                        : Rx.throwError(exitInfos, this.scheduler)
+                ),
+                take(1)
+            )
+        );
     }
-};
+}

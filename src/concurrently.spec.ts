@@ -8,10 +8,8 @@ let kill: KillProcess;
 let onFinishHooks: (() => void)[];
 let controllers: jest.Mocked<FlowController>[];
 let processes: ChildProcess[];
-const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) => concurrently(
-    commands,
-    Object.assign(options, { controllers, spawn, kill }),
-);
+const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) =>
+    concurrently(commands, Object.assign(options, { controllers, spawn, kill }));
 
 beforeEach(() => {
     processes = [];
@@ -30,7 +28,7 @@ beforeEach(() => {
 });
 
 it('fails if commands is not an array', () => {
-    const bomb = () => create('foo' as any);
+    const bomb = () => create('foo' as never);
     expect(bomb).toThrowError();
 });
 
@@ -78,10 +76,7 @@ it('runs controllers with the commands', () => {
 });
 
 it('runs commands with a name or prefix color', () => {
-    create([
-        { command: 'echo', prefixColor: 'red', name: 'foo' },
-        'kill',
-    ]);
+    create([{ command: 'echo', prefixColor: 'red', name: 'foo' }, 'kill']);
 
     controllers.forEach(controller => {
         expect(controller.handle).toHaveBeenCalledWith([
@@ -127,15 +122,24 @@ it('merges extra env vars into each command', () => {
     ]);
 
     expect(spawn).toHaveBeenCalledTimes(3);
-    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'bar' }),
-    }));
-    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'baz' }),
-    }));
-    expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({
-        env: expect.not.objectContaining({ foo: expect.anything() }),
-    }));
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'bar' }),
+        })
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'baz' }),
+        })
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            env: expect.not.objectContaining({ foo: expect.anything() }),
+        })
+    );
 });
 
 it('uses cwd from options for each command', () => {
@@ -147,22 +151,31 @@ it('uses cwd from options for each command', () => {
         ],
         {
             cwd: 'foobar',
-        },
+        }
     );
 
     expect(spawn).toHaveBeenCalledTimes(3);
-    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'bar' }),
-        cwd: 'foobar',
-    }));
-    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'baz' }),
-        cwd: 'foobar',
-    }));
-    expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({
-        env: expect.not.objectContaining({ foo: expect.anything() }),
-        cwd: 'foobar',
-    }));
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'bar' }),
+            cwd: 'foobar',
+        })
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'baz' }),
+            cwd: 'foobar',
+        })
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            env: expect.not.objectContaining({ foo: expect.anything() }),
+            cwd: 'foobar',
+        })
+    );
 });
 
 it('uses overridden cwd option for each command if specified', () => {
@@ -173,18 +186,24 @@ it('uses overridden cwd option for each command if specified', () => {
         ],
         {
             cwd: 'foobar',
-        },
+        }
     );
 
     expect(spawn).toHaveBeenCalledTimes(2);
-    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'bar' }),
-        cwd: 'baz',
-    }));
-    expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({
-        env: expect.objectContaining({ foo: 'baz' }),
-        cwd: 'foobar',
-    }));
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'bar' }),
+            cwd: 'baz',
+        })
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'baz' }),
+            cwd: 'foobar',
+        })
+    );
 });
 
 it('argument placeholders are properly replaced when additional arguments are passed', () => {
@@ -197,25 +216,23 @@ it('argument placeholders are properly replaced when additional arguments are pa
         ],
         {
             additionalArguments: ['foo', 'bar'],
-        },
+        }
     );
 
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('echo foo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo foo bar', expect.objectContaining({}));
-    expect(spawn).toHaveBeenCalledWith('echo \'foo bar\'', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith("echo 'foo bar'", expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
 });
 
 it('argument placeholders are not replaced when additional arguments are not defined', () => {
-    create(
-        [
-            { command: 'echo {1}'  },
-            { command: 'echo {@}' },
-            { command: 'echo {*}' },
-            { command: 'echo \\{@}' },
-        ],
-    );
+    create([
+        { command: 'echo {1}' },
+        { command: 'echo {@}' },
+        { command: 'echo {*}' },
+        { command: 'echo \\{@}' },
+    ]);
 
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('echo {1}', expect.objectContaining({}));

@@ -19,4 +19,4 @@ export class LogOutput implements FlowController {
 
         return { commands };
     }
-};
+}

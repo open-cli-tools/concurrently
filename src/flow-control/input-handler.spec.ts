@@ -11,10 +11,7 @@ let inputStream: PassThrough;
 let logger: Logger;
 
 beforeEach(() => {
-    commands = [
-        new FakeCommand('foo', 'echo foo', 0),
-        new FakeCommand('bar', 'echo bar', 1),
-    ];
+    commands = [new FakeCommand('foo', 'echo foo', 0), new FakeCommand('bar', 'echo bar', 1)];
     inputStream = new PassThrough();
     logger = createMockInstance(Logger);
     controller = new InputHandler({
@@ -80,7 +77,9 @@ it('logs error if command has no stdin open', () => {
     inputStream.write('something');
 
     expect(commands[1].stdin.write).not.toHaveBeenCalled();
-    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Unable to find command 0, or it has no stdin open\n');
+    expect(logger.logGlobalEvent).toHaveBeenCalledWith(
+        'Unable to find command 0, or it has no stdin open\n'
+    );
 });
 
 it('logs error if command is not found', () => {
@@ -90,7 +89,9 @@ it('logs error if command is not found', () => {
 
     expect(commands[0].stdin.write).not.toHaveBeenCalled();
     expect(commands[1].stdin.write).not.toHaveBeenCalled();
-    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Unable to find command foobar, or it has no stdin open\n');
+    expect(logger.logGlobalEvent).toHaveBeenCalledWith(
+        'Unable to find command foobar, or it has no stdin open\n'
+    );
 });
 
 it('pauses input stream when finished', () => {

@@ -1,15 +1,15 @@
 {
-    "compilerOptions": {
-        "outDir": "./dist",
-        "declaration": true,
-        "target": "ES2019",
-        "lib": ["ES2019"],
-        "module": "CommonJS",
-        "moduleResolution": "node",
-        "noImplicitAny": true,
-        "esModuleInterop": true,
-        "allowSyntheticDefaultImports": true,
-        "allowJs": false
-    },
-    "include": ["./bin", "./declarations", "./src"]
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "target": "ES2019",
+    "lib": ["ES2019"],
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": false
+  },
+  "include": ["./bin", "./declarations", "./src"]
 }

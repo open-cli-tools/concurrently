@@ -14,7 +14,7 @@ it('returns command as is if no single/double quote at the beginning', () => {
 });
 
 it('strips single quotes', () => {
-    const commandInfo = createCommandInfo('\'echo foo\'');
+    const commandInfo = createCommandInfo("'echo foo'");
     expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: 'echo foo' });
 });
 
@@ -27,7 +27,7 @@ it('does not remove quotes if they are unbalanced', () => {
     let commandInfo = createCommandInfo('"echo foo');
     expect(parser.parse(commandInfo)).toEqual(commandInfo);
 
-    commandInfo = createCommandInfo('echo foo\'');
+    commandInfo = createCommandInfo("echo foo'");
     expect(parser.parse(commandInfo)).toEqual(commandInfo);
 
     commandInfo = createCommandInfo('"echo foo\'');

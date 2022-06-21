@@ -15,11 +15,13 @@ const examples = [
     },
     {
         description: 'Custom names and colored prefixes',
-        example: '$ $0 --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"',
+        example:
+            '$ $0 --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"',
     },
     {
         description: 'Configuring via environment variables with CONCURRENTLY_ prefix',
-        example: '$ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true $0 "echo hello" "echo world"',
+        example:
+            '$ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true $0 "echo hello" "echo world"',
     },
     {
         description: 'Send input to default',
@@ -30,17 +32,11 @@ const examples = [
     },
     {
         description: 'Send input to specific child identified by index',
-        example: [
-            '$ $0 --handle-input "npm run watch-js" nodemon',
-            '1:rs',
-        ].join('\n'),
+        example: ['$ $0 --handle-input "npm run watch-js" nodemon', '1:rs'].join('\n'),
     },
     {
         description: 'Send input to specific child identified by name',
-        example: [
-            '$ $0 --handle-input -n js,srv "npm run watch-js" nodemon',
-            'srv:rs',
-        ].join('\n'),
+        example: ['$ $0 --handle-input -n js,srv "npm run watch-js" nodemon', 'srv:rs'].join('\n'),
     },
     {
         description: 'Shortened NPM run commands',
@@ -51,29 +47,40 @@ const examples = [
         example: '$ $0 "npm:watch-*"',
     },
     {
-        description: 'Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js" is ran',
+        description:
+            'Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js" is ran',
         example: '$ $0 "npm:*(!fix)"',
     },
     {
-        description: 'Passthrough some additional arguments via \'{<number>}\' placeholder',
+        description: "Passthrough some additional arguments via '{<number>}' placeholder",
         example: '$ $0 -P "echo {1}" -- foo',
     },
     {
-        description: 'Passthrough all additional arguments via \'{@}\' placeholder',
+        description: "Passthrough all additional arguments via '{@}' placeholder",
         example: '$ $0 -P "npm:dev-* -- {@}" -- --watch --noEmit',
     },
     {
-        description: 'Passthrough all additional arguments combined via \'{*}\' placeholder',
+        description: "Passthrough all additional arguments combined via '{*}' placeholder",
         example: '$ $0 -P "npm:dev-* -- {*}" -- --watch --noEmit',
     },
 ];
 
+const examplesString = examples
+    .map(({ example, description }) =>
+        [
+            ` - ${description}`,
+            example
+                .split('\n')
+                .map(line => `     ${line}`)
+                .join('\n'),
+        ].join('\n\n')
+    )
+    .join('\n\n');
+
 export const epilogue = `
 Examples:
-${examples.map(({ example, description }) => `
- - ${description}
 
-${example.split('\n').map(line => `     ${line}`).join('\n')}
-`).join('')}
+${examplesString}
+
 For more details, visit https://github.com/open-cli-tools/concurrently
 `;
