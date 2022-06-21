@@ -4,6 +4,10 @@ import * as Rx from 'rxjs';
 import { buffer, map } from 'rxjs/operators';
 import spawn from 'spawn-command';
 
+// Increasing timeout for these tests as sometimes it exceeded
+// in the CI when running on macOS / Windows (default is 5000ms)
+jest.setTimeout(10000);
+
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string) =>
     new RegExp(_.escapeRegExp(prefix) + ' exited with code ' + (isWindows ? 1 : '(SIGTERM|143)'));
@@ -54,24 +58,17 @@ it('has help command', done => {
     }, done);
 });
 
-// Increasing timeout for this test as it is sometimes exceeded
-// in the CI when running on macOS (default is 5000ms)
-const increasedTimeout = 10000;
-it(
-    'has version command',
-    done => {
-        Rx.combineLatest([run('--version').close, run('-V').close, run('-v').close]).subscribe(
-            events => {
-                expect(events[0][0]).toBe(0);
-                expect(events[1][0]).toBe(0);
-                expect(events[2][0]).toBe(0);
-                done();
-            },
-            done
-        );
-    },
-    increasedTimeout
-);
+it('has version command', done => {
+    Rx.combineLatest([run('--version').close, run('-V').close, run('-v').close]).subscribe(
+        events => {
+            expect(events[0][0]).toBe(0);
+            expect(events[1][0]).toBe(0);
+            expect(events[2][0]).toBe(0);
+            done();
+        },
+        done
+    );
+});
 
 describe('exiting conditions', () => {
     it('is of success by default when running successful commands', done => {
