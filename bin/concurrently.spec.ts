@@ -54,17 +54,24 @@ it('has help command', done => {
     }, done);
 });
 
-it('has version command', done => {
-    Rx.combineLatest([run('--version').close, run('-V').close, run('-v').close]).subscribe(
-        events => {
-            expect(events[0][0]).toBe(0);
-            expect(events[1][0]).toBe(0);
-            expect(events[2][0]).toBe(0);
-            done();
-        },
-        done
-    );
-});
+// Increasing timeout for this test as it is sometimes exceeded
+// in the CI when running on macOS (default is 5000ms)
+const increasedTimeout = 10000;
+it(
+    'has version command',
+    done => {
+        Rx.combineLatest([run('--version').close, run('-V').close, run('-v').close]).subscribe(
+            events => {
+                expect(events[0][0]).toBe(0);
+                expect(events[1][0]).toBe(0);
+                expect(events[2][0]).toBe(0);
+                done();
+            },
+            done
+        );
+    },
+    increasedTimeout
+);
 
 describe('exiting conditions', () => {
     it('is of success by default when running successful commands', done => {
