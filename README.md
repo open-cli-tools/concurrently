@@ -1,4 +1,4 @@
-# Concurrently
+# concurrently
 
 [![Build Status](https://github.com/open-cli-tools/concurrently/workflows/Tests/badge.svg)](https://github.com/open-cli-tools/concurrently/actions?workflow=Tests)
 [![Coverage Status](https://coveralls.io/repos/github/open-cli-tools/concurrently/badge.svg?branch=master)](https://coveralls.io/github/open-cli-tools/concurrently?branch=master)
@@ -10,9 +10,9 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 ![](docs/demo.gif)
 
-**Table of contents**
+**Table of Contents**
 
-- [Concurrently](#concurrently)
+- [concurrently](#concurrently)
   - [Why](#why)
   - [Install](#install)
   - [Usage](#usage)
@@ -83,7 +83,7 @@ concurrently -n watch-js,watch-css,watch-node "npm run watch-js" "npm run watch-
 NPM shortened commands also support wildcards. Given the following scripts in
 package.json:
 
-```javascript
+```jsonc
 {
     //...
     "scripts": {
@@ -113,7 +113,7 @@ concurrently -n w:js,w:css,w:node "npm run watch-js" "npm run watch-css" "npm ru
 
 Exclusion is also supported. Given the following scripts in package.json:
 
-```javascript
+```jsonc
 {
     // ...
     "scripts": {
