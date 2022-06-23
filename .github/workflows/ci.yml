@@ -14,21 +14,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pre-check:
-    name: Pre-Check
-    runs-on: ubuntu-latest
-    outputs:
-      should-skip: ${{ steps.pre-check.outputs.should_skip }}
-    steps:
-      - name: Check
-        id: pre-check
-        uses: fkirc/skip-duplicate-actions@v4
-        continue-on-error: true
-
   lint-format:
     name: Lint & Format
-    needs: pre-check
-    if: needs.pre-check.outputs.should-skip != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -53,8 +40,6 @@ jobs:
 
   test:
     name: Test (Node.js ${{ matrix.node }} on ${{ matrix.os.name }})
-    needs: pre-check
-    if: needs.pre-check.outputs.should-skip != 'true'
     runs-on: ${{ matrix.os.version }}
     strategy:
       fail-fast: false
