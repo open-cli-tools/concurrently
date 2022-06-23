@@ -28,6 +28,17 @@ it('returns same commands', () => {
     expect(controller.handle(commands)).toMatchObject({ commands });
 });
 
+it('does nothing if called without input stream', () => {
+    new InputHandler({
+        defaultInputTarget: 0,
+        inputStream: undefined,
+        logger,
+    }).handle(commands);
+    inputStream.write('something');
+
+    expect(commands[0].stdin.write).not.toHaveBeenCalled();
+});
+
 it('forwards input stream to default target ID', () => {
     controller.handle(commands);
 

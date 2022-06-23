@@ -315,6 +315,20 @@ describe('#logTable()', () => {
         );
     });
 
+    it("logs each items's values with empty column", () => {
+        const logger = createLogger({});
+        logger.logTable([{ foo: 123 }, { foo: null }]);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│ 123 │') + '\n'
+        );
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('-->') + ' ',
+            chalk.reset('│     │') + '\n'
+        );
+    });
+
     it("logs each items's values padded according to longest column's value", () => {
         const logger = createLogger({});
         logger.logTable([{ foo: 1 }, { foo: 123 }]);

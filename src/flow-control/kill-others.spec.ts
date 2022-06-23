@@ -7,7 +7,6 @@ let commands: FakeCommand[];
 let logger: Logger;
 beforeEach(() => {
     commands = [new FakeCommand(), new FakeCommand()];
-
     logger = createMockInstance(Logger);
 });
 
@@ -41,6 +40,16 @@ it('kills other killable processes on success', () => {
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
     expect(commands[0].kill).not.toHaveBeenCalled();
     expect(commands[1].kill).toHaveBeenCalled();
+});
+
+it('does nothing if called without conditions', () => {
+    createWithConditions([]).handle(commands);
+    commands[1].isKillable = true;
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
+
+    expect(logger.logGlobalEvent).not.toHaveBeenCalled();
+    expect(commands[0].kill).not.toHaveBeenCalled();
+    expect(commands[1].kill).not.toHaveBeenCalled();
 });
 
 it('kills other killable processes on failure', () => {

@@ -26,11 +26,7 @@ export class KillOthers implements FlowController {
     }
 
     handle(commands: Command[]) {
-        const conditions = this.conditions.filter(
-            condition => condition === 'failure' || condition === 'success'
-        );
-
-        if (!conditions.length) {
+        if (!this.conditions.length) {
             return { commands };
         }
 
@@ -39,7 +35,7 @@ export class KillOthers implements FlowController {
                 map(({ exitCode }) =>
                     exitCode === 0 ? ('success' as const) : ('failure' as const)
                 ),
-                filter(state => conditions.includes(state))
+                filter(state => this.conditions.includes(state))
             )
         );
 

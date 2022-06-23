@@ -5,7 +5,6 @@ const config = {
     },
     collectCoverage: true,
     collectCoverageFrom: ['src/**/*.ts', '!src/index.ts'],
-    coveragePathIgnorePatterns: ['/fixtures/', '/node_modules/'],
     testPathIgnorePatterns: ['/node_modules/', '/dist'],
 };
 
