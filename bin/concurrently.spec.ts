@@ -2,11 +2,7 @@ import * as readline from 'readline';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
 import { buffer, map } from 'rxjs/operators';
-import spawn from 'spawn-command';
-
-// Increasing timeout for these tests as sometimes it exceeded
-// in the CI when running on macOS / Windows (default is 5000ms)
-jest.setTimeout(10000);
+import { spawn } from 'child_process';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string) =>
@@ -17,14 +13,17 @@ const createKillMessage = (prefix: string) =>
  * Returns observables for its combined stdout + stderr output, close events, pid, and stdin stream.
  */
 const run = (args: string) => {
-    // TODO: This should only be transpiled once. Tests become 2.5x slower doing it in every `it`.
-    const child = spawn('ts-node --transpile-only ./concurrently.ts ' + args, {
+    // TODO: Optimally, this should only be transpiled once,
+    //       e.g. bundle in `beforeAll` and then reuse here.
+    const child = spawn(`node -r @swc-node/register ./concurrently.ts ${args}`, {
+        shell: true,
         cwd: __dirname,
-        env: Object.assign({}, process.env, {
+        env: {
+            ...process.env,
             // When upgrading from jest 23 -> 24, colors started printing in the test output.
             // They are forcibly disabled here
-            FORCE_COLOR: 0,
-        }),
+            FORCE_COLOR: '0',
+        },
     });
 
     const stdout = readline.createInterface({

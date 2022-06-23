@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as _ from 'lodash';
+import fs from 'fs';
+import _ from 'lodash';
 import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
 

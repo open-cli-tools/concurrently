@@ -55,6 +55,9 @@
     "yargs": "^17.3.1"
   },
   "devDependencies": {
+    "@swc-node/register": "^1.5.1",
+    "@swc/core": "^1.2.204",
+    "@swc/jest": "^0.2.21",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.178",
     "@types/node": "^17.0.0",
