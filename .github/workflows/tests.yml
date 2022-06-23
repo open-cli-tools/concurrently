@@ -8,47 +8,64 @@ on:
     branches:
       - main
 
-env:
-  CI: true
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  run:
-    name: Node ${{ matrix.node }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  pre-check:
+    name: Pre-Check
+    runs-on: ubuntu-latest
+    outputs:
+      should-skip: ${{ steps.pre-check.outputs.should_skip }}
+    steps:
+      - name: Check
+        id: pre-check
+        uses: fkirc/skip-duplicate-actions@v4
+        continue-on-error: true
 
+  tests:
+    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    needs: pre-check
+    if: ${{ needs.pre-check.outputs.should-skip != 'true' }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         node: [12, 14, 16, 17]
         os: [ubuntu-latest, windows-latest, macOS-latest]
-
     steps:
-      - name: Clone repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set Node.js version
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
           cache: npm
 
-      - run: node --version
-      - run: npm --version
+      - name: Print versions
+        run: |
+          node --version
+          npm --version
 
-      - name: Install npm dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: Compile
+      - name: Build
         run: npm run build
 
-      - name: Run tests
+      - name: Format
+        run: npm run format
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
         run: npm test
         shell: bash
         env:
           SHELL: '/bin/bash'
-
-      - name: Lint
-        run: npm run lint
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master
@@ -56,12 +73,13 @@ jobs:
           github-token: ${{ secrets.github_token }}
           flag-name: Node.js ${{ matrix.node }}
           parallel: true
-  teardown:
-    needs: run
-    name: Submitting coverage
+
+  coverage:
+    name: Coverage
+    needs: tests
     runs-on: ubuntu-latest
     steps:
-      - name: Coveralls Finished
+      - name: Finish coverage
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
