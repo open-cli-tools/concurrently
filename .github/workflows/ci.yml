@@ -52,7 +52,7 @@ jobs:
         run: npm run format
 
   test:
-    name: Test (Node ${{ matrix.node }} on ${{ matrix.os.name }})
+    name: Test (Node.js ${{ matrix.node }} on ${{ matrix.os.name }})
     needs: pre-check
     if: needs.pre-check.outputs.should-skip != 'true'
     runs-on: ${{ matrix.os.version }}
