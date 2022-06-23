@@ -85,15 +85,15 @@ package.json:
 
 ```jsonc
 {
-    //...
-    "scripts": {
-        // ...
-        "watch-js": "...",
-        "watch-css": "...",
-        "watch-node": "...",
-        // ...
-    },
+  //...
+  "scripts": {
     // ...
+    "watch-js": "...",
+    "watch-css": "...",
+    "watch-node": "..."
+    // ...
+  }
+  // ...
 }
 ```
 
@@ -115,15 +115,15 @@ Exclusion is also supported. Given the following scripts in package.json:
 
 ```jsonc
 {
+  // ...
+  "scripts": {
+    "lint:js": "...",
+    "lint:ts": "...",
+    "lint:fix:js": "...",
+    "lint:fix:ts": "..."
     // ...
-    "scripts": {
-      "lint:js": "...",
-      "lint:ts": "...",
-      "lint:fix:js": "...",
-      "lint:fix:ts": "...",
-      // ...
-    }
-    // ...
+  }
+  // ...
 }
 ```
 
