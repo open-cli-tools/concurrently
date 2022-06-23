@@ -37,18 +37,13 @@ export const getSpawnOpts = ({
      * Map of custom environment variables to include in the spawn options.
      */
     env?: Record<string, unknown>;
-}): SpawnOptions =>
-    Object.assign(
-        {
-            cwd: cwd || process.cwd(),
-        },
-        raw && { stdio: 'inherit' as const },
-        /^win/.test(process.platform) && { detached: false },
-        {
-            env: Object.assign(
-                colorSupport ? { FORCE_COLOR: colorSupport.level } : {},
-                process.env,
-                env
-            ),
-        }
-    );
+}): SpawnOptions => ({
+    cwd: cwd || process.cwd(),
+    ...(raw && { stdio: 'inherit' as const }),
+    ...(/^win/.test(process.platform) && { detached: false }),
+    env: {
+        ...(colorSupport ? { FORCE_COLOR: colorSupport.level.toString() } : {}),
+        ...process.env,
+        ...env,
+    },
+});

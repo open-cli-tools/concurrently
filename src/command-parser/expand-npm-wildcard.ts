@@ -40,8 +40,8 @@ export class ExpandNpmWildcard implements CommandParser {
 
         const omissionRegex = cmdName.match(OMISSION);
         const cmdNameSansOmission = cmdName.replace(OMISSION, '');
-        const preWildcard = _.escapeRegExp(cmdNameSansOmission.substr(0, wildcardPosition));
-        const postWildcard = _.escapeRegExp(cmdNameSansOmission.substr(wildcardPosition + 1));
+        const preWildcard = _.escapeRegExp(cmdNameSansOmission.slice(0, wildcardPosition));
+        const postWildcard = _.escapeRegExp(cmdNameSansOmission.slice(wildcardPosition + 1));
         const wildcardRegex = new RegExp(`^${preWildcard}(.*?)${postWildcard}$`);
         const currentName = commandInfo.name || '';
 
@@ -58,12 +58,13 @@ export class ExpandNpmWildcard implements CommandParser {
                 }
 
                 if (match) {
-                    return Object.assign({}, commandInfo, {
+                    return {
+                        ...commandInfo,
                         command: `${npmCmd} run ${script}${args}`,
                         // Will use an empty command name if command has no name and the wildcard match is empty,
                         // e.g. if `npm:watch-*` matches `npm run watch-`.
                         name: currentName + match[1],
-                    });
+                    };
                 }
             })
             .filter((commandInfo): commandInfo is CommandInfo => !!commandInfo);

@@ -18,6 +18,7 @@
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "no-var": "error",
     "prefer-const": "error",
+    "prefer-object-spread": "error",
     "prettier/prettier": ["error"]
   }
 }

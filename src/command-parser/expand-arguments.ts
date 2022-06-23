@@ -14,7 +14,7 @@ export class ExpandArguments implements CommandParser {
             (match, placeholderTarget) => {
                 // Don't replace the placeholder if it is escaped by a backslash.
                 if (match.startsWith('\\')) {
-                    return match.substring(1);
+                    return match.slice(1);
                 }
                 // Replace numeric placeholder if value exists in additional arguments.
                 if (
@@ -37,8 +37,6 @@ export class ExpandArguments implements CommandParser {
             }
         );
 
-        return Object.assign({}, commandInfo, {
-            command,
-        });
+        return { ...commandInfo, command };
     }
 }

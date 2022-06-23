@@ -148,13 +148,11 @@ export function concurrently(
             // Use documented behaviour of repeating last color when specifying more commands than colors
             lastColor = (options.prefixColors && options.prefixColors[index]) || lastColor;
             return new Command(
-                Object.assign(
-                    {
-                        index,
-                        prefixColor: lastColor,
-                    },
-                    command
-                ),
+                {
+                    index,
+                    prefixColor: lastColor,
+                    ...command,
+                },
                 getSpawnOpts({
                     raw: options.raw,
                     env: command.env,
@@ -215,19 +213,17 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
         };
     }
 
-    return Object.assign(
-        {
-            command: command.command,
-            name: command.name || '',
-            env: command.env || {},
-            cwd: command.cwd || '',
-        },
-        command.prefixColor
+    return {
+        command: command.command,
+        name: command.name || '',
+        env: command.env || {},
+        cwd: command.cwd || '',
+        ...(command.prefixColor
             ? {
                   prefixColor: command.prefixColor,
               }
-            : {}
-    );
+            : {}),
+    };
 }
 
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
