@@ -1,3 +1,4 @@
+# See https://github.com/actions/cache/blob/main/examples.md#node---npm
 name: Setup NPM cache
 runs:
   using: composite

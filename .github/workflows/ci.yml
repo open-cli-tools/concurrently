@@ -52,15 +52,25 @@ jobs:
         run: npm run format
 
   test:
-    name: Test (Node ${{ matrix.node }} on ${{ matrix.os }})
+    name: Test (Node ${{ matrix.node }} on ${{ matrix.os.name }})
     needs: pre-check
     if: needs.pre-check.outputs.should-skip != 'true'
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os.version }}
     strategy:
       fail-fast: false
       matrix:
-        node: [12, 14, 16, 17]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node:
+          - 12
+          - 14
+          - 16
+          - 17
+        os:
+          - name: Ubuntu
+            version: ubuntu-latest
+          - name: Windows
+            version: windows-latest
+          - name: macOS
+            version: macOS-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -94,7 +104,7 @@ jobs:
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
-          flag-name: Node.js ${{ matrix.node }}
+          flag-name: Node.js ${{ matrix.node }} on ${{ matrix.os.name }}
           parallel: true
 
   coverage:
