@@ -84,23 +84,6 @@
     "!**/*.spec.js",
     "!**/*.spec.d.ts"
   ],
-  "jest": {
-    "preset": "ts-jest",
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/index.ts"
-    ],
-    "coveragePathIgnorePatterns": [
-      "/fixtures/",
-      "/node_modules/"
-    ],
-    "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/dist"
-    ]
-  },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
   },
