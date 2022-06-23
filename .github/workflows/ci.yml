@@ -51,7 +51,7 @@ jobs:
         run: npm run format
 
   test:
-    name: Node ${{ matrix.node }} on ${{ matrix.os }}
+    name: Test (Node ${{ matrix.node }} on ${{ matrix.os }})
     needs: pre-check
     if: needs.pre-check.outputs.should-skip != 'true'
     runs-on: ${{ matrix.os }}
@@ -98,7 +98,7 @@ jobs:
 
   coverage:
     name: Coverage
-    needs: tests
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Finish coverage
