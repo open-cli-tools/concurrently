@@ -66,7 +66,7 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Setup NPM cache
-        uses: ./.github/actions/npm-cache
+        uses: ./.github/actions/setup-npm-cache
 
       - name: Print versions
         run: |
