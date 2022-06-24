@@ -2,6 +2,10 @@ import { ChildProcess, KillProcess, SpawnCommand } from './command';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';
 import { createFakeProcess, FakeCommand } from './fixtures/fake-command';
 import { FlowController } from './flow-control/flow-controller';
+import { Logger } from './logger';
+import { OutputWriter } from './output-writer';
+
+jest.mock('./output-writer');
 
 let spawn: SpawnCommand;
 let kill: KillProcess;
@@ -42,6 +46,12 @@ it('spawns all commands', () => {
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({}));
+});
+
+it('output writer is created if logger is passed in options', () => {
+    const logger = new Logger({ hide: [] });
+    create(['foo'], { logger });
+    expect(OutputWriter).toHaveBeenCalledTimes(1);
 });
 
 it('spawns commands up to configured limit at once', () => {

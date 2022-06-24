@@ -82,8 +82,8 @@ export class Logger {
         const endLength = Math.floor(prefixLength / 2);
         const beginningLength = prefixLength - endLength;
 
-        const beginnning = text.substring(0, beginningLength);
-        const end = text.substring(text.length - endLength, text.length);
+        const beginnning = text.slice(0, beginningLength);
+        const end = text.slice(text.length - endLength, text.length);
         return beginnning + ellipsis + end;
     }
 

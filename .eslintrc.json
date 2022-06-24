@@ -17,7 +17,9 @@
     "curly": "error",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "no-var": "error",
+    "no-console": "error",
     "prefer-const": "error",
+    "prefer-object-spread": "error",
     "prettier/prettier": ["error"]
   }
 }

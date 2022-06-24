@@ -18,7 +18,7 @@ it('merges FORCE_COLOR into env vars if color supported', () => {
     const process = { ...baseProcess, env: { foo: 'bar' } };
     expect(getSpawnOpts({ process, colorSupport: false }).env).toEqual(process.env);
     expect(getSpawnOpts({ process, colorSupport: { level: 1 } }).env).toEqual({
-        FORCE_COLOR: 1,
+        FORCE_COLOR: '1',
         foo: 'bar',
     });
 });

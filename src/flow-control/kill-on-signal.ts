@@ -28,7 +28,7 @@ export class KillOnSignal implements FlowController {
                 const closeStream = command.close.pipe(
                     map(exitInfo => {
                         const exitCode = caughtSignal === 'SIGINT' ? 0 : exitInfo.exitCode;
-                        return Object.assign({}, exitInfo, { exitCode });
+                        return { ...exitInfo, exitCode };
                     })
                 );
                 return new Proxy(command, {

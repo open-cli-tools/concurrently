@@ -21,8 +21,8 @@
     "build": "tsc --build",
     "postbuild": "chmod +x dist/bin/concurrently.js",
     "clean": "tsc --build --clean",
-    "format": "prettier --ignore-path .gitignore --check .",
-    "format:fix": "prettier --ignore-path .gitignore --write .",
+    "format": "prettier --ignore-path .gitignore --check '**/{!(package-lock).json,*.y?(a)ml,*.md}'",
+    "format:fix": "npm run format -- --write",
     "lint": "eslint . --ext js,ts --ignore-path .gitignore",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run build",
@@ -55,6 +55,9 @@
     "yargs": "^17.3.1"
   },
   "devDependencies": {
+    "@swc-node/register": "^1.5.1",
+    "@swc/core": "^1.2.204",
+    "@swc/jest": "^0.2.21",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.178",
     "@types/node": "^17.0.0",
@@ -72,8 +75,6 @@
     "lint-staged": "^12.4.1",
     "prettier": "^2.6.2",
     "simple-git-hooks": "^2.7.0",
-    "ts-jest": "^27.1.4",
-    "ts-node": "^10.4.0",
     "typescript": "^4.5.4"
   },
   "files": [
@@ -84,29 +85,11 @@
     "!**/*.spec.js",
     "!**/*.spec.d.ts"
   ],
-  "jest": {
-    "preset": "ts-jest",
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "src/**/*.ts",
-      "!src/index.ts"
-    ],
-    "coveragePathIgnorePatterns": [
-      "/fixtures/",
-      "/node_modules/"
-    ],
-    "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/dist"
-    ]
-  },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
-    "!(package-lock).json": "prettier --write",
-    "*.{y?(a)ml,md}": "prettier --write"
+    "{!(package-lock).json,*.y?(a)ml,*.md}": "prettier --write"
   }
 }
