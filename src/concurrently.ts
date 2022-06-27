@@ -176,7 +176,7 @@ export function concurrently(
     );
     commands = handleResult.commands;
 
-    if (options.logger) {
+    if (options.logger && options.outputStream) {
         const outputWriter = new OutputWriter({
             outputStream: options.outputStream,
             group: options.group,
