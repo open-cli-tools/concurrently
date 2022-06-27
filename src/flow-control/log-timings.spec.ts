@@ -109,20 +109,14 @@ it('does not log timings summary if there was an error', () => {
 });
 
 it('logs the sorted timings summary when all processes close successfully', () => {
-    jest.spyOn(controller, 'printExitInfoTimingTable');
     controller.handle(commands);
 
     commands[0].close.next(command0ExitInfo);
     commands[1].close.next(command1ExitInfo);
 
+    expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
+    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Timings:');
     expect(logger.logTable).toHaveBeenCalledTimes(1);
-
-    // un-sorted ie by finish order
-    expect(controller.printExitInfoTimingTable).toHaveBeenCalledWith([
-        command0ExitInfo,
-        command1ExitInfo,
-    ]);
-
     // sorted by duration
     expect(logger.logTable).toHaveBeenCalledWith([
         LogTimings.mapCloseEventToTimingInfo(command1ExitInfo),

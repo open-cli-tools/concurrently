@@ -51,15 +51,15 @@ export class LogTimings implements FlowController {
         this.timestampFormat = timestampFormat;
     }
 
-    printExitInfoTimingTable(exitInfos: CloseEvent[]) {
+    private printExitInfoTimingTable(exitInfos: CloseEvent[]) {
         const exitInfoTable = _(exitInfos)
             .sortBy(({ timings }) => timings.durationSeconds)
             .reverse()
             .map(LogTimings.mapCloseEventToTimingInfo)
             .value();
 
-        this.logger?.logGlobalEvent('Timings:');
-        this.logger?.logTable(exitInfoTable);
+        this.logger.logGlobalEvent('Timings:');
+        this.logger.logTable(exitInfoTable);
         return exitInfos;
     }
 
@@ -73,14 +73,14 @@ export class LogTimings implements FlowController {
             command.timer.subscribe(({ startDate, endDate }) => {
                 if (!endDate) {
                     const formattedStartDate = formatDate(startDate, this.timestampFormat);
-                    this.logger?.logCommandEvent(
+                    this.logger.logCommandEvent(
                         `${command.command} started at ${formattedStartDate}`,
                         command
                     );
                 } else {
                     const durationMs = endDate.getTime() - startDate.getTime();
                     const formattedEndDate = formatDate(endDate, this.timestampFormat);
-                    this.logger?.logCommandEvent(
+                    this.logger.logCommandEvent(
                         `${
                             command.command
                         } stopped at ${formattedEndDate} after ${durationMs.toLocaleString()}ms`,
