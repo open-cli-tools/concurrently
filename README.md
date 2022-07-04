@@ -1,14 +1,15 @@
 # concurrently
 
-[![CI](https://github.com/open-cli-tools/concurrently/actions/workflows/ci.yml/badge.svg)](https://github.com/open-cli-tools/concurrently/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/open-cli-tools/concurrently/badge.svg?branch=main)](https://coveralls.io/github/open-cli-tools/concurrently?branch=main)
-
-[![NPM Badge](https://nodei.co/npm/concurrently.png?downloads=true)](https://www.npmjs.com/package/concurrently)
+[![Latest Version](https://img.shields.io/github/v/release/open-cli-tools/concurrently?label=Version)](https://github.com/open-cli-tools/concurrently/releases)
+[![License](https://img.shields.io/github/license/open-cli-tools/concurrently?label=License)](./LICENSE)
+[![Weekly Downloads](https://img.shields.io/npm/dw/concurrently?label=Downloads&logo=npm)](https://www.npmjs.com/package/concurrently)
+[![CI](https://img.shields.io/github/workflow/status/open-cli-tools/concurrently/CI?label=CI&logo=github)](https://github.com/open-cli-tools/concurrently/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/coveralls/github/open-cli-tools/concurrently/main?label=Coverage&logo=coveralls)](https://coveralls.io/github/open-cli-tools/concurrently?branch=main)
 
 Run multiple commands concurrently.
 Like `npm run watch-js & npm run watch-less` but better.
 
-![](docs/demo.gif)
+![Demo](docs/demo.gif)
 
 **Table of Contents**
 
@@ -296,7 +297,7 @@ For more details, visit https://github.com/open-cli-tools/concurrently
 
 ## API
 
-concurrently can be used programmatically by using the API documented below:
+**concurrently** can be used programmatically by using the API documented below:
 
 ### `concurrently(commands[, options])`
 
@@ -411,7 +412,7 @@ It contains the following properties:
   > otherwise null. If the process terminated due to receipt of a signal,
   > signal is the string name of the signal, otherwise null.
 
-  So _null_ means the process didn't terminate normally. This will make **concurrent**
+  So _null_ means the process didn't terminate normally. This will make **concurrently**
   to return non-zero exit code too.
 
 - Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn) or [pnpm](https://pnpm.js.org/)?
