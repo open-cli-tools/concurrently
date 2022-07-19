@@ -63,7 +63,7 @@
     "@swc/jest": "^0.2.21",
     "@types/jest": "^27.0.3",
     "@types/lodash": "^4.14.178",
-    "@types/node": "^17.0.0",
+    "@types/node": "^18.0.6",
     "@types/shell-quote": "^1.7.1",
     "@types/supports-color": "^8.1.1",
     "@types/yargs": "^17.0.8",
