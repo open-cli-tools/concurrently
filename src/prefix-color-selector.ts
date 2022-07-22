@@ -1,77 +1,99 @@
 import chalk from 'chalk';
 
+function getConsoleColorsWithoutCustomColors(customColors: string[]): string[] {
+    return PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.filter(
+        // consider the "Bright" variants of colors to be the same as the plain color to avoid similar colors
+        color => !customColors.includes(color.replace(/Bright$/, ''))
+    );
+}
+
+/**
+ * Creates a generator that yields an infinite stream of colours
+ */
+function* createColorGenerator(customColors: string[]): Generator<string, string> {
+    // custom colors should be used as is, except for "auto"
+    const nextAutoColors: string[] = getConsoleColorsWithoutCustomColors(customColors);
+    let lastColor: string;
+    for (const customColor of customColors) {
+        let currentColor = customColor;
+        if (currentColor !== 'auto') {
+            yield currentColor; // manual color
+        } else {
+            // find the first auto color that is not the same as the last color
+            while (currentColor === 'auto' || lastColor === currentColor) {
+                if (!nextAutoColors.length) {
+                    // there could be more "auto" values than auto colors so this needs to be able to refill
+                    nextAutoColors.push(...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS);
+                }
+                currentColor = nextAutoColors.shift();
+            }
+            yield currentColor; // auto color
+        }
+        lastColor = currentColor;
+    }
+
+    const lastCustomColor = customColors[customColors.length - 1] || '';
+    if (lastCustomColor !== 'auto') {
+        while (true) {
+            yield lastCustomColor; // if last custom color was not "auto" then return same color forever, to maintain existing behaviour
+        }
+    }
+
+    // finish the initial set(s) of auto colors to avoid repetition
+    for (const color of nextAutoColors) {
+        yield color;
+    }
+
+    // yield an infinite stream of acceptable console colors
+    // if the given custom colors use every ACCEPTABLE_CONSOLE_COLORS except one then there is a chance a color will be repeated,
+    // however its highly unlikely and low consequence so not worth the extra complexity to account for it
+    while (true) {
+        for (const color of PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS) {
+            yield color; // repeat colors forever
+        }
+    }
+}
+
 export class PrefixColorSelector {
-    lastColor: string;
-    autoColors: string[];
+    private colorGenerator: Generator<string, string>;
 
-    get ACCEPTABLE_CONSOLE_COLORS() {
+    constructor(customColors: string[] = []) {
+        this.colorGenerator = createColorGenerator(customColors);
+    }
+
+    /** A list of colours that are readable in a terminal */
+    public static get ACCEPTABLE_CONSOLE_COLORS() {
         // Colors picked randomly, can be amended if required
-        return (
-            [
-                chalk.cyan,
-                chalk.yellow,
-                chalk.magenta,
-                chalk.grey,
-                chalk.bgBlueBright,
-                chalk.bgMagenta,
-                chalk.magentaBright,
-                chalk.bgBlack,
-                chalk.bgWhite,
-                chalk.bgCyan,
-                chalk.bgGreen,
-                chalk.bgYellow,
-                chalk.bgRed,
-                chalk.bgGreenBright,
-                chalk.bgGrey,
-                chalk.blueBright,
-            ]
-                // Filter out duplicates
-                .filter((chalkColor, index, arr) => {
-                    return arr.indexOf(chalkColor) === index;
-                })
-                .map(chalkColor => chalkColor.bold.toString())
-        );
+        return [
+            // prevent duplicates, incase the list becomes significantly large
+            ...new Set<keyof typeof chalk>([
+                // text colors
+                'cyan',
+                'yellow',
+                'greenBright',
+                'blueBright',
+                'magentaBright',
+                'white',
+                'grey',
+                'red',
+
+                // bg colors
+                'bgCyan',
+                'bgYellow',
+                'bgGreenBright',
+                'bgBlueBright',
+                'bgMagenta',
+                'bgWhiteBright',
+                'bgGrey',
+                'bgRed',
+            ]),
+        ];
     }
 
-    constructor(private readonly prefixColors?: string[], private readonly color?: boolean) {}
-
-    getNextColor(index?: number) {
-        const cannotSelectColor = !this.prefixColors?.length && !this.color;
-        if (cannotSelectColor) {
-            return '';
-        }
-
-        const userDefinedColorForCurrentCommand =
-            this.prefixColors && typeof index === 'number' && this.prefixColors[index];
-
-        if (!this.color) {
-            // Use documented behaviour of repeating last color
-            // when specifying more commands than colors
-            this.lastColor = userDefinedColorForCurrentCommand || this.lastColor;
-            return this.lastColor;
-        }
-
-        // User preference takes priority if defined
-        if (userDefinedColorForCurrentCommand) {
-            this.lastColor = userDefinedColorForCurrentCommand;
-            return userDefinedColorForCurrentCommand;
-        }
-
-        // Auto selection requested and no user preference defined, select next auto color
-        if (!this.autoColors || !this.autoColors.length) {
-            this.refillAutoColors();
-        }
-
-        // Prevent consecutive colors from being the same
-        // (i.e. when transitioning from user colours to auto colours)
-        const nextColor = this.autoColors.shift();
-
-        this.lastColor = nextColor !== this.lastColor ? nextColor : this.getNextColor();
-        return this.lastColor;
-    }
-
-    refillAutoColors() {
-        // Make sure auto colors are not empty after refill
-        this.autoColors = [...this.ACCEPTABLE_CONSOLE_COLORS];
+    /**
+     * @returns The given custom colors then a set of acceptable console colors indefinitely
+     */
+    getNextColor(): string {
+        return this.colorGenerator.next().value;
     }
 }

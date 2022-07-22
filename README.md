@@ -227,7 +227,6 @@ Options:
   -h, --help         Show help                                         [boolean]
   -v, -V, --version  Show version number                               [boolean]
 
-
 Examples:
 
  - Output nothing more than stdout+stderr of child processes
@@ -321,10 +320,9 @@ For more details, visit https://github.com/open-cli-tools/concurrently
   - `prefix`: the prefix type to use when logging processes output.
     Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
     Default: the name of the process, or its index if no name is set.
-  - `prefixColors`: a list of colors as supported by [chalk](https://www.npmjs.com/package/chalk).
-    If concurrently would run more commands than there are colors, the last color is repeated.
+  - `prefixColors`: a list of colors as supported by [chalk](https://www.npmjs.com/package/chalk) or `auto` to automatically pick a color.
+    If concurrently would run more commands than there are colors, the last color is repeated, unless if the last colour value is `auto` which means following colors are automatically picked to vary.
     Prefix colors specified per-command take precedence over this list.
-  - `colors`: let colours be selected to vary automatically where not explicitly defined
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
   - `raw`: whether raw mode should be used, meaning strictly process output will
     be logged, without any prefixes, colouring or extra stuff.

@@ -126,18 +126,12 @@ const args = yargs(argsBeforeSep)
                 'Comma-separated list of chalk colors to use on prefixes. ' +
                 'If there are more commands than colors, the last color will be repeated.\n' +
                 '- Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough\n' +
-                '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray \n' +
-                'or any hex values for colors, eg #23de43\n' +
+                '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray, \n' +
+                'any hex values for colors, eg #23de43 or auto to automatically pic a color\n' +
                 '- Available background colors: bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite\n' +
                 'See https://www.npmjs.com/package/chalk for more information.',
             default: defaults.prefixColors,
             type: 'string',
-        },
-        color: {
-            describe:
-                'Automatically adds varying prefix colors where commands do not have a prefix color defined',
-            default: defaults.color,
-            type: 'boolean',
         },
         'prefix-length': {
             alias: 'l',
@@ -219,7 +213,6 @@ concurrently(
         group: args.group,
         prefix: args.prefix,
         prefixColors: args.prefixColors.split(','),
-        color: args.color,
         prefixLength: args.prefixLength,
         restartDelay: args.restartAfter,
         restartTries: args.restartTries,

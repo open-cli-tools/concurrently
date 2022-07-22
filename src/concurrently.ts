@@ -137,7 +137,7 @@ export function concurrently(
 
     const options = _.defaults(baseOptions, defaults);
 
-    const prefixColorSelector = new PrefixColorSelector(options.prefixColors, options.color);
+    const prefixColorSelector = new PrefixColorSelector(options.prefixColors);
 
     const commandParsers: CommandParser[] = [
         new StripQuotes(),
@@ -156,7 +156,7 @@ export function concurrently(
             return new Command(
                 {
                     index,
-                    prefixColor: prefixColorSelector.getNextColor(index),
+                    prefixColor: prefixColorSelector.getNextColor(),
                     ...command,
                 },
                 getSpawnOpts({
