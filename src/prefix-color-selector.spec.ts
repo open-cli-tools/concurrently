@@ -39,7 +39,7 @@ describe('#getNextColor', function () {
                 'green',
                 'blue',
 
-                // uses last color if last color is not "auto"
+                // Uses last color if last color is not "auto"
                 'blue',
                 'blue',
                 'blue',
@@ -67,19 +67,19 @@ describe('#getNextColor', function () {
                 'orange',
             ]),
             expectedColors: [
-                // custom colors
+                // Custom colors
                 'red',
                 'green',
-                'blue', // picks auto color "blue", not repeating consecutive "green" color
-                'green', // manual
-                'blue', // auto picks "blue" not to repeat last
-                'green', // manual
-                'blue', // auto picks "blue" again not to repeat last
-                'blue', // manual
-                'green', // auto picks "green" again not to repeat last
+                'blue', // Picks auto color "blue", not repeating consecutive "green" color
+                'green', // Manual
+                'blue', // Auto picks "blue" not to repeat last
+                'green', // Manual
+                'blue', // Auto picks "blue" again not to repeat last
+                'blue', // Manual
+                'green', // Auto picks "green" again not to repeat last
                 'orange',
 
-                // uses last color if last color is not "auto"
+                // Uses last color if last color is not "auto"
                 'orange',
                 'orange',
                 'orange',
@@ -96,11 +96,11 @@ describe('#getNextColor', function () {
         assertSelectedColors({
             prefixColorSelector: new PrefixColorSelector(['red', 'green', 'auto']),
             expectedColors: [
-                // custom colors
+                // Custom colors
                 'red',
                 'green',
 
-                // picks auto colors, not repeating consecutive "green" color
+                // Picks auto colors, not repeating consecutive "green" color
                 'blue',
                 'green',
                 'blue',
@@ -118,13 +118,13 @@ describe('#getNextColor', function () {
         assertSelectedColors({
             prefixColorSelector: new PrefixColorSelector(['blue', 'auto']),
             expectedColors: [
-                // custom colors
+                // Custom colors
                 'blue',
 
-                // picks auto colors
+                // Picks auto colors
                 'green',
-                // does not repeat custom colors for initial auto colors, ie does not use "blue" again so soon
-                'green', // consecutive color picked, however practically there would be a lot of colors that need to be set in a particular order for this to occur
+                // Does not repeat custom colors for initial auto colors, i.e. does not use "blue" again so soon
+                'green', // Consecutive color picked, however practically there would be a lot of colors that need to be set in a particular order for this to occur
                 'blue',
                 'green',
                 'blue',
@@ -146,14 +146,14 @@ describe('#getNextColor', function () {
         assertSelectedColors({
             prefixColorSelector: new PrefixColorSelector(['green', 'blue', 'auto']),
             expectedColors: [
-                // custom colors
+                // Custom colors
                 'green',
                 'blue',
 
-                // picks auto colors, not repeating green and blue colors and variants initially
+                // Picks auto colors, not repeating green and blue colors and variants initially
                 'magenta',
 
-                // picks auto colors
+                // Picks auto colors
                 'greenBright',
                 'blueBright',
                 'green',
@@ -166,7 +166,7 @@ describe('#getNextColor', function () {
     it('does not repeat consecutive colors when last prefixColor is auto', () => {
         const prefixColorSelector = new PrefixColorSelector(['auto']);
 
-        // pick auto colors over 2 sets
+        // Pick auto colors over 2 sets
         const expectedColors: string[] = [
             ...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS,
             ...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS,
@@ -174,14 +174,14 @@ describe('#getNextColor', function () {
 
         expectedColors.reduce((previousColor, currentExpectedColor) => {
             const actualSelectedColor = prefixColorSelector.getNextColor();
-            expect(actualSelectedColor).not.toBe(previousColor); // no consecutive colors
-            expect(actualSelectedColor).toBe(currentExpectedColor); // expected color
+            expect(actualSelectedColor).not.toBe(previousColor); // No consecutive colors
+            expect(actualSelectedColor).toBe(currentExpectedColor); // Expected color
             return actualSelectedColor;
         }, '');
     });
 
     it('handles when more individual auto prefixColors exist than acceptable console colors', () => {
-        // pick auto colors over 2 sets
+        // Pick auto colors over 2 sets
         const expectedColors: string[] = [
             ...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS,
             ...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS,
@@ -191,8 +191,8 @@ describe('#getNextColor', function () {
 
         expectedColors.reduce((previousColor, currentExpectedColor) => {
             const actualSelectedColor = prefixColorSelector.getNextColor();
-            expect(actualSelectedColor).not.toBe(previousColor); // no consecutive colors
-            expect(actualSelectedColor).toBe(currentExpectedColor); // expected color
+            expect(actualSelectedColor).not.toBe(previousColor); // No consecutive colors
+            expect(actualSelectedColor).toBe(currentExpectedColor); // Expected color
             return actualSelectedColor;
         }, '');
     });
@@ -200,7 +200,7 @@ describe('#getNextColor', function () {
 
 describe('PrefixColorSelector#ACCEPTABLE_CONSOLE_COLORS', () => {
     it('has more than 1 auto color defined', () => {
-        // ! code assumes this always has more than one entry, so make sure
+        // ! Code assumes this always has more than one entry, so make sure
         expect(PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.length).toBeGreaterThan(1);
     });
 });

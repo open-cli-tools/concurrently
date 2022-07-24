@@ -2,32 +2,32 @@ import chalk from 'chalk';
 
 function getConsoleColorsWithoutCustomColors(customColors: string[]): string[] {
     return PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.filter(
-        // consider the "Bright" variants of colors to be the same as the plain color to avoid similar colors
+        // Consider the "Bright" variants of colors to be the same as the plain color to avoid similar colors
         color => !customColors.includes(color.replace(/Bright$/, ''))
     );
 }
 
 /**
- * Creates a generator that yields an infinite stream of colours
+ * Creates a generator that yields an infinite stream of colours.
  */
 function* createColorGenerator(customColors: string[]): Generator<string, string> {
-    // custom colors should be used as is, except for "auto"
+    // Custom colors should be used as is, except for "auto"
     const nextAutoColors: string[] = getConsoleColorsWithoutCustomColors(customColors);
     let lastColor: string;
     for (const customColor of customColors) {
         let currentColor = customColor;
         if (currentColor !== 'auto') {
-            yield currentColor; // manual color
+            yield currentColor; // Manual color
         } else {
-            // find the first auto color that is not the same as the last color
+            // Find the first auto color that is not the same as the last color
             while (currentColor === 'auto' || lastColor === currentColor) {
                 if (!nextAutoColors.length) {
-                    // there could be more "auto" values than auto colors so this needs to be able to refill
+                    // There could be more "auto" values than auto colors so this needs to be able to refill
                     nextAutoColors.push(...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS);
                 }
                 currentColor = nextAutoColors.shift();
             }
-            yield currentColor; // auto color
+            yield currentColor; // Auto color
         }
         lastColor = currentColor;
     }
@@ -35,21 +35,22 @@ function* createColorGenerator(customColors: string[]): Generator<string, string
     const lastCustomColor = customColors[customColors.length - 1] || '';
     if (lastCustomColor !== 'auto') {
         while (true) {
-            yield lastCustomColor; // if last custom color was not "auto" then return same color forever, to maintain existing behaviour
+            yield lastCustomColor; // If last custom color was not "auto" then return same color forever, to maintain existing behaviour
         }
     }
 
-    // finish the initial set(s) of auto colors to avoid repetition
+    // Finish the initial set(s) of auto colors to avoid repetition
     for (const color of nextAutoColors) {
         yield color;
     }
 
-    // yield an infinite stream of acceptable console colors
-    // if the given custom colors use every ACCEPTABLE_CONSOLE_COLORS except one then there is a chance a color will be repeated,
+    // Yield an infinite stream of acceptable console colors
+    //
+    // If the given custom colors use every ACCEPTABLE_CONSOLE_COLORS except one then there is a chance a color will be repeated,
     // however its highly unlikely and low consequence so not worth the extra complexity to account for it
     while (true) {
         for (const color of PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS) {
-            yield color; // repeat colors forever
+            yield color; // Repeat colors forever
         }
     }
 }
@@ -61,13 +62,13 @@ export class PrefixColorSelector {
         this.colorGenerator = createColorGenerator(customColors);
     }
 
-    /** A list of colours that are readable in a terminal */
+    /** A list of colours that are readable in a terminal. */
     public static get ACCEPTABLE_CONSOLE_COLORS() {
         // Colors picked randomly, can be amended if required
         return [
-            // prevent duplicates, incase the list becomes significantly large
+            // Prevent duplicates, in case the list becomes significantly large
             ...new Set<keyof typeof chalk>([
-                // text colors
+                // Text colors
                 'cyan',
                 'yellow',
                 'greenBright',
@@ -77,7 +78,7 @@ export class PrefixColorSelector {
                 'grey',
                 'red',
 
-                // bg colors
+                // Background colors
                 'bgCyan',
                 'bgYellow',
                 'bgGreenBright',
@@ -91,7 +92,7 @@ export class PrefixColorSelector {
     }
 
     /**
-     * @returns The given custom colors then a set of acceptable console colors indefinitely
+     * @returns The given custom colors then a set of acceptable console colors indefinitely.
      */
     getNextColor(): string {
         return this.colorGenerator.next().value;
