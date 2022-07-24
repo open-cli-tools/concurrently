@@ -67,7 +67,7 @@ const args = yargs(argsBeforeSep)
                 'and concurrently coloring.',
             type: 'boolean',
         },
-        // This one is provided for free. Chalk reads this itself and removes colours.
+        // This one is provided for free. Chalk reads this itself and removes colors.
         // https://www.npmjs.com/package/chalk#chalksupportscolor
         'no-color': {
             describe: 'Disables colors from logging',

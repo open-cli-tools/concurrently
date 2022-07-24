@@ -8,7 +8,7 @@ function getConsoleColorsWithoutCustomColors(customColors: string[]): string[] {
 }
 
 /**
- * Creates a generator that yields an infinite stream of colours.
+ * Creates a generator that yields an infinite stream of colors.
  */
 function* createColorGenerator(customColors: string[]): Generator<string, string> {
     // Custom colors should be used as is, except for "auto"
@@ -62,7 +62,7 @@ export class PrefixColorSelector {
         this.colorGenerator = createColorGenerator(customColors);
     }
 
-    /** A list of colours that are readable in a terminal. */
+    /** A list of colors that are readable in a terminal. */
     public static get ACCEPTABLE_CONSOLE_COLORS() {
         // Colors picked randomly, can be amended if required
         return [
