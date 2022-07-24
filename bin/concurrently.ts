@@ -127,7 +127,7 @@ const args = yargs(argsBeforeSep)
                 'If there are more commands than colors, the last color will be repeated.\n' +
                 '- Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough\n' +
                 '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray, \n' +
-                'any hex values for colors, eg #23de43 or auto to automatically pic a color\n' +
+                'any hex values for colors (e.g. #23de43) or auto for an automatically picked color\n' +
                 '- Available background colors: bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite\n' +
                 'See https://www.npmjs.com/package/chalk for more information.',
             default: defaults.prefixColors,
