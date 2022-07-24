@@ -38,11 +38,6 @@ export const prefix = '';
 export const prefixColors = 'reset';
 
 /**
- * Adding prefix colors automatically.
- */
-export const color = false;
-
-/**
  * How many bytes we'll show on the command prefix.
  */
 export const prefixLength = 10;

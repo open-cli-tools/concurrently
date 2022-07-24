@@ -32,11 +32,6 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
     prefix?: string;
 
     /**
-     * Automatically adds varying prefix colors where commands do not have a prefix color defined.
-     */
-    color?: boolean;
-
-    /**
      * How many characters should a prefix have at most, used when the prefix format is `command`.
      */
     prefixLength?: number;
@@ -142,7 +137,6 @@ export default (
             }),
         ],
         prefixColors: options.prefixColors || [],
-        color: options.color || false,
         additionalArguments: options.additionalArguments,
     });
 };

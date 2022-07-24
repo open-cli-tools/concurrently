@@ -66,11 +66,6 @@ export type ConcurrentlyOptions = {
     prefixColors?: string[];
 
     /**
-     * Automatically adds varying prefix colors where commands do not have a prefix color defined.
-     */
-    color?: boolean;
-
-    /**
      * Maximum number of commands to run at once.
      *
      * If undefined, then all processes will start in parallel.
