@@ -80,8 +80,9 @@ const run = (args: string, ctrlcWrapper?: boolean) => {
     });
 
     const exit = Rx.firstValueFrom(
-        Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'exit').pipe(
-            map((exit) => {
+        Rx.fromEvent(child, 'exit').pipe(
+            map((event) => {
+                const exit = event as [number | null, NodeJS.Signals | null];
                 return {
                     /** The exit code if the child exited on its own. */
                     code: exit[0],
