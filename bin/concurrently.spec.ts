@@ -1,4 +1,8 @@
-/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "expectLinesForProcessStartAndStop", "expectLinesForTimingsTable"] }] */
+/*
+  eslint jest/expect-expect: ["error", {
+    "assertFunctionNames": ["expect", "expectLinesForProcessStartAndStop", "expectLinesForTimingsTable"]
+  }]
+*/
 
 import * as readline from 'readline';
 import _ from 'lodash';
@@ -130,7 +134,8 @@ describe('exiting conditions', () => {
         });
     });
 
-    it('is of success when a SIGINT is sent', () => {
+    // eslint-disable-next-line jest/no-disabled-tests
+    it.skip('is of success when a SIGINT is sent', () => {
         return new Promise<void>(done => {
             const child = run('"node fixtures/read-echo.js"');
 
