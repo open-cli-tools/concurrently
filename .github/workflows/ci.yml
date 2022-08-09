@@ -24,19 +24,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 16
 
       - name: Setup NPM cache
         uses: ./.github/actions/setup-npm-cache
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci && npm install --global concurrently
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Format
-        run: npm run format
+      - name: Lint & Format
+        run: concurrently --group "npm:lint" "npm:format"
 
   test:
     name: Test (Node.js ${{ matrix.node }} on ${{ matrix.os.name }})
@@ -68,22 +65,11 @@ jobs:
       - name: Setup NPM cache
         uses: ./.github/actions/setup-npm-cache
 
-      - name: Print versions
-        run: |
-          node --version
-          npm --version
-
       - name: Install dependencies
-        run: npm ci
+        run: npm ci && npm install --global concurrently
 
-      - name: Build
-        run: npm run build
-
-      - name: Test
-        run: npm test
-        shell: bash
-        env:
-          SHELL: '/bin/bash'
+      - name: Build & Test
+        run: concurrently --group "npm:build" "npm:test"
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master
