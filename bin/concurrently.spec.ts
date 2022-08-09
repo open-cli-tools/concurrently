@@ -135,8 +135,11 @@ describe('exiting conditions', () => {
             const child = run('"node fixtures/read-echo.js"');
 
             child.close.subscribe(exit => {
-                // TODO This is null within Node, but should be 0 outside (e.g. from real terminal)
-                expect(exit[0]).toBe(null);
+                // TODO
+                // - This is null within Node, but should be 0 outside (e.g. from real terminal).
+                // - Additionally, it seems like it is affected by the following fact:
+                //   Windows platforms will throw an error if the pid is used to kill a process group.
+                expect(exit[0]).toBe(isWindows ? 1 : null);
                 done();
             }, done);
 
