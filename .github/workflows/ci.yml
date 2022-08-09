@@ -69,7 +69,7 @@ jobs:
         run: pnpm install && pnpm add --global concurrently
 
       - name: Build & Test
-        run: concurrently --prefix none --group "pnpm:build" "pnpm:test --detectOpenHandles"
+        run: concurrently --prefix none --group "pnpm:build" "pnpm:test"
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master
