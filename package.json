@@ -30,7 +30,7 @@
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
-    "test": "jest --detectOpenHandles"
+    "test": "jest"
   },
   "repository": {
     "type": "git",

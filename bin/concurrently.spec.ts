@@ -138,7 +138,7 @@ describe('exiting conditions', () => {
 
         afterEach(() => {
             try {
-                process.kill(child.pid, 'SIGINT');
+                process.kill(child.pid, 'SIGKILL');
             } catch {
                 // Ignore error
             }
