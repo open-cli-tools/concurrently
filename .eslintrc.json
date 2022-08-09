@@ -22,6 +22,7 @@
     "prefer-object-spread": "error",
     "prettier/prettier": ["error"]
   },
+  "reportUnusedDisableDirectives": true,
   "overrides": [
     {
       "files": ["*.spec.ts"],
