@@ -137,8 +137,6 @@ describe('exiting conditions', () => {
     // - Test is currently not working on Ubuntu & Windows (reaches timeout)
     // - Additionally, it seems like exit code on Windows is not '0' which might be due to the following fact:
     //   "Windows platforms will throw an error if the pid is used to kill a process group."
-    //
-    // eslint-disable-next-line jest/no-disabled-tests
     it.skip('is of success when a SIGINT is sent', () => {
         return new Promise<void>(done => {
             const child = run('"node fixtures/read-echo.js"');
