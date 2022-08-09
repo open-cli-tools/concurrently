@@ -134,20 +134,23 @@ describe('exiting conditions', () => {
     });
 
     describe('is of success when a SIGINT is sent', () => {
+        let promise: Promise<void>;
         let child: ReturnType<typeof run>;
+
+        const controller = new AbortController();
 
         afterEach(() => {
             try {
                 console.log('DEBUG: SIGKILL');
+                controller.abort();
                 process.kill(child.pid, 'SIGKILL');
-            } catch {
-                // Ignore error
+            } catch (error) {
+                console.log('DEBUG: ', error);
             }
-            child = undefined;
         });
 
         it('is of success when a SIGINT is sent', () => {
-            return new Promise<void>(done => {
+            promise = new Promise<void>((done, reject) => {
                 child = run('"node fixtures/read-echo.js"');
 
                 child.log.subscribe(line => {
@@ -167,7 +170,12 @@ describe('exiting conditions', () => {
                     expect(exit[0]).toBe(isWindows ? 1 : 0);
                     done();
                 }, done);
+
+                controller.signal.addEventListener('abort', () => {
+                    reject();
+                });
             });
+            return promise;
         });
     });
 
