@@ -19,9 +19,8 @@ const createKillMessage = (prefix: string) =>
  * Returns observables for its combined stdout + stderr output, close events, pid, and stdin stream.
  */
 const run = (args: string) => {
-    // TODO: Optimally, this should only be transpiled once,
-    //       e.g. bundle in `beforeAll` and then reuse here.
-    const child = spawn(`node -r @swc-node/register ./concurrently.ts ${args}`, {
+    // Using '--cache' means the first run is slower, but subsequent runs are then much faster.
+    const child = spawn(`esr --cache ./concurrently.ts ${args}`, {
         shell: true,
         cwd: __dirname,
         env: {
