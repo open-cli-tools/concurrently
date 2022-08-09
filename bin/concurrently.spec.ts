@@ -152,7 +152,7 @@ describe('exiting conditions', () => {
                 child.log.subscribe(line => {
                     // Wait for the command to be started before sending SIGINT
                     if (/READING/.test(line)) {
-                        console.log(process.kill(child.pid, 'SIGINT'));
+                        process.kill(child.pid, 'SIGINT');
                     }
                 });
 
