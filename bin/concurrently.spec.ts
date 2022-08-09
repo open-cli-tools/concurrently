@@ -138,6 +138,7 @@ describe('exiting conditions', () => {
 
         afterEach(() => {
             try {
+                console.log('DEBUG: SIGKILL');
                 process.kill(child.pid, 'SIGKILL');
             } catch {
                 // Ignore error
@@ -152,11 +153,13 @@ describe('exiting conditions', () => {
                 child.log.subscribe(line => {
                     // Wait for the command to be started before sending SIGINT
                     if (/READING/.test(line)) {
+                        console.log('DEBUG: SIGINT');
                         process.kill(child.pid, 'SIGINT');
                     }
                 });
 
                 child.close.subscribe(exit => {
+                    console.log('DEBUG: EXIT');
                     // TODO
                     // - This is null within Node, but should be 0 outside (e.g. from real terminal).
                     // - Additionally, it seems like it is affected by the following fact:
