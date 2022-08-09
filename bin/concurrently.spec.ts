@@ -133,21 +133,25 @@ describe('exiting conditions', () => {
         });
     });
 
-    // eslint-disable-next-line jest/no-disabled-tests
-    it.skip('is of success when a SIGINT is sent', () => {
+    it('is of success when a SIGINT is sent', () => {
         return new Promise<void>(done => {
             const child = run('"node fixtures/read-echo.js"');
+
+            child.log.subscribe(line => {
+                // Wait for the command to be started before sending SIGINT
+                if (/READING/.test(line)) {
+                    process.kill(child.pid, 'SIGINT');
+                }
+            });
 
             child.close.subscribe(exit => {
                 // TODO
                 // - This is null within Node, but should be 0 outside (e.g. from real terminal).
                 // - Additionally, it seems like it is affected by the following fact:
                 //   Windows platforms will throw an error if the pid is used to kill a process group.
-                expect(exit[0]).toBe(isWindows ? 1 : null);
+                expect(exit[0]).toBe(isWindows ? 1 : 0);
                 done();
             }, done);
-
-            process.kill(child.pid, 'SIGINT');
         });
     });
 
