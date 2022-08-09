@@ -58,8 +58,7 @@
     "yargs": "^17.3.1"
   },
   "devDependencies": {
-    "@swc-node/register": "^1.5.1",
-    "@swc/core": "^1.2.204",
+    "@swc/core": "^1.2.224",
     "@swc/jest": "^0.2.21",
     "@types/jest": "^28.1.6",
     "@types/lodash": "^4.14.178",
@@ -70,9 +69,10 @@
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
     "coveralls-next": "^4.1.2",
+    "esbuild-runner": "^2.2.1",
     "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-jest": "^26.7.0",
+    "eslint-plugin-jest": "^26.8.2",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^28.1.3",
     "jest-create-mock-instance": "^2.0.0",
