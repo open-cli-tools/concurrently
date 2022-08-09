@@ -69,6 +69,7 @@
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
     "coveralls-next": "^4.1.2",
+    "esbuild": "^0.14.54",
     "esbuild-runner": "^2.2.1",
     "eslint": "^8.15.0",
     "eslint-config-prettier": "^8.5.0",
