@@ -75,14 +75,11 @@ jobs:
           SHELL: '/bin/bash'
 
       - name: Submit coverage
-        id: coverage
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
           flag-name: Node.js ${{ matrix.node }} on ${{ matrix.os.name }}
           parallel: true
-      - name: Check
-        run: echo ${{ steps.coverage.outputs.coveralls-api-result }}
 
   coverage:
     name: Coverage
@@ -90,10 +87,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Finish coverage
-        id: coverage
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true
-      - name: Check
-        run: echo ${{ steps.coverage.outputs.coveralls-api-result }}
