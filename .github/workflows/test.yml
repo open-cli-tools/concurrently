@@ -28,7 +28,7 @@ concurrency:
 
 jobs:
   test:
-    name: Test (Node.js ${{ matrix.node }} on ${{ matrix.os.name }})
+    name: Node.js ${{ matrix.node }} on ${{ matrix.os.name }}
     runs-on: ${{ matrix.os.version }}
     strategy:
       fail-fast: false
