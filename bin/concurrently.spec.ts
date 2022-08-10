@@ -9,6 +9,7 @@ import _ from 'lodash';
 import * as Rx from 'rxjs';
 import { buffer, map } from 'rxjs/operators';
 import { spawn } from 'child_process';
+import stringArgv from 'string-argv';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string) =>
@@ -20,16 +21,19 @@ const createKillMessage = (prefix: string) =>
  */
 const run = (args: string) => {
     // Using '--cache' means the first run is slower, but subsequent runs are then much faster.
-    const child = spawn(`esr --cache ./concurrently.ts ${args}`, {
-        shell: true,
-        cwd: __dirname,
-        env: {
-            ...process.env,
-            // When upgrading from jest 23 -> 24, colors started printing in the test output.
-            // They are forcibly disabled here.
-            FORCE_COLOR: '0',
-        },
-    });
+    const child = spawn(
+        '../node_modules/.bin/esr',
+        ['--cache', './concurrently.ts', ...stringArgv(args)],
+        {
+            cwd: __dirname,
+            env: {
+                ...process.env,
+                // When upgrading from jest 23 -> 24, colors started printing in the test output.
+                // They are forcibly disabled here.
+                FORCE_COLOR: '0',
+            },
+        }
+    );
 
     const stdout = readline.createInterface({
         input: child.stdout,
@@ -133,11 +137,7 @@ describe('exiting conditions', () => {
         });
     });
 
-    // TODO
-    // - Test is currently not working on Ubuntu & Windows (reaches timeout)
-    // - Additionally, it seems like exit code on Windows is not '0' which might be due to the following fact:
-    //   "Windows platforms will throw an error if the pid is used to kill a process group."
-    it.skip('is of success when a SIGINT is sent', () => {
+    it('is of success when a SIGINT is sent', () => {
         return new Promise<void>(done => {
             const child = run('"node fixtures/read-echo.js"');
 
@@ -149,6 +149,9 @@ describe('exiting conditions', () => {
             });
 
             child.close.subscribe(exit => {
+                // TODO
+                // It seems like exit code on Windows is not '0' which might be due to the following fact:
+                // "Windows platforms will throw an error if the pid is used to kill a process group."
                 expect(exit[0]).toBe(isWindows ? 1 : 0);
                 done();
             }, done);
