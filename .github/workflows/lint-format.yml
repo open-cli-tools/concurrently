@@ -2,9 +2,9 @@ name: Lint & Format
 
 on:
   push:
-    branches: &branches
+    branches:
       - main
-    paths: &paths
+    paths:
       - '**.m?js'
       - '**.ts'
       - '**.json'
@@ -13,8 +13,16 @@ on:
       - '**.md'
       - '.editorconfig'
   pull_request:
-    branches: *branches
-    paths: *paths
+    branches:
+      - main
+    paths:
+      - '**.m?js'
+      - '**.ts'
+      - '**.json'
+      - '!package-lock.json'
+      - '**.ya?ml'
+      - '**.md'
+      - '.editorconfig'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

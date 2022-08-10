@@ -2,9 +2,9 @@ name: Test
 
 on:
   push:
-    branches: &branches
+    branches:
       - main
-    paths: &paths
+    paths:
       - '**.m?js'
       - '**.ts'
       - 'package.json'
@@ -12,8 +12,15 @@ on:
       - 'tsconfig.json'
       - '.github/workflows/test.yml'
   pull_request:
-    branches: *branches
-    paths: *paths
+    branches:
+      - main
+    paths:
+      - '**.m?js'
+      - '**.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+      - '.github/workflows/test.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
