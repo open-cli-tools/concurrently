@@ -1,0 +1,46 @@
+name: Lint & Format
+
+on:
+  push:
+    branches: &branches
+      - main
+    paths: &paths
+      - '**.m?js'
+      - '**.ts'
+      - '**.json'
+      - '!package-lock.json'
+      - '**.ya?ml'
+      - '**.md'
+      - '.editorconfig'
+  pull_request:
+    branches: *branches
+    paths: *paths
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-format:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Setup NPM cache
+        uses: ./.github/actions/setup-npm-cache
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format
+        run: npm run format
