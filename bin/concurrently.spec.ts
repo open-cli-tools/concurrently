@@ -10,30 +10,47 @@ import * as Rx from 'rxjs';
 import { buffer, map } from 'rxjs/operators';
 import { spawn } from 'child_process';
 import stringArgv from 'string-argv';
+import { build } from 'esbuild';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string) =>
     new RegExp(_.escapeRegExp(prefix) + ' exited with code ' + (isWindows ? 1 : '(SIGTERM|143)'));
+
+let tmpDir: string;
+
+beforeAll(async () => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'concurrently-'));
+    await build({
+        entryPoints: [path.join(__dirname, 'concurrently.ts')],
+        platform: 'node',
+        bundle: true,
+        outfile: path.join(tmpDir, 'concurrently.js'),
+    });
+});
+
+afterAll(() => {
+    if (tmpDir) {
+        fs.rmSync(tmpDir, { recursive: true });
+    }
+});
 
 /**
  * Creates a child process running concurrently with the given args.
  * Returns observables for its combined stdout + stderr output, close events, pid, and stdin stream.
  */
 const run = (args: string) => {
-    // Using '--cache' means the first run is slower, but subsequent runs are then much faster.
-    const child = spawn(
-        '../node_modules/.bin/esr',
-        ['--cache', './concurrently.ts', ...stringArgv(args)],
-        {
-            cwd: __dirname,
-            env: {
-                ...process.env,
-                // When upgrading from jest 23 -> 24, colors started printing in the test output.
-                // They are forcibly disabled here.
-                FORCE_COLOR: '0',
-            },
-        }
-    );
+    const child = spawn('node', [path.join(tmpDir, 'concurrently.js'), ...stringArgv(args)], {
+        cwd: __dirname,
+        env: {
+            ...process.env,
+            // When upgrading from jest 23 -> 24, colors started printing in the test output.
+            // They are forcibly disabled here.
+            FORCE_COLOR: '0',
+        },
+    });
 
     const stdout = readline.createInterface({
         input: child.stdout,

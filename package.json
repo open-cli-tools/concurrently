@@ -70,7 +70,6 @@
     "@typescript-eslint/parser": "^5.33.0",
     "coveralls-next": "^4.1.2",
     "esbuild": "^0.15.0",
-    "esbuild-runner": "^2.2.1",
     "eslint": "^8.21.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^26.8.2",

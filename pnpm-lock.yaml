@@ -15,7 +15,6 @@ specifiers:
   coveralls-next: ^4.1.2
   date-fns: ^2.16.1
   esbuild: ^0.15.0
-  esbuild-runner: ^2.2.1
   eslint: ^8.21.0
   eslint-config-prettier: ^8.5.0
   eslint-plugin-jest: ^26.8.2
@@ -59,7 +58,6 @@ devDependencies:
   '@typescript-eslint/parser': 5.33.0_ueonhddzjiykrhzfqi7qaso42a
   coveralls-next: 4.1.2
   esbuild: 0.15.0
-  esbuild-runner: 2.2.1_esbuild@0.15.0
   eslint: 8.21.0_supports-color@8.1.1
   eslint-config-prettier: 8.5.0_eslint@8.21.0
   eslint-plugin-jest: 26.8.2_txrorhl4wrelvybi6dkvwg7pju
@@ -2396,20 +2394,6 @@ packages:
     dev: true
     optional: true
 
-  /esbuild-runner/2.2.1_esbuild@0.15.0:
-    resolution:
-      {
-        integrity: sha512-VP0VfJJZiZ3cKzdOH59ZceDxx/GzBKra7tiGM8MfFMLv6CR1/cpsvtQ3IsJI3pz7HyeYxtbPyecj3fHwR+3XcQ==,
-      }
-    hasBin: true
-    peerDependencies:
-      esbuild: '*'
-    dependencies:
-      esbuild: 0.15.0
-      source-map-support: 0.5.19
-      tslib: 2.3.1
-    dev: true
-
   /esbuild-sunos-64/0.15.0:
     resolution:
       {
@@ -4677,16 +4661,6 @@ packages:
       source-map: 0.6.1
     dev: true
 
-  /source-map-support/0.5.19:
-    resolution:
-      {
-        integrity: sha512-Wonm7zOCIJzBGQdB+thsPar0kYuCIzYvxZwlBa87yi/Mdjv7Tip2cyVbLj5o0cFPN4EVkuTwb3GDDyUx2DGnGw==,
-      }
-    dependencies:
-      buffer-from: 1.1.2
-      source-map: 0.6.1
-    dev: true
-
   /source-map/0.6.1:
     resolution:
       {
@@ -4933,13 +4907,6 @@ packages:
     resolution:
       {
         integrity: sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==,
-      }
-    dev: true
-
-  /tslib/2.3.1:
-    resolution:
-      {
-        integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==,
       }
     dev: true
 
