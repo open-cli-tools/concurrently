@@ -57,22 +57,11 @@ jobs:
       - name: Setup NPM cache
         uses: ./.github/actions/setup-npm-cache
 
-      - name: Print versions
-        run: |
-          node --version
-          npm --version
-
       - name: Install dependencies
-        run: npm ci
+        run: npm ci && npm install --global concurrently
 
-      - name: Build
-        run: npm run build
-
-      - name: Test
-        run: npm test
-        shell: bash
-        env:
-          SHELL: '/bin/bash'
+      - name: Build & Test
+        run: concurrently --prefix none --group "npm:build" "npm:test"
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master

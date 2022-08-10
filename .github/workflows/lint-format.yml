@@ -45,10 +45,7 @@ jobs:
         uses: ./.github/actions/setup-npm-cache
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci && npm install --global concurrently
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Format
-        run: npm run format
+      - name: Lint & Format
+        run: concurrently --prefix none --group "npm:lint" "npm:format"
