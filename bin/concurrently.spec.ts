@@ -22,6 +22,7 @@ const createKillMessage = (prefix: string) =>
 let tmpDir: string;
 
 beforeAll(async () => {
+    // Build 'concurrently' and store it in a temporary directory
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'concurrently-'));
     await build({
         entryPoints: [path.join(__dirname, 'concurrently.ts')],
@@ -32,13 +33,14 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
+    // Remove the temporary directory
     if (tmpDir) {
         fs.rmSync(tmpDir, { recursive: true });
     }
 });
 
 /**
- * Creates a child process running concurrently with the given args.
+ * Creates a child process running 'concurrently' with the given args.
  * Returns observables for its combined stdout + stderr output, close events, pid, and stdin stream.
  */
 const run = (args: string) => {
