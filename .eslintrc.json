@@ -3,6 +3,7 @@
   "env": {
     "node": true
   },
+  "reportUnusedDisableDirectives": true,
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "ecmaVersion": 8
@@ -21,5 +22,12 @@
     "prefer-const": "error",
     "prefer-object-spread": "error",
     "prettier/prettier": ["error"]
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.spec.ts"],
+      "plugins": ["jest"],
+      "extends": ["plugin:jest/recommended"]
+    }
+  ]
 }
