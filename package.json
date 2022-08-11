@@ -26,7 +26,7 @@
     "clean": "tsc --build --clean",
     "format": "prettier --ignore-path .gitignore --check '**/{!(package-lock).json,*.y?(a)ml,*.md}'",
     "format:fix": "npm run format -- --write",
-    "lint": "eslint . --ext js,ts --ignore-path .gitignore",
+    "lint": "eslint . --ext mjs,js,ts --ignore-path .gitignore",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
