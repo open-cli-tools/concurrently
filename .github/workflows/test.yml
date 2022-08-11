@@ -48,14 +48,14 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Setup NPM cache
-        uses: ./.github/actions/setup-npm-cache
+      - name: Setup PNPM cache
+        uses: ./.github/actions/setup-pnpm-cache
 
       - name: Install dependencies
-        run: npm ci && npm install --global concurrently
+        run: pnpm install && pnpm add --global concurrently
 
       - name: Build & Test
-        run: concurrently --prefix none --group "npm:build" "npm:test"
+        run: concurrently --prefix none --group "pnpm:build" "pnpm:test"
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master
