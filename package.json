@@ -96,6 +96,6 @@
   },
   "lint-staged": {
     "*.m?{js,ts}": "eslint --fix",
-    "{!(package-lock).json,*.{y?(a)ml,md},.editorconfig}": "prettier --write"
+    "{!(package-lock).json,*.{y?(a)ml,md}}": "prettier --write"
   }
 }

@@ -4,25 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '**.m?js'
-      - '**.ts'
-      - '**.json'
-      - '!package-lock.json'
-      - '**.ya?ml'
-      - '**.md'
-      - '.editorconfig'
   pull_request:
     branches:
       - main
-    paths:
-      - '**.m?js'
-      - '**.ts'
-      - '**.json'
-      - '!package-lock.json'
-      - '**.ya?ml'
-      - '**.md'
-      - '.editorconfig'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
