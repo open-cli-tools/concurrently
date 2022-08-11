@@ -1,7 +1,9 @@
-import { quote } from 'shell-quote';
+import escapeFn from 'escape-it';
 
 import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
+
+const escape = escapeFn();
 
 /**
  * Replace placeholders with additional arguments.
@@ -22,15 +24,15 @@ export class ExpandArguments implements CommandParser {
                     !isNaN(placeholderTarget) &&
                     placeholderTarget <= this.additionalArguments.length
                 ) {
-                    return quote([this.additionalArguments[placeholderTarget - 1]]);
+                    return escape(this.additionalArguments[placeholderTarget - 1]);
                 }
                 // Replace all arguments placeholder.
                 if (placeholderTarget === '@') {
-                    return quote(this.additionalArguments);
+                    return escape(...this.additionalArguments);
                 }
                 // Replace combined arguments placeholder.
                 if (placeholderTarget === '*') {
-                    return quote([this.additionalArguments.join(' ')]);
+                    return escape(this.additionalArguments.join(' '));
                 }
                 // Replace placeholder with empty string
                 // if value doesn't exist in additional arguments.
