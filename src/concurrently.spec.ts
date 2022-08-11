@@ -7,6 +7,8 @@ import { createFakeProcess, FakeCommand } from './fixtures/fake-command';
 import { FlowController } from './flow-control/flow-controller';
 import { Logger } from './logger';
 
+const isWindows = process.platform === 'win32';
+
 let spawn: SpawnCommand;
 let kill: KillProcess;
 let onFinishHooks: (() => void)[];
@@ -237,7 +239,10 @@ it('argument placeholders are properly replaced when additional arguments are pa
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('echo foo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo foo bar', expect.objectContaining({}));
-    expect(spawn).toHaveBeenCalledWith("echo 'foo bar'", expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith(
+        isWindows ? 'echo "foo bar"' : "echo 'foo bar'",
+        expect.objectContaining({})
+    );
     expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
 });
 
