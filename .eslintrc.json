@@ -8,13 +8,18 @@
   "parserOptions": {
     "ecmaVersion": 8
   },
-  "plugins": ["@typescript-eslint", "prettier"],
+  "plugins": ["@typescript-eslint", "simple-import-sort", "import", "prettier"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier"
   ],
   "rules": {
+    "simple-import-sort/imports": "error",
+    "simple-import-sort/exports": "error",
+    "import/first": "error",
+    "import/newline-after-import": "error",
+    "import/no-duplicates": "error",
     "curly": "error",
     "eqeqeq": ["error", "always", { "null": "ignore" }],
     "no-var": "error",
