@@ -417,6 +417,7 @@ expect.extend({
                 pass: false,
             };
         }
+
         return {
             message: () => 'Expected lines to not have process start and stop messages',
             pass: true,
@@ -438,6 +439,7 @@ expect.extend({
                 pass: false,
             };
         }
+
         return {
             message: () => 'Expected lines to not have timings table',
             pass: true,
