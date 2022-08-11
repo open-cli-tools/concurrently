@@ -2,10 +2,11 @@ import formatDate from 'date-fns/format';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
 import { bufferCount, take } from 'rxjs/operators';
+
 import { CloseEvent, Command } from '../command';
+import * as defaults from '../defaults';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
-import * as defaults from '../defaults';
 
 interface TimingInfo {
     name: string;
@@ -69,7 +70,7 @@ export class LogTimings implements FlowController {
         }
 
         // individual process timings
-        commands.forEach(command => {
+        commands.forEach((command) => {
             command.timer.subscribe(({ startDate, endDate }) => {
                 if (!endDate) {
                     const formattedStartDate = formatDate(startDate, this.timestampFormat);
@@ -91,12 +92,12 @@ export class LogTimings implements FlowController {
         });
 
         // overall summary timings
-        const closeStreams = commands.map(command => command.close);
+        const closeStreams = commands.map((command) => command.close);
         const allProcessesClosed = Rx.merge(...closeStreams).pipe(
             bufferCount(closeStreams.length),
             take(1)
         );
-        allProcessesClosed.subscribe(exitInfos => this.printExitInfoTimingTable(exitInfos));
+        allProcessesClosed.subscribe((exitInfos) => this.printExitInfoTimingTable(exitInfos));
         return { commands };
     }
 }

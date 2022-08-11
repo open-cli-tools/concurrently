@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+
 import * as defaults from '../src/defaults';
 import concurrently from '../src/index';
 import { epilogue } from './epilogue';
@@ -8,7 +9,7 @@ import { epilogue } from './epilogue';
 // Clean-up arguments (yargs expects only the arguments after the program name)
 const cleanArgs = hideBin(process.argv);
 // Find argument separator (double dash)
-const argsSepIdx = cleanArgs.findIndex(arg => arg === '--');
+const argsSepIdx = cleanArgs.findIndex((arg) => arg === '--');
 // Arguments before separator
 const argsBeforeSep = argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs;
 // Arguments after separator

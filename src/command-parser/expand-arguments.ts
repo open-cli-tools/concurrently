@@ -1,6 +1,7 @@
+import { quote } from 'shell-quote';
+
 import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
-import { quote } from 'shell-quote';
 
 /**
  * Replace placeholders with additional arguments.

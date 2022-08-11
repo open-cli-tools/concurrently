@@ -3,6 +3,7 @@ import _ from 'lodash';
 import spawn from 'spawn-command';
 import { Writable } from 'stream';
 import treeKill from 'tree-kill';
+
 import { CloseEvent, Command, CommandInfo, KillProcess, SpawnCommand } from './command';
 import { CommandParser } from './command-parser/command-parser';
 import { ExpandArguments } from './command-parser/expand-arguments';
@@ -143,7 +144,7 @@ export function concurrently(
     let lastColor = '';
     let commands = _(baseCommands)
         .map(mapToCommandInfo)
-        .flatMap(command => parseCommand(command, commandParsers))
+        .flatMap((command) => parseCommand(command, commandParsers))
         .map((command, index) => {
             // Use documented behaviour of repeating last color when specifying more commands than colors
             lastColor = (options.prefixColors && options.prefixColors[index]) || lastColor;
@@ -194,7 +195,7 @@ export function concurrently(
     const result = new CompletionListener({ successCondition: options.successCondition })
         .listen(commands)
         .finally(() => {
-            handleResult.onFinishCallbacks.forEach(onFinish => onFinish());
+            handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
         });
 
     return {
@@ -228,7 +229,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
 
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
-        (commands, parser) => _.flatMap(commands, command => parser.parse(command)),
+        (commands, parser) => _.flatMap(commands, (command) => parser.parse(command)),
         _.castArray(command)
     );
 }

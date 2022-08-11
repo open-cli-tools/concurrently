@@ -1,6 +1,7 @@
-import { Writable } from 'stream';
-import { Command } from './command';
 import * as Rx from 'rxjs';
+import { Writable } from 'stream';
+
+import { Command } from './command';
 
 /**
  * Class responsible for actually writing output onto a writable stream.
@@ -25,7 +26,7 @@ export class OutputWriter {
         this.buffers = commands.map(() => []);
 
         if (this.group) {
-            Rx.merge(...commands.map(c => c.close)).subscribe(command => {
+            Rx.merge(...commands.map((c) => c.close)).subscribe((command) => {
                 if (command.index !== this.activeCommandIndex) {
                     return;
                 }
@@ -54,7 +55,7 @@ export class OutputWriter {
     }
 
     private flushBuffer(index: number) {
-        this.buffers[index].forEach(t => this.outputStream.write(t));
+        this.buffers[index].forEach((t) => this.outputStream.write(t));
         this.buffers[index] = [];
     }
 }

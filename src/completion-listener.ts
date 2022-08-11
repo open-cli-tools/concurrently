@@ -1,5 +1,6 @@
 import * as Rx from 'rxjs';
 import { bufferCount, switchMap, take } from 'rxjs/operators';
+
 import { CloseEvent, Command } from './command';
 
 /**
@@ -69,13 +70,13 @@ export class CompletionListener {
         if (this.successCondition.startsWith('!')) {
             // All commands except the specified ones must exit succesfully
             return events.every(
-                event => targetCommandsEvents.includes(event) || event.exitCode === 0
+                (event) => targetCommandsEvents.includes(event) || event.exitCode === 0
             );
         }
         // Only the specified commands must exit succesfully
         return (
             targetCommandsEvents.length > 0 &&
-            targetCommandsEvents.every(event => event.exitCode === 0)
+            targetCommandsEvents.every((event) => event.exitCode === 0)
         );
     }
 
@@ -85,11 +86,11 @@ export class CompletionListener {
      * @returns A Promise that resolves if the success condition is met, or rejects otherwise.
      */
     listen(commands: Command[]): Promise<CloseEvent[]> {
-        const closeStreams = commands.map(command => command.close);
+        const closeStreams = commands.map((command) => command.close);
         return Rx.lastValueFrom(
             Rx.merge(...closeStreams).pipe(
                 bufferCount(closeStreams.length),
-                switchMap(exitInfos =>
+                switchMap((exitInfos) =>
                     this.isSuccess(exitInfos)
                         ? Rx.of(exitInfos, this.scheduler)
                         : Rx.throwError(exitInfos, this.scheduler)

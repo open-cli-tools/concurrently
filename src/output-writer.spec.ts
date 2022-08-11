@@ -1,7 +1,8 @@
-import { Writable } from 'stream';
 import { createMockInstance } from 'jest-create-mock-instance';
-import { OutputWriter } from './output-writer';
+import { Writable } from 'stream';
+
 import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
+import { OutputWriter } from './output-writer';
 
 function createWriter(overrides?: { group: boolean }) {
     const options = {

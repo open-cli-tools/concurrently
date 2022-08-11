@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+
 import { FakeCommand } from './fixtures/fake-command';
 import { Logger } from './logger';
 

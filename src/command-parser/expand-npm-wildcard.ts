@@ -1,5 +1,6 @@
 import fs from 'fs';
 import _ from 'lodash';
+
 import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
 
@@ -46,7 +47,7 @@ export class ExpandNpmWildcard implements CommandParser {
         const currentName = commandInfo.name || '';
 
         return this.scripts
-            .map(script => {
+            .map((script) => {
                 const match = script.match(wildcardRegex);
 
                 if (omissionRegex) {

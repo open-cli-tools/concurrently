@@ -1,4 +1,5 @@
 import fs from 'fs';
+
 import { CommandInfo } from '../command';
 import { ExpandNpmWildcard } from './expand-npm-wildcard';
 
@@ -25,7 +26,7 @@ describe('ExpandNpmWildcard#readPackage', () => {
             name: 'concurrently',
             version: '6.4.0',
         };
-        jest.spyOn(fs, 'readFileSync').mockImplementation(path => {
+        jest.spyOn(fs, 'readFileSync').mockImplementation((path) => {
             if (path === 'package.json') {
                 return JSON.stringify(expectedPackage);
             }

@@ -1,6 +1,7 @@
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Readable } from 'stream';
+
 import { Command, CommandIdentifier } from '../command';
 import * as defaults from '../defaults';
 import { Logger } from '../logger';
@@ -44,14 +45,14 @@ export class InputHandler implements FlowController {
         }
 
         Rx.fromEvent(this.inputStream, 'data')
-            .pipe(map(data => data.toString()))
-            .subscribe(data => {
+            .pipe(map((data) => data.toString()))
+            .subscribe((data) => {
                 const dataParts = data.split(/:(.+)/);
                 const targetId = dataParts.length > 1 ? dataParts[0] : this.defaultInputTarget;
                 const input = dataParts[1] || data;
 
                 const command = commands.find(
-                    command =>
+                    (command) =>
                         command.name === targetId ||
                         command.index.toString() === targetId.toString()
                 );

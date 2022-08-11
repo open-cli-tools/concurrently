@@ -1,9 +1,9 @@
+import _ from 'lodash';
+import { filter, map } from 'rxjs/operators';
+
 import { Command } from '../command';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
-
-import _ from 'lodash';
-import { filter, map } from 'rxjs/operators';
 
 export type ProcessCloseCondition = 'failure' | 'success';
 
@@ -27,28 +27,28 @@ export class KillOthers implements FlowController {
 
     handle(commands: Command[]) {
         const conditions = this.conditions.filter(
-            condition => condition === 'failure' || condition === 'success'
+            (condition) => condition === 'failure' || condition === 'success'
         );
 
         if (!conditions.length) {
             return { commands };
         }
 
-        const closeStates = commands.map(command =>
+        const closeStates = commands.map((command) =>
             command.close.pipe(
                 map(({ exitCode }) =>
                     exitCode === 0 ? ('success' as const) : ('failure' as const)
                 ),
-                filter(state => conditions.includes(state))
+                filter((state) => conditions.includes(state))
             )
         );
 
-        closeStates.forEach(closeState =>
+        closeStates.forEach((closeState) =>
             closeState.subscribe(() => {
-                const killableCommands = commands.filter(command => command.killable);
+                const killableCommands = commands.filter((command) => command.killable);
                 if (killableCommands.length) {
                     this.logger.logGlobalEvent('Sending SIGTERM to other processes..');
-                    killableCommands.forEach(command => command.kill());
+                    killableCommands.forEach((command) => command.kill());
                 }
             })
         );
