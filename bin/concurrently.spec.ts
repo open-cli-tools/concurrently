@@ -130,27 +130,31 @@ describe('exiting conditions', () => {
     });
 
     it('is of success when --success=first and first command to exit succeeds', async () => {
-        const exit = await run('--success=first "echo foo" "sleep 0.5 && exit 1"').exit;
+        const exit = await run('--success=first "echo foo" "node fixtures/sleep.mjs 0.5 && exit 1"')
+            .exit;
 
         expect(exit.code).toBe(0);
     });
 
     it('is of failure when --success=first and first command to exit fails', async () => {
-        const exit = await run('--success=first "exit 1" "sleep 0.5 && echo foo"').exit;
+        const exit = await run('--success=first "exit 1" "node fixtures/sleep.mjs 0.5 && echo foo"')
+            .exit;
 
         expect(exit.code).toBeGreaterThan(0);
     });
 
     describe('is of success when --success=last and last command to exit succeeds', () => {
         it.each(['--success=last', '-s last'])('%s', async arg => {
-            const exit = await run(`${arg} "exit 1" "sleep 0.5 && echo foo"`).exit;
+            const exit = await run(`${arg} "exit 1" "node fixtures/sleep.mjs 0.5 && echo foo"`)
+                .exit;
 
             expect(exit.code).toBe(0);
         });
     });
 
     it('is of failure when --success=last and last command to exit fails', async () => {
-        const exit = await run('--success=last "echo foo" "sleep 0.5 && exit 1"').exit;
+        const exit = await run('--success=last "echo foo" "node fixtures/sleep.mjs 0.5 && exit 1"')
+            .exit;
 
         expect(exit.code).toBeGreaterThan(0);
     });
@@ -201,7 +205,7 @@ describe('--hide', () => {
 describe('--group', () => {
     it('groups output per process', async () => {
         const lines = await run(
-            '--group "echo foo && sleep 1 && echo bar" "echo baz"'
+            '--group "echo foo && node fixtures/sleep.mjs 1 && echo bar" "echo baz"'
         ).getLogLines();
 
         expect(lines.slice(0, 4)).toEqual([
@@ -266,39 +270,53 @@ describe('--restart-tries', () => {
 describe('--kill-others', () => {
     describe('kills on success', () => {
         it.each(['--kill-others', '-k'])('%s', async arg => {
-            const lines = await run(`${arg} "sleep 10" "exit 0"`).getLogLines();
+            const lines = await run(`${arg} "node fixtures/sleep.mjs 10" "exit 0"`).getLogLines();
 
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
             expect(lines).toContainEqual(
                 expect.stringContaining('Sending SIGTERM to other processes')
             );
-            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
+            expect(lines).toContainEqual(
+                expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10'))
+            );
         });
     });
 
     it('kills on failure', async () => {
-        const lines = await run('--kill-others "sleep 10" "exit 1"').getLogLines();
+        const lines = await run(
+            '--kill-others "node fixtures/sleep.mjs 10" "exit 1"'
+        ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
-        expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
+        expect(lines).toContainEqual(
+            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10'))
+        );
     });
 });
 
 describe('--kill-others-on-fail', () => {
     it('does not kill on success', async () => {
-        const lines = await run('--kill-others-on-fail "sleep 0.5" "exit 0"').getLogLines();
+        const lines = await run(
+            '--kill-others-on-fail "node fixtures/sleep.mjs 0.5" "exit 0"'
+        ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
-        expect(lines).toContainEqual(expect.stringContaining('[0] sleep 0.5 exited with code 0'));
+        expect(lines).toContainEqual(
+            expect.stringContaining('[0] node fixtures/sleep.mjs 0.5 exited with code 0')
+        );
     });
 
     it('kills on failure', async () => {
-        const lines = await run('--kill-others-on-fail "sleep 10" "exit 1"').getLogLines();
+        const lines = await run(
+            '--kill-others-on-fail "node fixtures/sleep.mjs 10" "exit 1"'
+        ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
-        expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
+        expect(lines).toContainEqual(
+            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10'))
+        );
     });
 });
 
@@ -429,17 +447,17 @@ expect.extend({
 
 describe('--timings', () => {
     it('shows timings on success', async () => {
-        const lines = await run('--timings "sleep 0.5" "exit 0"').getLogLines();
+        const lines = await run('--timings "node fixtures/sleep.mjs 0.5" "exit 0"').getLogLines();
 
-        expect(lines).toHaveProcessStartAndStop(0, 'sleep 0.5');
+        expect(lines).toHaveProcessStartAndStop(0, 'node fixtures/sleep.mjs 0.5');
         expect(lines).toHaveProcessStartAndStop(1, 'exit 0');
         expect(lines).toHaveTimingsTable();
     });
 
     it('shows timings on failure', async () => {
-        const lines = await run('--timings "sleep 0.75" "exit 1"').getLogLines();
+        const lines = await run('--timings "node fixtures/sleep.mjs 0.75" "exit 1"').getLogLines();
 
-        expect(lines).toHaveProcessStartAndStop(0, 'sleep 0.75');
+        expect(lines).toHaveProcessStartAndStop(0, 'node fixtures/sleep.mjs 0.75');
         expect(lines).toHaveProcessStartAndStop(1, 'exit 1');
         expect(lines).toHaveTimingsTable();
     });
