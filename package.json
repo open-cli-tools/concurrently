@@ -58,6 +58,7 @@
     "yargs": "^17.3.1"
   },
   "devDependencies": {
+    "@hirez_io/observer-spy": "^2.2.0",
     "@swc-node/register": "^1.5.1",
     "@swc/core": "^1.2.224",
     "@swc/jest": "^0.2.21",

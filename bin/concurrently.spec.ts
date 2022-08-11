@@ -1,12 +1,13 @@
 import * as readline from 'readline';
-import _ from 'lodash';
+import { escapeRegExp } from 'lodash';
 import * as Rx from 'rxjs';
-import { buffer, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { spawn } from 'child_process';
+import { subscribeSpyTo } from '@hirez_io/observer-spy';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string) =>
-    new RegExp(_.escapeRegExp(prefix) + ' exited with code ' + (isWindows ? 1 : '(SIGTERM|143)'));
+    new RegExp(escapeRegExp(prefix) + ' exited with code ' + (isWindows ? 1 : '(SIGTERM|143)'));
 
 /**
  * Creates a child process running concurrently with the given args.
@@ -36,445 +37,395 @@ const run = (args: string) => {
         output: null,
     });
 
-    const close = Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'close');
-    const log = Rx.merge(
-        Rx.fromEvent<Buffer>(stdout, 'line'),
-        Rx.fromEvent<Buffer>(stderr, 'line')
-    ).pipe(map(data => data.toString()));
+    const log = new Rx.Observable<string>(observer => {
+        stdout.on('line', line => {
+            observer.next(line);
+        });
+
+        stderr.on('line', line => {
+            observer.next(line);
+        });
+
+        child.on('close', () => {
+            observer.complete();
+        });
+    });
+
+    const exit = Rx.firstValueFrom(
+        Rx.fromEvent(child, 'exit').pipe(
+            map((exit: [number | null, NodeJS.Signals | null]) => {
+                return {
+                    /** The exit code if the child exited on its own. */
+                    code: exit[0],
+                    /** The signal by which the child process was terminated. */
+                    signal: exit[1],
+                };
+            })
+        )
+    );
+
+    const getLogLines = async (): Promise<string[]> => {
+        const observerSpy = subscribeSpyTo(log);
+        await observerSpy.onComplete();
+        observerSpy.unsubscribe();
+        return observerSpy.getValues();
+    };
 
     return {
-        close,
-        log,
         stdin: child.stdin,
         pid: child.pid,
+        log,
+        getLogLines,
+        exit,
     };
 };
 
-it('has help command', done => {
-    run('--help').close.subscribe(event => {
-        expect(event[0]).toBe(0);
-        done();
-    }, done);
+it('has help command', async () => {
+    const exit = await run('--help').exit;
+
+    expect(exit.code).toBe(0);
 });
 
-it('has version command', done => {
-    Rx.combineLatest([run('--version').close, run('-V').close, run('-v').close]).subscribe(
-        events => {
-            expect(events[0][0]).toBe(0);
-            expect(events[1][0]).toBe(0);
-            expect(events[2][0]).toBe(0);
-            done();
-        },
-        done
-    );
+describe('has version command', () => {
+    it.each(['--version', '-V', '-v'])('%s', async arg => {
+        const exit = await run(arg).exit;
+
+        expect(exit.code).toBe(0);
+    });
 });
 
 describe('exiting conditions', () => {
-    it('is of success by default when running successful commands', done => {
-        run('"echo foo" "echo bar"').close.subscribe(exit => {
-            expect(exit[0]).toBe(0);
-            done();
-        }, done);
+    it('is of success by default when running successful commands', async () => {
+        const exit = await run('"echo foo" "echo bar"').exit;
+
+        expect(exit.code).toBe(0);
     });
 
-    it('is of failure by default when one of the command fails', done => {
-        run('"echo foo" "exit 1"').close.subscribe(exit => {
-            expect(exit[0]).toBeGreaterThan(0);
-            done();
-        }, done);
+    it('is of failure by default when one of the command fails', async () => {
+        const exit = await run('"echo foo" "exit 1"').exit;
+
+        expect(exit.code).toBeGreaterThan(0);
     });
 
-    it('is of success when --success=first and first command to exit succeeds', done => {
-        run('--success=first "echo foo" "sleep 0.5 && exit 1"').close.subscribe(exit => {
-            expect(exit[0]).toBe(0);
-            done();
-        }, done);
+    it('is of success when --success=first and first command to exit succeeds', async () => {
+        const exit = await run('--success=first "echo foo" "sleep 0.5 && exit 1"').exit;
+
+        expect(exit.code).toBe(0);
     });
 
-    it('is of failure when --success=first and first command to exit fails', done => {
-        run('--success=first "exit 1" "sleep 0.5 && echo foo"').close.subscribe(exit => {
-            expect(exit[0]).toBeGreaterThan(0);
-            done();
-        }, done);
+    it('is of failure when --success=first and first command to exit fails', async () => {
+        const exit = await run('--success=first "exit 1" "sleep 0.5 && echo foo"').exit;
+
+        expect(exit.code).toBeGreaterThan(0);
     });
 
-    it('is of success when --success=last and last command to exit succeeds', done => {
-        run('--success=last "exit 1" "sleep 0.5 && echo foo"').close.subscribe(exit => {
-            expect(exit[0]).toBe(0);
-            done();
-        }, done);
+    describe('is of success when --success=last and last command to exit succeeds', () => {
+        it.each(['--success=last', '-s last'])('%s', async arg => {
+            const exit = await run(`${arg} "exit 1" "sleep 0.5 && echo foo"`).exit;
+
+            expect(exit.code).toBe(0);
+        });
     });
 
-    it('is of failure when --success=last and last command to exit fails', done => {
-        run('--success=last "echo foo" "sleep 0.5 && exit 1"').close.subscribe(exit => {
-            expect(exit[0]).toBeGreaterThan(0);
-            done();
-        }, done);
+    it('is of failure when --success=last and last command to exit fails', async () => {
+        const exit = await run('--success=last "echo foo" "sleep 0.5 && exit 1"').exit;
+
+        expect(exit.code).toBeGreaterThan(0);
     });
 
-    it.skip('is of success when a SIGINT is sent', done => {
+    it.skip('is of success when a SIGINT is sent', async () => {
         const child = run('"node fixtures/read-echo.js"');
-        child.close.subscribe(exit => {
-            // TODO This is null within Node, but should be 0 outside (eg from real terminal)
-            expect(exit[0]).toBe(0);
-            done();
-        }, done);
-
         process.kill(child.pid, 'SIGINT');
-    });
+        const exit = await child.exit;
 
-    it('is aliased to -s', done => {
-        run('-s last "exit 1" "sleep 0.5 && echo foo"').close.subscribe(exit => {
-            expect(exit[0]).toBe(0);
-            done();
-        }, done);
+        expect(exit.code).toBe(0);
     });
 });
 
-describe('--raw', () => {
-    it('is aliased to -r', done => {
-        const child = run('-r "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toHaveLength(2);
-            expect(lines).toContainEqual(expect.stringContaining('foo'));
-            expect(lines).toContainEqual(expect.stringContaining('bar'));
-            done();
-        }, done);
-    });
+describe('does not log any extra output', () => {
+    it.each(['--raw', '-r'])('%s', async arg => {
+        const lines = await run(`${arg} "echo foo" "echo bar"`).getLogLines();
 
-    it('does not log any extra output', done => {
-        const child = run('--raw "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toHaveLength(2);
-            expect(lines).toContainEqual(expect.stringContaining('foo'));
-            expect(lines).toContainEqual(expect.stringContaining('bar'));
-            done();
-        }, done);
+        expect(lines).toHaveLength(2);
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).toContainEqual(expect.stringContaining('bar'));
     });
 });
 
 describe('--hide', () => {
-    it('hides the output of a process by its index', done => {
-        const child = run('--hide 1 "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('foo'));
-            expect(lines).not.toContainEqual(expect.stringContaining('bar'));
-            done();
-        }, done);
+    it('hides the output of a process by its index', async () => {
+        const lines = await run('--hide 1 "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).not.toContainEqual(expect.stringContaining('bar'));
     });
 
-    it('hides the output of a process by its name', done => {
-        const child = run('-n foo,bar --hide bar "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('foo'));
-            expect(lines).not.toContainEqual(expect.stringContaining('bar'));
-            done();
-        }, done);
+    it('hides the output of a process by its name', async () => {
+        const lines = await run('-n foo,bar --hide bar "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).not.toContainEqual(expect.stringContaining('bar'));
     });
 });
 
 describe('--group', () => {
-    it('groups output per process', done => {
-        const child = run('--group "echo foo && sleep 1 && echo bar" "echo baz"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines.slice(0, 4)).toEqual([
-                expect.stringContaining('foo'),
-                expect.stringContaining('bar'),
-                expect.any(String),
-                expect.stringContaining('baz'),
-            ]);
-            done();
-        }, done);
+    it('groups output per process', async () => {
+        const lines = await run(
+            '--group "echo foo && sleep 1 && echo bar" "echo baz"'
+        ).getLogLines();
+
+        expect(lines.slice(0, 4)).toEqual([
+            expect.stringContaining('foo'),
+            expect.stringContaining('bar'),
+            expect.any(String),
+            expect.stringContaining('baz'),
+        ]);
     });
 });
 
 describe('--names', () => {
-    it('is aliased to -n', done => {
-        const child = run('-n foo,bar "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
+    describe('prefixes with names', () => {
+        it.each(['--names', '-n'])('%s', async arg => {
+            const lines = await run(`${arg} foo,bar "echo foo" "echo bar"`).getLogLines();
+
             expect(lines).toContainEqual(expect.stringContaining('[foo] foo'));
             expect(lines).toContainEqual(expect.stringContaining('[bar] bar'));
-            done();
-        }, done);
+        });
     });
 
-    it('prefixes with names', done => {
-        const child = run('--names foo,bar "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[foo] foo'));
-            expect(lines).toContainEqual(expect.stringContaining('[bar] bar'));
-            done();
-        }, done);
-    });
+    it('is split using --name-separator arg', async () => {
+        const lines = await run(
+            '--names "foo|bar" --name-separator "|" "echo foo" "echo bar"'
+        ).getLogLines();
 
-    it('is split using --name-separator arg', done => {
-        const child = run('--names "foo|bar" --name-separator "|" "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[foo] foo'));
-            expect(lines).toContainEqual(expect.stringContaining('[bar] bar'));
-            done();
-        }, done);
+        expect(lines).toContainEqual(expect.stringContaining('[foo] foo'));
+        expect(lines).toContainEqual(expect.stringContaining('[bar] bar'));
     });
 });
 
-describe('--prefix', () => {
-    it('is aliased to -p', done => {
-        const child = run('-p command "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[echo foo] foo'));
-            expect(lines).toContainEqual(expect.stringContaining('[echo bar] bar'));
-            done();
-        }, done);
-    });
+describe('specifies custom prefix', () => {
+    it.each(['--prefix', '-p'])('%s', async arg => {
+        const lines = await run(`${arg} command "echo foo" "echo bar"`).getLogLines();
 
-    it('specifies custom prefix', done => {
-        const child = run('--prefix command "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[echo foo] foo'));
-            expect(lines).toContainEqual(expect.stringContaining('[echo bar] bar'));
-            done();
-        }, done);
+        expect(lines).toContainEqual(expect.stringContaining('[echo foo] foo'));
+        expect(lines).toContainEqual(expect.stringContaining('[echo bar] bar'));
     });
 });
 
-describe('--prefix-length', () => {
-    it('is aliased to -l', done => {
-        const child = run('-p command -l 5 "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
-            expect(lines).toContainEqual(expect.stringContaining('[ec..r] bar'));
-            done();
-        }, done);
-    });
+describe('specifies custom prefix length', () => {
+    it.each(['--prefix command --prefix-length 5', '-p command -l 5'])('%s', async arg => {
+        const lines = await run(`${arg} "echo foo" "echo bar"`).getLogLines();
 
-    it('specifies custom prefix length', done => {
-        const child = run('--prefix command --prefix-length 5 "echo foo" "echo bar"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
-            expect(lines).toContainEqual(expect.stringContaining('[ec..r] bar'));
-            done();
-        }, done);
+        expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
+        expect(lines).toContainEqual(expect.stringContaining('[ec..r] bar'));
     });
 });
 
 describe('--restart-tries', () => {
-    it('changes how many times a command will restart', done => {
-        const child = run('--restart-tries 1 "exit 1"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toEqual([
-                expect.stringContaining('[0] exit 1 exited with code 1'),
-                expect.stringContaining('[0] exit 1 restarted'),
-                expect.stringContaining('[0] exit 1 exited with code 1'),
-            ]);
-            done();
-        }, done);
+    it('changes how many times a command will restart', async () => {
+        const lines = await run('--restart-tries 1 "exit 1"').getLogLines();
+
+        expect(lines).toEqual([
+            expect.stringContaining('[0] exit 1 exited with code 1'),
+            expect.stringContaining('[0] exit 1 restarted'),
+            expect.stringContaining('[0] exit 1 exited with code 1'),
+        ]);
     });
 });
 
 describe('--kill-others', () => {
-    it('is aliased to -k', done => {
-        const child = run('-k "sleep 10" "exit 0"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
+    describe('kills on success', () => {
+        it.each(['--kill-others', '-k'])('%s', async arg => {
+            const lines = await run(`${arg} "sleep 10" "exit 0"`).getLogLines();
+
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
             expect(lines).toContainEqual(
                 expect.stringContaining('Sending SIGTERM to other processes')
             );
             expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
-            done();
-        }, done);
+        });
     });
 
-    it('kills on success', done => {
-        const child = run('--kill-others "sleep 10" "exit 0"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
-            expect(lines).toContainEqual(
-                expect.stringContaining('Sending SIGTERM to other processes')
-            );
-            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
-            done();
-        }, done);
-    });
+    it('kills on failure', async () => {
+        const lines = await run('--kill-others "sleep 10" "exit 1"').getLogLines();
 
-    it('kills on failure', done => {
-        const child = run('--kill-others "sleep 10" "exit 1"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
-            expect(lines).toContainEqual(
-                expect.stringContaining('Sending SIGTERM to other processes')
-            );
-            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
-            done();
-        }, done);
+        expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
+        expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
+        expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
     });
 });
 
 describe('--kill-others-on-fail', () => {
-    it('does not kill on success', done => {
-        const child = run('--kill-others-on-fail "sleep 0.5" "exit 0"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
-            expect(lines).toContainEqual(
-                expect.stringContaining('[0] sleep 0.5 exited with code 0')
-            );
-            done();
-        }, done);
+    it('does not kill on success', async () => {
+        const lines = await run('--kill-others-on-fail "sleep 0.5" "exit 0"').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
+        expect(lines).toContainEqual(expect.stringContaining('[0] sleep 0.5 exited with code 0'));
     });
 
-    it('kills on failure', done => {
-        const child = run('--kill-others-on-fail "sleep 10" "exit 1"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
-            expect(lines).toContainEqual(
-                expect.stringContaining('Sending SIGTERM to other processes')
-            );
-            expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
-            done();
-        }, done);
+    it('kills on failure', async () => {
+        const lines = await run('--kill-others-on-fail "sleep 10" "exit 1"').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
+        expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
+        expect(lines).toContainEqual(expect.stringMatching(createKillMessage('[0] sleep 10')));
     });
 });
 
 describe('--handle-input', () => {
-    it('is aliased to -i', done => {
-        const child = run('-i "node fixtures/read-echo.js"');
-        child.log.subscribe(line => {
-            if (/READING/.test(line)) {
-                child.stdin.write('stop\n');
-            }
+    describe('forwards input to first process by default', () => {
+        it.each(['--handle-input', '-i'])('%s', async arg => {
+            const child = run(`${arg} "node fixtures/read-echo.js"`);
+            child.log.subscribe(line => {
+                if (/READING/.test(line)) {
+                    child.stdin.write('stop\n');
+                }
+            });
+            const lines = await child.getLogLines();
+            const exit = await child.exit;
 
-            if (/\[0\] stop/.test(line)) {
-                done();
-            }
-        }, done);
+            expect(exit.code).toBe(0);
+            expect(lines).toContainEqual(expect.stringContaining('[0] stop'));
+            expect(lines).toContainEqual(
+                expect.stringContaining('[0] node fixtures/read-echo.js exited with code 0')
+            );
+        });
     });
 
-    it('forwards input to first process by default', done => {
-        const child = run('--handle-input "node fixtures/read-echo.js"');
-        child.log.subscribe(line => {
-            if (/READING/.test(line)) {
-                child.stdin.write('stop\n');
-            }
-
-            if (/\[0\] stop/.test(line)) {
-                done();
-            }
-        }, done);
-    });
-
-    it('forwards input to process --default-input-target', done => {
-        const lines: string[] = [];
+    it('forwards input to process --default-input-target', async () => {
         const child = run(
             '-ki --default-input-target 1 "node fixtures/read-echo.js" "node fixtures/read-echo.js"'
         );
         child.log.subscribe(line => {
-            lines.push(line);
             if (/\[1\] READING/.test(line)) {
                 child.stdin.write('stop\n');
             }
-        }, done);
+        });
+        const lines = await child.getLogLines();
+        const exit = await child.exit;
 
-        child.close.subscribe(exit => {
-            expect(exit[0]).toBeGreaterThan(0);
-            expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
-            expect(lines).toContainEqual(
-                expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js'))
-            );
-            done();
-        }, done);
+        expect(exit.code).toBeGreaterThan(0);
+        expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
+        expect(lines).toContainEqual(
+            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js'))
+        );
     });
 
-    it('forwards input to specified process', done => {
-        const lines: string[] = [];
+    it('forwards input to specified process', async () => {
         const child = run('-ki "node fixtures/read-echo.js" "node fixtures/read-echo.js"');
         child.log.subscribe(line => {
-            lines.push(line);
             if (/\[1\] READING/.test(line)) {
                 child.stdin.write('1:stop\n');
             }
-        }, done);
+        });
+        const lines = await child.getLogLines();
+        const exit = await child.exit;
 
-        child.close.subscribe(exit => {
-            expect(exit[0]).toBeGreaterThan(0);
-            expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
-            expect(lines).toContainEqual(
-                expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js'))
-            );
-            done();
-        }, done);
+        expect(exit.code).toBeGreaterThan(0);
+        expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
+        expect(lines).toContainEqual(
+            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js'))
+        );
     });
 });
 
-describe('--timings', () => {
-    const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
-    const processStartedMessageRegex = (index: number, command: string) => {
-        return new RegExp(
-            `^\\[${index}] ${command} started at ${defaultTimestampFormatRegex.source}$`
-        );
-    };
-    const processStoppedMessageRegex = (index: number, command: string) => {
-        return new RegExp(
-            `^\\[${index}] ${command} stopped at ${defaultTimestampFormatRegex.source} after (\\d|,)+ms$`
-        );
-    };
-    const expectLinesForProcessStartAndStop = (lines: string[], index: number, command: string) => {
-        const escapedCommand = _.escapeRegExp(command);
-        expect(lines).toContainEqual(
-            expect.stringMatching(processStartedMessageRegex(index, escapedCommand))
-        );
-        expect(lines).toContainEqual(
-            expect.stringMatching(processStoppedMessageRegex(index, escapedCommand))
-        );
-    };
+interface CustomMatchers<R = unknown> {
+    toHaveProcessStartAndStop(index: number, command: string): R;
+    toHaveTimingsTable(): R;
+}
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace jest {
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface Expect extends CustomMatchers {}
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface Matchers<R> extends CustomMatchers<R> {}
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface InverseAsymmetricMatchers extends CustomMatchers {}
+    }
+}
 
-    const expectLinesForTimingsTable = (lines: string[]) => {
+expect.extend({
+    toHaveProcessStartAndStop(lines: string[], index: number, command: string) {
+        const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
+        const processStartedMessageRegex = (index: number, command: string) => {
+            return new RegExp(
+                `^\\[${index}] ${command} started at ${defaultTimestampFormatRegex.source}$`
+            );
+        };
+        const processStoppedMessageRegex = (index: number, command: string) => {
+            return new RegExp(
+                `^\\[${index}] ${command} stopped at ${defaultTimestampFormatRegex.source} after (\\d|,)+ms$`
+            );
+        };
+        const escapedCommand = escapeRegExp(command);
+
+        if (
+            !lines.some(line => line.match(processStartedMessageRegex(index, escapedCommand))) ||
+            !lines.some(line => line.match(processStoppedMessageRegex(index, escapedCommand)))
+        ) {
+            return {
+                message: () => 'Expected lines to have process start and stop messages',
+                pass: false,
+            };
+        }
+        return {
+            message: () => 'Expected lines to not have process start and stop messages',
+            pass: true,
+        };
+    },
+
+    toHaveTimingsTable(lines: string[]) {
         const tableTopBorderRegex = /┌[─┬]+┐/g;
-        expect(lines).toContainEqual(expect.stringMatching(tableTopBorderRegex));
         const tableHeaderRowRegex = /(\W+(name|duration|exit code|killed|command)\W+){5}/g;
-        expect(lines).toContainEqual(expect.stringMatching(tableHeaderRowRegex));
         const tableBottomBorderRegex = /└[─┴]+┘/g;
-        expect(lines).toContainEqual(expect.stringMatching(tableBottomBorderRegex));
-    };
 
-    it('shows timings on success', done => {
-        const child = run('--timings "sleep 0.5" "exit 0"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expectLinesForProcessStartAndStop(lines, 0, 'sleep 0.5');
-            expectLinesForProcessStartAndStop(lines, 1, 'exit 0');
-            expectLinesForTimingsTable(lines);
-            done();
-        }, done);
+        if (
+            !lines.some(line => line.match(tableTopBorderRegex)) ||
+            !lines.some(line => line.match(tableHeaderRowRegex)) ||
+            !lines.some(line => line.match(tableBottomBorderRegex))
+        ) {
+            return {
+                message: () => 'Expected lines to have timings table',
+                pass: false,
+            };
+        }
+        return {
+            message: () => 'Expected lines to not have timings table',
+            pass: true,
+        };
+    },
+});
+
+describe('--timings', () => {
+    it('shows timings on success', async () => {
+        const lines = await run('--timings "sleep 0.5" "exit 0"').getLogLines();
+
+        expect(lines).toHaveProcessStartAndStop(0, 'sleep 0.5');
+        expect(lines).toHaveProcessStartAndStop(1, 'exit 0');
+        expect(lines).toHaveTimingsTable();
     });
 
-    it('shows timings on failure', done => {
-        const child = run('--timings "sleep 0.75" "exit 1"');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expectLinesForProcessStartAndStop(lines, 0, 'sleep 0.75');
-            expectLinesForProcessStartAndStop(lines, 1, 'exit 1');
-            expectLinesForTimingsTable(lines);
-            done();
-        }, done);
+    it('shows timings on failure', async () => {
+        const lines = await run('--timings "sleep 0.75" "exit 1"').getLogLines();
+
+        expect(lines).toHaveProcessStartAndStop(0, 'sleep 0.75');
+        expect(lines).toHaveProcessStartAndStop(1, 'exit 1');
+        expect(lines).toHaveTimingsTable();
     });
 });
 
 describe('--passthrough-arguments', () => {
-    it('argument placeholders are properly replaced when passthrough-arguments is enabled', done => {
-        const child = run('--passthrough-arguments "echo {1}" -- echo');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(
-                expect.stringContaining('[0] echo echo exited with code 0')
-            );
-            done();
-        }, done);
+    it('argument placeholders are properly replaced when passthrough-arguments is enabled', async () => {
+        const lines = await run('--passthrough-arguments "echo {1}" -- echo').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('[0] echo echo exited with code 0'));
     });
 
-    it('argument placeholders are not replaced when passthrough-arguments is disabled', done => {
-        const child = run('"echo {1}" -- echo');
-        child.log.pipe(buffer(child.close)).subscribe(lines => {
-            expect(lines).toContainEqual(
-                expect.stringContaining('[0] echo {1} exited with code 0')
-            );
-            expect(lines).toContainEqual(expect.stringContaining('[1] echo exited with code 0'));
-            done();
-        }, done);
+    it('argument placeholders are not replaced when passthrough-arguments is disabled', async () => {
+        const lines = await run('"echo {1}" -- echo').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('[0] echo {1} exited with code 0'));
+        expect(lines).toContainEqual(expect.stringContaining('[1] echo exited with code 0'));
     });
 });
