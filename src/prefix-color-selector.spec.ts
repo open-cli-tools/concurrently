@@ -1,16 +1,39 @@
 import { PrefixColorSelector } from './prefix-color-selector';
 
-function assertSelectedColors({
-    prefixColorSelector,
-    expectedColors,
-}: {
-    prefixColorSelector: PrefixColorSelector;
-    expectedColors: string[];
-}) {
-    expectedColors.forEach(expectedColor => {
-        expect(prefixColorSelector.getNextColor()).toBe(expectedColor);
-    });
+interface CustomMatchers<R = unknown> {
+    toMatchColors(expectedColors: string[]): R;
 }
+declare global {
+    // eslint-disable-next-line @typescript-eslint/no-namespace
+    namespace jest {
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface Expect extends CustomMatchers {}
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface Matchers<R> extends CustomMatchers<R> {}
+        // eslint-disable-next-line @typescript-eslint/no-empty-interface
+        interface InverseAsymmetricMatchers extends CustomMatchers {}
+    }
+}
+
+expect.extend({
+    toMatchColors(prefixColorSelector: PrefixColorSelector, expectedColors: string[]) {
+        if (
+            expectedColors.some(
+                (expectedColor) => prefixColorSelector.getNextColor() !== expectedColor
+            )
+        ) {
+            return {
+                message: () => 'Expected colors to match',
+                pass: false,
+            };
+        }
+
+        return {
+            message: () => 'Expected colors not to match',
+            pass: true,
+        };
+    },
+});
 
 afterEach(() => {
     jest.restoreAllMocks();
@@ -18,33 +41,24 @@ afterEach(() => {
 
 describe('#getNextColor', function () {
     it('does not produce a color if prefixColors empty', () => {
-        assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector([]),
-            expectedColors: ['', '', ''],
-        });
+        expect(new PrefixColorSelector([])).toMatchColors(['', '', '']);
     });
 
     it('does not produce a color if prefixColors undefined', () => {
-        assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(),
-            expectedColors: ['', '', ''],
-        });
+        expect(new PrefixColorSelector([])).toMatchColors(['', '', '']);
     });
 
     it('uses user defined prefix colors only, if no auto is used', () => {
-        assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(['red', 'green', 'blue']),
-            expectedColors: [
-                'red',
-                'green',
-                'blue',
+        expect(new PrefixColorSelector(['red', 'green', 'blue'])).toMatchColors([
+            'red',
+            'green',
+            'blue',
 
-                // Uses last color if last color is not "auto"
-                'blue',
-                'blue',
-                'blue',
-            ],
-        });
+            // Uses last color if last color is not "auto"
+            'blue',
+            'blue',
+            'blue',
+        ]);
     });
 
     it('picks varying colors when user defines an auto color', () => {
@@ -53,8 +67,8 @@ describe('#getNextColor', function () {
             'blue',
         ]);
 
-        assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector([
+        expect(
+            new PrefixColorSelector([
                 'red',
                 'green',
                 'auto',
@@ -65,26 +79,25 @@ describe('#getNextColor', function () {
                 'blue',
                 'auto',
                 'orange',
-            ]),
-            expectedColors: [
-                // Custom colors
-                'red',
-                'green',
-                'blue', // Picks auto color "blue", not repeating consecutive "green" color
-                'green', // Manual
-                'blue', // Auto picks "blue" not to repeat last
-                'green', // Manual
-                'blue', // Auto picks "blue" again not to repeat last
-                'blue', // Manual
-                'green', // Auto picks "green" again not to repeat last
-                'orange',
+            ])
+        ).toMatchColors([
+            // Custom colors
+            'red',
+            'green',
+            'blue', // Picks auto color "blue", not repeating consecutive "green" color
+            'green', // Manual
+            'blue', // Auto picks "blue" not to repeat last
+            'green', // Manual
+            'blue', // Auto picks "blue" again not to repeat last
+            'blue', // Manual
+            'green', // Auto picks "green" again not to repeat last
+            'orange',
 
-                // Uses last color if last color is not "auto"
-                'orange',
-                'orange',
-                'orange',
-            ],
-        });
+            // Uses last color if last color is not "auto"
+            'orange',
+            'orange',
+            'orange',
+        ]);
     });
 
     it('uses user defined colors then recurring auto colors without repeating consecutive colors', () => {
@@ -93,20 +106,17 @@ describe('#getNextColor', function () {
             'blue',
         ]);
 
-        assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(['red', 'green', 'auto']),
-            expectedColors: [
-                // Custom colors
-                'red',
-                'green',
+        expect(new PrefixColorSelector(['red', 'green', 'auto'])).toMatchColors([
+            // Custom colors
+            'red',
+            'green',
 
-                // Picks auto colors, not repeating consecutive "green" color
-                'blue',
-                'green',
-                'blue',
-                'green',
-            ],
-        });
+            // Picks auto colors, not repeating consecutive "green" color
+            'blue',
+            'green',
+            'blue',
+            'green',
+        ]);
     });
 
     it('can sometimes produce consecutive colors', () => {
@@ -115,23 +125,20 @@ describe('#getNextColor', function () {
             'blue',
         ]);
 
-        assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(['blue', 'auto']),
-            expectedColors: [
-                // Custom colors
-                'blue',
+        expect(new PrefixColorSelector(['blue', 'auto'])).toMatchColors([
+            // Custom colors
+            'blue',
 
-                // Picks auto colors
-                'green',
-                // Does not repeat custom colors for initial auto colors, i.e. does not use "blue" again so soon
-                'green', // Consecutive color picked, however practically there would be a lot of colors that need to be set in a particular order for this to occur
-                'blue',
-                'green',
-                'blue',
-                'green',
-                'blue',
-            ],
-        });
+            // Picks auto colors
+            'green',
+            // Does not repeat custom colors for initial auto colors, i.e. does not use "blue" again so soon
+            'green', // Consecutive color picked, however practically there would be a lot of colors that need to be set in a particular order for this to occur
+            'blue',
+            'green',
+            'blue',
+            'green',
+            'blue',
+        ]);
     });
 
     it('considers the Bright variants of colors equal to the normal colors to avoid similar colors', function () {
@@ -143,24 +150,21 @@ describe('#getNextColor', function () {
             'magenta',
         ]);
 
-        assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(['green', 'blue', 'auto']),
-            expectedColors: [
-                // Custom colors
-                'green',
-                'blue',
+        expect(new PrefixColorSelector(['green', 'blue', 'auto'])).toMatchColors([
+            // Custom colors
+            'green',
+            'blue',
 
-                // Picks auto colors, not repeating green and blue colors and variants initially
-                'magenta',
+            // Picks auto colors, not repeating green and blue colors and variants initially
+            'magenta',
 
-                // Picks auto colors
-                'greenBright',
-                'blueBright',
-                'green',
-                'blue',
-                'magenta',
-            ],
-        });
+            // Picks auto colors
+            'greenBright',
+            'blueBright',
+            'green',
+            'blue',
+            'magenta',
+        ]);
     });
 
     it('does not repeat consecutive colors when last prefixColor is auto', () => {
