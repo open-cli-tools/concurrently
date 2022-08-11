@@ -4,25 +4,47 @@ import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import { spawn } from 'child_process';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
+import stringArgv from 'string-argv';
+import { build } from 'esbuild';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string) =>
     new RegExp(escapeRegExp(prefix) + ' exited with code ' + (isWindows ? 1 : '(SIGTERM|143)'));
 
+let tmpDir: string;
+
+beforeAll(async () => {
+    // Build 'concurrently' and store it in a temporary directory
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'concurrently-'));
+    await build({
+        entryPoints: [path.join(__dirname, 'concurrently.ts')],
+        platform: 'node',
+        bundle: true,
+        outfile: path.join(tmpDir, 'concurrently.js'),
+    });
+});
+
+afterAll(() => {
+    // Remove the temporary directory
+    if (tmpDir) {
+        fs.rmdirSync(tmpDir, { recursive: true });
+    }
+});
+
 /**
- * Creates a child process running concurrently with the given args.
+ * Creates a child process running 'concurrently' with the given args.
  * Returns observables for its combined stdout + stderr output, close events, pid, and stdin stream.
  */
 const run = (args: string) => {
-    // TODO: Optimally, this should only be transpiled once,
-    //       e.g. bundle in `beforeAll` and then reuse here.
-    const child = spawn(`node -r @swc-node/register ./concurrently.ts ${args}`, {
-        shell: true,
+    const child = spawn('node', [path.join(tmpDir, 'concurrently.js'), ...stringArgv(args)], {
         cwd: __dirname,
         env: {
             ...process.env,
             // When upgrading from jest 23 -> 24, colors started printing in the test output.
-            // They are forcibly disabled here
+            // They are forcibly disabled here.
             FORCE_COLOR: '0',
         },
     });

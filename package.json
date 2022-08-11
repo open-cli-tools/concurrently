@@ -59,7 +59,6 @@
   },
   "devDependencies": {
     "@hirez_io/observer-spy": "^2.2.0",
-    "@swc-node/register": "^1.5.1",
     "@swc/core": "^1.2.224",
     "@swc/jest": "^0.2.21",
     "@types/jest": "^28.1.6",
@@ -71,6 +70,7 @@
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
     "coveralls-next": "^4.1.2",
+    "esbuild": "^0.15.1",
     "eslint": "^8.21.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-jest": "^26.8.2",
@@ -80,6 +80,7 @@
     "lint-staged": "^12.4.1",
     "prettier": "^2.6.2",
     "simple-git-hooks": "^2.7.0",
+    "string-argv": "^0.3.1",
     "typescript": "^4.5.4"
   },
   "files": [
