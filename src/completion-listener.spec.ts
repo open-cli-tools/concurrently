@@ -45,7 +45,7 @@ describe('with default success condition set', () => {
 
         scheduler.flush();
 
-        expect(result).rejects.toEqual(expect.anything());
+        return expect(result).rejects.toEqual(expect.anything());
     });
 });
 
