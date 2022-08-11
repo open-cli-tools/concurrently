@@ -7,7 +7,7 @@
 
 /* eslint-disable no-console */
 async function run(s) {
-    await new Promise(resolve => setTimeout(resolve, s * 1000));
+    await new Promise((resolve) => setTimeout(resolve, s * 1000));
 }
 
 const s = process.argv[2];
