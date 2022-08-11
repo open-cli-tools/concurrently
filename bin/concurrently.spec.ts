@@ -1,14 +1,14 @@
-import * as readline from 'readline';
-import { escapeRegExp } from 'lodash';
-import * as Rx from 'rxjs';
-import { map } from 'rxjs/operators';
-import { spawn } from 'child_process';
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
-import stringArgv from 'string-argv';
+import { spawn } from 'child_process';
 import { build } from 'esbuild';
 import fs from 'fs';
+import { escapeRegExp } from 'lodash';
 import os from 'os';
 import path from 'path';
+import * as readline from 'readline';
+import * as Rx from 'rxjs';
+import { map } from 'rxjs/operators';
+import stringArgv from 'string-argv';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string) =>
@@ -59,12 +59,12 @@ const run = (args: string) => {
         output: null,
     });
 
-    const log = new Rx.Observable<string>(observer => {
-        stdout.on('line', line => {
+    const log = new Rx.Observable<string>((observer) => {
+        stdout.on('line', (line) => {
             observer.next(line);
         });
 
-        stderr.on('line', line => {
+        stderr.on('line', (line) => {
             observer.next(line);
         });
 
@@ -109,7 +109,7 @@ it('has help command', async () => {
 });
 
 describe('has version command', () => {
-    it.each(['--version', '-V', '-v'])('%s', async arg => {
+    it.each(['--version', '-V', '-v'])('%s', async (arg) => {
         const exit = await run(arg).exit;
 
         expect(exit.code).toBe(0);
@@ -144,7 +144,7 @@ describe('exiting conditions', () => {
     });
 
     describe('is of success when --success=last and last command to exit succeeds', () => {
-        it.each(['--success=last', '-s last'])('%s', async arg => {
+        it.each(['--success=last', '-s last'])('%s', async (arg) => {
             const exit = await run(`${arg} "exit 1" "node fixtures/sleep.mjs 0.5 && echo foo"`)
                 .exit;
 
@@ -162,7 +162,7 @@ describe('exiting conditions', () => {
     it('is of success when a SIGINT is sent', async () => {
         const child = run('"node fixtures/read-echo.js"');
         // Wait for command to have started before sending SIGINT
-        child.log.subscribe(line => {
+        child.log.subscribe((line) => {
             if (/READING/.test(line)) {
                 process.kill(child.pid, 'SIGINT');
             }
@@ -177,7 +177,7 @@ describe('exiting conditions', () => {
 });
 
 describe('does not log any extra output', () => {
-    it.each(['--raw', '-r'])('%s', async arg => {
+    it.each(['--raw', '-r'])('%s', async (arg) => {
         const lines = await run(`${arg} "echo foo" "echo bar"`).getLogLines();
 
         expect(lines).toHaveLength(2);
@@ -219,7 +219,7 @@ describe('--group', () => {
 
 describe('--names', () => {
     describe('prefixes with names', () => {
-        it.each(['--names', '-n'])('%s', async arg => {
+        it.each(['--names', '-n'])('%s', async (arg) => {
             const lines = await run(`${arg} foo,bar "echo foo" "echo bar"`).getLogLines();
 
             expect(lines).toContainEqual(expect.stringContaining('[foo] foo'));
@@ -238,7 +238,7 @@ describe('--names', () => {
 });
 
 describe('specifies custom prefix', () => {
-    it.each(['--prefix', '-p'])('%s', async arg => {
+    it.each(['--prefix', '-p'])('%s', async (arg) => {
         const lines = await run(`${arg} command "echo foo" "echo bar"`).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[echo foo] foo'));
@@ -247,7 +247,7 @@ describe('specifies custom prefix', () => {
 });
 
 describe('specifies custom prefix length', () => {
-    it.each(['--prefix command --prefix-length 5', '-p command -l 5'])('%s', async arg => {
+    it.each(['--prefix command --prefix-length 5', '-p command -l 5'])('%s', async (arg) => {
         const lines = await run(`${arg} "echo foo" "echo bar"`).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
@@ -269,7 +269,7 @@ describe('--restart-tries', () => {
 
 describe('--kill-others', () => {
     describe('kills on success', () => {
-        it.each(['--kill-others', '-k'])('%s', async arg => {
+        it.each(['--kill-others', '-k'])('%s', async (arg) => {
             const lines = await run(`${arg} "node fixtures/sleep.mjs 10" "exit 0"`).getLogLines();
 
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
@@ -322,9 +322,9 @@ describe('--kill-others-on-fail', () => {
 
 describe('--handle-input', () => {
     describe('forwards input to first process by default', () => {
-        it.each(['--handle-input', '-i'])('%s', async arg => {
+        it.each(['--handle-input', '-i'])('%s', async (arg) => {
             const child = run(`${arg} "node fixtures/read-echo.js"`);
-            child.log.subscribe(line => {
+            child.log.subscribe((line) => {
                 if (/READING/.test(line)) {
                     child.stdin.write('stop\n');
                 }
@@ -344,7 +344,7 @@ describe('--handle-input', () => {
         const child = run(
             '-ki --default-input-target 1 "node fixtures/read-echo.js" "node fixtures/read-echo.js"'
         );
-        child.log.subscribe(line => {
+        child.log.subscribe((line) => {
             if (/\[1\] READING/.test(line)) {
                 child.stdin.write('stop\n');
             }
@@ -361,7 +361,7 @@ describe('--handle-input', () => {
 
     it('forwards input to specified process', async () => {
         const child = run('-ki "node fixtures/read-echo.js" "node fixtures/read-echo.js"');
-        child.log.subscribe(line => {
+        child.log.subscribe((line) => {
             if (/\[1\] READING/.test(line)) {
                 child.stdin.write('1:stop\n');
             }
@@ -409,8 +409,8 @@ expect.extend({
         const escapedCommand = escapeRegExp(command);
 
         if (
-            !lines.some(line => line.match(processStartedMessageRegex(index, escapedCommand))) ||
-            !lines.some(line => line.match(processStoppedMessageRegex(index, escapedCommand)))
+            !lines.some((line) => line.match(processStartedMessageRegex(index, escapedCommand))) ||
+            !lines.some((line) => line.match(processStoppedMessageRegex(index, escapedCommand)))
         ) {
             return {
                 message: () => 'Expected lines to have process start and stop messages',
@@ -429,9 +429,9 @@ expect.extend({
         const tableBottomBorderRegex = /└[─┴]+┘/g;
 
         if (
-            !lines.some(line => line.match(tableTopBorderRegex)) ||
-            !lines.some(line => line.match(tableHeaderRowRegex)) ||
-            !lines.some(line => line.match(tableBottomBorderRegex))
+            !lines.some((line) => line.match(tableTopBorderRegex)) ||
+            !lines.some((line) => line.match(tableHeaderRowRegex)) ||
+            !lines.some((line) => line.match(tableBottomBorderRegex))
         ) {
             return {
                 message: () => 'Expected lines to have timings table',

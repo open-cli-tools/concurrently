@@ -1,10 +1,10 @@
 import chalk from 'chalk';
-import _ from 'lodash';
 import formatDate from 'date-fns/format';
+import _ from 'lodash';
 import * as Rx from 'rxjs';
 
-import * as defaults from './defaults';
 import { Command, CommandIdentifier } from './command';
+import * as defaults from './defaults';
 
 export class Logger {
     private readonly hide: CommandIdentifier[];
@@ -64,7 +64,7 @@ export class Logger {
         // keep in the list of commands to hide only strings with some length.
         // This might happen through the CLI when no `--hide` argument is specified, for example.
         this.hide = _.castArray(hide)
-            .filter(name => name || name === 0)
+            .filter((name) => name || name === 0)
             .map(String);
         this.raw = raw;
         this.prefixFormat = prefixFormat;
@@ -177,9 +177,9 @@ export class Logger {
 
         let nextColIndex = 0;
         const headers: Record<string, { index: number; length: number }> = {};
-        const contentRows = tableContents.map(row => {
+        const contentRows = tableContents.map((row) => {
             const rowContents: string[] = [];
-            Object.keys(row).forEach(col => {
+            Object.keys(row).forEach((col) => {
                 if (!headers[col]) {
                     headers[col] = {
                         index: nextColIndex++,
@@ -197,7 +197,7 @@ export class Logger {
             return rowContents;
         });
 
-        const headersFormatted = Object.keys(headers).map(header =>
+        const headersFormatted = Object.keys(headers).map((header) =>
             header.padEnd(headers[header].length, ' ')
         );
 
@@ -206,13 +206,13 @@ export class Logger {
             return;
         }
 
-        const borderRowFormatted = headersFormatted.map(header => '─'.padEnd(header.length, '─'));
+        const borderRowFormatted = headersFormatted.map((header) => '─'.padEnd(header.length, '─'));
 
         this.logGlobalEvent(`┌─${borderRowFormatted.join('─┬─')}─┐`);
         this.logGlobalEvent(`│ ${headersFormatted.join(' │ ')} │`);
         this.logGlobalEvent(`├─${borderRowFormatted.join('─┼─')}─┤`);
 
-        contentRows.forEach(contentRow => {
+        contentRows.forEach((contentRow) => {
             const contentRowFormatted = headersFormatted.map((header, colIndex) => {
                 // If the table was expanded after this row was processed, it won't have this column.
                 // Use an empty string in this case.

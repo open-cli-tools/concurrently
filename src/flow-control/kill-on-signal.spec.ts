@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+
 import { Command } from '../command';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
 import { KillOnSignal } from './kill-on-signal';

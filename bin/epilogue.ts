@@ -71,7 +71,7 @@ const examplesString = examples
             ` - ${description}`,
             example
                 .split('\n')
-                .map(line => `     ${line}`)
+                .map((line) => `     ${line}`)
                 .join('\n'),
         ].join('\n\n')
     )

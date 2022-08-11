@@ -144,7 +144,7 @@ export class Command implements CommandInfo {
         const highResStartTime = process.hrtime();
         this.timer.next({ startDate });
 
-        Rx.fromEvent<unknown>(child, 'error').subscribe(event => {
+        Rx.fromEvent<unknown>(child, 'error').subscribe((event) => {
             this.process = undefined;
             const endDate = new Date(Date.now());
             this.timer.next({ startDate, endDate });
@@ -191,5 +191,5 @@ export class Command implements CommandInfo {
  * Pipes all events emitted by `stream` into `subject`.
  */
 function pipeTo<T>(stream: Rx.Observable<T>, subject: Rx.Subject<T>) {
-    stream.subscribe(event => subject.next(event));
+    stream.subscribe((event) => subject.next(event));
 }

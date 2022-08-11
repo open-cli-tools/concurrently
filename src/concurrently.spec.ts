@@ -1,10 +1,11 @@
+import { createMockInstance } from 'jest-create-mock-instance';
+import { Writable } from 'stream';
+
 import { ChildProcess, KillProcess, SpawnCommand } from './command';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';
 import { createFakeProcess, FakeCommand } from './fixtures/fake-command';
 import { FlowController } from './flow-control/flow-controller';
 import { Logger } from './logger';
-import { Writable } from 'stream';
-import { createMockInstance } from 'jest-create-mock-instance';
 
 let spawn: SpawnCommand;
 let kill: KillProcess;
@@ -25,8 +26,8 @@ beforeEach(() => {
 
     onFinishHooks = [jest.fn(), jest.fn()];
     controllers = [
-        { handle: jest.fn(commands => ({ commands, onFinish: onFinishHooks[0] })) },
-        { handle: jest.fn(commands => ({ commands, onFinish: onFinishHooks[1] })) },
+        { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[0] })) },
+        { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[1] })) },
     ];
 });
 
@@ -81,7 +82,7 @@ it('spawns commands up to configured limit at once', () => {
 it('runs controllers with the commands', () => {
     create(['echo', '"echo wrapped"']);
 
-    controllers.forEach(controller => {
+    controllers.forEach((controller) => {
         expect(controller.handle).toHaveBeenCalledWith([
             expect.objectContaining({ command: 'echo', index: 0 }),
             expect.objectContaining({ command: 'echo wrapped', index: 1 }),
@@ -92,7 +93,7 @@ it('runs controllers with the commands', () => {
 it('runs commands with a name or prefix color', () => {
     create([{ command: 'echo', prefixColor: 'red', name: 'foo' }, 'kill']);
 
-    controllers.forEach(controller => {
+    controllers.forEach((controller) => {
         expect(controller.handle).toHaveBeenCalledWith([
             expect.objectContaining({ command: 'echo', index: 0, name: 'foo', prefixColor: 'red' }),
             expect.objectContaining({ command: 'kill', index: 1, name: '', prefixColor: '' }),
@@ -105,7 +106,7 @@ it('runs commands with a list of colors', () => {
         prefixColors: ['red'],
     });
 
-    controllers.forEach(controller => {
+    controllers.forEach((controller) => {
         expect(controller.handle).toHaveBeenCalledWith([
             expect.objectContaining({ command: 'echo', prefixColor: 'red' }),
             expect.objectContaining({ command: 'kill', prefixColor: 'red' }),

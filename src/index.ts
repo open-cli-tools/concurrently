@@ -1,4 +1,5 @@
 import { Readable } from 'stream';
+
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
 import {
     concurrently,
@@ -143,15 +144,13 @@ export default (
 // Export all flow controllers, types, and the main concurrently function,
 // so that 3rd-parties can use them however they want
 export {
+    CloseEvent,
+    // Command specific
+    Command,
+    CommandIdentifier,
     concurrently,
     ConcurrentlyCommandInput,
     ConcurrentlyResult,
-    Logger,
-    // Command specific
-    Command,
-    CloseEvent,
-    TimerEvent,
-    CommandIdentifier,
     // Flow controllers
     FlowController,
     InputHandler,
@@ -159,7 +158,9 @@ export {
     KillOthers,
     LogError,
     LogExit,
+    Logger,
     LogOutput,
     LogTimings,
     RestartProcess,
+    TimerEvent,
 };

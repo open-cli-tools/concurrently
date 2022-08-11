@@ -13,7 +13,7 @@ export class LogExit implements FlowController {
     }
 
     handle(commands: Command[]) {
-        commands.forEach(command =>
+        commands.forEach((command) =>
             command.close.subscribe(({ exitCode }) => {
                 this.logger.logCommandEvent(
                     `${command.command} exited with code ${exitCode}`,

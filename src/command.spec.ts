@@ -1,8 +1,9 @@
+import { autoUnsubscribe, subscribeSpyTo } from '@hirez_io/observer-spy';
 import { SpawnOptions } from 'child_process';
 import { EventEmitter } from 'events';
 import { Readable, Writable } from 'stream';
+
 import { ChildProcess, Command, CommandInfo, KillProcess, SpawnCommand } from './command';
-import { subscribeSpyTo, autoUnsubscribe } from '@hirez_io/observer-spy';
 
 let process: ChildProcess;
 let spawn: jest.Mocked<SpawnCommand>;

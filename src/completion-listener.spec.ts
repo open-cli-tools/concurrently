@@ -1,4 +1,5 @@
 import { TestScheduler } from 'rxjs/testing';
+
 import { CloseEvent } from './command';
 import { CompletionListener, SuccessCondition } from './completion-listener';
 import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';

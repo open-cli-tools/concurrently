@@ -1,5 +1,6 @@
 import * as Rx from 'rxjs';
 import { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } from 'rxjs/operators';
+
 import { Command } from '../command';
 import * as defaults from '../defaults';
 import { Logger } from '../logger';
@@ -38,7 +39,7 @@ export class RestartProcess implements FlowController {
         }
 
         commands
-            .map(command =>
+            .map((command) =>
                 command.close.pipe(
                     take(this.tries),
                     takeWhile(({ exitCode }) => exitCode !== 0)
@@ -53,7 +54,7 @@ export class RestartProcess implements FlowController {
                     // meaning it will be empty because of success, or failed all N times,
                     // and no more restarts should be attempted.
                     failure.pipe(skip(this.tries), mapTo(false), defaultIfEmpty(false))
-                ).subscribe(restart => {
+                ).subscribe((restart) => {
                     const command = commands[index];
                     if (restart) {
                         this.logger.logCommandEvent(`${command.command} restarted`, command);
@@ -63,7 +64,7 @@ export class RestartProcess implements FlowController {
             );
 
         return {
-            commands: commands.map(command => {
+            commands: commands.map((command) => {
                 const closeStream = command.close.pipe(
                     filter(({ exitCode }, emission) => {
                         // We let all success codes pass, and failures only after restarting won't happen again
