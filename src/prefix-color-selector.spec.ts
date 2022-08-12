@@ -1,15 +1,21 @@
+/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "assertSelectedColors"] }] */
+
 import { PrefixColorSelector } from './prefix-color-selector';
 
 function assertSelectedColors({
-    prefixColorSelector,
+    customColors,
     expectedColors,
 }: {
-    prefixColorSelector: PrefixColorSelector;
+    customColors?: string[];
     expectedColors: string[];
 }) {
-    expectedColors.forEach((expectedColor) => {
-        expect(prefixColorSelector.getNextColor()).toBe(expectedColor);
-    });
+    const prefixColorSelector = new PrefixColorSelector(customColors);
+    const prefixColorSelectorValues = [];
+    for (let i = 0; i < expectedColors.length; i++) {
+        prefixColorSelectorValues.push(prefixColorSelector.getNextColor());
+    }
+
+    expect(prefixColorSelectorValues).toEqual(expectedColors);
 }
 
 afterEach(() => {
@@ -19,21 +25,20 @@ afterEach(() => {
 describe('#getNextColor', function () {
     it('does not produce a color if prefixColors empty', () => {
         assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector([]),
+            customColors: [],
             expectedColors: ['', '', ''],
         });
     });
 
     it('does not produce a color if prefixColors undefined', () => {
         assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(),
             expectedColors: ['', '', ''],
         });
     });
 
     it('uses user defined prefix colors only, if no auto is used', () => {
         assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(['red', 'green', 'blue']),
+            customColors: ['red', 'green', 'blue'],
             expectedColors: [
                 'red',
                 'green',
@@ -54,7 +59,7 @@ describe('#getNextColor', function () {
         ]);
 
         assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector([
+            customColors: [
                 'red',
                 'green',
                 'auto',
@@ -65,7 +70,7 @@ describe('#getNextColor', function () {
                 'blue',
                 'auto',
                 'orange',
-            ]),
+            ],
             expectedColors: [
                 // Custom colors
                 'red',
@@ -94,7 +99,7 @@ describe('#getNextColor', function () {
         ]);
 
         assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(['red', 'green', 'auto']),
+            customColors: ['red', 'green', 'auto'],
             expectedColors: [
                 // Custom colors
                 'red',
@@ -116,7 +121,7 @@ describe('#getNextColor', function () {
         ]);
 
         assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(['blue', 'auto']),
+            customColors: ['blue', 'auto'],
             expectedColors: [
                 // Custom colors
                 'blue',
@@ -144,7 +149,7 @@ describe('#getNextColor', function () {
         ]);
 
         assertSelectedColors({
-            prefixColorSelector: new PrefixColorSelector(['green', 'blue', 'auto']),
+            customColors: ['green', 'blue', 'auto'],
             expectedColors: [
                 // Custom colors
                 'green',
