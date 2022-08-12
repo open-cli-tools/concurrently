@@ -1,43 +1,28 @@
-/* eslint jest/expect-expect: ["error", { "assertFunctionNames": ["expect", "assertSelectedColors"] }] */
+import chalk from 'chalk';
 
 import { PrefixColorSelector } from './prefix-color-selector';
-
-function assertSelectedColors({
-    customColors,
-    expectedColors,
-}: {
-    customColors?: string[];
-    expectedColors: string[];
-}) {
-    const prefixColorSelector = new PrefixColorSelector(customColors);
-    const prefixColorSelectorValues = [];
-    for (let i = 0; i < expectedColors.length; i++) {
-        prefixColorSelectorValues.push(prefixColorSelector.getNextColor());
-    }
-
-    expect(prefixColorSelectorValues).toEqual(expectedColors);
-}
 
 afterEach(() => {
     jest.restoreAllMocks();
 });
 
 describe('#getNextColor', function () {
-    it('does not produce a color if prefixColors empty', () => {
-        assertSelectedColors({
+    const customTests: Record<
+        string,
+        {
+            acceptableConsoleColors?: Array<keyof typeof chalk>;
+            customColors?: string[];
+            expectedColors: string[];
+        }
+    > = {
+        'does not produce a color if prefixColors empty': {
             customColors: [],
             expectedColors: ['', '', ''],
-        });
-    });
-
-    it('does not produce a color if prefixColors undefined', () => {
-        assertSelectedColors({
+        },
+        'does not produce a color if prefixColors undefined': {
             expectedColors: ['', '', ''],
-        });
-    });
-
-    it('uses user defined prefix colors only, if no auto is used', () => {
-        assertSelectedColors({
+        },
+        'uses user defined prefix colors only, if no auto is used': {
             customColors: ['red', 'green', 'blue'],
             expectedColors: [
                 'red',
@@ -49,16 +34,9 @@ describe('#getNextColor', function () {
                 'blue',
                 'blue',
             ],
-        });
-    });
-
-    it('picks varying colors when user defines an auto color', () => {
-        jest.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue([
-            'green',
-            'blue',
-        ]);
-
-        assertSelectedColors({
+        },
+        'picks varying colors when user defines an auto color': {
+            acceptableConsoleColors: ['green', 'blue'],
             customColors: [
                 'red',
                 'green',
@@ -89,38 +67,25 @@ describe('#getNextColor', function () {
                 'orange',
                 'orange',
             ],
-        });
-    });
+        },
+        'uses user defined colors then recurring auto colors without repeating consecutive colors':
+            {
+                acceptableConsoleColors: ['green', 'blue'],
+                customColors: ['red', 'green', 'auto'],
+                expectedColors: [
+                    // Custom colors
+                    'red',
+                    'green',
 
-    it('uses user defined colors then recurring auto colors without repeating consecutive colors', () => {
-        jest.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue([
-            'green',
-            'blue',
-        ]);
-
-        assertSelectedColors({
-            customColors: ['red', 'green', 'auto'],
-            expectedColors: [
-                // Custom colors
-                'red',
-                'green',
-
-                // Picks auto colors, not repeating consecutive "green" color
-                'blue',
-                'green',
-                'blue',
-                'green',
-            ],
-        });
-    });
-
-    it('can sometimes produce consecutive colors', () => {
-        jest.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue([
-            'green',
-            'blue',
-        ]);
-
-        assertSelectedColors({
+                    // Picks auto colors, not repeating consecutive "green" color
+                    'blue',
+                    'green',
+                    'blue',
+                    'green',
+                ],
+            },
+        'can sometimes produce consecutive colors': {
+            acceptableConsoleColors: ['green', 'blue'],
             customColors: ['blue', 'auto'],
             expectedColors: [
                 // Custom colors
@@ -136,63 +101,59 @@ describe('#getNextColor', function () {
                 'green',
                 'blue',
             ],
-        });
-    });
+        },
+        'considers the Bright variants of colors equal to the normal colors to avoid similar colors':
+            {
+                acceptableConsoleColors: ['greenBright', 'blueBright', 'green', 'blue', 'magenta'],
+                customColors: ['green', 'blue', 'auto'],
+                expectedColors: [
+                    // Custom colors
+                    'green',
+                    'blue',
 
-    it('considers the Bright variants of colors equal to the normal colors to avoid similar colors', function () {
-        jest.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue([
-            'greenBright',
-            'blueBright',
-            'green',
-            'blue',
-            'magenta',
-        ]);
+                    // Picks auto colors, not repeating green and blue colors and variants initially
+                    'magenta',
 
-        assertSelectedColors({
-            customColors: ['green', 'blue', 'auto'],
-            expectedColors: [
-                // Custom colors
-                'green',
-                'blue',
+                    // Picks auto colors
+                    'greenBright',
+                    'blueBright',
+                    'green',
+                    'blue',
+                    'magenta',
+                ],
+            },
+    };
+    it.each(Object.entries(customTests))(
+        '%s',
+        (_, { acceptableConsoleColors, customColors, expectedColors }) => {
+            if (acceptableConsoleColors) {
+                jest.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue(
+                    acceptableConsoleColors
+                );
+            }
+            const prefixColorSelector = new PrefixColorSelector(customColors);
+            const prefixColorSelectorValues = expectedColors.map(() =>
+                prefixColorSelector.getNextColor()
+            );
 
-                // Picks auto colors, not repeating green and blue colors and variants initially
-                'magenta',
+            expect(prefixColorSelectorValues).toEqual(expectedColors);
+        }
+    );
 
-                // Picks auto colors
-                'greenBright',
-                'blueBright',
-                'green',
-                'blue',
-                'magenta',
-            ],
-        });
-    });
-
-    it('does not repeat consecutive colors when last prefixColor is auto', () => {
-        const prefixColorSelector = new PrefixColorSelector(['auto']);
-
+    const autoTests = {
+        'does not repeat consecutive colors when last prefixColor is auto': false,
+        'handles when more individual auto prefixColors exist than acceptable console colors': true,
+    };
+    it.each(Object.entries(autoTests))('%s', (_, map) => {
         // Pick auto colors over 2 sets
         const expectedColors: string[] = [
             ...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS,
             ...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS,
         ];
 
-        expectedColors.reduce((previousColor, currentExpectedColor) => {
-            const actualSelectedColor = prefixColorSelector.getNextColor();
-            expect(actualSelectedColor).not.toBe(previousColor); // No consecutive colors
-            expect(actualSelectedColor).toBe(currentExpectedColor); // Expected color
-            return actualSelectedColor;
-        }, '');
-    });
-
-    it('handles when more individual auto prefixColors exist than acceptable console colors', () => {
-        // Pick auto colors over 2 sets
-        const expectedColors: string[] = [
-            ...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS,
-            ...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS,
-        ];
-
-        const prefixColorSelector = new PrefixColorSelector(expectedColors.map(() => 'auto'));
+        const prefixColorSelector = new PrefixColorSelector(
+            map ? expectedColors.map(() => 'auto') : ['auto']
+        );
 
         expectedColors.reduce((previousColor, currentExpectedColor) => {
             const actualSelectedColor = prefixColorSelector.getNextColor();
