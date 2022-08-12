@@ -7,7 +7,7 @@ function assertSelectedColors({
     prefixColorSelector: PrefixColorSelector;
     expectedColors: string[];
 }) {
-    expectedColors.forEach(expectedColor => {
+    expectedColors.forEach((expectedColor) => {
         expect(prefixColorSelector.getNextColor()).toBe(expectedColor);
     });
 }
