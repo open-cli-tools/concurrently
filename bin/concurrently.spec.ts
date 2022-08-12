@@ -377,91 +377,47 @@ describe('--handle-input', () => {
     });
 });
 
-interface CustomMatchers<R = unknown> {
-    toHaveProcessStartAndStop(index: number, command: string): R;
-    toHaveTimingsTable(): R;
-}
-declare global {
-    // eslint-disable-next-line @typescript-eslint/no-namespace
-    namespace jest {
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
-        interface Expect extends CustomMatchers {}
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
-        interface Matchers<R> extends CustomMatchers<R> {}
-        // eslint-disable-next-line @typescript-eslint/no-empty-interface
-        interface InverseAsymmetricMatchers extends CustomMatchers {}
-    }
-}
-
-expect.extend({
-    toHaveProcessStartAndStop(lines: string[], index: number, command: string) {
-        const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
-        const processStartedMessageRegex = (index: number, command: string) => {
-            return new RegExp(
-                `^\\[${index}] ${command} started at ${defaultTimestampFormatRegex.source}$`
-            );
-        };
-        const processStoppedMessageRegex = (index: number, command: string) => {
-            return new RegExp(
-                `^\\[${index}] ${command} stopped at ${defaultTimestampFormatRegex.source} after (\\d|,)+ms$`
-            );
-        };
-        const escapedCommand = escapeRegExp(command);
-
-        if (
-            !lines.some((line) => line.match(processStartedMessageRegex(index, escapedCommand))) ||
-            !lines.some((line) => line.match(processStoppedMessageRegex(index, escapedCommand)))
-        ) {
-            return {
-                message: () => 'Expected lines to have process start and stop messages',
-                pass: false,
-            };
-        }
-
-        return {
-            message: () => 'Expected lines to not have process start and stop messages',
-            pass: true,
-        };
-    },
-
-    toHaveTimingsTable(lines: string[]) {
-        const tableTopBorderRegex = /┌[─┬]+┐/g;
-        const tableHeaderRowRegex = /(\W+(name|duration|exit code|killed|command)\W+){5}/g;
-        const tableBottomBorderRegex = /└[─┴]+┘/g;
-
-        if (
-            !lines.some((line) => line.match(tableTopBorderRegex)) ||
-            !lines.some((line) => line.match(tableHeaderRowRegex)) ||
-            !lines.some((line) => line.match(tableBottomBorderRegex))
-        ) {
-            return {
-                message: () => 'Expected lines to have timings table',
-                pass: false,
-            };
-        }
-
-        return {
-            message: () => 'Expected lines to not have timings table',
-            pass: true,
-        };
-    },
-});
-
 describe('--timings', () => {
-    it('shows timings on success', async () => {
-        const lines = await run('--timings "node fixtures/sleep.mjs 0.5" "exit 0"').getLogLines();
+    const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
+    const processStartedMessageRegex = (index: number, command: string) => {
+        return new RegExp(
+            `^\\[${index}] ${command} started at ${defaultTimestampFormatRegex.source}$`
+        );
+    };
+    const processStoppedMessageRegex = (index: number, command: string) => {
+        return new RegExp(
+            `^\\[${index}] ${command} stopped at ${defaultTimestampFormatRegex.source} after (\\d|,)+ms$`
+        );
+    };
 
-        expect(lines).toHaveProcessStartAndStop(0, 'node fixtures/sleep.mjs 0.5');
-        expect(lines).toHaveProcessStartAndStop(1, 'exit 0');
-        expect(lines).toHaveTimingsTable();
-    });
+    const tableTopBorderRegex = /┌[─┬]+┐/g;
+    const tableHeaderRowRegex = /(\W+(name|duration|exit code|killed|command)\W+){5}/g;
+    const tableBottomBorderRegex = /└[─┴]+┘/g;
 
-    it('shows timings on failure', async () => {
-        const lines = await run('--timings "node fixtures/sleep.mjs 0.75" "exit 1"').getLogLines();
+    const timingsTests = {
+        'shows timings on success': ['node fixtures/sleep.mjs 0.5', 'exit 0'],
+        'shows timings on failure': ['node fixtures/sleep.mjs 0.75', 'exit 1'],
+    };
+    it.each(Object.entries(timingsTests))('%s', async (_, commands) => {
+        const lines = await run(
+            `--timings ${commands.map((command) => `"${command}"`).join(' ')}`
+        ).getLogLines();
 
-        expect(lines).toHaveProcessStartAndStop(0, 'node fixtures/sleep.mjs 0.75');
-        expect(lines).toHaveProcessStartAndStop(1, 'exit 1');
-        expect(lines).toHaveTimingsTable();
+        // Expect output to contain process start / stop messages for each command
+        commands.forEach((command, index) => {
+            const escapedCommand = escapeRegExp(command);
+            expect(lines).toContainEqual(
+                expect.stringMatching(processStartedMessageRegex(index, escapedCommand))
+            );
+            expect(lines).toContainEqual(
+                expect.stringMatching(processStoppedMessageRegex(index, escapedCommand))
+            );
+        });
+
+        // Expect output to contain timings table
+        expect(lines).toContainEqual(expect.stringMatching(tableTopBorderRegex));
+        expect(lines).toContainEqual(expect.stringMatching(tableHeaderRowRegex));
+        expect(lines).toContainEqual(expect.stringMatching(tableBottomBorderRegex));
     });
 });
 
