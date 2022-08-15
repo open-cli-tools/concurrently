@@ -170,8 +170,12 @@ describe('exiting conditions', () => {
         const exit = await child.exit;
 
         // TODO
-        // Exit code on Windows is not '0' which might be due to the following fact:
-        // "Windows platforms will throw an error if the pid is used to kill a process group."
+        // Windows doesn't support sending signals like on POSIX platforms.
+        // In a console, processes can be interrupted with CTRL+C (SIGINT).
+        // However, there is no easy way to simulate this event.
+        // Calling 'process.kill' on Windows process means the process
+        // is getting killed forcefully and abruptly (similar to 'SIGKILL'),
+        // which then results in the exit code of '1'.
         expect(exit.code).toBe(isWindows ? 1 : 0);
     });
 });
