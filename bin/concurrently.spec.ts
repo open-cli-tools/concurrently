@@ -173,8 +173,8 @@ describe('exiting conditions', () => {
         // Windows doesn't support sending signals like on POSIX platforms.
         // In a console, processes can be interrupted with CTRL+C (SIGINT).
         // However, there is no easy way to simulate this event.
-        // Calling 'process.kill' on Windows process means the process
-        // is getting killed forcefully and abruptly (similar to 'SIGKILL'),
+        // Calling 'process.kill' on a process in Windows means it
+        // is getting killed forcefully and abruptly (similar to SIGKILL),
         // which then results in the exit code of '1'.
         expect(exit.code).toBe(isWindows ? 1 : 0);
     });
