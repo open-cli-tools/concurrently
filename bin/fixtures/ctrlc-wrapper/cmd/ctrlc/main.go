@@ -58,6 +58,7 @@ func sendCtrlC(dll *syscall.DLL, pid uint64) error {
 }
 
 // Try to re-attach to parent console
+// (to be able to log errors to the original console)
 func cleanup(dll *syscall.DLL) {
 	proc, err := dll.FindProc("FreeConsole")
 	if err != nil {

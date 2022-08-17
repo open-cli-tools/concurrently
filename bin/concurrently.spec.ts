@@ -166,7 +166,7 @@ describe('exiting conditions', () => {
     it('is of success when a SIGINT is sent', async () => {
         // Windows doesn't support sending signals like on POSIX platforms.
         // However, in a console, processes can be interrupted with CTRL+C (like a SIGINT).
-        // This is what we simulate here with the help of a wrapper.
+        // This is what we simulate here with the help of a wrapper application.
         const child = run('"node fixtures/read-echo.js"', isWindows ? true : false);
         // Wait for command to have started before sending SIGINT
         child.log.subscribe((line) => {

@@ -42,7 +42,7 @@ func main() {
 		}
 		os.Exit(code)
 
-	case code := <-child.exit: // Exit when child has terminated itself
+	case code := <-child.exit: // Exit when child has exited itself
 		os.Exit(code)
 	}
 }
