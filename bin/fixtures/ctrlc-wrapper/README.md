@@ -45,6 +45,24 @@ GOOS=windows GOARCH=amd64 go build ./cmd/ctrlc
 GOOS=windows GOARCH=amd64 go build ./cmd/start
 ```
 
+## Notes
+
+Notes for future me and interested parties:
+
+### Why the separate `ctrlc.exe` binary?
+
+Initially, I've tried to send the CTRL+C signal directly from within `start.exe`, but this resulted in loss of some output from the child process (during `FreeConsole` -> `AttachConsole`). There might be a workaround for this...
+
+### `CREATE_NEW_CONSOLE` vs. `CREATE_NEW_PROCESS_GROUP`
+
+Both methods seems to protect from receiving the CTRL+C signal in the current console.
+
+However, spawning the child with `CREATE_NEW_PROCESS_GROUP` would mean that we need to start another "wrapper" in which the "normal processing of CTRL+C input" is enabled first (via `SetConsoleCtrlHandler`) before starting the actual child process.
+
+### `CreateRemoteThread`
+
+Instead of `ctrlc.exe` we might be able to terminate the target process by inject a thread into it, but this seems to be overly complicated.
+
 ## Author
 
 - [paescuj](https://github.com/paescuj)
