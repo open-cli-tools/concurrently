@@ -57,10 +57,12 @@ npm install concurrently --save
 
 ## Usage
 
+`concurrently` has an alias `conc`. I use conc throughout the following, but you can always replace `conc` with `concurrently`
+
 Remember to surround separate commands with quotes:
 
 ```bash
-concurrently "command1 arg" "command2 arg"
+conc "command1 arg" "command2 arg"
 ```
 
 Otherwise **concurrently** would try to run 4 separate commands:
@@ -69,16 +71,16 @@ Otherwise **concurrently** would try to run 4 separate commands:
 In package.json, escape quotes:
 
 ```bash
-"start": "concurrently \"command1 arg\" \"command2 arg\""
+"start": "conc \"command1 arg\" \"command2 arg\""
 ```
 
 NPM run commands can be shortened:
 
 ```bash
-concurrently "npm:watch-js" "npm:watch-css" "npm:watch-node"
+conc "npm:watch-js" "npm:watch-css" "npm:watch-node"
 
 # Equivalent to:
-concurrently -n watch-js,watch-css,watch-node "npm run watch-js" "npm run watch-css" "npm run watch-node"
+conc -n watch-js,watch-css,watch-node "npm run watch-js" "npm run watch-css" "npm run watch-node"
 ```
 
 NPM shortened commands also support wildcards. Given the following scripts in
@@ -99,17 +101,17 @@ package.json:
 ```
 
 ```bash
-concurrently "npm:watch-*"
+conc "npm:watch-*"
 
 # Equivalent to:
-concurrently -n js,css,node "npm run watch-js" "npm run watch-css" "npm run watch-node"
+conc -n js,css,node "npm run watch-js" "npm run watch-css" "npm run watch-node"
 
 # Any name provided for the wildcard command will be used as a prefix to the wildcard
 # part of the script name:
-concurrently -n w: npm:watch-*
+conc -n w: npm:watch-*
 
 # Equivalent to:
-concurrently -n w:js,w:css,w:node "npm run watch-js" "npm run watch-css" "npm run watch-node"
+conc -n w:js,w:css,w:node "npm run watch-js" "npm run watch-css" "npm run watch-node"
 ```
 
 Exclusion is also supported. Given the following scripts in package.json:
@@ -131,7 +133,7 @@ Exclusion is also supported. Given the following scripts in package.json:
 ```bash
 # Running only lint:js and lint:ts
 #   with lint:fix:js and lint:fix:ts excluded
-concurrently "npm:lint:*(!fix)"
+conc "npm:lint:*(!fix)"
 ```
 
 Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-copy-paste-this-frontend-template/blob/5cd2bde719654941bdfc0a42c6f1b8e69ae79980/package.json#L9).
@@ -139,7 +141,7 @@ Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-co
 Help:
 
 ```
-concurrently [options] <command ...>
+conc [options] <command ...>
 
 General
   -m, --max-processes          How many processes should run at once.
@@ -149,7 +151,7 @@ General
                                template.
                                Example names: "main,browser,server"     [string]
       --name-separator         The character to split <names> on. Example usage:
-                               concurrently -n "styles|scripts|server"
+                               conc -n "styles|scripts|server"
                                --name-separator "|"               [default: ","]
   -s, --success                Which command(s) must exit with code 0 in order
                                for concurrently exit with code 0 too. Options
@@ -232,65 +234,65 @@ Examples:
 
  - Output nothing more than stdout+stderr of child processes
 
-     $ concurrently --raw "npm run watch-less" "npm run watch-js"
+     $ conc --raw "npm run watch-less" "npm run watch-js"
 
  - Normal output but without colors e.g. when logging to file
 
-     $ concurrently --no-color "grunt watch" "http-server" > log
+     $ conc --no-color "grunt watch" "http-server" > log
 
  - Custom prefix
 
-     $ concurrently --prefix "{time}-{pid}" "npm run watch" "http-server"
+     $ conc --prefix "{time}-{pid}" "npm run watch" "http-server"
 
  - Custom names and colored prefixes
 
-     $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold"
+     $ conc --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold"
      "http-server" "npm run watch"
 
  - Configuring via environment variables with CONCURRENTLY_ prefix
 
-     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true concurrently "echo
+     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true conc "echo
      hello" "echo world"
 
  - Send input to default
 
-     $ concurrently --handle-input "nodemon" "npm run watch-js"
+     $ conc --handle-input "nodemon" "npm run watch-js"
      rs  # Sends rs command to nodemon process
 
  - Send input to specific child identified by index
 
-     $ concurrently --handle-input "npm run watch-js" nodemon
+     $ conc --handle-input "npm run watch-js" nodemon
      1:rs
 
  - Send input to specific child identified by name
 
-     $ concurrently --handle-input -n js,srv "npm run watch-js" nodemon
+     $ conc --handle-input -n js,srv "npm run watch-js" nodemon
      srv:rs
 
  - Shortened NPM run commands
 
-     $ concurrently npm:watch-node npm:watch-js npm:watch-css
+     $ conc npm:watch-node npm:watch-js npm:watch-css
 
  - Shortened NPM run command with wildcard (make sure to wrap it in quotes!)
 
-     $ concurrently "npm:watch-*"
+     $ conc "npm:watch-*"
 
  - Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js"
  is ran
 
-     $ concurrently "npm:*(!fix)"
+     $ conc "npm:*(!fix)"
 
  - Passthrough some additional arguments via '{<number>}' placeholder
 
-     $ concurrently -P "echo {1}" -- foo
+     $ conc -P "echo {1}" -- foo
 
  - Passthrough all additional arguments via '{@}' placeholder
 
-     $ concurrently -P "npm:dev-* -- {@}" -- --watch --noEmit
+     $ conc -P "npm:dev-* -- {@}" -- --watch --noEmit
 
  - Passthrough all additional arguments combined via '{*}' placeholder
 
-     $ concurrently -P "npm:dev-* -- {*}" -- --watch --noEmit
+     $ conc -P "npm:dev-* -- {*}" -- --watch --noEmit
 
 For more details, visit https://github.com/open-cli-tools/concurrently
 ```

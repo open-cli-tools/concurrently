@@ -43,7 +43,7 @@ const args = yargs(argsBeforeSep)
         'name-separator': {
             describe:
                 'The character to split <names> on. Example usage:\n' +
-                'concurrently -n "styles|scripts|server" --name-separator "|"',
+                'conc -n "styles|scripts|server" --name-separator "|"',
             default: defaults.nameSeparator,
         },
         success: {
