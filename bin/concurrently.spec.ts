@@ -1,5 +1,6 @@
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { spawn } from 'child_process';
+import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
 import { build } from 'esbuild';
 import fs from 'fs';
 import { escapeRegExp } from 'lodash';
@@ -39,11 +40,8 @@ afterAll(() => {
  * Returns observables for its combined stdout + stderr output, close events, pid, and stdin stream.
  */
 const run = (args: string, ctrlcWrapper?: boolean) => {
-    const childArgs = ['node', path.join(tmpDir, 'concurrently.js'), ...stringArgv(args)];
-    if (ctrlcWrapper) {
-        childArgs.unshift('fixtures/ctrlc-wrapper/start.exe');
-    }
-    const child = spawn(childArgs[0], childArgs.slice(1), {
+    const spawnFn = ctrlcWrapper ? spawnWithWrapper : spawn;
+    const child = spawnFn('node', [path.join(tmpDir, 'concurrently.js'), ...stringArgv(args)], {
         cwd: __dirname,
         env: {
             ...process.env,
@@ -98,6 +96,7 @@ const run = (args: string, ctrlcWrapper?: boolean) => {
     };
 
     return {
+        process: child,
         stdin: child.stdin,
         pid: child.pid,
         log,
@@ -173,7 +172,7 @@ describe('exiting conditions', () => {
             if (/READING/.test(line)) {
                 if (isWindows) {
                     // Instruct the wrapper to send CTRL+C to its child
-                    child.stdin.write('^C\n');
+                    sendCtrlC(child.process);
                 } else {
                     process.kill(child.pid, 'SIGINT');
                 }

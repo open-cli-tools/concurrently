@@ -72,6 +72,7 @@
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
     "coveralls-next": "^4.1.2",
+    "ctrlc-wrapper": "^0.0.4",
     "esbuild": "^0.15.1",
     "eslint": "^8.21.0",
     "eslint-config-prettier": "^8.5.0",
