@@ -36,6 +36,7 @@
     "type": "git",
     "url": "https://github.com/open-cli-tools/concurrently.git"
   },
+  "funding": "https://github.com/open-cli-tools/concurrently?sponsor=1",
   "keywords": [
     "bash",
     "concurrent",
