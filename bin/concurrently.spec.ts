@@ -1,5 +1,6 @@
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { spawn } from 'child_process';
+import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
 import { build } from 'esbuild';
 import fs from 'fs';
 import { escapeRegExp } from 'lodash';
@@ -11,8 +12,14 @@ import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
 
 const isWindows = process.platform === 'win32';
-const createKillMessage = (prefix: string) =>
-    new RegExp(escapeRegExp(prefix) + ' exited with code ' + (isWindows ? 1 : '(SIGTERM|143)'));
+const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT') => {
+    const map: Record<string, string | number> = {
+        SIGTERM: isWindows ? 1 : '(SIGTERM|143)',
+        // Could theoretically be anything (e.g. 0) if process has SIGINT handler
+        SIGINT: isWindows ? '(3221225786|0)' : '(SIGINT|130|0)',
+    };
+    return new RegExp(escapeRegExp(prefix) + ' exited with code ' + map[signal]);
+};
 
 let tmpDir: string;
 
@@ -38,8 +45,9 @@ afterAll(() => {
  * Creates a child process running 'concurrently' with the given args.
  * Returns observables for its combined stdout + stderr output, close events, pid, and stdin stream.
  */
-const run = (args: string) => {
-    const child = spawn('node', [path.join(tmpDir, 'concurrently.js'), ...stringArgv(args)], {
+const run = (args: string, ctrlcWrapper?: boolean) => {
+    const spawnFn = ctrlcWrapper ? spawnWithWrapper : spawn;
+    const child = spawnFn('node', [path.join(tmpDir, 'concurrently.js'), ...stringArgv(args)], {
         cwd: __dirname,
         env: {
             ...process.env,
@@ -94,6 +102,7 @@ const run = (args: string) => {
     };
 
     return {
+        process: child,
         stdin: child.stdin,
         pid: child.pid,
         log,
@@ -160,23 +169,36 @@ describe('exiting conditions', () => {
     });
 
     it('is of success when a SIGINT is sent', async () => {
-        const child = run('"node fixtures/read-echo.js"');
+        // Windows doesn't support sending signals like on POSIX platforms.
+        // However, in a console, processes can be interrupted with CTRL+C (like a SIGINT).
+        // This is what we simulate here with the help of a wrapper application.
+        const child = run('"node fixtures/read-echo.js"', isWindows ? true : false);
         // Wait for command to have started before sending SIGINT
         child.log.subscribe((line) => {
             if (/READING/.test(line)) {
-                process.kill(child.pid, 'SIGINT');
+                if (isWindows) {
+                    // Instruct the wrapper to send CTRL+C to its child
+                    sendCtrlC(child.process);
+                } else {
+                    process.kill(child.pid, 'SIGINT');
+                }
             }
         });
+        const lines = await child.getLogLines();
         const exit = await child.exit;
 
-        // TODO
-        // Windows doesn't support sending signals like on POSIX platforms.
-        // In a console, processes can be interrupted with CTRL+C (SIGINT).
-        // However, there is no easy way to simulate this event.
-        // Calling 'process.kill' on a process in Windows means it
-        // is getting killed forcefully and abruptly (similar to SIGKILL),
-        // which then results in the exit code of '1'.
-        expect(exit.code).toBe(isWindows ? 1 : 0);
+        expect(exit.code).toBe(0);
+        expect(lines).toContainEqual(
+            expect.stringMatching(
+                createKillMessage(
+                    isWindows
+                        ? // '^C' is echoed by read-echo.js (also happens without the wrapper)
+                          '[0] ^Cnode fixtures/read-echo.js'
+                        : '[0] node fixtures/read-echo.js',
+                    'SIGINT'
+                )
+            )
+        );
     });
 });
 
@@ -281,7 +303,9 @@ describe('--kill-others', () => {
                 expect.stringContaining('Sending SIGTERM to other processes')
             );
             expect(lines).toContainEqual(
-                expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10'))
+                expect.stringMatching(
+                    createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM')
+                )
             );
         });
     });
@@ -294,7 +318,7 @@ describe('--kill-others', () => {
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM'))
         );
     });
 });
@@ -319,7 +343,7 @@ describe('--kill-others-on-fail', () => {
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM'))
         );
     });
 });
@@ -359,7 +383,7 @@ describe('--handle-input', () => {
         expect(exit.code).toBeGreaterThan(0);
         expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM'))
         );
     });
 
@@ -376,7 +400,7 @@ describe('--handle-input', () => {
         expect(exit.code).toBeGreaterThan(0);
         expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM'))
         );
     });
 });
