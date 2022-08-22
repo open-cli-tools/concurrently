@@ -15,7 +15,8 @@ const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT') => {
     const map: Record<string, string | number> = {
         SIGTERM: isWindows ? 1 : '(SIGTERM|143)',
-        SIGINT: isWindows ? 3221225786 : '(SIGINT|130)',
+        // Could theoretically be anything (e.g. 0) if process has SIGINT handler
+        SIGINT: isWindows ? '(3221225786|0)' : '(SIGINT|130|0)',
     };
     return new RegExp(escapeRegExp(prefix) + ' exited with code ' + map[signal]);
 };
@@ -188,7 +189,15 @@ describe('exiting conditions', () => {
 
         expect(exit.code).toBe(0);
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGINT'))
+            expect.stringMatching(
+                createKillMessage(
+                    isWindows
+                        ? // '^C' is echoed by read-echo.js (also happens without the wrapper)
+                          '[0] ^Cnode fixtures/read-echo.js'
+                        : '[0] node fixtures/read-echo.js',
+                    'SIGINT'
+                )
+            )
         );
     });
 });
