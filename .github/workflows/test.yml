@@ -4,23 +4,13 @@ on:
   push:
     branches:
       - main
-    paths:
-      - '**.m?js'
-      - '**.ts'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - '.github/workflows/test.yml'
+    paths-ignore:
+      - README.md
   pull_request:
     branches:
       - main
-    paths:
-      - '**.m?js'
-      - '**.ts'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
-      - '.github/workflows/test.yml'
+    paths-ignore:
+      - README.md
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
