@@ -57,6 +57,9 @@ npm install concurrently --save
 
 ## Usage
 
+> **Note**
+> The `concurrently` command is now also available under the shorthand alias `conc`.
+
 Remember to surround separate commands with quotes:
 
 ```bash
@@ -149,8 +152,8 @@ General
                                template.
                                Example names: "main,browser,server"     [string]
       --name-separator         The character to split <names> on. Example usage:
-                               concurrently -n "styles|scripts|server"
-                               --name-separator "|"               [default: ","]
+                               -n "styles|scripts|server" --name-separator "|"
+                                                                  [default: ","]
   -s, --success                Which command(s) must exit with code 0 in order
                                for concurrently exit with code 0 too. Options
                                are:

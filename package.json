@@ -6,7 +6,8 @@
   "types": "dist/src/index.d.ts",
   "type": "commonjs",
   "bin": {
-    "concurrently": "./dist/bin/concurrently.js"
+    "concurrently": "./dist/bin/concurrently.js",
+    "conc": "./dist/bin/concurrently.js"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.0 || >=16.0.0"
