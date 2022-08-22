@@ -33,6 +33,7 @@
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"
   },
+  "packageManager": "pnpm@6.34.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/open-cli-tools/concurrently.git"
