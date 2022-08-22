@@ -15,7 +15,7 @@ const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT') => {
     const map: Record<string, string | number> = {
         SIGTERM: isWindows ? 1 : '(SIGTERM|143)',
-        SIGINT: isWindows ? 1 : '(SIGINT|130)',
+        SIGINT: isWindows ? 3221225786 : '(SIGINT|130)',
     };
     return new RegExp(escapeRegExp(prefix) + ' exited with code ' + map[signal]);
 };
