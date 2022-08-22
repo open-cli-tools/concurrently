@@ -5,12 +5,16 @@ on:
     branches:
       - main
     paths-ignore:
-      - README.md
+      - '**.md'
+      - '**.ya?ml'
+      - '!.github/workflows/test.yml'
   pull_request:
     branches:
       - main
     paths-ignore:
-      - README.md
+      - '**.md'
+      - '**.ya?ml'
+      - '!.github/workflows/test.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
