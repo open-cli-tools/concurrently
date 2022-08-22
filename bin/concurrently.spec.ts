@@ -25,10 +25,10 @@ beforeAll(async () => {
         bundle: true,
         outfile: path.join(tmpDir, 'concurrently.js'),
     });
-});
+}, 8000);
 
 afterAll(() => {
-    // Remove the temporary directory
+    // Remove the temporary directory where 'concurrently' was stored
     if (tmpDir) {
         fs.rmdirSync(tmpDir, { recursive: true });
     }
