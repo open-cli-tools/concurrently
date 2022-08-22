@@ -12,8 +12,13 @@ import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
 
 const isWindows = process.platform === 'win32';
-const createKillMessage = (prefix: string) =>
-    new RegExp(escapeRegExp(prefix) + ' exited with code ' + (isWindows ? 1 : '(SIGTERM|143)'));
+const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT') => {
+    const map: Record<string, string | number> = {
+        SIGTERM: isWindows ? 1 : '(SIGTERM|143)',
+        SIGINT: isWindows ? 1 : '(SIGINT|130)',
+    };
+    return new RegExp(escapeRegExp(prefix) + ' exited with code ' + map[signal]);
+};
 
 let tmpDir: string;
 
@@ -178,9 +183,13 @@ describe('exiting conditions', () => {
                 }
             }
         });
+        const lines = await child.getLogLines();
         const exit = await child.exit;
 
         expect(exit.code).toBe(0);
+        expect(lines).toContainEqual(
+            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGINT'))
+        );
     });
 });
 
@@ -285,7 +294,9 @@ describe('--kill-others', () => {
                 expect.stringContaining('Sending SIGTERM to other processes')
             );
             expect(lines).toContainEqual(
-                expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10'))
+                expect.stringMatching(
+                    createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM')
+                )
             );
         });
     });
@@ -298,7 +309,7 @@ describe('--kill-others', () => {
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM'))
         );
     });
 });
@@ -323,7 +334,7 @@ describe('--kill-others-on-fail', () => {
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM'))
         );
     });
 });
@@ -363,7 +374,7 @@ describe('--handle-input', () => {
         expect(exit.code).toBeGreaterThan(0);
         expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM'))
         );
     });
 
@@ -380,7 +391,7 @@ describe('--handle-input', () => {
         expect(exit.code).toBeGreaterThan(0);
         expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM'))
         );
     });
 });
