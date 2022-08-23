@@ -59,6 +59,7 @@ jobs:
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master
+        continue-on-error: true
         with:
           github-token: ${{ secrets.github_token }}
           flag-name: Node.js ${{ matrix.node }} on ${{ matrix.os.name }}
@@ -68,6 +69,7 @@ jobs:
     name: Coverage
     needs: test
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - name: Finish coverage
         uses: coverallsapp/github-action@master
