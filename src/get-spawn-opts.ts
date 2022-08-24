@@ -1,5 +1,5 @@
 import { SpawnOptions } from 'child_process';
-import supportsColor from 'supports-color';
+import supportsColor, { ColorSupport } from 'supports-color';
 
 export const getSpawnOpts = ({
     colorSupport = supportsColor.stdout,
@@ -14,7 +14,7 @@ export const getSpawnOpts = ({
      *
      * Defaults to whatever the terminal's stdout support is.
      */
-    colorSupport?: Pick<supportsColor.supportsColor.Level, 'level'> | false;
+    colorSupport?: Pick<ColorSupport, 'level'> | false;
 
     /**
      * The NodeJS process.
