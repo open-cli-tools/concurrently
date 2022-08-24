@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { FakeCommand } from './fixtures/fake-command.js';
 import { Logger } from './logger.js';
 
-let emitSpy: jest.SpyInstance;
+let emitSpy: unknown;
 
 beforeEach(() => {
     // Force chalk to use colours, otherwise tests may pass when they were supposed to be failing.
@@ -40,7 +40,7 @@ describe('#log()', () => {
     it('does not prepend prefix if last call did not finish with a LF', () => {
         const logger = createLogger({});
         logger.log('foo', 'bar');
-        emitSpy.mockClear();
+        (emitSpy as jest.SpyInstance).mockClear();
         logger.log('foo', 'baz');
 
         expect(logger.emit).toHaveBeenCalledTimes(1);

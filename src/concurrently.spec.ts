@@ -29,7 +29,7 @@ beforeEach(() => {
     controllers = [
         { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[0] })) },
         { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[1] })) },
-    ];
+    ] as jest.Mocked<FlowController>[];
 });
 
 it('fails if commands is not an array', () => {

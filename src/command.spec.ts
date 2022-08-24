@@ -31,7 +31,7 @@ beforeEach(() => {
             },
         });
     })();
-    spawn = jest.fn().mockReturnValue(process);
+    spawn = jest.fn().mockReturnValue(process) as jest.Mocked<SpawnCommand>;
     killProcess = jest.fn();
 });
 

@@ -5,7 +5,7 @@ import { CommandInfo } from '../command.js';
 import { ExpandNpmWildcard } from './expand-npm-wildcard.js';
 
 let parser: ExpandNpmWildcard;
-let readPkg: jest.Mock;
+const readPkg = jest.fn();
 
 const createCommandInfo = (command: string): CommandInfo => ({
     command,
@@ -13,12 +13,11 @@ const createCommandInfo = (command: string): CommandInfo => ({
 });
 
 beforeEach(() => {
-    readPkg = jest.fn();
     parser = new ExpandNpmWildcard(readPkg);
 });
 
 afterEach(() => {
-    jest.restoreAllMocks();
+    readPkg.mockClear();
 });
 
 describe('ExpandNpmWildcard#readPackage', () => {

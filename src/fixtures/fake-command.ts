@@ -21,7 +21,7 @@ export class FakeCommand extends Command {
                 ...info,
             },
             {},
-            jest.fn(),
+            jest.fn() as jest.Mock<ChildProcess>,
             jest.fn()
         );
 
