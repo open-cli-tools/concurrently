@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import chalk from 'chalk';
 
 import { FakeCommand } from './fixtures/fake-command.js';

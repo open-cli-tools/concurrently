@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { createMockInstance } from 'jest-create-mock-instance';
 import { Writable } from 'stream';
 

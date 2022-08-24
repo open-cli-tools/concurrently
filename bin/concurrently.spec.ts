@@ -3,13 +3,17 @@ import { spawn } from 'child_process';
 import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
 import { build } from 'esbuild';
 import fs from 'fs';
-import { escapeRegExp } from 'lodash';
+import _ from 'lodash';
 import os from 'os';
 import path from 'path';
 import * as readline from 'readline';
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import { parseArgsStringToArgv } from 'string-argv';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT') => {
@@ -18,7 +22,7 @@ const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT') => {
         // Could theoretically be anything (e.g. 0) if process has SIGINT handler
         SIGINT: isWindows ? '(3221225786|0)' : '(SIGINT|130|0)',
     };
-    return new RegExp(escapeRegExp(prefix) + ' exited with code ' + map[signal]);
+    return new RegExp(_.escapeRegExp(prefix) + ' exited with code ' + map[signal]);
 };
 
 let tmpDir: string;
@@ -437,12 +441,11 @@ describe('--timings', () => {
 
         // Expect output to contain process start / stop messages for each command
         commands.forEach((command, index) => {
-            const escapedCommand = escapeRegExp(command);
             expect(lines).toContainEqual(
-                expect.stringMatching(processStartedMessageRegex(index, escapedCommand))
+                expect.stringMatching(processStartedMessageRegex(index, command))
             );
             expect(lines).toContainEqual(
-                expect.stringMatching(processStoppedMessageRegex(index, escapedCommand))
+                expect.stringMatching(processStoppedMessageRegex(index, command))
             );
         });
 

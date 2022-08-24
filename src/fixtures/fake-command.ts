@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import EventEmitter from 'events';
 import { createMockInstance } from 'jest-create-mock-instance';
 import { PassThrough, Writable } from 'stream';

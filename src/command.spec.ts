@@ -1,4 +1,5 @@
 import { autoUnsubscribe, subscribeSpyTo } from '@hirez_io/observer-spy';
+import { jest } from '@jest/globals';
 import { SpawnOptions } from 'child_process';
 import { EventEmitter } from 'events';
 import { Readable, Writable } from 'stream';
