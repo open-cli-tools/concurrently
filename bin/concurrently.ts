@@ -2,9 +2,9 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import * as defaults from '../src/defaults';
-import concurrently from '../src/index';
-import { epilogue } from './epilogue';
+import * as defaults from '../src/defaults.js';
+import concurrently from '../src/index.js';
+import { epilogue } from './epilogue.js';
 
 // Clean-up arguments (yargs expects only the arguments after the program name)
 const cleanArgs = hideBin(process.argv);

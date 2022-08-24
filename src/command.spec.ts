@@ -3,7 +3,7 @@ import { SpawnOptions } from 'child_process';
 import { EventEmitter } from 'events';
 import { Readable, Writable } from 'stream';
 
-import { ChildProcess, Command, CommandInfo, KillProcess, SpawnCommand } from './command';
+import { ChildProcess, Command, CommandInfo, KillProcess, SpawnCommand } from './command.js';
 
 let process: ChildProcess;
 let spawn: jest.Mocked<SpawnCommand>;

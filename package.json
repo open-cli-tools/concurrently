@@ -2,29 +2,31 @@
   "name": "concurrently",
   "version": "7.3.0",
   "description": "Run commands concurrently",
-  "main": "index.js",
-  "types": "dist/src/index.d.ts",
-  "type": "commonjs",
+  "main": "index.cjs",
+  "types": "dist/index.d.ts",
+  "type": "module",
   "bin": {
     "concurrently": "./dist/bin/concurrently.js",
     "conc": "./dist/bin/concurrently.js"
   },
-  "engines": {
-    "node": "^14.13.0 || >=16.0.0"
-  },
   "exports": {
     ".": {
-      "import": "./index.mjs",
-      "require": "./index.js",
-      "default": "./index.js",
+      "import": "./dist/src/index.js",
+      "require": "./index.cjs",
       "types": "./dist/src/index.d.ts"
     },
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist",
+    "index.cjs"
+  ],
+  "engines": {
+    "node": "^14.13.0 || >=16.0.0"
+  },
   "scripts": {
-    "build": "tsc --build",
-    "postbuild": "chmod +x dist/bin/concurrently.js",
-    "clean": "tsc --build --clean",
+    "build": "npm run typecheck && tsup",
+    "typecheck": "tsc --noEmit",
     "format": "prettier --ignore-path .gitignore --check '**/{!(package-lock).json,*.y?(a)ml,*.md}'",
     "format:fix": "npm run format -- --write",
     "lint": "eslint . --ext mjs,js,ts --ignore-path .gitignore",
@@ -48,17 +50,6 @@
   ],
   "author": "Kimmo Brunfeldt",
   "license": "MIT",
-  "dependencies": {
-    "chalk": "^4.1.0",
-    "date-fns": "^2.29.1",
-    "lodash": "^4.17.21",
-    "rxjs": "^7.0.0",
-    "shell-quote": "^1.7.3",
-    "spawn-command": "^0.0.2-1",
-    "supports-color": "^8.1.0",
-    "tree-kill": "^1.2.2",
-    "yargs": "^17.3.1"
-  },
   "devDependencies": {
     "@hirez_io/observer-spy": "^2.2.0",
     "@swc/core": "^1.2.224",
@@ -71,8 +62,10 @@
     "@types/yargs": "^17.0.11",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
     "@typescript-eslint/parser": "^5.33.0",
+    "chalk": "^5.0.1",
     "coveralls-next": "^4.1.2",
     "ctrlc-wrapper": "^0.0.4",
+    "date-fns": "^2.29.1",
     "esbuild": "^0.15.1",
     "eslint": "^8.21.0",
     "eslint-config-prettier": "^8.5.0",
@@ -83,19 +76,19 @@
     "jest": "^28.1.3",
     "jest-create-mock-instance": "^2.0.0",
     "lint-staged": "^13.0.3",
+    "lodash": "^4.17.21",
     "prettier": "^2.6.2",
+    "rxjs": "^7.0.0",
+    "shell-quote": "^1.7.3",
     "simple-git-hooks": "^2.7.0",
+    "spawn-command": "^0.0.2-1",
     "string-argv": "^0.3.1",
-    "typescript": "^4.5.4"
+    "supports-color": "^9.2.2",
+    "tree-kill": "^1.2.2",
+    "tsup": "^6.2.2",
+    "typescript": "^4.5.4",
+    "yargs": "^17.3.1"
   },
-  "files": [
-    "dist",
-    "index.js",
-    "index.mjs",
-    "!**/fixtures",
-    "!**/*.spec.js",
-    "!**/*.spec.d.ts"
-  ],
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
   },

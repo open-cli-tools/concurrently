@@ -3,10 +3,10 @@ import _ from 'lodash';
 import * as Rx from 'rxjs';
 import { bufferCount, take } from 'rxjs/operators';
 
-import { CloseEvent, Command } from '../command';
-import * as defaults from '../defaults';
-import { Logger } from '../logger';
-import { FlowController } from './flow-controller';
+import { CloseEvent, Command } from '../command.js';
+import * as defaults from '../defaults.js';
+import { Logger } from '../logger.js';
+import { FlowController } from './flow-controller.js';
 
 interface TimingInfo {
     name: string;

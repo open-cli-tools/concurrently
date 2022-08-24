@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import { createMockInstance } from 'jest-create-mock-instance';
 import { PassThrough, Writable } from 'stream';
 
-import { ChildProcess, CloseEvent, Command, CommandInfo } from '../command';
+import { ChildProcess, CloseEvent, Command, CommandInfo } from '../command.js';
 
 export class FakeCommand extends Command {
     // Type-safe workaround for setting `killable` to a custom value.

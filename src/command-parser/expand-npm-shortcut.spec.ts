@@ -1,5 +1,5 @@
-import { CommandInfo } from '../command';
-import { ExpandNpmShortcut } from './expand-npm-shortcut';
+import { CommandInfo } from '../command.js';
+import { ExpandNpmShortcut } from './expand-npm-shortcut.js';
 
 const parser = new ExpandNpmShortcut();
 

@@ -1,8 +1,8 @@
 import { createMockInstance } from 'jest-create-mock-instance';
 
-import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
-import { Logger } from '../logger';
-import { LogExit } from './log-exit';
+import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command.js';
+import { Logger } from '../logger.js';
+import { LogExit } from './log-exit.js';
 
 let controller: LogExit;
 let logger: Logger;

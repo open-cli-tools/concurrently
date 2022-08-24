@@ -9,7 +9,7 @@ import path from 'path';
 import * as readline from 'readline';
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
-import stringArgv from 'string-argv';
+import { parseArgsStringToArgv } from 'string-argv';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT') => {
@@ -47,15 +47,19 @@ afterAll(() => {
  */
 const run = (args: string, ctrlcWrapper?: boolean) => {
     const spawnFn = ctrlcWrapper ? spawnWithWrapper : spawn;
-    const child = spawnFn('node', [path.join(tmpDir, 'concurrently.js'), ...stringArgv(args)], {
-        cwd: __dirname,
-        env: {
-            ...process.env,
-            // When upgrading from jest 23 -> 24, colors started printing in the test output.
-            // They are forcibly disabled here.
-            FORCE_COLOR: '0',
-        },
-    });
+    const child = spawnFn(
+        'node',
+        [path.join(tmpDir, 'concurrently.js'), ...parseArgsStringToArgv(args)],
+        {
+            cwd: __dirname,
+            env: {
+                ...process.env,
+                // When upgrading from jest 23 -> 24, colors started printing in the test output.
+                // They are forcibly disabled here.
+                FORCE_COLOR: '0',
+            },
+        }
+    );
 
     const stdout = readline.createInterface({
         input: child.stdout,

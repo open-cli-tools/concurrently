@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 
-import { FakeCommand } from './fixtures/fake-command';
-import { Logger } from './logger';
+import { FakeCommand } from './fixtures/fake-command.js';
+import { Logger } from './logger.js';
 
 let emitSpy: jest.SpyInstance;
 

@@ -1,5 +1,5 @@
-import { CommandInfo } from '../command';
-import { ExpandArguments } from './expand-arguments';
+import { CommandInfo } from '../command.js';
+import { ExpandArguments } from './expand-arguments.js';
 
 const createCommandInfo = (command: string): CommandInfo => ({
     command,

@@ -1,5 +1,5 @@
-import { CommandInfo } from '../command';
-import { CommandParser } from './command-parser';
+import { CommandInfo } from '../command.js';
+import { CommandParser } from './command-parser.js';
 
 /**
  * Expands commands prefixed with `npm:`, `yarn:` or `pnpm:` into the full version `npm run <command>` and so on.

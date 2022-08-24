@@ -1,8 +1,8 @@
 import { createMockInstance } from 'jest-create-mock-instance';
 
-import { FakeCommand } from '../fixtures/fake-command';
-import { Logger } from '../logger';
-import { LogError } from './log-error';
+import { FakeCommand } from '../fixtures/fake-command.js';
+import { Logger } from '../logger.js';
+import { LogError } from './log-error.js';
 
 let controller: LogError;
 let logger: Logger;

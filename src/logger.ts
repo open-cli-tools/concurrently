@@ -1,10 +1,10 @@
-import chalk from 'chalk';
+import chalk, { ChalkInstance } from 'chalk';
 import formatDate from 'date-fns/format';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
 
-import { Command, CommandIdentifier } from './command';
-import * as defaults from './defaults';
+import { Command, CommandIdentifier } from './command.js';
+import * as defaults from './defaults.js';
 
 export class Logger {
     private readonly hide: CommandIdentifier[];
@@ -119,7 +119,7 @@ export class Logger {
     }
 
     colorText(command: Command, text: string) {
-        let color: chalk.Chalk;
+        let color: ChalkInstance;
         if (command.prefixColor && command.prefixColor.startsWith('#')) {
             color = chalk.hex(command.prefixColor);
         } else {

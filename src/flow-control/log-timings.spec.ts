@@ -1,10 +1,10 @@
 import formatDate from 'date-fns/format';
 import { createMockInstance } from 'jest-create-mock-instance';
 
-import { CloseEvent } from '../command';
-import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
-import { Logger } from '../logger';
-import { LogTimings } from './log-timings';
+import { CloseEvent } from '../command.js';
+import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command.js';
+import { Logger } from '../logger.js';
+import { LogTimings } from './log-timings.js';
 
 // shown in timing order
 const startDate0 = new Date();

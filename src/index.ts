@@ -1,22 +1,22 @@
 import { Readable } from 'stream';
 
-import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
+import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command.js';
 import {
     concurrently,
     ConcurrentlyCommandInput,
     ConcurrentlyOptions as BaseConcurrentlyOptions,
     ConcurrentlyResult,
-} from './concurrently';
-import { FlowController } from './flow-control/flow-controller';
-import { InputHandler } from './flow-control/input-handler';
-import { KillOnSignal } from './flow-control/kill-on-signal';
-import { KillOthers, ProcessCloseCondition } from './flow-control/kill-others';
-import { LogError } from './flow-control/log-error';
-import { LogExit } from './flow-control/log-exit';
-import { LogOutput } from './flow-control/log-output';
-import { LogTimings } from './flow-control/log-timings';
-import { RestartProcess } from './flow-control/restart-process';
-import { Logger } from './logger';
+} from './concurrently.js';
+import { FlowController } from './flow-control/flow-controller.js';
+import { InputHandler } from './flow-control/input-handler.js';
+import { KillOnSignal } from './flow-control/kill-on-signal.js';
+import { KillOthers, ProcessCloseCondition } from './flow-control/kill-others.js';
+import { LogError } from './flow-control/log-error.js';
+import { LogExit } from './flow-control/log-exit.js';
+import { LogOutput } from './flow-control/log-output.js';
+import { LogTimings } from './flow-control/log-timings.js';
+import { RestartProcess } from './flow-control/restart-process.js';
+import { Logger } from './logger.js';
 
 export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
     // Logger options

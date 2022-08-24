@@ -1,10 +1,10 @@
 import { createMockInstance } from 'jest-create-mock-instance';
 import { PassThrough } from 'stream';
 
-import { Command } from '../command';
-import { FakeCommand } from '../fixtures/fake-command';
-import { Logger } from '../logger';
-import { InputHandler } from './input-handler';
+import { Command } from '../command.js';
+import { FakeCommand } from '../fixtures/fake-command.js';
+import { Logger } from '../logger.js';
+import { InputHandler } from './input-handler.js';
 
 let commands: Command[];
 let controller: InputHandler;

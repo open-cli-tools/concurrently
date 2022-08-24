@@ -1,8 +1,8 @@
 import fs from 'fs';
 import _ from 'lodash';
 
-import { CommandInfo } from '../command';
-import { CommandParser } from './command-parser';
+import { CommandInfo } from '../command.js';
+import { CommandParser } from './command-parser.js';
 
 const OMISSION = /\(!([^)]+)\)/;
 

@@ -1,7 +1,7 @@
 import * as Rx from 'rxjs';
 import { Writable } from 'stream';
 
-import { Command } from './command';
+import { Command } from './command.js';
 
 /**
  * Class responsible for actually writing output onto a writable stream.

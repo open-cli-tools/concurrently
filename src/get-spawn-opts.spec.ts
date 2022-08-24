@@ -1,4 +1,4 @@
-import { getSpawnOpts } from './get-spawn-opts';
+import { getSpawnOpts } from './get-spawn-opts.js';
 
 const baseProcess = {
     platform: 'win32' as const,

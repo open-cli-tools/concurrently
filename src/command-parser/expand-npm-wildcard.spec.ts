@@ -1,7 +1,7 @@
 import fs from 'fs';
 
-import { CommandInfo } from '../command';
-import { ExpandNpmWildcard } from './expand-npm-wildcard';
+import { CommandInfo } from '../command.js';
+import { ExpandNpmWildcard } from './expand-npm-wildcard.js';
 
 let parser: ExpandNpmWildcard;
 let readPkg: jest.Mock;
