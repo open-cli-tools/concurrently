@@ -33,12 +33,12 @@ beforeEach(() => {
 
 it('fails if commands is not an array', () => {
     const bomb = () => create('foo' as never);
-    expect(bomb).toThrowError();
+    expect(bomb).toThrow();
 });
 
 it('fails if no commands were provided', () => {
     const bomb = () => create([]);
-    expect(bomb).toThrowError();
+    expect(bomb).toThrow();
 });
 
 it('spawns all commands', () => {
