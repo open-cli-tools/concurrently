@@ -1,9 +1,19 @@
 import { autoUnsubscribe, subscribeSpyTo } from '@hirez_io/observer-spy';
 import { SpawnOptions } from 'child_process';
 import { EventEmitter } from 'events';
+import * as Rx from 'rxjs';
 import { Readable, Writable } from 'stream';
 
-import { ChildProcess, Command, CommandInfo, KillProcess, SpawnCommand } from './command';
+import {
+    ChildProcess,
+    CloseEvent,
+    Command,
+    CommandInfo,
+    KillProcess,
+    SpawnCommand,
+} from './command';
+
+type CommandValues = { error: unknown; close: CloseEvent; timer: unknown[] };
 
 let process: ChildProcess;
 let spawn: jest.Mocked<SpawnCommand>;
@@ -34,17 +44,45 @@ beforeEach(() => {
     killProcess = jest.fn();
 });
 
-const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts?: SpawnOptions) =>
-    new Command(
+const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts?: SpawnOptions) => {
+    const command = new Command(
         { index: 0, name: '', command: 'echo foo', ...overrides },
         spawnOpts,
         spawn,
         killProcess
     );
 
+    let error: unknown;
+    let close: CloseEvent;
+    const timer = subscribeSpyTo(command.timer);
+    const finished = subscribeSpyTo(
+        new Rx.Observable((observer) => {
+            // First event in both subjects means command has finished
+            command.error.subscribe({
+                next: (value) => {
+                    error = value;
+                    observer.complete();
+                },
+            });
+            command.close.subscribe({
+                next: (value) => {
+                    close = value;
+                    observer.complete();
+                },
+            });
+        })
+    );
+    const values = async (): Promise<CommandValues> => {
+        await finished.onComplete();
+        return { error, close, timer: timer.getValues() };
+    };
+
+    return { command, values };
+};
+
 describe('#start()', () => {
     it('spawns process with given command and options', () => {
-        const command = createCommand({}, { detached: true });
+        const { command } = createCommand({}, { detached: true });
         command.start();
 
         expect(spawn).toHaveBeenCalledTimes(1);
@@ -52,7 +90,7 @@ describe('#start()', () => {
     });
 
     it('sets stdin, process and PID', () => {
-        const command = createCommand();
+        const { command } = createCommand();
         command.start();
 
         expect(command.process).toBe(process);
@@ -60,19 +98,18 @@ describe('#start()', () => {
         expect(command.stdin).toBe(process.stdin);
     });
 
-    it('shares errors to the error stream', () => {
-        const command = createCommand();
-        const observerSpy = subscribeSpyTo(command.error);
+    it('shares errors to the error stream', async () => {
+        const { command, values } = createCommand();
         command.start();
         process.emit('error', 'foo');
+        const { error } = await values();
 
-        expect(observerSpy.getFirstValue()).toBe('foo');
+        expect(error).toBe('foo');
         expect(command.process).toBeUndefined();
     });
 
-    it('shares start and close timing events to the timing stream', () => {
-        const command = createCommand();
-        const observerSpy = subscribeSpyTo(command.timer);
+    it('shares start and close timing events to the timing stream', async () => {
+        const { command, values } = createCommand();
         const startDate = new Date();
         const endDate = new Date(startDate.getTime() + 1000);
         jest.spyOn(Date, 'now')
@@ -80,14 +117,14 @@ describe('#start()', () => {
             .mockReturnValueOnce(endDate.getTime());
         command.start();
         process.emit('close', 0, null);
+        const { timer } = await values();
 
-        expect(observerSpy.getValueAt(0)).toEqual({ startDate, endDate: undefined });
-        expect(observerSpy.getValueAt(1)).toEqual({ startDate, endDate });
+        expect(timer[0]).toEqual({ startDate, endDate: undefined });
+        expect(timer[1]).toEqual({ startDate, endDate });
     });
 
-    it('shares start and error timing events to the timing stream', () => {
-        const command = createCommand();
-        const observerSpy = subscribeSpyTo(command.timer);
+    it('shares start and error timing events to the timing stream', async () => {
+        const { command, values } = createCommand();
         const startDate = new Date();
         const endDate = new Date(startDate.getTime() + 1000);
         jest.spyOn(Date, 'now')
@@ -95,33 +132,33 @@ describe('#start()', () => {
             .mockReturnValueOnce(endDate.getTime());
         command.start();
         process.emit('error', 0, null);
+        const { timer } = await values();
 
-        expect(observerSpy.getValueAt(0)).toEqual({ startDate, endDate: undefined });
-        expect(observerSpy.getValueAt(1)).toEqual({ startDate, endDate });
+        expect(timer[0]).toEqual({ startDate, endDate: undefined });
+        expect(timer[1]).toEqual({ startDate, endDate });
     });
 
-    it('shares closes to the close stream with exit code', () => {
-        const command = createCommand();
-        const observerSpy = subscribeSpyTo(command.close);
+    it('shares closes to the close stream with exit code', async () => {
+        const { command, values } = createCommand();
         command.start();
         process.emit('close', 0, null);
+        const { close } = await values();
 
-        expect(observerSpy.getFirstValue()).toMatchObject({ exitCode: 0, killed: false });
+        expect(close).toMatchObject({ exitCode: 0, killed: false });
         expect(command.process).toBeUndefined();
     });
 
-    it('shares closes to the close stream with signal', () => {
-        const command = createCommand();
-        const observerSpy = subscribeSpyTo(command.close);
+    it('shares closes to the close stream with signal', async () => {
+        const { command, values } = createCommand();
         command.start();
         process.emit('close', null, 'SIGKILL');
+        const { close } = await values();
 
-        expect(observerSpy.getFirstValue()).toMatchObject({ exitCode: 'SIGKILL', killed: false });
+        expect(close).toMatchObject({ exitCode: 'SIGKILL', killed: false });
     });
 
-    it('shares closes to the close stream with timing information', () => {
-        const command = createCommand();
-        const observerSpy = subscribeSpyTo(command.close);
+    it('shares closes to the close stream with timing information', async () => {
+        const { command, values } = createCommand();
         const startDate = new Date();
         const endDate = new Date(startDate.getTime() + 1000);
         jest.spyOn(Date, 'now')
@@ -132,85 +169,86 @@ describe('#start()', () => {
             .mockReturnValueOnce([1, 1e8]);
         command.start();
         process.emit('close', null, 'SIGKILL');
+        const { close } = await values();
 
-        expect(observerSpy.getFirstValue().timings).toStrictEqual({
+        expect(close.timings).toStrictEqual({
             startDate,
             endDate,
             durationSeconds: 1.1,
         });
     });
 
-    it('shares closes to the close stream with command info', () => {
+    it('shares closes to the close stream with command info', async () => {
         const commandInfo = {
             command: 'cmd',
             name: 'name',
             prefixColor: 'green',
             env: { VAR: 'yes' },
         };
-        const command = createCommand(commandInfo);
-        const observerSpy = subscribeSpyTo(command.close);
+        const { command, values } = createCommand(commandInfo);
         command.start();
         process.emit('close', 0, null);
+        const { close } = await values();
 
-        expect(observerSpy.getFirstValue().command).toEqual(expect.objectContaining(commandInfo));
-        expect(observerSpy.getFirstValue().killed).toBe(false);
+        expect(close.command).toEqual(expect.objectContaining(commandInfo));
+        expect(close.killed).toBe(false);
     });
 
-    it('shares stdout to the stdout stream', () => {
-        const command = createCommand();
-        const observerSpy = subscribeSpyTo(command.stdout);
+    it('shares stdout to the stdout stream', async () => {
+        const { command } = createCommand();
+        const stdout = Rx.firstValueFrom(command.stdout);
         command.start();
         process.stdout.emit('data', Buffer.from('hello'));
 
-        expect(observerSpy.getFirstValue().toString()).toBe('hello');
+        expect((await stdout).toString()).toBe('hello');
     });
 
-    it('shares stderr to the stdout stream', () => {
-        const command = createCommand();
-        const observerSpy = subscribeSpyTo(command.stderr);
+    it('shares stderr to the stdout stream', async () => {
+        const { command } = createCommand();
+        const stderr = Rx.firstValueFrom(command.stderr);
         command.start();
         process.stderr.emit('data', Buffer.from('dang'));
 
-        expect(observerSpy.getFirstValue().toString()).toBe('dang');
+        expect((await stderr).toString()).toBe('dang');
     });
 });
 
 describe('#kill()', () => {
-    let command: Command;
+    let createdCommand: { command: Command; values: () => Promise<CommandValues> };
     beforeEach(() => {
-        command = createCommand();
+        createdCommand = createCommand();
     });
 
     it('kills process', () => {
-        command.start();
-        command.kill();
+        createdCommand.command.start();
+        createdCommand.command.kill();
 
         expect(killProcess).toHaveBeenCalledTimes(1);
-        expect(killProcess).toHaveBeenCalledWith(command.pid, undefined);
+        expect(killProcess).toHaveBeenCalledWith(createdCommand.command.pid, undefined);
     });
 
     it('kills process with some signal', () => {
-        command.start();
-        command.kill('SIGKILL');
+        createdCommand.command.start();
+        createdCommand.command.kill('SIGKILL');
 
         expect(killProcess).toHaveBeenCalledTimes(1);
-        expect(killProcess).toHaveBeenCalledWith(command.pid, 'SIGKILL');
+        expect(killProcess).toHaveBeenCalledWith(createdCommand.command.pid, 'SIGKILL');
     });
 
     it('does not try to kill inexistent process', () => {
-        command.start();
+        createdCommand.command.start();
         process.emit('error');
-        command.kill();
+        createdCommand.command.kill();
 
         expect(killProcess).not.toHaveBeenCalled();
     });
 
-    it('marks the command as killed', () => {
-        command.start();
-        const observerSpy = subscribeSpyTo(command.close);
-        command.kill();
+    it('marks the command as killed', async () => {
+        createdCommand.command.start();
+        createdCommand.command.kill();
         process.emit('close', 1, null);
+        const { close } = await createdCommand.values();
 
-        expect(observerSpy.getFirstValue()).toMatchObject({ exitCode: 1, killed: true });
+        expect(close).toMatchObject({ exitCode: 1, killed: true });
     });
 });
