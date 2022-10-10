@@ -6,7 +6,7 @@ import { Logger } from './logger';
 let emitSpy: jest.SpyInstance;
 
 beforeEach(() => {
-    // Force chalk to use colours, otherwise tests may pass when they were supposed to be failing.
+    // Force chalk to use colors, otherwise tests may pass when they were supposed to be failing.
     chalk.level = 3;
 });
 

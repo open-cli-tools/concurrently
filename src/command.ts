@@ -29,7 +29,7 @@ export interface CommandInfo {
     cwd?: string;
 
     /**
-     * Color to use on prefix of command.
+     * Color to use on prefix of the command.
      */
     prefixColor?: string;
 }

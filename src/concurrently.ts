@@ -15,6 +15,7 @@ import { FlowController } from './flow-control/flow-controller';
 import { getSpawnOpts } from './get-spawn-opts';
 import { Logger } from './logger';
 import { OutputWriter } from './output-writer';
+import { PrefixColorSelector } from './prefix-color-selector';
 
 const defaults: ConcurrentlyOptions = {
     spawn,
@@ -131,6 +132,8 @@ export function concurrently(
 
     const options = _.defaults(baseOptions, defaults);
 
+    const prefixColorSelector = new PrefixColorSelector(options.prefixColors);
+
     const commandParsers: CommandParser[] = [
         new StripQuotes(),
         new ExpandNpmShortcut(),
@@ -141,17 +144,14 @@ export function concurrently(
         commandParsers.push(new ExpandArguments(options.additionalArguments));
     }
 
-    let lastColor = '';
     let commands = _(baseCommands)
         .map(mapToCommandInfo)
         .flatMap((command) => parseCommand(command, commandParsers))
         .map((command, index) => {
-            // Use documented behaviour of repeating last color when specifying more commands than colors
-            lastColor = (options.prefixColors && options.prefixColors[index]) || lastColor;
             return new Command(
                 {
                     index,
-                    prefixColor: lastColor,
+                    prefixColor: prefixColorSelector.getNextColor(),
                     ...command,
                 },
                 getSpawnOpts({

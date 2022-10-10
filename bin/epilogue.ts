@@ -19,6 +19,14 @@ const examples = [
             '$ $0 --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold" "http-server" "npm run watch"',
     },
     {
+        description: 'Auto varying colored prefixes',
+        example: '$ $0 -c "auto" "npm run watch" "http-server"',
+    },
+    {
+        description: 'Mixing auto and manual colored prefixes',
+        example: '$ $0 -c "red,auto" "npm run watch" "http-server" "echo hello"',
+    },
+    {
         description: 'Configuring via environment variables with CONCURRENTLY_ prefix',
         example:
             '$ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true $0 "echo hello" "echo world"',

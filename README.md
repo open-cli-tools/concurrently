@@ -191,8 +191,9 @@ Prefix styling
                           - Available modifiers: reset, bold, dim, italic,
                           underline, inverse, hidden, strikethrough
                           - Available colors: black, red, green, yellow, blue,
-                          magenta, cyan, white, gray
-                          or any hex values for colors, eg #23de43
+                          magenta, cyan, white, gray,
+                          any hex values for colors (e.g. #23de43) or auto for
+                          an automatically picked color
                           - Available background colors: bgBlack, bgRed,
                           bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
                           See https://www.npmjs.com/package/chalk for more
@@ -249,6 +250,14 @@ Examples:
 
      $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold"
      "http-server" "npm run watch"
+
+ - Auto varying colored prefixes
+
+     $ concurrently -c "auto" "npm run watch" "http-server"
+
+ - Mixing auto and manual colored prefixes
+
+     $ concurrently -c "red,auto" "npm run watch" "http-server" "echo hello"
 
  - Configuring via environment variables with CONCURRENTLY_ prefix
 
@@ -324,12 +333,12 @@ For more details, visit https://github.com/open-cli-tools/concurrently
   - `prefix`: the prefix type to use when logging processes output.
     Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
     Default: the name of the process, or its index if no name is set.
-  - `prefixColors`: a list of colors as supported by [chalk](https://www.npmjs.com/package/chalk).
-    If concurrently would run more commands than there are colors, the last color is repeated.
+  - `prefixColors`: a list of colors as supported by [chalk](https://www.npmjs.com/package/chalk) or `auto` for an automatically picked color.
+    If concurrently would run more commands than there are colors, the last color is repeated, unless if the last color value is `auto` which means following colors are automatically picked to vary.
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
   - `raw`: whether raw mode should be used, meaning strictly process output will
-    be logged, without any prefixes, colouring or extra stuff.
+    be logged, without any prefixes, coloring or extra stuff.
   - `successCondition`: the condition to consider the run was successful.
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.

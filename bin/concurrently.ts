@@ -67,7 +67,7 @@ const args = yargs(argsBeforeSep)
                 'and concurrently coloring.',
             type: 'boolean',
         },
-        // This one is provided for free. Chalk reads this itself and removes colours.
+        // This one is provided for free. Chalk reads this itself and removes colors.
         // https://www.npmjs.com/package/chalk#chalksupportscolor
         'no-color': {
             describe: 'Disables colors from logging',
@@ -126,8 +126,8 @@ const args = yargs(argsBeforeSep)
                 'Comma-separated list of chalk colors to use on prefixes. ' +
                 'If there are more commands than colors, the last color will be repeated.\n' +
                 '- Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough\n' +
-                '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray \n' +
-                'or any hex values for colors, eg #23de43\n' +
+                '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray, \n' +
+                'any hex values for colors (e.g. #23de43) or auto for an automatically picked color\n' +
                 '- Available background colors: bgBlack, bgRed, bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite\n' +
                 'See https://www.npmjs.com/package/chalk for more information.',
             default: defaults.prefixColors,
