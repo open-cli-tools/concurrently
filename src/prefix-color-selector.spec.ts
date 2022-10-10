@@ -166,7 +166,8 @@ describe('#getNextColor', function () {
 
 describe('PrefixColorSelector#ACCEPTABLE_CONSOLE_COLORS', () => {
     it('has more than 1 auto color defined', () => {
-        // ! Code assumes this always has more than one entry, so make sure
+        // (!) The current implementation is based on the assumption that 'ACCEPTABLE_CONSOLE_COLORS'
+        //     always has more than one entry, which is what we enforce via this test
         expect(PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.length).toBeGreaterThan(1);
     });
 });
