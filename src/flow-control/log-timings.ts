@@ -1,3 +1,4 @@
+import * as assert from 'assert';
 import formatDate from 'date-fns/format';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
@@ -53,6 +54,8 @@ export class LogTimings implements FlowController {
     }
 
     private printExitInfoTimingTable(exitInfos: CloseEvent[]) {
+        assert.ok(this.logger);
+
         const exitInfoTable = _(exitInfos)
             .sortBy(({ timings }) => timings.durationSeconds)
             .reverse()
@@ -65,7 +68,8 @@ export class LogTimings implements FlowController {
     }
 
     handle(commands: Command[]) {
-        if (!this.logger) {
+        const { logger } = this;
+        if (!logger) {
             return { commands };
         }
 
@@ -74,14 +78,14 @@ export class LogTimings implements FlowController {
             command.timer.subscribe(({ startDate, endDate }) => {
                 if (!endDate) {
                     const formattedStartDate = formatDate(startDate, this.timestampFormat);
-                    this.logger.logCommandEvent(
+                    logger.logCommandEvent(
                         `${command.command} started at ${formattedStartDate}`,
                         command
                     );
                 } else {
                     const durationMs = endDate.getTime() - startDate.getTime();
                     const formattedEndDate = formatDate(endDate, this.timestampFormat);
-                    this.logger.logCommandEvent(
+                    logger.logCommandEvent(
                         `${
                             command.command
                         } stopped at ${formattedEndDate} after ${durationMs.toLocaleString()}ms`,
