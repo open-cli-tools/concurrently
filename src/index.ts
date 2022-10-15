@@ -130,10 +130,10 @@ export default (
             }),
             new KillOthers({
                 logger,
-                conditions: options.killOthers,
+                conditions: options.killOthers || [],
             }),
             new LogTimings({
-                logger: options.timings ? logger : null,
+                logger: options.timings ? logger : undefined,
                 timestampFormat: options.timestampFormat,
             }),
         ],
