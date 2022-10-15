@@ -30,7 +30,7 @@ const defaults: ConcurrentlyOptions = {
  * If value is a string, then that's the command's command line.
  * Fine grained options can be defined by using the object format.
  */
-export type ConcurrentlyCommandInput = string | Partial<CommandInfo>;
+export type ConcurrentlyCommandInput = string | ({ command: string } & Partial<CommandInfo>);
 
 export type ConcurrentlyResult = {
     /**
@@ -173,14 +173,17 @@ export function concurrently(
                 onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : []),
             };
         },
-        { commands, onFinishCallbacks: [] }
+        { commands, onFinishCallbacks: [] } as {
+            commands: Command[];
+            onFinishCallbacks: (() => void)[];
+        }
     );
     commands = handleResult.commands;
 
     if (options.logger && options.outputStream) {
         const outputWriter = new OutputWriter({
             outputStream: options.outputStream,
-            group: options.group,
+            group: !!options.group,
             commands,
         });
         options.logger.output.subscribe(({ command, text }) => outputWriter.write(command, text));
@@ -206,14 +209,10 @@ export function concurrently(
 
 function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
     if (typeof command === 'string') {
-        return {
-            command,
-            name: '',
-            env: {},
-            cwd: '',
-        };
+        return mapToCommandInfo({ command });
     }
 
+    assert.ok(command.command, '[concurrently] command cannot be empty');
     return {
         command: command.command,
         name: command.name || '',
