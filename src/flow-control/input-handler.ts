@@ -39,7 +39,10 @@ export class InputHandler implements FlowController {
         this.pauseInputStreamOnFinish = pauseInputStreamOnFinish !== false;
     }
 
-    handle(commands: Command[]) {
+    handle(commands: Command[]): {
+        commands: Command[];
+        onFinish?: () => void | undefined;
+    } {
         if (!this.inputStream) {
             return { commands };
         }
