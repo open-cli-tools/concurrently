@@ -8,6 +8,7 @@
     "noImplicitAny": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "strict": true,
     "allowJs": false
   },
   "include": ["./bin", "./declarations", "./src"]
