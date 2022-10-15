@@ -92,7 +92,7 @@ export class Command implements CommandInfo {
     readonly command: string;
 
     /** @inheritdoc */
-    readonly prefixColor: string;
+    readonly prefixColor?: string;
 
     /** @inheritdoc */
     readonly env: Record<string, unknown>;
@@ -112,8 +112,9 @@ export class Command implements CommandInfo {
     killed = false;
     exited = false;
 
+    /** @deprecated */
     get killable() {
-        return !!this.process;
+        return Command.canKill(this);
     }
 
     constructor(
@@ -126,7 +127,7 @@ export class Command implements CommandInfo {
         this.name = name;
         this.command = command;
         this.prefixColor = prefixColor;
-        this.env = env;
+        this.env = env || {};
         this.cwd = cwd;
         this.killProcess = killProcess;
         this.spawn = spawn;
@@ -161,7 +162,7 @@ export class Command implements CommandInfo {
                 this.close.next({
                     command: this,
                     index: this.index,
-                    exitCode: exitCode === null ? signal : exitCode,
+                    exitCode: exitCode ?? String(signal),
                     killed: this.killed,
                     timings: {
                         startDate,
@@ -173,17 +174,26 @@ export class Command implements CommandInfo {
         );
         child.stdout && pipeTo(Rx.fromEvent<Buffer>(child.stdout, 'data'), this.stdout);
         child.stderr && pipeTo(Rx.fromEvent<Buffer>(child.stderr, 'data'), this.stderr);
-        this.stdin = child.stdin;
+        this.stdin = child.stdin || undefined;
     }
 
     /**
      * Kills this command, optionally specifying a signal to send to it.
      */
     kill(code?: string) {
-        if (this.killable) {
+        if (Command.canKill(this)) {
             this.killed = true;
             this.killProcess(this.pid, code);
         }
+    }
+
+    /**
+     * Detects whether a command can be killed.
+     *
+     * Also works as a type guard on the input `command`.
+     */
+    static canKill(command: Command): command is Command & { pid: number; process: ChildProcess } {
+        return !!command.pid && !!command.process;
     }
 }
 

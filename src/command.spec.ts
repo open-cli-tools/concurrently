@@ -252,3 +252,16 @@ describe('#kill()', () => {
         expect(close).toMatchObject({ exitCode: 1, killed: true });
     });
 });
+
+describe('.canKill()', () => {
+    it('returns whether command has both PID and process', () => {
+        const command = createCommand();
+        expect(Command.canKill(command)).toBe(false);
+
+        command.pid = 1;
+        expect(Command.canKill(command)).toBe(false);
+
+        command.process = process;
+        expect(Command.canKill(command)).toBe(true);
+    });
+});
