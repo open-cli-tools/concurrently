@@ -44,7 +44,7 @@ beforeEach(() => {
     killProcess = jest.fn();
 });
 
-const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts?: SpawnOptions) => {
+const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts: SpawnOptions = {}) => {
     const command = new Command(
         { index: 0, name: '', command: 'echo foo', ...overrides },
         spawnOpts,
@@ -198,7 +198,7 @@ describe('#start()', () => {
         const { command } = createCommand();
         const stdout = Rx.firstValueFrom(command.stdout);
         command.start();
-        process.stdout.emit('data', Buffer.from('hello'));
+        process.stdout?.emit('data', Buffer.from('hello'));
 
         expect((await stdout).toString()).toBe('hello');
     });
@@ -207,7 +207,7 @@ describe('#start()', () => {
         const { command } = createCommand();
         const stderr = Rx.firstValueFrom(command.stderr);
         command.start();
-        process.stderr.emit('data', Buffer.from('dang'));
+        process.stderr?.emit('data', Buffer.from('dang'));
 
         expect((await stderr).toString()).toBe('dang');
     });
