@@ -118,7 +118,8 @@ export default (
             new InputHandler({
                 logger,
                 defaultInputTarget: options.defaultInputTarget,
-                inputStream: options.inputStream || (options.handleInput && process.stdin),
+                inputStream:
+                    options.inputStream || (options.handleInput ? process.stdin : undefined),
                 pauseInputStreamOnFinish: options.pauseInputStreamOnFinish,
             }),
             new KillOnSignal({ process }),
