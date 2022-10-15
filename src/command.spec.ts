@@ -255,7 +255,7 @@ describe('#kill()', () => {
 
 describe('.canKill()', () => {
     it('returns whether command has both PID and process', () => {
-        const command = createCommand();
+        const { command } = createCommand();
         expect(Command.canKill(command)).toBe(false);
 
         command.pid = 1;
