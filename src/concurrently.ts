@@ -1,5 +1,6 @@
 import assert from 'assert';
 import _ from 'lodash';
+import { cpus } from 'os';
 import spawn from 'spawn-command';
 import { Writable } from 'stream';
 import treeKill from 'tree-kill';
@@ -67,11 +68,12 @@ export type ConcurrentlyOptions = {
 
     /**
      * Maximum number of commands to run at once.
+     * Could be an exact number or a percent of CPUs available.
      *
      * If undefined, then all processes will start in parallel.
      * Setting this value to 1 will achieve sequential running.
      */
-    maxProcesses?: number;
+    maxProcesses?: number | string;
 
     /**
      * Whether commands should be spawned in raw mode.
@@ -187,7 +189,12 @@ export function concurrently(
     }
 
     const commandsLeft = commands.slice();
-    const maxProcesses = Math.max(1, Number(options.maxProcesses) || commandsLeft.length);
+    const maxProcesses = Math.max(
+        1,
+        (typeof options.maxProcesses === 'string' && options.maxProcesses.endsWith('%')
+            ? Math.round(cpus().length * percentToNumber(options.maxProcesses))
+            : Number(options.maxProcesses)) || commandsLeft.length
+    );
     for (let i = 0; i < maxProcesses; i++) {
         maybeRunMore(commandsLeft);
     }
@@ -244,4 +251,8 @@ function maybeRunMore(commandsLeft: Command[]) {
     command.close.subscribe(() => {
         maybeRunMore(commandsLeft);
     });
+}
+
+function percentToNumber(percent: string): number {
+    return Number(percent.replace('%', '')) / 100;
 }

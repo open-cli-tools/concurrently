@@ -1,4 +1,5 @@
 import { createMockInstance } from 'jest-create-mock-instance';
+import os from 'os';
 import { Writable } from 'stream';
 
 import { ChildProcess, KillProcess, SpawnCommand } from './command';
@@ -16,6 +17,8 @@ const create = (commands: ConcurrentlyCommandInput[], options: Partial<Concurren
     concurrently(commands, Object.assign(options, { controllers, spawn, kill }));
 
 beforeEach(() => {
+    jest.resetAllMocks();
+
     processes = [];
     spawn = jest.fn(() => {
         const process = createFakeProcess(processes.length);
@@ -61,6 +64,35 @@ it('log output is passed to output stream if logger is specified in options', ()
 
 it('spawns commands up to configured limit at once', () => {
     create(['foo', 'bar', 'baz', 'qux'], { maxProcesses: 2 });
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith('foo', expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith('bar', expect.objectContaining({}));
+
+    // Test out of order completion picking up new processes in-order
+    processes[1].emit('close', 1, null);
+    expect(spawn).toHaveBeenCalledTimes(3);
+    expect(spawn).toHaveBeenCalledWith('baz', expect.objectContaining({}));
+
+    processes[0].emit('close', null, 'SIGINT');
+    expect(spawn).toHaveBeenCalledTimes(4);
+    expect(spawn).toHaveBeenCalledWith('qux', expect.objectContaining({}));
+
+    // Shouldn't attempt to spawn anything else.
+    processes[2].emit('close', 1, null);
+    expect(spawn).toHaveBeenCalledTimes(4);
+});
+
+it('spawns commands up to percent based limit at once', () => {
+    const cpusSpy = jest.spyOn(os, 'cpus');
+    cpusSpy.mockReturnValue(
+        new Array(4).fill({
+            model: 'Intel',
+            speed: 0,
+            times: { user: 0, nice: 0, sys: 0, idle: 0, irq: 0 },
+        })
+    );
+
+    create(['foo', 'bar', 'baz', 'qux'], { maxProcesses: '50%' });
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith('foo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('bar', expect.objectContaining({}));
