@@ -68,7 +68,7 @@ export type ConcurrentlyOptions = {
 
     /**
      * Maximum number of commands to run at once.
-     * Could be an exact number or a percent of CPUs available.
+     * Exact number or a percent of CPUs available (for example "50%").
      *
      * If undefined, then all processes will start in parallel.
      * Setting this value to 1 will achieve sequential running.
@@ -192,7 +192,7 @@ export function concurrently(
     const maxProcesses = Math.max(
         1,
         (typeof options.maxProcesses === 'string' && options.maxProcesses.endsWith('%')
-            ? Math.round(cpus().length * percentToNumber(options.maxProcesses))
+            ? Math.round((cpus().length * Number(options.maxProcesses.slice(0, -1))) / 100)
             : Number(options.maxProcesses)) || commandsLeft.length
     );
     for (let i = 0; i < maxProcesses; i++) {
@@ -251,8 +251,4 @@ function maybeRunMore(commandsLeft: Command[]) {
     command.close.subscribe(() => {
         maybeRunMore(commandsLeft);
     });
-}
-
-function percentToNumber(percent: string): number {
-    return Number(percent.replace('%', '')) / 100;
 }

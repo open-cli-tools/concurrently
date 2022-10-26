@@ -83,6 +83,7 @@ it('spawns commands up to configured limit at once', () => {
 });
 
 it('spawns commands up to percent based limit at once', () => {
+    // Mock architecture with 4 cores
     const cpusSpy = jest.spyOn(os, 'cpus');
     cpusSpy.mockReturnValue(
         new Array(4).fill({
@@ -93,22 +94,21 @@ it('spawns commands up to percent based limit at once', () => {
     );
 
     create(['foo', 'bar', 'baz', 'qux'], { maxProcesses: '50%' });
+
+    // Max parallel processes should be 50% of 4
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith('foo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('bar', expect.objectContaining({}));
 
-    // Test out of order completion picking up new processes in-order
-    processes[1].emit('close', 1, null);
+    // Close first process
+    processes[0].emit('close', 1, null);
     expect(spawn).toHaveBeenCalledTimes(3);
     expect(spawn).toHaveBeenCalledWith('baz', expect.objectContaining({}));
 
-    processes[0].emit('close', null, 'SIGINT');
+    // Close second process
+    processes[1].emit('close', 1, null);
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('qux', expect.objectContaining({}));
-
-    // Shouldn't attempt to spawn anything else.
-    processes[2].emit('close', 1, null);
-    expect(spawn).toHaveBeenCalledTimes(4);
 });
 
 it('runs controllers with the commands', () => {

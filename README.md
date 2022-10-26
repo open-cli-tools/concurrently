@@ -146,7 +146,7 @@ concurrently [options] <command ...>
 
 General
   -m, --max-processes          How many processes should run at once.
-                               Could be an exact number or a percent of CPUs available.
+                               Exact number or a percent of CPUs available (for example "50%").
                                New processes only spawn after all restart tries
                                of a process.                            [string]
   -n, --names                  List of custom names to be used in prefix

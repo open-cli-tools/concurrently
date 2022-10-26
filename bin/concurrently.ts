@@ -31,7 +31,7 @@ const args = yargs(argsBeforeSep)
             describe:
                 'How many processes should run at once.\n' +
                 'New processes only spawn after all restart tries of a process.\n' +
-                'Could be an exact number or a percent of CPUs available (for example "50%")',
+                'Exact number or a percent of CPUs available (for example "50%")',
             type: 'string',
         },
         names: {
