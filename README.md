@@ -146,8 +146,9 @@ concurrently [options] <command ...>
 
 General
   -m, --max-processes          How many processes should run at once.
+                               Exact number or a percent of CPUs available (for example "50%").
                                New processes only spawn after all restart tries
-                               of a process.                            [number]
+                               of a process.                            [string]
   -n, --names                  List of custom names to be used in prefix
                                template.
                                Example names: "main,browser,server"     [string]
