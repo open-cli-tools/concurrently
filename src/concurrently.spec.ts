@@ -95,17 +95,17 @@ it('spawns commands up to percent based limit at once', () => {
 
     create(['foo', 'bar', 'baz', 'qux'], { maxProcesses: '50%' });
 
-    // Max parallel processes should be 50% of 4
+    // Max parallel processes should be 2 (50% of 4 cores)
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith('foo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('bar', expect.objectContaining({}));
 
-    // Close first process
+    // Close first process and expect third to be spawned
     processes[0].emit('close', 1, null);
     expect(spawn).toHaveBeenCalledTimes(3);
     expect(spawn).toHaveBeenCalledWith('baz', expect.objectContaining({}));
 
-    // Close second process
+    // Close second process and expect fourth to be spawned
     processes[1].emit('close', 1, null);
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('qux', expect.objectContaining({}));
