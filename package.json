@@ -51,9 +51,9 @@
   "dependencies": {
     "chalk": "^4.1.0",
     "date-fns": "^2.29.1",
+    "escape-it": "^0.3.0",
     "lodash": "^4.17.21",
     "rxjs": "^7.0.0",
-    "shell-quote": "^1.7.3",
     "spawn-command": "^0.0.2-1",
     "supports-color": "^8.1.0",
     "tree-kill": "^1.2.2",
