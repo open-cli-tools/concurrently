@@ -1,16 +1,8 @@
 import { createMockInstance } from 'jest-create-mock-instance';
 
-import { Command } from '../command';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { KillOthers, ProcessCloseCondition } from './kill-others';
-
-// Return a custom value for `canKill` (also see 'FakeCommand').
-beforeAll(() => {
-    jest.spyOn(Command, 'canKill').mockImplementation(
-        (command) => (command as FakeCommand).isKillable
-    );
-});
 
 let commands: FakeCommand[];
 let logger: Logger;
