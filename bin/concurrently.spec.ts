@@ -59,10 +59,12 @@ const run = (args: string, ctrlcWrapper?: boolean) => {
 
     const stdout = readline.createInterface({
         input: child.stdout,
+        output: null,
     });
 
     const stderr = readline.createInterface({
         input: child.stderr,
+        output: null,
     });
 
     const log = new Rx.Observable<string>((observer) => {
@@ -80,8 +82,8 @@ const run = (args: string, ctrlcWrapper?: boolean) => {
     });
 
     const exit = Rx.firstValueFrom(
-        Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'exit').pipe(
-            map((exit) => {
+        Rx.fromEvent(child, 'exit').pipe(
+            map((exit: [number | null, NodeJS.Signals | null]) => {
                 return {
                     /** The exit code if the child exited on its own. */
                     code: exit[0],
@@ -178,7 +180,7 @@ describe('exiting conditions', () => {
                     // Instruct the wrapper to send CTRL+C to its child
                     sendCtrlC(child.process);
                 } else {
-                    process.kill(Number(child.pid), 'SIGINT');
+                    process.kill(child.pid, 'SIGINT');
                 }
             }
         });

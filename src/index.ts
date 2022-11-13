@@ -118,8 +118,7 @@ export default (
             new InputHandler({
                 logger,
                 defaultInputTarget: options.defaultInputTarget,
-                inputStream:
-                    options.inputStream || (options.handleInput ? process.stdin : undefined),
+                inputStream: options.inputStream || (options.handleInput && process.stdin),
                 pauseInputStreamOnFinish: options.pauseInputStreamOnFinish,
             }),
             new KillOnSignal({ process }),
@@ -130,10 +129,10 @@ export default (
             }),
             new KillOthers({
                 logger,
-                conditions: options.killOthers || [],
+                conditions: options.killOthers,
             }),
             new LogTimings({
-                logger: options.timings ? logger : undefined,
+                logger: options.timings ? logger : null,
                 timestampFormat: options.timestampFormat,
             }),
         ],

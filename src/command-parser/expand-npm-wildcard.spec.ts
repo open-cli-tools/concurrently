@@ -30,7 +30,7 @@ describe('ExpandNpmWildcard#readPackage', () => {
             if (path === 'package.json') {
                 return JSON.stringify(expectedPackage);
             }
-            return '';
+            return null;
         });
 
         const actualReadPackage = ExpandNpmWildcard.readPackage();

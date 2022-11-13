@@ -261,7 +261,7 @@ describe('#logTable()', () => {
     it('does not log anything if value is not an array', () => {
         const logger = createLogger({});
         logger.logTable({} as never);
-        logger.logTable(null as never);
+        logger.logTable(null);
         logger.logTable(0 as never);
         logger.logTable('' as never);
 

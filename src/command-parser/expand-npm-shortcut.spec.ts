@@ -3,7 +3,7 @@ import { ExpandNpmShortcut } from './expand-npm-shortcut';
 
 const parser = new ExpandNpmShortcut();
 
-const createCommandInfo = (command: string, name = ''): CommandInfo => ({
+const createCommandInfo = (command: string, name?: string): CommandInfo => ({
     name,
     command,
 });
