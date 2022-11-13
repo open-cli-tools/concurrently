@@ -92,11 +92,15 @@ export class CompletionListener {
                 bufferCount(closeStreams.length),
                 switchMap((exitInfos) =>
                     this.isSuccess(exitInfos)
-                        ? Rx.of(exitInfos, this.scheduler)
-                        : Rx.throwError(exitInfos, this.scheduler)
+                        ? this.emitWithScheduler(Rx.of(exitInfos))
+                        : this.emitWithScheduler(Rx.throwError(exitInfos))
                 ),
                 take(1)
             )
         );
+    }
+
+    private emitWithScheduler<O>(input: Rx.Observable<O>): Rx.Observable<O> {
+        return this.scheduler ? input.pipe(Rx.observeOn(this.scheduler)) : input;
     }
 }

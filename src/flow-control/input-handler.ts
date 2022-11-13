@@ -19,7 +19,7 @@ import { FlowController } from './flow-controller';
 export class InputHandler implements FlowController {
     private readonly logger: Logger;
     private readonly defaultInputTarget: CommandIdentifier;
-    private readonly inputStream: Readable;
+    private readonly inputStream?: Readable;
     private readonly pauseInputStreamOnFinish: boolean;
 
     constructor({
@@ -28,7 +28,7 @@ export class InputHandler implements FlowController {
         pauseInputStreamOnFinish,
         logger,
     }: {
-        inputStream: Readable;
+        inputStream?: Readable;
         logger: Logger;
         defaultInputTarget?: CommandIdentifier;
         pauseInputStreamOnFinish?: boolean;
@@ -43,12 +43,13 @@ export class InputHandler implements FlowController {
         commands: Command[];
         onFinish?: () => void | undefined;
     } {
-        if (!this.inputStream) {
+        const { inputStream } = this;
+        if (!inputStream) {
             return { commands };
         }
 
-        Rx.fromEvent(this.inputStream, 'data')
-            .pipe(map((data) => data.toString()))
+        Rx.fromEvent(inputStream, 'data')
+            .pipe(map((data) => String(data)))
             .subscribe((data) => {
                 const dataParts = data.split(/:(.+)/);
                 const targetId = dataParts.length > 1 ? dataParts[0] : this.defaultInputTarget;
@@ -74,7 +75,7 @@ export class InputHandler implements FlowController {
             onFinish: () => {
                 if (this.pauseInputStreamOnFinish) {
                     // https://github.com/kimmobrunfeldt/concurrently/issues/252
-                    this.inputStream.pause();
+                    inputStream.pause();
                 }
             },
         };

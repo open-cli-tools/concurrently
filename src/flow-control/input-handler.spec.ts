@@ -37,7 +37,7 @@ it('does nothing if called without input stream', () => {
     }).handle(commands);
     inputStream.write('something');
 
-    expect(commands[0].stdin.write).not.toHaveBeenCalled();
+    expect(commands[0].stdin?.write).not.toHaveBeenCalled();
 });
 
 it('forwards input stream to default target ID', () => {
@@ -45,9 +45,9 @@ it('forwards input stream to default target ID', () => {
 
     inputStream.write('something');
 
-    expect(commands[0].stdin.write).toHaveBeenCalledTimes(1);
-    expect(commands[0].stdin.write).toHaveBeenCalledWith('something');
-    expect(commands[1].stdin.write).not.toHaveBeenCalled();
+    expect(commands[0].stdin?.write).toHaveBeenCalledTimes(1);
+    expect(commands[0].stdin?.write).toHaveBeenCalledWith('something');
+    expect(commands[1].stdin?.write).not.toHaveBeenCalled();
 });
 
 it('forwards input stream to target index specified in input', () => {
@@ -55,9 +55,9 @@ it('forwards input stream to target index specified in input', () => {
 
     inputStream.write('1:something');
 
-    expect(commands[0].stdin.write).not.toHaveBeenCalled();
-    expect(commands[1].stdin.write).toHaveBeenCalledTimes(1);
-    expect(commands[1].stdin.write).toHaveBeenCalledWith('something');
+    expect(commands[0].stdin?.write).not.toHaveBeenCalled();
+    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(1);
+    expect(commands[1].stdin?.write).toHaveBeenCalledWith('something');
 });
 
 it('forwards input stream to target index specified in input when input contains colon', () => {
@@ -66,10 +66,10 @@ it('forwards input stream to target index specified in input when input contains
     inputStream.emit('data', Buffer.from('1::something'));
     inputStream.emit('data', Buffer.from('1:some:thing'));
 
-    expect(commands[0].stdin.write).not.toHaveBeenCalled();
-    expect(commands[1].stdin.write).toHaveBeenCalledTimes(2);
-    expect(commands[1].stdin.write).toHaveBeenCalledWith(':something');
-    expect(commands[1].stdin.write).toHaveBeenCalledWith('some:thing');
+    expect(commands[0].stdin?.write).not.toHaveBeenCalled();
+    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(2);
+    expect(commands[1].stdin?.write).toHaveBeenCalledWith(':something');
+    expect(commands[1].stdin?.write).toHaveBeenCalledWith('some:thing');
 });
 
 it('forwards input stream to target name specified in input', () => {
@@ -77,18 +77,18 @@ it('forwards input stream to target name specified in input', () => {
 
     inputStream.write('bar:something');
 
-    expect(commands[0].stdin.write).not.toHaveBeenCalled();
-    expect(commands[1].stdin.write).toHaveBeenCalledTimes(1);
-    expect(commands[1].stdin.write).toHaveBeenCalledWith('something');
+    expect(commands[0].stdin?.write).not.toHaveBeenCalled();
+    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(1);
+    expect(commands[1].stdin?.write).toHaveBeenCalledWith('something');
 });
 
 it('logs error if command has no stdin open', () => {
-    commands[0].stdin = null;
+    commands[0].stdin = undefined;
     controller.handle(commands);
 
     inputStream.write('something');
 
-    expect(commands[1].stdin.write).not.toHaveBeenCalled();
+    expect(commands[1].stdin?.write).not.toHaveBeenCalled();
     expect(logger.logGlobalEvent).toHaveBeenCalledWith(
         'Unable to find command 0, or it has no stdin open\n'
     );
@@ -99,8 +99,8 @@ it('logs error if command is not found', () => {
 
     inputStream.write('foobar:something');
 
-    expect(commands[0].stdin.write).not.toHaveBeenCalled();
-    expect(commands[1].stdin.write).not.toHaveBeenCalled();
+    expect(commands[0].stdin?.write).not.toHaveBeenCalled();
+    expect(commands[1].stdin?.write).not.toHaveBeenCalled();
     expect(logger.logGlobalEvent).toHaveBeenCalledWith(
         'Unable to find command foobar, or it has no stdin open\n'
     );
@@ -112,7 +112,8 @@ it('pauses input stream when finished', () => {
     const { onFinish } = controller.handle(commands);
     expect(inputStream.readableFlowing).toBe(true);
 
-    onFinish();
+    expect(onFinish).toBeDefined();
+    onFinish?.();
     expect(inputStream.readableFlowing).toBe(false);
 });
 
@@ -124,6 +125,7 @@ it('does not pause input stream when pauseInputStreamOnFinish is set to false', 
     const { onFinish } = controller.handle(commands);
     expect(inputStream.readableFlowing).toBe(true);
 
-    onFinish();
+    expect(onFinish).toBeDefined();
+    onFinish?.();
     expect(inputStream.readableFlowing).toBe(true);
 });

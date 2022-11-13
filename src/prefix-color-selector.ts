@@ -13,7 +13,7 @@ function getConsoleColorsWithoutCustomColors(customColors: string[]): string[] {
 function* createColorGenerator(customColors: string[]): Generator<string, string> {
     // Custom colors should be used as is, except for "auto"
     const nextAutoColors: string[] = getConsoleColorsWithoutCustomColors(customColors);
-    let lastColor: string;
+    let lastColor: string | undefined;
     for (const customColor of customColors) {
         let currentColor = customColor;
         if (currentColor !== 'auto') {
@@ -25,7 +25,7 @@ function* createColorGenerator(customColors: string[]): Generator<string, string
                     // There could be more "auto" values than auto colors so this needs to be able to refill
                     nextAutoColors.push(...PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS);
                 }
-                currentColor = nextAutoColors.shift();
+                currentColor = String(nextAutoColors.shift());
             }
             yield currentColor; // Auto color
         }

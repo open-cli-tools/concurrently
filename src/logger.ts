@@ -124,7 +124,7 @@ export class Logger {
             color = chalk.hex(command.prefixColor);
         } else {
             const defaultColor = _.get(chalk, defaults.prefixColors, chalk.reset);
-            color = _.get(chalk, command.prefixColor, defaultColor);
+            color = _.get(chalk, command.prefixColor ?? '', defaultColor);
         }
         return color(text);
     }

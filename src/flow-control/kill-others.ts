@@ -8,7 +8,7 @@ import { FlowController } from './flow-controller';
 export type ProcessCloseCondition = 'failure' | 'success';
 
 /**
- * Sends a SIGTERM signal to all commands when one of the exits with a matching condition.
+ * Sends a SIGTERM signal to all commands when one of the commands exits with a matching condition.
  */
 export class KillOthers implements FlowController {
     private readonly logger: Logger;
