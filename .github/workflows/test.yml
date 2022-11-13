@@ -33,12 +33,8 @@ jobs:
           - 16
           - 17
         os:
-          - name: Ubuntu
-            version: ubuntu-latest
           - name: Windows
             version: windows-latest
-          - name: macOS
-            version: macOS-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
