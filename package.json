@@ -1,6 +1,6 @@
 {
   "name": "concurrently",
-  "version": "7.4.0",
+  "version": "7.5.0",
   "description": "Run commands concurrently",
   "main": "index.js",
   "types": "dist/src/index.d.ts",
