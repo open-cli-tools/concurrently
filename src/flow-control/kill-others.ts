@@ -45,7 +45,7 @@ export class KillOthers implements FlowController {
 
         closeStates.forEach((closeState) =>
             closeState.subscribe(() => {
-                const killableCommands = commands.filter((command) => command.killable);
+                const killableCommands = commands.filter((command) => Command.canKill(command));
                 if (killableCommands.length) {
                     this.logger.logGlobalEvent('Sending SIGTERM to other processes..');
                     killableCommands.forEach((command) => command.kill());
