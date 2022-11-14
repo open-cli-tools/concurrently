@@ -20,6 +20,7 @@ export class KillOnSignal implements FlowController {
         (['SIGINT', 'SIGTERM', 'SIGHUP'] as NodeJS.Signals[]).forEach((signal) => {
             this.process.on(signal, () => {
                 caughtSignal = signal;
+                console.log('Main - Caught signal: ', caughtSignal);
                 commands.forEach((command) => command.kill(signal));
             });
         });
@@ -28,6 +29,12 @@ export class KillOnSignal implements FlowController {
             commands: commands.map((command) => {
                 const closeStream = command.close.pipe(
                     map((exitInfo) => {
+                        console.log(
+                            `${command.command} - Caught signal: `,
+                            caughtSignal,
+                            ', exitInfo:',
+                            exitInfo
+                        );
                         const exitCode = caughtSignal === 'SIGINT' ? 0 : exitInfo.exitCode;
                         return { ...exitInfo, exitCode };
                     })
