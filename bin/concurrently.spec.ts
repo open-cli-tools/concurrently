@@ -12,13 +12,13 @@ import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
 
 const isWindows = process.platform === 'win32';
-const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT') => {
+const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string) => {
     const map: Record<string, string | number> = {
         SIGTERM: isWindows ? 1 : '(SIGTERM|143)',
         // Could theoretically be anything (e.g. 0) if process has SIGINT handler
         SIGINT: isWindows ? '(3221225786|0)' : '(SIGINT|130|0)',
     };
-    return new RegExp(escapeRegExp(prefix) + ' exited with code ' + map[signal]);
+    return new RegExp(escapeRegExp(prefix) + ' exited with code ' + (map[signal] ?? signal));
 };
 
 let tmpDir: string;
@@ -193,7 +193,10 @@ describe('exiting conditions', () => {
                         ? // '^C' is echoed by read-echo.js (also happens without the wrapper)
                           '[0] ^Cnode fixtures/read-echo.js'
                         : '[0] node fixtures/read-echo.js',
-                    'SIGINT'
+                    // TODO: Flappy value due to race condition, sometimes killed by concurrently (exit code 1),
+                    //       sometimes terminated on its own (exit code 0).
+                    //       Related issue: https://github.com/open-cli-tools/concurrently/issues/283
+                    isWindows ? '(3221225786|0|1)' : 'SIGINT'
                 )
             )
         );
