@@ -48,27 +48,7 @@ jobs:
         uses: ./.github/actions/setup-npm-cache
 
       - name: Install dependencies
-        run: npm ci && npm install --global concurrently
+        run: npm ci
 
-      - name: Build & Test
-        run: concurrently --prefix none --group "npm:build" "npm:test"
-
-      - name: Submit coverage
-        uses: coverallsapp/github-action@master
-        continue-on-error: true
-        with:
-          github-token: ${{ secrets.github_token }}
-          flag-name: Node.js ${{ matrix.node }} on ${{ matrix.os.name }}
-          parallel: true
-
-  coverage:
-    name: Coverage
-    needs: test
-    runs-on: ubuntu-latest
-    continue-on-error: true
-    steps:
-      - name: Finish coverage
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.github_token }}
-          parallel-finished: true
+      - name: Test
+        run: npx jest --coverage=false bin/concurrently.spec.ts
