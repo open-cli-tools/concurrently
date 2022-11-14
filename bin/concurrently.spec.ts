@@ -186,7 +186,7 @@ describe('exiting conditions', () => {
         const exit = await child.exit;
 
         // eslint-disable-next-line no-console
-        console.log('Wrapper exited: ', exit);
+        console.log('concurrently exited with: ', exit);
 
         expect(exit.code).toBe(0);
         expect(lines).toContainEqual(

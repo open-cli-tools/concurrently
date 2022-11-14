@@ -153,6 +153,8 @@ export class Command implements CommandInfo {
         });
         Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'close').subscribe(
             ([exitCode, signal]) => {
+                // eslint-disable-next-line no-console
+                console.log(`${this.command} exited with code '${exitCode}', signal '${signal}'`);
                 this.process = undefined;
                 this.exited = true;
 
