@@ -185,13 +185,17 @@ describe('exiting conditions', () => {
         const lines = await child.getLogLines();
         const exit = await child.exit;
 
+        // eslint-disable-next-line no-console
+        console.log('Wrapper exited: ', exit);
+
         expect(exit.code).toBe(0);
         expect(lines).toContainEqual(
             expect.stringMatching(
                 createKillMessage(
                     isWindows
                         ? // '^C' is echoed by read-echo.js (also happens without the wrapper)
-                          '[0] ^Cnode fixtures/read-echo.js'
+                          //'[0] ^Cnode fixtures/read-echo.js'
+                          '[0] node fixtures/read-echo.js'
                         : '[0] node fixtures/read-echo.js',
                     'SIGINT'
                 )
