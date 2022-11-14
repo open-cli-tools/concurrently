@@ -18,7 +18,7 @@ const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string
         // Could theoretically be anything (e.g. 0) if process has SIGINT handler
         SIGINT: isWindows ? '(3221225786|0)' : '(SIGINT|130|0)',
     };
-    return new RegExp(escapeRegExp(prefix) + ' exited with code ' + map[signal] ?? signal);
+    return new RegExp(escapeRegExp(prefix) + ' exited with code ' + (map[signal] ?? signal));
 };
 
 let tmpDir: string;
