@@ -15,7 +15,7 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 - [concurrently](#concurrently)
   - [Why](#why)
-  - [Install](#install)
+  - [Installation](#installation)
   - [Usage](#usage)
   - [API](#api)
     - [`concurrently(commands[, options])`](#concurrentlycommands-options)
@@ -41,24 +41,21 @@ tired of opening terminals and made **concurrently**.
 - With `--kill-others` switch, all commands are killed if one dies
 - Spawns commands with [spawn-command](https://github.com/mmalecki/spawn-command)
 
-## Install
+## Installation
 
-The tool is written in Node.js, but you can use it to run **any** commands.
+**concurrently** can be installed in the global scope (if you'd like to have it available and use it on the whole system) or locally for a specific package (for example if you'd like to use it in the `scripts` section of your package):
 
-```bash
-npm install -g concurrently
-```
-
-or if you are using it from npm scripts:
-
-```bash
-npm install concurrently --save-dev
-```
+|            | npm                     | Yarn                           | pnpm                       |
+| ---------- | ----------------------- | ------------------------------ | -------------------------- |
+| **Global** | `npm i -g concurrently` | `yarn global add concurrently` | `pnpm add -g concurrently` |
+| **Local**  | `npm i concurrently -D` | `yarn add concurrently -D`     | `pnpm add -D concurrently` |
 
 ## Usage
 
 > **Note**
 > The `concurrently` command is now also available under the shorthand alias `conc`.
+
+The tool is written in Node.js, but you can use it to run **any** commands.
 
 Remember to surround separate commands with quotes:
 
