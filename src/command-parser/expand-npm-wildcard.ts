@@ -44,7 +44,9 @@ export class ExpandNpmWildcard implements CommandParser {
         const preWildcard = _.escapeRegExp(cmdNameSansOmission.slice(0, wildcardPosition));
         const postWildcard = _.escapeRegExp(cmdNameSansOmission.slice(wildcardPosition + 1));
         const wildcardRegex = new RegExp(`^${preWildcard}(.*?)${postWildcard}$`);
-        const currentName = commandInfo.name || '';
+        // If 'commandInfo.name' doesn't match 'cmdName', this means a custom name
+        // has been specified and thus becomes the prefix (as described in the README).
+        const prefix = commandInfo.name !== cmdName ? commandInfo.name : '';
 
         return this.scripts
             .map((script) => {
@@ -62,9 +64,9 @@ export class ExpandNpmWildcard implements CommandParser {
                     return {
                         ...commandInfo,
                         command: `${npmCmd} run ${script}${args}`,
-                        // Will use an empty command name if command has no name and the wildcard match is empty,
-                        // e.g. if `npm:watch-*` matches `npm run watch-`.
-                        name: currentName + match[1],
+                        // Will use an empty command name if no prefix has been specified and
+                        // the wildcard match is empty, e.g. if `npm:watch-*` matches `npm run watch-`.
+                        name: prefix + match[1],
                     };
                 }
             })
