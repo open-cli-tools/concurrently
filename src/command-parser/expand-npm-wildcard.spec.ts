@@ -83,6 +83,25 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
             ]);
         });
 
+        it('uses wildcard match of script as command name', () => {
+            readPkg.mockReturnValue({
+                scripts: {
+                    'watch-js': '',
+                    'watch-css': '',
+                },
+            });
+
+            expect(
+                parser.parse({
+                    name: '',
+                    command: `${npmCmd} run watch-*`,
+                })
+            ).toEqual([
+                { name: 'js', command: `${npmCmd} run watch-js` },
+                { name: 'css', command: `${npmCmd} run watch-css` },
+            ]);
+        });
+
         it('uses existing command name as prefix to the wildcard match', () => {
             readPkg.mockReturnValue({
                 scripts: {
