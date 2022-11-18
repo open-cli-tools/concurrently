@@ -45,10 +45,12 @@ tired of opening terminals and made **concurrently**.
 
 **concurrently** can be installed in the global scope (if you'd like to have it available and use it on the whole system) or locally for a specific package (for example if you'd like to use it in the `scripts` section of your package):
 
-|            | npm                     | Yarn                           | pnpm                       |
-| ---------- | ----------------------- | ------------------------------ | -------------------------- |
-| **Global** | `npm i -g concurrently` | `yarn global add concurrently` | `pnpm add -g concurrently` |
-| **Local**  | `npm i concurrently -D` | `yarn add concurrently -D`     | `pnpm add -D concurrently` |
+|             | npm                     | Yarn                           | pnpm                       |
+| ----------- | ----------------------- | ------------------------------ | -------------------------- |
+| **Global**  | `npm i -g concurrently` | `yarn global add concurrently` | `pnpm add -g concurrently` |
+| **Local***  | `npm i concurrently -D` | `yarn add concurrently -D`     | `pnpm add -D concurrently` |
+
+<sub>* It's recommended to add **concurrently** as `devDependencies` as it's usually only used for developing purposes. Please change this flag if it doesn't apply in your case.</sub>
 
 ## Usage
 
