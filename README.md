@@ -3,7 +3,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/open-cli-tools/concurrently?label=Release)](https://github.com/open-cli-tools/concurrently/releases)
 [![License](https://img.shields.io/github/license/open-cli-tools/concurrently?label=License)](https://github.com/open-cli-tools/concurrently/blob/main/LICENSE)
 [![Weekly Downloads on NPM](https://img.shields.io/npm/dw/concurrently?label=Downloads&logo=npm)](https://www.npmjs.com/package/concurrently)
-[![CI Status](https://img.shields.io/github/workflow/status/open-cli-tools/concurrently/CI?label=CI&logo=github)](https://github.com/open-cli-tools/concurrently/actions/workflows/ci.yml)
+[![CI Status](https://img.shields.io/github/workflow/status/open-cli-tools/concurrently/Test?label=CI&logo=github)](https://github.com/open-cli-tools/concurrently/actions/workflows/test.yml)
 [![Coverage Status](https://img.shields.io/coveralls/github/open-cli-tools/concurrently/main?label=Coverage&logo=coveralls)](https://coveralls.io/github/open-cli-tools/concurrently?branch=main)
 
 Run multiple commands concurrently.
