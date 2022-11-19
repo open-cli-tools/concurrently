@@ -1,6 +1,6 @@
 <!--
 
-  >> Before opening a new issue, please ensure there's no 
+  >> Before opening a new issue, please ensure there's no
   >> existing issue with the same concern!
 
   For bug reports, please provide the following information:
