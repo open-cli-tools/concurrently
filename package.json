@@ -29,7 +29,7 @@
     "format:fix": "npm run format -- --write",
     "lint": "eslint . --ext mjs,js,ts --ignore-path .gitignore",
     "lint:fix": "npm run lint -- --fix",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "safe-publish-latest && npm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"
   },
@@ -84,6 +84,7 @@
     "jest-create-mock-instance": "^2.0.0",
     "lint-staged": "^12.4.1",
     "prettier": "^2.6.2",
+    "safe-publish-latest": "^2.0.0",
     "simple-git-hooks": "^2.7.0",
     "string-argv": "^0.3.1",
     "typescript": "~4.9.3"

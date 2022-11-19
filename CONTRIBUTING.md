@@ -17,12 +17,8 @@ Please fix them and then run the commit command again.
 
 ## Test
 
-Tests can be run with the command:
+Tests can be executed with the following command:
 
 ```bash
 npm test
 ```
-
-## Release
-
-Use [np](https://www.npmjs.com/package/np) to create a new release.
