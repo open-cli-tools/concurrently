@@ -25,9 +25,9 @@
     "build": "tsc --build",
     "postbuild": "chmod +x dist/bin/concurrently.js",
     "clean": "tsc --build --clean",
-    "format": "prettier --ignore-path .gitignore --check '**/{!(package-lock).json,*.y?(a)ml,*.md}'",
+    "format": "prettier --check '**/*.{json,y?(a)ml,md}'",
     "format:fix": "npm run format -- --write",
-    "lint": "eslint . --ext mjs,js,ts --ignore-path .gitignore",
+    "lint": "eslint --ignore-path .gitignore --ext mjs,js,ts .",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
@@ -101,6 +101,6 @@
   },
   "lint-staged": {
     "*.m?{js,ts}": "eslint --fix",
-    "{!(package-lock).json,*.{y?(a)ml,md}}": "prettier --write"
+    "*.{json,y?(a)ml,md}": "prettier --write"
   }
 }
