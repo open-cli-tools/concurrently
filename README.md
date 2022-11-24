@@ -25,7 +25,7 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 ## Why
 
-I like [task automation with npm](https://foundingstack.com/posts/2-automation-using-npm-run-command-by-james-halliday)
+I like [task automation with npm](https://web.archive.org/web/20220531064025/https://github.com/substack/blog/blob/master/npm_run.markdown)
 but the usual way to run multiple commands concurrently is
 `npm run watch-js & npm run watch-css`. That's fine but it's hard to keep
 on track of different outputs. Also if one process fails, others still keep running
