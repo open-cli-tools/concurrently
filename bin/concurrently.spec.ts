@@ -37,7 +37,7 @@ beforeAll(async () => {
 afterAll(() => {
     // Remove the temporary directory where 'concurrently' was stored
     if (tmpDir) {
-        fs.rmdirSync(tmpDir, { recursive: true });
+        fs.rmSync(tmpDir, { recursive: true });
     }
 });
 
