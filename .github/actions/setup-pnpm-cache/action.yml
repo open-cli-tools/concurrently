@@ -5,7 +5,7 @@ runs:
   using: composite
   steps:
     - name: Install pnpm
-      uses: pnpm/action-setup@v2.2.2
+      uses: pnpm/action-setup@v2
 
     - name: Get pnpm store directory
       id: pnpm-cache-dir
