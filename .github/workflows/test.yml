@@ -31,6 +31,7 @@ jobs:
           - 14
           - 16
           - 18
+          - 19
         os:
           - name: Ubuntu
             version: ubuntu-latest
