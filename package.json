@@ -10,7 +10,7 @@
     "conc": "./dist/bin/concurrently.js"
   },
   "engines": {
-    "node": ">=14.13.0"
+    "node": "^14.13.0 || >=16.0.0"
   },
   "exports": {
     ".": {
