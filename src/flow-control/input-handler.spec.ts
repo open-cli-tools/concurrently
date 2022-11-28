@@ -67,13 +67,15 @@ it('forwards input stream to target index specified in input', () => {
 it('forwards input stream to target index specified in input when input contains colon', () => {
     controller.handle(commands);
 
-    inputStream.emit('data', Buffer.from('1: :something'));
     inputStream.emit('data', Buffer.from('1:some:thing'));
+    inputStream.emit('data', Buffer.from('1: :something'));
+    inputStream.emit('data', Buffer.from('1::something')); // double colon is NOT forwarded
 
-    expect(commands[0].stdin?.write).not.toHaveBeenCalled();
+    expect(commands[0].stdin?.write).toHaveBeenCalledTimes(1);
+    expect(commands[0].stdin?.write).toHaveBeenCalledWith('1::something');
     expect(commands[1].stdin?.write).toHaveBeenCalledTimes(2);
-    expect(commands[1].stdin?.write).toHaveBeenCalledWith(' :something');
     expect(commands[1].stdin?.write).toHaveBeenCalledWith('some:thing');
+    expect(commands[1].stdin?.write).toHaveBeenCalledWith(' :something');
 });
 
 it('does not forward input stream when input contains colon in a different format', () => {
@@ -83,17 +85,19 @@ it('does not forward input stream when input contains colon in a different forma
     inputStream.emit('data', Buffer.from('1:Ruby1::Const::Syntax'));
     inputStream.emit('data', Buffer.from('ruby_symbol_arg :my_symbol'));
     inputStream.emit('data', Buffer.from('ruby_symbol_arg(:my_symbol)'));
-    inputStream.emit('data', Buffer.from('{foo: :bar}'));
-    inputStream.emit('data', Buffer.from('{:foo=>:bar}'));
+    inputStream.emit('data', Buffer.from('{ruby_key: :my_val}'));
+    inputStream.emit('data', Buffer.from('{:ruby_key=>:my_val}'));
+    inputStream.emit('data', Buffer.from('js_obj = {key: "my_val"}'));
 
     expect(commands[1].stdin?.write).toHaveBeenCalledTimes(1);
     expect(commands[1].stdin?.write).toHaveBeenCalledWith('Ruby1::Const::Syntax');
-    expect(commands[0].stdin?.write).toHaveBeenCalledTimes(5);
+    expect(commands[0].stdin?.write).toHaveBeenCalledTimes(6);
     expect(commands[0].stdin?.write).toHaveBeenCalledWith('Ruby0::Const::Syntax');
     expect(commands[0].stdin?.write).toHaveBeenCalledWith('ruby_symbol_arg :my_symbol');
     expect(commands[0].stdin?.write).toHaveBeenCalledWith('ruby_symbol_arg(:my_symbol)');
-    expect(commands[0].stdin?.write).toHaveBeenCalledWith('{foo: :bar}');
-    expect(commands[0].stdin?.write).toHaveBeenCalledWith('{:foo=>:bar}');
+    expect(commands[0].stdin?.write).toHaveBeenCalledWith('{ruby_key: :my_val}');
+    expect(commands[0].stdin?.write).toHaveBeenCalledWith('{:ruby_key=>:my_val}');
+    expect(commands[0].stdin?.write).toHaveBeenCalledWith('js_obj = {key: "my_val"}');
 });
 
 it('forwards input stream to target name specified in input', () => {
