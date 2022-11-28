@@ -57,11 +57,11 @@ export class InputHandler implements FlowController {
         Rx.fromEvent(inputStream, 'data')
             .pipe(map((data) => String(data)))
             .subscribe((data) => {
-                const dataMatch = data.match(/^\s*([\w-]+):(?!:)(.+)$/);
-                const targetId = dataMatch ? dataMatch[1] : this.defaultInputTarget;
+                const dataMatch = data.match(/^\s*([\w-]+):(?!:)(.+)$/s);
+                const targetId = dataMatch ? dataMatch[1] : this.defaultInputTarget.toString();
                 const input = dataMatch ? dataMatch[2] : data;
 
-                const command = commandsMap.get(targetId.toString());
+                const command = commandsMap.get(targetId);
 
                 if (command && command.stdin) {
                     command.stdin.write(input);
