@@ -48,18 +48,20 @@ export class InputHandler implements FlowController {
             return { commands };
         }
 
+        const commandsMap = new Map<string, Command>();
+        for (const command of commands) {
+            commandsMap.set(command.index.toString(), command);
+            commandsMap.set(command.name, command);
+        }
+
         Rx.fromEvent(inputStream, 'data')
             .pipe(map((data) => String(data)))
             .subscribe((data) => {
-                const dataParts = data.split(/:(.+)/);
-                const targetId = dataParts.length > 1 ? dataParts[0] : this.defaultInputTarget;
-                const input = dataParts[1] || data;
+                const dataMatch = data.match(/^\s*([\w-]+):(?!:)(.+)$/);
+                const targetId = dataMatch ? dataMatch[1] : this.defaultInputTarget;
+                const input = dataMatch ? dataMatch[2] : data;
 
-                const command = commands.find(
-                    (command) =>
-                        command.name === targetId ||
-                        command.index.toString() === targetId.toString()
-                );
+                const command = commandsMap.get(targetId.toString());
 
                 if (command && command.stdin) {
                     command.stdin.write(input);

@@ -54,22 +54,40 @@ it('forwards input stream to target index specified in input', () => {
     controller.handle(commands);
 
     inputStream.write('1:something');
+    inputStream.write(' 1:ignore_leading_whitespace');
 
     expect(commands[0].stdin?.write).not.toHaveBeenCalled();
-    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(1);
+    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(2);
     expect(commands[1].stdin?.write).toHaveBeenCalledWith('something');
+    expect(commands[1].stdin?.write).toHaveBeenCalledWith('ignore_leading_whitespace');
 });
 
 it('forwards input stream to target index specified in input when input contains colon', () => {
     controller.handle(commands);
 
-    inputStream.emit('data', Buffer.from('1::something'));
+    inputStream.emit('data', Buffer.from('1: :something'));
     inputStream.emit('data', Buffer.from('1:some:thing'));
 
     expect(commands[0].stdin?.write).not.toHaveBeenCalled();
     expect(commands[1].stdin?.write).toHaveBeenCalledTimes(2);
-    expect(commands[1].stdin?.write).toHaveBeenCalledWith(':something');
+    expect(commands[1].stdin?.write).toHaveBeenCalledWith(' :something');
     expect(commands[1].stdin?.write).toHaveBeenCalledWith('some:thing');
+});
+
+it('does not forward input stream when input contains colon in a different format', () => {
+    controller.handle(commands);
+
+    inputStream.emit('data', Buffer.from('Ruby0::Const::Syntax'));
+    inputStream.emit('data', Buffer.from('1:Ruby1::Const::Syntax'));
+    inputStream.emit('data', Buffer.from('ruby_keyword_arg(foo: :bar)'));
+    inputStream.emit('data', Buffer.from('ruby_hash = { foo: :bar }'));
+
+    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(1);
+    expect(commands[1].stdin?.write).toHaveBeenCalledWith('Ruby1::Const::Syntax');
+    expect(commands[0].stdin?.write).toHaveBeenCalledTimes(3);
+    expect(commands[0].stdin?.write).toHaveBeenCalledWith('Ruby0::Const::Syntax');
+    expect(commands[0].stdin?.write).toHaveBeenCalledWith('ruby_keyword_arg(foo: :bar)');
+    expect(commands[0].stdin?.write).toHaveBeenCalledWith('ruby_hash = { foo: :bar }');
 });
 
 it('forwards input stream to target name specified in input', () => {
