@@ -14,6 +14,7 @@ import stringArgv from 'string-argv';
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGKILL' | 'SIGTERM' | 'SIGINT' | string) => {
     const map: Record<string, string | number> = {
+        SIGKILL: isWindows ? 1 : '(SIGKILL|137)',
         SIGTERM: isWindows ? 1 : '(SIGTERM|143)',
         // Could theoretically be anything (e.g. 0) if process has SIGINT handler
         SIGINT: isWindows ? '(3221225786|0)' : '(SIGINT|130|0)',
