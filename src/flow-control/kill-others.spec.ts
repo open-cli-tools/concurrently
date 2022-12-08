@@ -46,7 +46,7 @@ it('kills other killable processes on success', () => {
     commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
 
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
-    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
+    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGKILL to other processes..');
     expect(commands[0].kill).not.toHaveBeenCalled();
     expect(commands[1].kill).toHaveBeenCalled();
 });
@@ -67,7 +67,7 @@ it('kills other killable processes on failure', () => {
     commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
 
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
-    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
+    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGKILL to other processes..');
     expect(commands[0].kill).not.toHaveBeenCalled();
     expect(commands[1].kill).toHaveBeenCalled();
 });
