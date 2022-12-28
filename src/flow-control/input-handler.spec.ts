@@ -69,13 +69,13 @@ it('forwards input stream to target index specified in input when input contains
 
     inputStream.emit('data', Buffer.from('1:some:thing'));
     inputStream.emit('data', Buffer.from('1: :something'));
-    inputStream.emit('data', Buffer.from('1::something')); // double colon is NOT forwarded
+    inputStream.emit('data', Buffer.from('1::something'));
 
-    expect(commands[0].stdin?.write).toHaveBeenCalledTimes(1);
-    expect(commands[0].stdin?.write).toHaveBeenCalledWith('1::something');
-    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(2);
+    expect(commands[0].stdin?.write).not.toHaveBeenCalled();
+    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(3);
     expect(commands[1].stdin?.write).toHaveBeenCalledWith('some:thing');
     expect(commands[1].stdin?.write).toHaveBeenCalledWith(' :something');
+    expect(commands[1].stdin?.write).toHaveBeenCalledWith(':something');
 });
 
 it('does not forward input stream when input contains colon in a different format', () => {
@@ -118,20 +118,19 @@ it('logs error if command has no stdin open', () => {
 
     expect(commands[1].stdin?.write).not.toHaveBeenCalled();
     expect(logger.logGlobalEvent).toHaveBeenCalledWith(
-        'Unable to find command 0, or it has no stdin open\n'
+        'Unable to find command "0", or it has no stdin open\n'
     );
 });
 
-it('logs error if command is not found', () => {
+it('fallback to default input stream if command is not found', () => {
     controller.handle(commands);
 
     inputStream.write('foobar:something');
 
-    expect(commands[0].stdin?.write).not.toHaveBeenCalled();
+    expect(commands[0].stdin?.write).toHaveBeenCalledTimes(1);
+    expect(commands[0].stdin?.write).toHaveBeenCalledWith('foobar:something');
     expect(commands[1].stdin?.write).not.toHaveBeenCalled();
-    expect(logger.logGlobalEvent).toHaveBeenCalledWith(
-        'Unable to find command foobar, or it has no stdin open\n'
-    );
+    expect(logger.logGlobalEvent).not.toHaveBeenCalled();
 });
 
 it('pauses input stream when finished', () => {

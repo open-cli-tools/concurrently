@@ -7,6 +7,8 @@ import * as defaults from '../defaults';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 
+const LINE_COMMAND_REGEX = /^\s*([\w-]+):(.+)$/s;
+
 /**
  * Sends input from concurrently through to commands.
  *
@@ -57,17 +59,26 @@ export class InputHandler implements FlowController {
         Rx.fromEvent(inputStream, 'data')
             .pipe(map((data) => String(data)))
             .subscribe((data) => {
-                const dataMatch = data.match(/^\s*([\w-]+):(?!:)(.+)$/s);
-                const targetId = dataMatch ? dataMatch[1] : this.defaultInputTarget.toString();
-                const input = dataMatch ? dataMatch[2] : data;
+                let command: Command | undefined, targetId: string, input: string;
 
-                const command = commandsMap.get(targetId);
+                const dataMatch = data.match(LINE_COMMAND_REGEX);
+                if (dataMatch && (command = commandsMap.get(dataMatch[1]))) {
+                    targetId = dataMatch[1];
+                    input = dataMatch[2];
+                } else {
+                    // if the `targetId` matched by the Regex does not match a registered command,
+                    // don't log an error, just fallback to `defaultInputTarget`
+
+                    targetId = this.defaultInputTarget.toString();
+                    input = data;
+                    command = commandsMap.get(targetId);
+                }
 
                 if (command && command.stdin) {
                     command.stdin.write(input);
                 } else {
                     this.logger.logGlobalEvent(
-                        `Unable to find command ${targetId}, or it has no stdin open\n`
+                        `Unable to find command "${targetId}", or it has no stdin open\n`
                     );
                 }
             });
