@@ -29,7 +29,7 @@
     "format:fix": "pnpm run format --write",
     "lint": "eslint --ignore-path .gitignore --ext mjs,js,ts .",
     "lint:fix": "pnpm run lint --fix",
-    "prepublishOnly": "safe-publish-latest && pnpm run build",
+    "prepublishOnly": "safe-publish-latest --force-in-publish && pnpm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"
   },
