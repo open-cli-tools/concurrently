@@ -1,5 +1,5 @@
 /*
- * While in local development, make sure you've run `npm run build` first.
+ * While in local development, make sure you've run `pnpm run build` first.
  */
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
