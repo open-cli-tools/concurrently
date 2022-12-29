@@ -98,7 +98,7 @@
     "!**/*.spec.d.ts"
   ],
   "simple-git-hooks": {
-    "pre-commit": "pnpm dlx lint-staged"
+    "pre-commit": "pnpm exec lint-staged"
   },
   "lint-staged": {
     "*.m?{js,ts}": "eslint --fix",
