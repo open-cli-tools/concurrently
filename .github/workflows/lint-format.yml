@@ -25,11 +25,11 @@ jobs:
         with:
           node-version: 16
 
-      - name: Setup NPM cache
-        uses: ./.github/actions/setup-npm-cache
+      - name: Setup pnpm
+        uses: ./.github/actions/setup-pnpm
 
       - name: Install dependencies
-        run: npm ci && npm install --global concurrently
+        run: pnpm install && pnpm add --global concurrently
 
       - name: Lint & Format
-        run: concurrently --prefix none --group "npm:lint" "npm:format"
+        run: concurrently --prefix none --group "pnpm:lint" "pnpm:format"

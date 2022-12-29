@@ -26,10 +26,10 @@
     "postbuild": "chmod +x dist/bin/concurrently.js",
     "clean": "tsc --build --clean",
     "format": "prettier --check '**/*.{json,y?(a)ml,md}'",
-    "format:fix": "npm run format -- --write",
+    "format:fix": "pnpm run format --write",
     "lint": "eslint --ignore-path .gitignore --ext mjs,js,ts .",
-    "lint:fix": "npm run lint -- --fix",
-    "prepublishOnly": "safe-publish-latest && npm run build",
+    "lint:fix": "pnpm run lint --fix",
+    "prepublishOnly": "safe-publish-latest --force-in-publish && pnpm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest"
   },
@@ -98,7 +98,7 @@
     "!**/*.spec.d.ts"
   ],
   "simple-git-hooks": {
-    "pre-commit": "npx lint-staged"
+    "pre-commit": "pnpm dlx lint-staged"
   },
   "lint-staged": {
     "*.m?{js,ts}": "eslint --fix",
