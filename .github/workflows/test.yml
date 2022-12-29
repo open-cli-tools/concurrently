@@ -48,8 +48,8 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Setup PNPM cache
-        uses: ./.github/actions/setup-pnpm-cache
+      - name: Setup pnpm
+        uses: ./.github/actions/setup-pnpm
 
       - name: Install dependencies
         run: pnpm install && pnpm add --global concurrently

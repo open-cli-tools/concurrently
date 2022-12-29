@@ -1,11 +1,13 @@
 # See also https://github.com/actions/cache/blob/main/examples.md#node---npm
 
-name: Setup PNPM cache
+name: Setup pnpm
 runs:
   using: composite
   steps:
     - name: Install pnpm
       uses: pnpm/action-setup@v2
+      with:
+        version: 7
 
     - name: Get pnpm store directory
       id: pnpm-cache-dir
