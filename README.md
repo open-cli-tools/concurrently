@@ -48,9 +48,9 @@ tired of opening terminals and made **concurrently**.
 |             | npm                     | Yarn                           | pnpm                       |
 | ----------- | ----------------------- | ------------------------------ | -------------------------- |
 | **Global**  | `npm i -g concurrently` | `yarn global add concurrently` | `pnpm add -g concurrently` |
-| **Local**\* | `npm i concurrently -D` | `yarn add concurrently -D`     | `pnpm add -D concurrently` |
+| **Local**\* | `npm i -D concurrently` | `yarn add -D concurrently`     | `pnpm add -D concurrently` |
 
-<sub>\* It's recommended to add **concurrently** as `devDependencies` as it's usually used for developing purposes. Please change this flag if this doesn't apply in your case.</sub>
+<sub>\* It's recommended to add **concurrently** to `devDependencies` as it's usually used for developing purposes. Please adjust the command if this doesn't apply in your case.</sub>
 
 ## Usage
 
