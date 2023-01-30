@@ -190,7 +190,7 @@ const args = yargs(argsBeforeSep)
     )
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
-    .group(['k', 'kill-others-on-fail'], 'Killing other processes')
+    .group(['k', 'kill-others-on-fail', 'kill-signal'], 'Killing other processes')
     .group(['restart-tries', 'restart-after'], 'Restarting')
     .epilogue(epilogue)
     .parseSync();
