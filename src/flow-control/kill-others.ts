@@ -13,16 +13,20 @@ export type ProcessCloseCondition = 'failure' | 'success';
 export class KillOthers implements FlowController {
     private readonly logger: Logger;
     private readonly conditions: ProcessCloseCondition[];
+    private readonly killSignal: string | undefined;
 
     constructor({
         logger,
         conditions,
+        killSignal,
     }: {
         logger: Logger;
         conditions: ProcessCloseCondition | ProcessCloseCondition[];
+        killSignal: string | undefined;
     }) {
         this.logger = logger;
         this.conditions = _.castArray(conditions);
+        this.killSignal = killSignal;
     }
 
     handle(commands: Command[]) {
@@ -47,8 +51,10 @@ export class KillOthers implements FlowController {
             closeState.subscribe(() => {
                 const killableCommands = commands.filter((command) => Command.canKill(command));
                 if (killableCommands.length) {
-                    this.logger.logGlobalEvent('Sending SIGTERM to other processes..');
-                    killableCommands.forEach((command) => command.kill());
+                    this.logger.logGlobalEvent(
+                        `Sending ${this.killSignal || 'SIGTERM'} to other processes..`
+                    );
+                    killableCommands.forEach((command) => command.kill(this.killSignal));
                 }
             })
         );

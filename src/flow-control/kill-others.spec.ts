@@ -23,6 +23,7 @@ const createWithConditions = (conditions: ProcessCloseCondition[]) =>
     new KillOthers({
         logger,
         conditions,
+        killSignal: undefined,
     });
 
 it('returns same commands', () => {

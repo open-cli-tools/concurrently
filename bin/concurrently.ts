@@ -110,6 +110,11 @@ const args = yargs(argsBeforeSep)
             describe: 'Kill other processes if one exits with non zero status code.',
             type: 'boolean',
         },
+        'kill-signal': {
+            alias: 'ks',
+            describe: 'Signal to send to other processes if one exits or dies.',
+            type: 'string',
+        },
 
         // Prefix
         prefix: {
@@ -208,6 +213,7 @@ concurrently(
             : args.killOthersOnFail
             ? ['failure']
             : [],
+        killSignal: args.killSignal,
         maxProcesses: args.maxProcesses,
         raw: args.raw,
         hide: args.hide.split(','),
