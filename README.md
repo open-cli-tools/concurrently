@@ -45,10 +45,10 @@ tired of opening terminals and made **concurrently**.
 
 **concurrently** can be installed in the global scope (if you'd like to have it available and use it on the whole system) or locally for a specific package (for example if you'd like to use it in the `scripts` section of your package):
 
-|             | npm                     | Yarn                           | pnpm                       |
-| ----------- | ----------------------- | ------------------------------ | -------------------------- |
-| **Global**  | `npm i -g concurrently` | `yarn global add concurrently` | `pnpm add -g concurrently` |
-| **Local**\* | `npm i -D concurrently` | `yarn add -D concurrently`     | `pnpm add -D concurrently` |
+|             | npm                     | Yarn                           | pnpm                       | Bun                       |
+| ----------- | ----------------------- | ------------------------------ | -------------------------- | ------------------------- |
+| **Global**  | `npm i -g concurrently` | `yarn global add concurrently` | `pnpm add -g concurrently` | `bun add -g concurrently` |
+| **Local**\* | `npm i -D concurrently` | `yarn add -D concurrently`     | `pnpm add -D concurrently` | `bun add -d concurrently` |
 
 <sub>\* It's recommended to add **concurrently** to `devDependencies` as it's usually used for developing purposes. Please adjust the command if this doesn't apply in your case.</sub>
 
@@ -427,6 +427,6 @@ It contains the following properties:
   So _null_ means the process didn't terminate normally. This will make **concurrently**
   to return non-zero exit code too.
 
-- Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn) or [pnpm](https://pnpm.js.org/)?
+- Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn), [pnpm](https://pnpm.js.org/), or [Bun](https://bun.sh/)?
 
-  Yes! In all examples above, you may replace "`npm`" with "`yarn`" or "`pnpm`".
+  Yes! In all examples above, you may replace "`npm`" with "`yarn`", "`pnpm`", or "`bun`".

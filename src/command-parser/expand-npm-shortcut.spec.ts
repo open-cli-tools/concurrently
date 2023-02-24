@@ -13,7 +13,7 @@ it('returns same command if no npm: prefix is present', () => {
     expect(parser.parse(commandInfo)).toBe(commandInfo);
 });
 
-for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
+for (const npmCmd of ['npm', 'yarn', 'pnpm', 'bun']) {
     describe(`with ${npmCmd}: prefix`, () => {
         it(`expands to "${npmCmd} run <script> <args>"`, () => {
             const commandInfo = createCommandInfo(`${npmCmd}:foo -- bar`, 'echo');
