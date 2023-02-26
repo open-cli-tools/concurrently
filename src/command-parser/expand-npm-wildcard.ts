@@ -7,7 +7,7 @@ import { CommandParser } from './command-parser';
 const OMISSION = /\(!([^)]+)\)/;
 
 /**
- * Finds wildcards in npm/yarn/pnpm run commands and replaces them with all matching scripts in the
+ * Finds wildcards in npm/yarn/pnpm/bun run commands and replaces them with all matching scripts in the
  * `package.json` file of the current directory.
  */
 export class ExpandNpmWildcard implements CommandParser {
@@ -26,7 +26,7 @@ export class ExpandNpmWildcard implements CommandParser {
 
     parse(commandInfo: CommandInfo) {
         const [, npmCmd, cmdName, args] =
-            commandInfo.command.match(/(npm|yarn|pnpm) run (\S+)([^&]*)/) || [];
+            commandInfo.command.match(/(npm|yarn|pnpm|bun) run (\S+)([^&]*)/) || [];
         const wildcardPosition = (cmdName || '').indexOf('*');
 
         // If the regex didn't match an npm script, or it has no wildcard,

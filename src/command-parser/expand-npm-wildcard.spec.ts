@@ -67,7 +67,7 @@ it('expands to nothing if no scripts exist in package.json', () => {
     expect(parser.parse(createCommandInfo('npm run foo-*-baz qux'))).toEqual([]);
 });
 
-for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
+for (const npmCmd of ['npm', 'yarn', 'pnpm', 'bun']) {
     describe(`with an ${npmCmd}: prefix`, () => {
         it('expands to all scripts matching pattern', () => {
             readPkg.mockReturnValue({
