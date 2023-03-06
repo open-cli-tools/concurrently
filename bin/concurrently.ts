@@ -112,8 +112,10 @@ const args = yargs(argsBeforeSep)
         },
         'kill-signal': {
             alias: 'ks',
-            describe: 'Signal to send to other processes if one exits or dies.',
+            describe:
+                'Signal to send to other processes if one exits or dies. (SIGTERM/SIGKILL, defaults to SIGTERM)',
             type: 'string',
+            default: defaults.killSignal,
         },
 
         // Prefix
