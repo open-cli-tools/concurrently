@@ -19,11 +19,11 @@ beforeEach(() => {
     logger = createMockInstance(Logger);
 });
 
-const createWithConditions = (conditions: ProcessCloseCondition[]) =>
+const createWithConditions = (conditions: ProcessCloseCondition[], killSignal?: string) =>
     new KillOthers({
         logger,
         conditions,
-        killSignal: undefined,
+        killSignal,
     });
 
 it('returns same commands', () => {
@@ -49,7 +49,18 @@ it('kills other killable processes on success', () => {
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
     expect(commands[0].kill).not.toHaveBeenCalled();
-    expect(commands[1].kill).toHaveBeenCalled();
+    expect(commands[1].kill).toHaveBeenCalledWith(undefined);
+});
+
+it('kills other killable processes on success, with specified signal', () => {
+    createWithConditions(['success'], 'SIGKILL').handle(commands);
+    commands[1].isKillable = true;
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
+
+    expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
+    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGKILL to other processes..');
+    expect(commands[0].kill).not.toHaveBeenCalled();
+    expect(commands[1].kill).toHaveBeenCalledWith('SIGKILL');
 });
 
 it('does nothing if called without conditions', () => {
@@ -70,7 +81,18 @@ it('kills other killable processes on failure', () => {
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
     expect(commands[0].kill).not.toHaveBeenCalled();
-    expect(commands[1].kill).toHaveBeenCalled();
+    expect(commands[1].kill).toHaveBeenCalledWith(undefined);
+});
+
+it('kills other killable processes on failure, with specified signal', () => {
+    createWithConditions(['failure'], 'SIGKILL').handle(commands);
+    commands[1].isKillable = true;
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+
+    expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
+    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGKILL to other processes..');
+    expect(commands[0].kill).not.toHaveBeenCalled();
+    expect(commands[1].kill).toHaveBeenCalledWith('SIGKILL');
 });
 
 it('does not try to kill processes already dead', () => {
