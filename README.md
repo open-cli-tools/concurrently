@@ -219,6 +219,8 @@ Killing other processes
   -k, --kill-others          Kill other processes if one exits or dies.[boolean]
       --kill-others-on-fail  Kill other processes if one exits with non zero
                              status code.                              [boolean]
+      --kill-signal          Signal to send to other processes if one exits or dies.
+                             (SIGTERM/SIGKILL, defaults to SIGTERM)    [string]
 
 Restarting
       --restart-tries  How many times a process that died should restart.
