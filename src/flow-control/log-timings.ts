@@ -9,13 +9,13 @@ import * as defaults from '../defaults';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 
-interface TimingInfo {
+type TimingInfo = {
     name: string;
     duration: string;
     'exit code': string | number;
     killed: boolean;
     command: string;
-}
+};
 
 /**
  * Logs timing information about commands as they start/stop and then a summary when all commands finish.
