@@ -32,6 +32,11 @@ export interface CommandInfo {
      * Color to use on prefix of the command.
      */
     prefixColor?: string;
+
+    /**
+     * Output command in raw format
+     */
+    raw?: boolean;
 }
 
 export interface CloseEvent {
