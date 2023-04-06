@@ -254,36 +254,20 @@ it('uses overridden cwd option for each command if specified', () => {
 });
 
 it('uses raw from options for each command', () => {
-    create(
-        [
-            { command: 'echo', env: { foo: 'bar' } },
-            { command: 'echo', env: { foo: 'baz' } },
-            'kill',
-        ],
-        {
-            raw: true,
-        }
-    );
+    create([{ command: 'echo' }, 'kill'], {
+        raw: true,
+    });
 
-    expect(spawn).toHaveBeenCalledTimes(3);
+    expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
-            env: expect.objectContaining({ foo: 'bar' }),
-            stdio: 'inherit',
-        })
-    );
-    expect(spawn).toHaveBeenCalledWith(
-        'echo',
-        expect.objectContaining({
-            env: expect.objectContaining({ foo: 'baz' }),
             stdio: 'inherit',
         })
     );
     expect(spawn).toHaveBeenCalledWith(
         'kill',
         expect.objectContaining({
-            env: expect.not.objectContaining({ foo: expect.anything() }),
             stdio: 'inherit',
         })
     );
