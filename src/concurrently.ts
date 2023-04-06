@@ -162,7 +162,7 @@ export function concurrently(
                     ...command,
                 },
                 getSpawnOpts({
-                    raw: command.raw !== undefined ? command.raw : options.raw,
+                    raw: command.raw ?? options.raw,
                     env: command.env,
                     cwd: command.cwd || options.cwd,
                 }),
