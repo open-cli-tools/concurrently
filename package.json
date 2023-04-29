@@ -14,10 +14,10 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/src/index.d.ts",
       "import": "./index.mjs",
       "require": "./index.js",
-      "default": "./index.js",
-      "types": "./dist/src/index.d.ts"
+      "default": "./index.js"
     },
     "./package.json": "./package.json"
   },
