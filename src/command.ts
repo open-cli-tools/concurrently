@@ -34,7 +34,7 @@ export interface CommandInfo {
     prefixColor?: string;
 
     /**
-     * Output command in raw format
+     * Output command in raw format.
      */
     raw?: boolean;
 }
