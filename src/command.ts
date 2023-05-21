@@ -102,6 +102,9 @@ export class Command implements CommandInfo {
     /** @inheritdoc */
     readonly env: Record<string, unknown>;
 
+    /** @inheritdoc */
+    readonly cwd?: string;
+
     readonly close = new Rx.Subject<CloseEvent>();
     readonly error = new Rx.Subject<unknown>();
     readonly stdout = new Rx.Subject<Buffer>();
@@ -120,7 +123,7 @@ export class Command implements CommandInfo {
     }
 
     constructor(
-        { index, name, command, prefixColor, env }: CommandInfo & { index: number },
+        { index, name, command, prefixColor, env, cwd }: CommandInfo & { index: number },
         spawnOpts: SpawnOptions,
         spawn: SpawnCommand,
         killProcess: KillProcess
@@ -130,6 +133,7 @@ export class Command implements CommandInfo {
         this.command = command;
         this.prefixColor = prefixColor;
         this.env = env || {};
+        this.cwd = cwd;
         this.killProcess = killProcess;
         this.spawn = spawn;
         this.spawnOpts = spawnOpts;
