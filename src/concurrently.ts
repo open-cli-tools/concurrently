@@ -162,7 +162,7 @@ export function concurrently(
                     ...command,
                 },
                 getSpawnOpts({
-                    raw: options.raw,
+                    raw: command.raw ?? options.raw,
                     env: command.env,
                     cwd: command.cwd || options.cwd,
                 }),
@@ -233,6 +233,11 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
         ...(command.prefixColor
             ? {
                   prefixColor: command.prefixColor,
+              }
+            : {}),
+        ...(command.raw !== undefined
+            ? {
+                  raw: command.raw,
               }
             : {}),
     };

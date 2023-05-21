@@ -340,7 +340,7 @@ For more details, visit https://github.com/open-cli-tools/concurrently
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
   - `raw`: whether raw mode should be used, meaning strictly process output will
-    be logged, without any prefixes, coloring or extra stuff.
+    be logged, without any prefixes, coloring or extra stuff. Can be overriden per command.
   - `successCondition`: the condition to consider the run was successful.
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.

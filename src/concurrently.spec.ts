@@ -253,6 +253,46 @@ it('uses overridden cwd option for each command if specified', () => {
     );
 });
 
+it('uses raw from options for each command', () => {
+    create([{ command: 'echo' }, 'kill'], {
+        raw: true,
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            stdio: 'inherit',
+        })
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            stdio: 'inherit',
+        })
+    );
+});
+
+it('uses overridden raw option for each command if specified', () => {
+    create([{ command: 'echo', raw: false }, { command: 'echo' }], {
+        raw: true,
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.not.objectContaining({
+            stdio: expect.anything(),
+        })
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            stdio: 'inherit',
+        })
+    );
+});
+
 it('argument placeholders are properly replaced when additional arguments are passed', () => {
     create(
         [
