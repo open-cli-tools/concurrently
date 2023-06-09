@@ -54,13 +54,11 @@ it('forwards input stream to target index specified in input', () => {
     controller.handle(commands);
 
     inputStream.write('1:something');
-    inputStream.write(' 1:ignore_leading_whitespace');
     inputStream.write('1:multi\nline\n');
 
     expect(commands[0].stdin?.write).not.toHaveBeenCalled();
-    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(3);
+    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(2);
     expect(commands[1].stdin?.write).toHaveBeenCalledWith('something');
-    expect(commands[1].stdin?.write).toHaveBeenCalledWith('ignore_leading_whitespace');
     expect(commands[1].stdin?.write).toHaveBeenCalledWith('multi\nline\n');
 });
 

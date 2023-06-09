@@ -7,8 +7,6 @@ import * as defaults from '../defaults';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
 
-const LINE_COMMAND_REGEX = /^\s*([\w-]+):(.+)$/s;
-
 /**
  * Sends input from concurrently through to commands.
  *
@@ -59,26 +57,26 @@ export class InputHandler implements FlowController {
         Rx.fromEvent(inputStream, 'data')
             .pipe(map((data) => String(data)))
             .subscribe((data) => {
-                let command: Command | undefined, targetId: string, input: string;
+                let command: Command | undefined, input: string;
 
-                const dataMatch = data.match(LINE_COMMAND_REGEX);
-                if (dataMatch && (command = commandsMap.get(dataMatch[1]))) {
-                    targetId = dataMatch[1];
-                    input = dataMatch[2];
+                const dataParts = data.split(/:(.+)/s);
+                let target = dataParts[0];
+
+                if (dataParts.length > 1 && (command = commandsMap.get(target))) {
+                    input = dataParts[1];
                 } else {
-                    // if the `targetId` matched by the Regex does not match a registered command,
-                    // don't log an error, just fallback to `defaultInputTarget`
-
-                    targetId = this.defaultInputTarget.toString();
+                    // If `target` does not match a registered command,
+                    // fallback to `defaultInputTarget` and forward the whole input data
+                    target = this.defaultInputTarget.toString();
+                    command = commandsMap.get(target);
                     input = data;
-                    command = commandsMap.get(targetId);
                 }
 
                 if (command && command.stdin) {
                     command.stdin.write(input);
                 } else {
                     this.logger.logGlobalEvent(
-                        `Unable to find command "${targetId}", or it has no stdin open\n`
+                        `Unable to find command "${target}", or it has no stdin open\n`
                     );
                 }
             });
