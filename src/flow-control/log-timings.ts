@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import formatDate from 'date-fns/format';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
-import { bufferCount, take } from 'rxjs/operators';
+import { bufferCount, combineLatestWith, take } from 'rxjs/operators';
 
 import { CloseEvent, Command } from '../command';
 import * as defaults from '../defaults';
@@ -97,11 +97,13 @@ export class LogTimings implements FlowController {
 
         // overall summary timings
         const closeStreams = commands.map((command) => command.close);
+        const finished = new Rx.Subject<void>();
         const allProcessesClosed = Rx.merge(...closeStreams).pipe(
             bufferCount(closeStreams.length),
-            take(1)
+            take(1),
+            combineLatestWith(finished)
         );
-        allProcessesClosed.subscribe((exitInfos) => this.printExitInfoTimingTable(exitInfos));
-        return { commands };
+        allProcessesClosed.subscribe(([exitInfos]) => this.printExitInfoTimingTable(exitInfos));
+        return { commands, onFinish: () => finished.next() };
     }
 }
