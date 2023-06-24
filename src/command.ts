@@ -150,14 +150,15 @@ export class Command implements CommandInfo {
         const highResStartTime = process.hrtime();
         this.timer.next({ startDate });
 
-        Rx.fromEvent<unknown>(child, 'error').subscribe((event) => {
+        Rx.fromEvent(child, 'error').subscribe((event) => {
             this.process = undefined;
             const endDate = new Date(Date.now());
             this.timer.next({ startDate, endDate });
             this.error.next(event);
         });
-        Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'close').subscribe(
-            ([exitCode, signal]) => {
+        Rx.fromEvent(child, 'close')
+            .pipe(Rx.map((event) => event as [number | null, NodeJS.Signals | null]))
+            .subscribe(([exitCode, signal]) => {
                 this.process = undefined;
                 this.exited = true;
 
@@ -175,10 +176,17 @@ export class Command implements CommandInfo {
                         durationSeconds: durationSeconds + durationNanoSeconds / 1e9,
                     },
                 });
-            }
-        );
-        child.stdout && pipeTo(Rx.fromEvent<Buffer>(child.stdout, 'data'), this.stdout);
-        child.stderr && pipeTo(Rx.fromEvent<Buffer>(child.stderr, 'data'), this.stderr);
+            });
+        child.stdout &&
+            pipeTo(
+                Rx.fromEvent(child.stdout, 'data').pipe(Rx.map((event) => event as Buffer)),
+                this.stdout
+            );
+        child.stderr &&
+            pipeTo(
+                Rx.fromEvent(child.stderr, 'data').pipe(Rx.map((event) => event as Buffer)),
+                this.stderr
+            );
         this.stdin = child.stdin || undefined;
     }
 
