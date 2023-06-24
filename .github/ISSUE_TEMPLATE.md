@@ -1,9 +1,12 @@
 <!--
 
+  >> Before opening a new issue, please ensure there's no
+  >> existing issue with the same concern!
+
   For bug reports, please provide the following information:
 
   - Description: Clear and concise description of what the bug is
-  - Expected Behavior: What you expected to happen (instead)
+  - Expected Behavior: What you expected to happen
   - Environment: At least the OS and version of "concurrently"
   - Reproduction: A way to reproduce the issue
 

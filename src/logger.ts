@@ -169,7 +169,7 @@ export class Logger {
      *
      * Each row is a single input item, and they are presented in the input order.
      */
-    logTable(tableContents: unknown[]) {
+    logTable(tableContents: Record<string, unknown>[]) {
         // For now, can only print array tables with some content.
         if (this.raw || !Array.isArray(tableContents) || !tableContents.length) {
             return;

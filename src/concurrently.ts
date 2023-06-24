@@ -111,6 +111,11 @@ export type ConcurrentlyOptions = {
     kill: KillProcess;
 
     /**
+     * Signal to send to killed processes.
+     */
+    killSignal?: string;
+
+    /**
      * List of additional arguments passed that will get replaced in each command.
      * If not defined, no argument replacing will happen.
      *
@@ -157,7 +162,7 @@ export function concurrently(
                     ...command,
                 },
                 getSpawnOpts({
-                    raw: options.raw,
+                    raw: command.raw ?? options.raw,
                     env: command.env,
                     cwd: command.cwd || options.cwd,
                 }),
@@ -228,6 +233,11 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
         ...(command.prefixColor
             ? {
                   prefixColor: command.prefixColor,
+              }
+            : {}),
+        ...(command.raw !== undefined
+            ? {
+                  raw: command.raw,
               }
             : {}),
     };

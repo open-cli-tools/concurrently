@@ -7,14 +7,10 @@
 
 /* eslint-disable no-console */
 
-async function run(s) {
-    await new Promise((resolve) => setTimeout(resolve, s * 1000));
-}
-
-const s = process.argv[2];
-if (!s || isNaN(s) || process.argv.length > 3) {
+const seconds = process.argv[2];
+if (!seconds || isNaN(seconds) || process.argv.length > 3) {
     // Mimic behavior from native 'sleep' command
-    console.error(`usage: sleep seconds`);
+    console.error('usage: sleep seconds');
     process.exit(1);
 }
-run(s);
+await new Promise((resolve) => setTimeout(resolve, seconds * 1000));

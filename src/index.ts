@@ -131,6 +131,7 @@ export default (
             new KillOthers({
                 logger,
                 conditions: options.killOthers || [],
+                killSignal: options.killSignal,
             }),
             new LogTimings({
                 logger: options.timings ? logger : undefined,

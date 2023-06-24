@@ -67,7 +67,7 @@ it('expands to nothing if no scripts exist in package.json', () => {
     expect(parser.parse(createCommandInfo('npm run foo-*-baz qux'))).toEqual([]);
 });
 
-for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
+for (const npmCmd of ['npm', 'yarn', 'pnpm', 'bun']) {
     describe(`with an ${npmCmd}: prefix`, () => {
         it('expands to all scripts matching pattern', () => {
             readPkg.mockReturnValue({
@@ -80,6 +80,25 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm']) {
             expect(parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`))).toEqual([
                 { name: 'bar', command: `${npmCmd} run foo-bar-baz qux` },
                 { name: '', command: `${npmCmd} run foo--baz qux` },
+            ]);
+        });
+
+        it('uses wildcard match of script as command name', () => {
+            readPkg.mockReturnValue({
+                scripts: {
+                    'watch-js': '',
+                    'watch-css': '',
+                },
+            });
+
+            expect(
+                parser.parse({
+                    name: '',
+                    command: `${npmCmd} run watch-*`,
+                })
+            ).toEqual([
+                { name: 'js', command: `${npmCmd} run watch-js` },
+                { name: 'css', command: `${npmCmd} run watch-css` },
             ]);
         });
 

@@ -80,3 +80,10 @@ export const timings = false;
  * Passthrough additional arguments to commands (accessible via placeholders) instead of treating them as commands.
  */
 export const passthroughArguments = false;
+
+/**
+ * Signal to send to other processes if one exits or dies.
+ *
+ * Defaults to OS specific signal. (SIGTERM on Linux/MacOS)
+ */
+export const killSignal: string | undefined = undefined;

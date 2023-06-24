@@ -3,7 +3,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/open-cli-tools/concurrently?label=Release)](https://github.com/open-cli-tools/concurrently/releases)
 [![License](https://img.shields.io/github/license/open-cli-tools/concurrently?label=License)](https://github.com/open-cli-tools/concurrently/blob/main/LICENSE)
 [![Weekly Downloads on NPM](https://img.shields.io/npm/dw/concurrently?label=Downloads&logo=npm)](https://www.npmjs.com/package/concurrently)
-[![CI Status](https://img.shields.io/github/workflow/status/open-cli-tools/concurrently/CI?label=CI&logo=github)](https://github.com/open-cli-tools/concurrently/actions/workflows/ci.yml)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/open-cli-tools/concurrently/test.yml?label=CI&logo=github)](https://github.com/open-cli-tools/concurrently/actions/workflows/test.yml)
 [![Coverage Status](https://img.shields.io/coveralls/github/open-cli-tools/concurrently/main?label=Coverage&logo=coveralls)](https://coveralls.io/github/open-cli-tools/concurrently?branch=main)
 
 Run multiple commands concurrently.
@@ -15,7 +15,7 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 - [concurrently](#concurrently)
   - [Why](#why)
-  - [Install](#install)
+  - [Installation](#installation)
   - [Usage](#usage)
   - [API](#api)
     - [`concurrently(commands[, options])`](#concurrentlycommands-options)
@@ -25,7 +25,7 @@ Like `npm run watch-js & npm run watch-less` but better.
 
 ## Why
 
-I like [task automation with npm](https://github.com/substack/blog/blob/master/npm_run.markdown)
+I like [task automation with npm](https://web.archive.org/web/20220531064025/https://github.com/substack/blog/blob/master/npm_run.markdown)
 but the usual way to run multiple commands concurrently is
 `npm run watch-js & npm run watch-css`. That's fine but it's hard to keep
 on track of different outputs. Also if one process fails, others still keep running
@@ -41,24 +41,23 @@ tired of opening terminals and made **concurrently**.
 - With `--kill-others` switch, all commands are killed if one dies
 - Spawns commands with [spawn-command](https://github.com/mmalecki/spawn-command)
 
-## Install
+## Installation
 
-The tool is written in Node.js, but you can use it to run **any** commands.
+**concurrently** can be installed in the global scope (if you'd like to have it available and use it on the whole system) or locally for a specific package (for example if you'd like to use it in the `scripts` section of your package):
 
-```bash
-npm install -g concurrently
-```
+|             | npm                     | Yarn                           | pnpm                       | Bun                       |
+| ----------- | ----------------------- | ------------------------------ | -------------------------- | ------------------------- |
+| **Global**  | `npm i -g concurrently` | `yarn global add concurrently` | `pnpm add -g concurrently` | `bun add -g concurrently` |
+| **Local**\* | `npm i -D concurrently` | `yarn add -D concurrently`     | `pnpm add -D concurrently` | `bun add -d concurrently` |
 
-or if you are using it from npm scripts:
-
-```bash
-npm install concurrently --save-dev
-```
+<sub>\* It's recommended to add **concurrently** to `devDependencies` as it's usually used for developing purposes. Please adjust the command if this doesn't apply in your case.</sub>
 
 ## Usage
 
 > **Note**
 > The `concurrently` command is now also available under the shorthand alias `conc`.
+
+The tool is written in Node.js, but you can use it to run **any** commands.
 
 Remember to surround separate commands with quotes:
 
@@ -220,6 +219,8 @@ Killing other processes
   -k, --kill-others          Kill other processes if one exits or dies.[boolean]
       --kill-others-on-fail  Kill other processes if one exits with non zero
                              status code.                              [boolean]
+      --kill-signal          Signal to send to other processes if one exits or dies.
+                             (SIGTERM/SIGKILL, defaults to SIGTERM)    [string]
 
 Restarting
       --restart-tries  How many times a process that died should restart.
@@ -339,7 +340,7 @@ For more details, visit https://github.com/open-cli-tools/concurrently
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
   - `raw`: whether raw mode should be used, meaning strictly process output will
-    be logged, without any prefixes, coloring or extra stuff.
+    be logged, without any prefixes, coloring or extra stuff. Can be overriden per command.
   - `successCondition`: the condition to consider the run was successful.
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.
@@ -428,6 +429,6 @@ It contains the following properties:
   So _null_ means the process didn't terminate normally. This will make **concurrently**
   to return non-zero exit code too.
 
-- Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn) or [pnpm](https://pnpm.js.org/)?
+- Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn), [pnpm](https://pnpm.js.org/), or [Bun](https://bun.sh/)?
 
-  Yes! In all examples above, you may replace "`npm`" with "`yarn`" or "`pnpm`".
+  Yes! In all examples above, you may replace "`npm`" with "`yarn`", "`pnpm`", or "`bun`".

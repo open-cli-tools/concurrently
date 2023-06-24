@@ -48,24 +48,35 @@ export class InputHandler implements FlowController {
             return { commands };
         }
 
+        const commandsMap = new Map<string, Command>();
+        for (const command of commands) {
+            commandsMap.set(command.index.toString(), command);
+            commandsMap.set(command.name, command);
+        }
+
         Rx.fromEvent(inputStream, 'data')
             .pipe(map((data) => String(data)))
             .subscribe((data) => {
-                const dataParts = data.split(/:(.+)/);
-                const targetId = dataParts.length > 1 ? dataParts[0] : this.defaultInputTarget;
-                const input = dataParts[1] || data;
+                let command: Command | undefined, input: string;
 
-                const command = commands.find(
-                    (command) =>
-                        command.name === targetId ||
-                        command.index.toString() === targetId.toString()
-                );
+                const dataParts = data.split(/:(.+)/s);
+                let target = dataParts[0];
+
+                if (dataParts.length > 1 && (command = commandsMap.get(target))) {
+                    input = dataParts[1];
+                } else {
+                    // If `target` does not match a registered command,
+                    // fallback to `defaultInputTarget` and forward the whole input data
+                    target = this.defaultInputTarget.toString();
+                    command = commandsMap.get(target);
+                    input = data;
+                }
 
                 if (command && command.stdin) {
                     command.stdin.write(input);
                 } else {
                     this.logger.logGlobalEvent(
-                        `Unable to find command ${targetId}, or it has no stdin open\n`
+                        `Unable to find command "${target}", or it has no stdin open\n`
                     );
                 }
             });
