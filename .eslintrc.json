@@ -33,16 +33,6 @@
       "files": ["*.spec.ts"],
       "plugins": ["jest"],
       "extends": ["plugin:jest/recommended"]
-    },
-    {
-      "files": ["*.ts"],
-      "parserOptions": {
-        "project": ["./tsconfig.json"]
-      },
-      "plugins": ["deprecation"],
-      "rules": {
-        "deprecation/deprecation": "warn"
-      }
     }
   ]
 }
