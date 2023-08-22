@@ -3,7 +3,7 @@ import chalk from 'chalk';
 function getConsoleColorsWithoutCustomColors(customColors: string[]): string[] {
     return PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.filter(
         // Consider the "Bright" variants of colors to be the same as the plain color to avoid similar colors
-        (color) => !customColors.includes(color.replace(/Bright$/, ''))
+        (color) => !customColors.includes(color.replace(/Bright$/, '')),
     );
 }
 

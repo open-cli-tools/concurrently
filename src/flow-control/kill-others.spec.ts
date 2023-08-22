@@ -8,7 +8,7 @@ import { KillOthers, ProcessCloseCondition } from './kill-others';
 // Return a custom value for `canKill` (also see 'FakeCommand').
 beforeAll(() => {
     jest.spyOn(Command, 'canKill').mockImplementation(
-        (command) => (command as FakeCommand).isKillable
+        (command) => (command as FakeCommand).isKillable,
     );
 });
 

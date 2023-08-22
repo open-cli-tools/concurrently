@@ -376,7 +376,7 @@ const { result } = concurrently(
     killOthers: ['failure', 'success'],
     restartTries: 3,
     cwd: path.resolve(__dirname, 'scripts'),
-  }
+  },
 );
 result.then(success, failure);
 ```

@@ -128,16 +128,16 @@ describe('#getNextColor', function () {
         (_, { acceptableConsoleColors, customColors, expectedColors }) => {
             if (acceptableConsoleColors) {
                 jest.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue(
-                    acceptableConsoleColors
+                    acceptableConsoleColors,
                 );
             }
             const prefixColorSelector = new PrefixColorSelector(customColors);
             const prefixColorSelectorValues = expectedColors.map(() =>
-                prefixColorSelector.getNextColor()
+                prefixColorSelector.getNextColor(),
             );
 
             expect(prefixColorSelectorValues).toEqual(expectedColors);
-        }
+        },
     );
 
     const autoTests = {
@@ -152,7 +152,7 @@ describe('#getNextColor', function () {
         ];
 
         const prefixColorSelector = new PrefixColorSelector(
-            map ? expectedColors.map(() => 'auto') : ['auto']
+            map ? expectedColors.map(() => 'auto') : ['auto'],
         );
 
         expectedColors.reduce((previousColor, currentExpectedColor) => {

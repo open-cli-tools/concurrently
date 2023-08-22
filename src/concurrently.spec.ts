@@ -90,7 +90,7 @@ it('spawns commands up to percent based limit at once', () => {
             model: 'Intel',
             speed: 0,
             times: { user: 0, nice: 0, sys: 0, idle: 0, irq: 0 },
-        })
+        }),
     );
 
     create(['foo', 'bar', 'baz', 'qux'], { maxProcesses: '50%' });
@@ -173,19 +173,19 @@ it('merges extra env vars into each command', () => {
         'echo',
         expect.objectContaining({
             env: expect.objectContaining({ foo: 'bar' }),
-        })
+        }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
             env: expect.objectContaining({ foo: 'baz' }),
-        })
+        }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'kill',
         expect.objectContaining({
             env: expect.not.objectContaining({ foo: expect.anything() }),
-        })
+        }),
     );
 });
 
@@ -198,7 +198,7 @@ it('uses cwd from options for each command', () => {
         ],
         {
             cwd: 'foobar',
-        }
+        },
     );
 
     expect(spawn).toHaveBeenCalledTimes(3);
@@ -207,21 +207,21 @@ it('uses cwd from options for each command', () => {
         expect.objectContaining({
             env: expect.objectContaining({ foo: 'bar' }),
             cwd: 'foobar',
-        })
+        }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
             env: expect.objectContaining({ foo: 'baz' }),
             cwd: 'foobar',
-        })
+        }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'kill',
         expect.objectContaining({
             env: expect.not.objectContaining({ foo: expect.anything() }),
             cwd: 'foobar',
-        })
+        }),
     );
 });
 
@@ -233,7 +233,7 @@ it('uses overridden cwd option for each command if specified', () => {
         ],
         {
             cwd: 'foobar',
-        }
+        },
     );
 
     expect(spawn).toHaveBeenCalledTimes(2);
@@ -242,14 +242,14 @@ it('uses overridden cwd option for each command if specified', () => {
         expect.objectContaining({
             env: expect.objectContaining({ foo: 'bar' }),
             cwd: 'baz',
-        })
+        }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
             env: expect.objectContaining({ foo: 'baz' }),
             cwd: 'foobar',
-        })
+        }),
     );
 });
 
@@ -263,13 +263,13 @@ it('uses raw from options for each command', () => {
         'echo',
         expect.objectContaining({
             stdio: 'inherit',
-        })
+        }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'kill',
         expect.objectContaining({
             stdio: 'inherit',
-        })
+        }),
     );
 });
 
@@ -283,13 +283,13 @@ it('uses overridden raw option for each command if specified', () => {
         'echo',
         expect.not.objectContaining({
             stdio: expect.anything(),
-        })
+        }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
             stdio: 'inherit',
-        })
+        }),
     );
 });
 
@@ -303,7 +303,7 @@ it('argument placeholders are properly replaced when additional arguments are pa
         ],
         {
             additionalArguments: ['foo', 'bar'],
-        }
+        },
     );
 
     expect(spawn).toHaveBeenCalledTimes(4);

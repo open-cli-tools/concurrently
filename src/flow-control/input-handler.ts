@@ -76,7 +76,7 @@ export class InputHandler implements FlowController {
                     command.stdin.write(input);
                 } else {
                     this.logger.logGlobalEvent(
-                        `Unable to find command "${target}", or it has no stdin open\n`
+                        `Unable to find command "${target}", or it has no stdin open\n`,
                     );
                 }
             });

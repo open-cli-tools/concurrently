@@ -17,9 +17,9 @@ export class LogExit implements FlowController {
             command.close.subscribe(({ exitCode }) => {
                 this.logger.logCommandEvent(
                     `${command.command} exited with code ${exitCode}`,
-                    command
+                    command,
                 );
-            })
+            }),
         );
 
         return { commands };

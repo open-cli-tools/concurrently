@@ -132,7 +132,7 @@ export type ConcurrentlyOptions = {
  */
 export function concurrently(
     baseCommands: ConcurrentlyCommandInput[],
-    baseOptions?: Partial<ConcurrentlyOptions>
+    baseOptions?: Partial<ConcurrentlyOptions>,
 ): ConcurrentlyResult {
     assert.ok(Array.isArray(baseCommands), '[concurrently] commands should be an array');
     assert.notStrictEqual(baseCommands.length, 0, '[concurrently] no commands provided');
@@ -167,7 +167,7 @@ export function concurrently(
                     cwd: command.cwd || options.cwd,
                 }),
                 options.spawn,
-                options.kill
+                options.kill,
             );
         })
         .value();
@@ -183,7 +183,7 @@ export function concurrently(
         { commands, onFinishCallbacks: [] } as {
             commands: Command[];
             onFinishCallbacks: (() => void)[];
-        }
+        },
     );
     commands = handleResult.commands;
 
@@ -201,7 +201,7 @@ export function concurrently(
         1,
         (typeof options.maxProcesses === 'string' && options.maxProcesses.endsWith('%')
             ? Math.round((cpus().length * Number(options.maxProcesses.slice(0, -1))) / 100)
-            : Number(options.maxProcesses)) || commandsLeft.length
+            : Number(options.maxProcesses)) || commandsLeft.length,
     );
     for (let i = 0; i < maxProcesses; i++) {
         maybeRunMore(commandsLeft);
@@ -246,7 +246,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
         (commands, parser) => _.flatMap(commands, (command) => parser.parse(command)),
-        _.castArray(command)
+        _.castArray(command),
     );
 }
 

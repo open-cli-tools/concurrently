@@ -69,7 +69,7 @@ describe('#logGlobalEvent()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('foo') + '\n'
+            chalk.reset('foo') + '\n',
         );
     });
 });
@@ -245,7 +245,7 @@ describe('#logCommandEvent()', () => {
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('[1]') + ' ',
             chalk.reset('foo') + '\n',
-            cmd
+            cmd,
         );
     });
 });
@@ -288,7 +288,7 @@ describe('#logTable()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ foo │ bar │') + '\n'
+            chalk.reset('│ foo │ bar │') + '\n',
         );
     });
 
@@ -298,7 +298,7 @@ describe('#logTable()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ a   │ b      │') + '\n'
+            chalk.reset('│ a   │ b      │') + '\n',
         );
     });
 
@@ -308,11 +308,11 @@ describe('#logTable()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ 123 │') + '\n'
+            chalk.reset('│ 123 │') + '\n',
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ 456 │') + '\n'
+            chalk.reset('│ 456 │') + '\n',
         );
     });
 
@@ -322,11 +322,11 @@ describe('#logTable()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ 123 │') + '\n'
+            chalk.reset('│ 123 │') + '\n',
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│     │') + '\n'
+            chalk.reset('│     │') + '\n',
         );
     });
 
@@ -336,7 +336,7 @@ describe('#logTable()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ 1   │') + '\n'
+            chalk.reset('│ 1   │') + '\n',
         );
     });
 
@@ -346,15 +346,15 @@ describe('#logTable()', () => {
 
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ foo │ bar │') + '\n'
+            chalk.reset('│ foo │ bar │') + '\n',
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│ 1   │     │') + '\n'
+            chalk.reset('│ 1   │     │') + '\n',
         );
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('-->') + ' ',
-            chalk.reset('│     │ 2   │') + '\n'
+            chalk.reset('│     │ 2   │') + '\n',
         );
     });
 });

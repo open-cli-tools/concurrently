@@ -126,7 +126,7 @@ export class Command implements CommandInfo {
         { index, name, command, prefixColor, env, cwd }: CommandInfo & { index: number },
         spawnOpts: SpawnOptions,
         spawn: SpawnCommand,
-        killProcess: KillProcess
+        killProcess: KillProcess,
     ) {
         this.index = index;
         this.name = name;
@@ -180,12 +180,12 @@ export class Command implements CommandInfo {
         child.stdout &&
             pipeTo(
                 Rx.fromEvent(child.stdout, 'data').pipe(Rx.map((event) => event as Buffer)),
-                this.stdout
+                this.stdout,
             );
         child.stderr &&
             pipeTo(
                 Rx.fromEvent(child.stderr, 'data').pipe(Rx.map((event) => event as Buffer)),
-                this.stderr
+                this.stderr,
             );
         this.stdin = child.stdin || undefined;
     }

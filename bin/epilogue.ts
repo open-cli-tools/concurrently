@@ -81,7 +81,7 @@ const examplesString = examples
                 .split('\n')
                 .map((line) => `     ${line}`)
                 .join('\n'),
-        ].join('\n\n')
+        ].join('\n\n'),
     )
     .join('\n\n');
 

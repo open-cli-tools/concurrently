@@ -188,7 +188,7 @@ const args = yargs(argsBeforeSep)
     })
     .group(
         ['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P'],
-        'General'
+        'General',
     )
     .group(['p', 'c', 'l', 't'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
@@ -229,8 +229,8 @@ concurrently(
         timestampFormat: args.timestampFormat,
         timings: args.timings,
         additionalArguments: args.passthroughArguments ? argsAfterSep : undefined,
-    }
+    },
 ).result.then(
     () => process.exit(0),
-    () => process.exit(1)
+    () => process.exit(1),
 );

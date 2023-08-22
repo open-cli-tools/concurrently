@@ -116,7 +116,7 @@ it('logs error if command has no stdin open', () => {
 
     expect(commands[1].stdin?.write).not.toHaveBeenCalled();
     expect(logger.logGlobalEvent).toHaveBeenCalledWith(
-        'Unable to find command "0", or it has no stdin open\n'
+        'Unable to find command "0", or it has no stdin open\n',
     );
 });
 

@@ -80,7 +80,7 @@ export class LogTimings implements FlowController {
                     const formattedStartDate = formatDate(startDate, this.timestampFormat);
                     logger.logCommandEvent(
                         `${command.command} started at ${formattedStartDate}`,
-                        command
+                        command,
                     );
                 } else {
                     const durationMs = endDate.getTime() - startDate.getTime();
@@ -89,7 +89,7 @@ export class LogTimings implements FlowController {
                         `${
                             command.command
                         } stopped at ${formattedEndDate} after ${durationMs.toLocaleString()}ms`,
-                        command
+                        command,
                     );
                 }
             });
@@ -101,7 +101,7 @@ export class LogTimings implements FlowController {
         const allProcessesClosed = Rx.merge(...closeStreams).pipe(
             bufferCount(closeStreams.length),
             take(1),
-            combineLatestWith(finished)
+            combineLatestWith(finished),
         );
         allProcessesClosed.subscribe(([exitInfos]) => this.printExitInfoTimingTable(exitInfos));
         return { commands, onFinish: () => finished.next() };

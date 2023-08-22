@@ -80,25 +80,25 @@ it('logs the timings at the start and end (ie complete or error) event of each c
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(4);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} started at ${formatDate(startDate0, timestampFormat)}`,
-        commands[0]
+        commands[0],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[1].command} started at ${formatDate(startDate1, timestampFormat)}`,
-        commands[1]
+        commands[1],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[1].command} stopped at ${formatDate(
             endDate1,
-            timestampFormat
+            timestampFormat,
         )} after ${command1DurationTextMs}`,
-        commands[1]
+        commands[1],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} stopped at ${formatDate(
             endDate0,
-            timestampFormat
+            timestampFormat,
         )} after ${command0DurationTextMs}`,
-        commands[0]
+        commands[0],
     );
 });
 
