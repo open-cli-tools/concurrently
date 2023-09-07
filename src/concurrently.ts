@@ -62,9 +62,22 @@ export type ConcurrentlyOptions = {
     group?: boolean;
 
     /**
-     * Comma-separated list of chalk colors to use on prefixes.
+     * A comma-separated list of chalk colors or a string for available styles listed below to use on prefixes.
+     * If there are more commands than colors, the last color will be repeated.
+     *
+     * Available modifiers:
+     * - `reset`, `bold`, `dim`, `italic`, `underline`, `inverse`, `hidden`, `strikethrough`
+     *
+     * Available colors:
+     * - `black`, `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`, `gray`,
+     * any hex values for colors (e.g. `#23de43`) or `auto` for an automatically picked color
+     *
+     * Available background colors:
+     * - `bgBlack`, `bgRed`, `bgGreen`, `bgYellow`, `bgBlue`, `bgMagenta`, `bgCyan`, `bgWhite`
+     *
+     * @see {@link https://www.npmjs.com/package/chalk} for more information.
      */
-    prefixColors?: string[];
+    prefixColors?: string | string[];
 
     /**
      * Maximum number of commands to run at once.
