@@ -335,7 +335,7 @@ For more details, visit https://github.com/open-cli-tools/concurrently
   - `prefix`: the prefix type to use when logging processes output.
     Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
     Default: the name of the process, or its index if no name is set.
-  - `prefixColors`: a list of colors as supported by [chalk](https://www.npmjs.com/package/chalk) or `auto` for an automatically picked color.
+  - `prefixColors`: a list of colors or a string as supported by [chalk](https://www.npmjs.com/package/chalk) and additional style `auto` for an automatically picked color.
     If concurrently would run more commands than there are colors, the last color is repeated, unless if the last color value is `auto` which means following colors are automatically picked to vary.
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
