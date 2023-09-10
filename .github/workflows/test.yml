@@ -50,6 +50,13 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+        # Bun does not currently fully support Windows:
+        # https://bun.sh/docs/installation#windows
+      - uses: oven-sh/setup-bun@v1
+        if: ${{ matrix.os.name != 'Windows' }}
+        with:
+          bun-version: latest
+
       - name: Setup pnpm
         uses: ./.github/actions/setup-pnpm
 
@@ -58,6 +65,24 @@ jobs:
 
       - name: Build & Test
         run: concurrently --prefix none --group "pnpm:build" "pnpm:test"
+
+      - name: Node import with CJS
+        run: node ./smoke-tests/smoke-test-cjs.cjs
+
+      - name: Node import with ESM
+        run: node ./smoke-tests/smoke-test-esm.mjs
+
+      - name: Bun import with CJS
+        if: ${{ matrix.os.name != 'Windows'}}
+        run: bun ./smoke-tests/smoke-test-cjs.cjs
+
+      - name: Bun import with ESM
+        if: ${{ matrix.os.name != 'Windows'}}
+        run: bun ./smoke-tests/smoke-test-esm.mjs
+
+      - name: Bun import with both CJS and ESM vis TS
+        if: ${{ matrix.os.name != 'Windows'}}
+        run: bun ./smoke-tests/smoke-test.ts
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master
