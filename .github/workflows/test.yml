@@ -33,7 +33,7 @@ jobs:
           - 14
           - 16
           - 18
-          - 19
+          - 20
         os:
           - name: Ubuntu
             version: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
             version: macOS-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
