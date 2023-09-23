@@ -145,9 +145,10 @@ concurrently [options] <command ...>
 
 General
   -m, --max-processes          How many processes should run at once.
-                               Exact number or a percent of CPUs available (for example "50%").
                                New processes only spawn after all restart tries
-                               of a process.                            [string]
+                               of a process.
+                               Exact number or a percent of CPUs available (for
+                               example "50%")                           [string]
   -n, --names                  List of custom names to be used in prefix
                                template.
                                Example names: "main,browser,server"     [string]
@@ -202,7 +203,7 @@ Prefix styling
                           in prefix. The option can be used to shorten the
                           prefix when it is set to "command"
                                                           [number] [default: 10]
-  -t, --timestamp-format  Specify the timestamp in moment/date-fns format.
+  -t, --timestamp-format  Specify the timestamp in Unicode LDML format.
                                    [string] [default: "yyyy-MM-dd HH:mm:ss.SSS"]
 
 Input handling
@@ -219,8 +220,9 @@ Killing other processes
   -k, --kill-others          Kill other processes if one exits or dies.[boolean]
       --kill-others-on-fail  Kill other processes if one exits with non zero
                              status code.                              [boolean]
-      --kill-signal          Signal to send to other processes if one exits or dies.
-                             (SIGTERM/SIGKILL, defaults to SIGTERM)    [string]
+      --kill-signal, --ks    Signal to send to other processes if one exits or
+                             dies. (SIGTERM/SIGKILL, defaults to SIGTERM)
+                                                                        [string]
 
 Restarting
       --restart-tries  How many times a process that died should restart.
@@ -346,7 +348,7 @@ For more details, visit https://github.com/open-cli-tools/concurrently
     Anything else means all processes should exit successfully.
   - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
   - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
-  - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
+  - `timestampFormat`: a [Unicode LDML format](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
   - `additionalArguments`: list of additional arguments passed that will get replaced in each command. If not defined, no argument replacing will happen.
 

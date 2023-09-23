@@ -151,7 +151,7 @@ const args = yargs(argsBeforeSep)
         },
         'timestamp-format': {
             alias: 't',
-            describe: 'Specify the timestamp in moment/date-fns format.',
+            describe: 'Specify the timestamp in Unicode LDML format.',
             default: defaults.timestampFormat,
             type: 'string',
         },
