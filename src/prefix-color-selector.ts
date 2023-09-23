@@ -58,8 +58,9 @@ function* createColorGenerator(customColors: string[]): Generator<string, string
 export class PrefixColorSelector {
     private colorGenerator: Generator<string, string>;
 
-    constructor(customColors: string[] = []) {
-        this.colorGenerator = createColorGenerator(customColors);
+    constructor(customColors: string | string[] = []) {
+        const normalizedColors = typeof customColors === 'string' ? [customColors] : customColors;
+        this.colorGenerator = createColorGenerator(normalizedColors);
     }
 
     /** A list of colors that are readable in a terminal. */
