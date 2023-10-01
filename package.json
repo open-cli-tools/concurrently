@@ -24,6 +24,7 @@
   "scripts": {
     "build": "tsc --build",
     "postbuild": "chmod +x dist/bin/concurrently.js",
+    "generate:doc:api": "ts-readme --header-depth 3 src/concurrently.ts ",
     "clean": "tsc --build --clean",
     "format": "prettier --check '**/*.{json,y?(a)ml,md}'",
     "format:fix": "pnpm run format --write",
@@ -88,6 +89,7 @@
     "prettier": "^3.0.3",
     "safe-publish-latest": "^2.0.0",
     "string-argv": "^0.3.2",
+    "ts-readme": "^1.1.3",
     "typescript": "~5.2.2"
   },
   "files": [
