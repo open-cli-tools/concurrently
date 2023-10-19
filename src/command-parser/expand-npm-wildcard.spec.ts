@@ -95,7 +95,7 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm', 'bun']) {
                 parser.parse({
                     name: '',
                     command: `${npmCmd} run watch-*`,
-                })
+                }),
             ).toEqual([
                 { name: 'js', command: `${npmCmd} run watch-js` },
                 { name: 'css', command: `${npmCmd} run watch-css` },
@@ -114,7 +114,7 @@ for (const npmCmd of ['npm', 'yarn', 'pnpm', 'bun']) {
                 parser.parse({
                     name: 'w:',
                     command: `${npmCmd} run watch-*`,
-                })
+                }),
             ).toEqual([
                 { name: 'w:js', command: `${npmCmd} run watch-js` },
                 { name: 'w:css', command: `${npmCmd} run watch-css` },

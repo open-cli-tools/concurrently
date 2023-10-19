@@ -1,5 +1,5 @@
 import * as Rx from 'rxjs';
-import { defaultIfEmpty, delay, filter, mapTo, skip, take, takeWhile } from 'rxjs/operators';
+import { defaultIfEmpty, delay, filter, map, skip, take, takeWhile } from 'rxjs/operators';
 
 import { Command } from '../command';
 import * as defaults from '../defaults';
@@ -42,25 +42,32 @@ export class RestartProcess implements FlowController {
             .map((command) =>
                 command.close.pipe(
                     take(this.tries),
-                    takeWhile(({ exitCode }) => exitCode !== 0)
-                )
+                    takeWhile(({ exitCode }) => exitCode !== 0),
+                ),
             )
             .map((failure, index) =>
                 Rx.merge(
                     // Delay the emission (so that the restarts happen on time),
                     // explicitly telling the subscriber that a restart is needed
-                    failure.pipe(delay(this.delay, this.scheduler), mapTo(true)),
+                    failure.pipe(
+                        delay(this.delay, this.scheduler),
+                        map(() => true),
+                    ),
                     // Skip the first N emissions (as these would be duplicates of the above),
                     // meaning it will be empty because of success, or failed all N times,
                     // and no more restarts should be attempted.
-                    failure.pipe(skip(this.tries), mapTo(false), defaultIfEmpty(false))
+                    failure.pipe(
+                        skip(this.tries),
+                        map(() => false),
+                        defaultIfEmpty(false),
+                    ),
                 ).subscribe((restart) => {
                     const command = commands[index];
                     if (restart) {
                         this.logger.logCommandEvent(`${command.command} restarted`, command);
                         command.start();
                     }
-                })
+                }),
             );
 
         return {
@@ -69,7 +76,7 @@ export class RestartProcess implements FlowController {
                     filter(({ exitCode }, emission) => {
                         // We let all success codes pass, and failures only after restarting won't happen again
                         return exitCode === 0 || emission >= this.tries;
-                    })
+                    }),
                 );
 
                 return new Proxy(command, {

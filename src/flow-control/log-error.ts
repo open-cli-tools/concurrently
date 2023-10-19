@@ -17,12 +17,12 @@ export class LogError implements FlowController {
             command.error.subscribe((event) => {
                 this.logger.logCommandEvent(
                     `Error occurred when executing command: ${command.command}`,
-                    command
+                    command,
                 );
 
                 const errorText = String(event instanceof Error ? event.stack || event : event);
                 this.logger.logCommandEvent(errorText, command);
-            })
+            }),
         );
 
         return { commands };

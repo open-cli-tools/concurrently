@@ -57,12 +57,14 @@ it('returns same commands', () => {
 
 it("does not log timings and doesn't throw if no logger is provided", () => {
     controller = new LogTimings({});
-    controller.handle(commands);
+    const { onFinish } = controller.handle(commands);
 
     commands[0].timer.next({ startDate: startDate0 });
     commands[1].timer.next({ startDate: startDate1 });
     commands[1].timer.next({ startDate: startDate1, endDate: endDate1 });
     commands[0].timer.next({ startDate: startDate0, endDate: endDate0 });
+
+    onFinish?.();
 
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(0);
 });
@@ -78,42 +80,48 @@ it('logs the timings at the start and end (ie complete or error) event of each c
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(4);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} started at ${formatDate(startDate0, timestampFormat)}`,
-        commands[0]
+        commands[0],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[1].command} started at ${formatDate(startDate1, timestampFormat)}`,
-        commands[1]
+        commands[1],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[1].command} stopped at ${formatDate(
             endDate1,
-            timestampFormat
+            timestampFormat,
         )} after ${command1DurationTextMs}`,
-        commands[1]
+        commands[1],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} stopped at ${formatDate(
             endDate0,
-            timestampFormat
+            timestampFormat,
         )} after ${command0DurationTextMs}`,
-        commands[0]
+        commands[0],
     );
 });
 
 it('does not log timings summary if there was an error', () => {
-    controller.handle(commands);
+    const { onFinish } = controller.handle(commands);
 
     commands[0].close.next(command0ExitInfo);
     commands[1].error.next(undefined);
 
+    onFinish?.();
+
     expect(logger.logTable).toHaveBeenCalledTimes(0);
 });
 
-it('logs the sorted timings summary when all processes close successfully', () => {
-    controller.handle(commands);
+it('logs the sorted timings summary when all processes close successfully after onFinish is called', () => {
+    const { onFinish } = controller.handle(commands);
 
     commands[0].close.next(command0ExitInfo);
     commands[1].close.next(command1ExitInfo);
+
+    expect(logger.logGlobalEvent).toHaveBeenCalledTimes(0);
+
+    onFinish?.();
 
     expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
     expect(logger.logGlobalEvent).toHaveBeenCalledWith('Timings:');

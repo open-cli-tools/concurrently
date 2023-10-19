@@ -114,7 +114,7 @@ export class Logger {
                 const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
                 return prev.replace(keyRegex, String(val));
             },
-            prefix
+            prefix,
         );
     }
 
@@ -198,7 +198,7 @@ export class Logger {
         });
 
         const headersFormatted = Object.keys(headers).map((header) =>
-            header.padEnd(headers[header].length, ' ')
+            header.padEnd(headers[header].length, ' '),
         );
 
         if (!headersFormatted.length) {

@@ -80,16 +80,17 @@ const run = (args: string, ctrlcWrapper?: boolean) => {
     });
 
     const exit = Rx.firstValueFrom(
-        Rx.fromEvent<[number | null, NodeJS.Signals | null]>(child, 'exit').pipe(
-            map((exit) => {
+        Rx.fromEvent(child, 'exit').pipe(
+            map((event) => {
+                const exit = event as [number | null, NodeJS.Signals | null];
                 return {
                     /** The exit code if the child exited on its own. */
                     code: exit[0],
                     /** The signal by which the child process was terminated. */
                     signal: exit[1],
                 };
-            })
-        )
+            }),
+        ),
     );
 
     const getLogLines = async (): Promise<string[]> => {
@@ -196,9 +197,9 @@ describe('exiting conditions', () => {
                     // TODO: Flappy value due to race condition, sometimes killed by concurrently (exit code 1),
                     //       sometimes terminated on its own (exit code 0).
                     //       Related issue: https://github.com/open-cli-tools/concurrently/issues/283
-                    isWindows ? '(3221225786|0|1)' : 'SIGINT'
-                )
-            )
+                    isWindows ? '(3221225786|0|1)' : 'SIGINT',
+                ),
+            ),
         );
     });
 });
@@ -232,7 +233,7 @@ describe('--hide', () => {
 describe('--group', () => {
     it('groups output per process', async () => {
         const lines = await run(
-            '--group "echo foo && node fixtures/sleep.mjs 1 && echo bar" "echo baz"'
+            '--group "echo foo && node fixtures/sleep.mjs 1 && echo bar" "echo baz"',
         ).getLogLines();
 
         expect(lines.slice(0, 4)).toEqual([
@@ -256,7 +257,7 @@ describe('--names', () => {
 
     it('is split using --name-separator arg', async () => {
         const lines = await run(
-            '--names "foo|bar" --name-separator "|" "echo foo" "echo bar"'
+            '--names "foo|bar" --name-separator "|" "echo foo" "echo bar"',
         ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[foo] foo'));
@@ -301,25 +302,25 @@ describe('--kill-others', () => {
 
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
             expect(lines).toContainEqual(
-                expect.stringContaining('Sending SIGTERM to other processes')
+                expect.stringContaining('Sending SIGTERM to other processes'),
             );
             expect(lines).toContainEqual(
                 expect.stringMatching(
-                    createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM')
-                )
+                    createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM'),
+                ),
             );
         });
     });
 
     it('kills on failure', async () => {
         const lines = await run(
-            '--kill-others "node fixtures/sleep.mjs 10" "exit 1"'
+            '--kill-others "node fixtures/sleep.mjs 10" "exit 1"',
         ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM')),
         );
     });
 });
@@ -327,24 +328,24 @@ describe('--kill-others', () => {
 describe('--kill-others-on-fail', () => {
     it('does not kill on success', async () => {
         const lines = await run(
-            '--kill-others-on-fail "node fixtures/sleep.mjs 0.5" "exit 0"'
+            '--kill-others-on-fail "node fixtures/sleep.mjs 0.5" "exit 0"',
         ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
         expect(lines).toContainEqual(
-            expect.stringContaining('[0] node fixtures/sleep.mjs 0.5 exited with code 0')
+            expect.stringContaining('[0] node fixtures/sleep.mjs 0.5 exited with code 0'),
         );
     });
 
     it('kills on failure', async () => {
         const lines = await run(
-            '--kill-others-on-fail "node fixtures/sleep.mjs 10" "exit 1"'
+            '--kill-others-on-fail "node fixtures/sleep.mjs 10" "exit 1"',
         ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.mjs 10', 'SIGTERM')),
         );
     });
 });
@@ -364,14 +365,14 @@ describe('--handle-input', () => {
             expect(exit.code).toBe(0);
             expect(lines).toContainEqual(expect.stringContaining('[0] stop'));
             expect(lines).toContainEqual(
-                expect.stringContaining('[0] node fixtures/read-echo.js exited with code 0')
+                expect.stringContaining('[0] node fixtures/read-echo.js exited with code 0'),
             );
         });
     });
 
     it('forwards input to process --default-input-target', async () => {
         const child = run(
-            '-ki --default-input-target 1 "node fixtures/read-echo.js" "node fixtures/read-echo.js"'
+            '-ki --default-input-target 1 "node fixtures/read-echo.js" "node fixtures/read-echo.js"',
         );
         child.log.subscribe((line) => {
             if (/\[1\] READING/.test(line)) {
@@ -384,7 +385,7 @@ describe('--handle-input', () => {
         expect(exit.code).toBeGreaterThan(0);
         expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM')),
         );
     });
 
@@ -401,7 +402,7 @@ describe('--handle-input', () => {
         expect(exit.code).toBeGreaterThan(0);
         expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM'))
+            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM')),
         );
     });
 });
@@ -410,12 +411,12 @@ describe('--timings', () => {
     const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
     const processStartedMessageRegex = (index: number, command: string) => {
         return new RegExp(
-            `^\\[${index}] ${command} started at ${defaultTimestampFormatRegex.source}$`
+            `^\\[${index}] ${command} started at ${defaultTimestampFormatRegex.source}$`,
         );
     };
     const processStoppedMessageRegex = (index: number, command: string) => {
         return new RegExp(
-            `^\\[${index}] ${command} stopped at ${defaultTimestampFormatRegex.source} after (\\d|,)+ms$`
+            `^\\[${index}] ${command} stopped at ${defaultTimestampFormatRegex.source} after (\\d|,)+ms$`,
         );
     };
 
@@ -429,17 +430,17 @@ describe('--timings', () => {
     };
     it.each(Object.entries(timingsTests))('%s', async (_, commands) => {
         const lines = await run(
-            `--timings ${commands.map((command) => `"${command}"`).join(' ')}`
+            `--timings ${commands.map((command) => `"${command}"`).join(' ')}`,
         ).getLogLines();
 
         // Expect output to contain process start / stop messages for each command
         commands.forEach((command, index) => {
             const escapedCommand = escapeRegExp(command);
             expect(lines).toContainEqual(
-                expect.stringMatching(processStartedMessageRegex(index, escapedCommand))
+                expect.stringMatching(processStartedMessageRegex(index, escapedCommand)),
             );
             expect(lines).toContainEqual(
-                expect.stringMatching(processStoppedMessageRegex(index, escapedCommand))
+                expect.stringMatching(processStoppedMessageRegex(index, escapedCommand)),
             );
         });
 

@@ -49,7 +49,7 @@ const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts: SpawnOptions
         { index: 0, name: '', command: 'echo foo', ...overrides },
         spawnOpts,
         spawn,
-        killProcess
+        killProcess,
     );
 
     let error: unknown;
@@ -70,7 +70,7 @@ const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts: SpawnOptions
                     observer.complete();
                 },
             });
-        })
+        }),
     );
     const values = async (): Promise<CommandValues> => {
         await finished.onComplete();

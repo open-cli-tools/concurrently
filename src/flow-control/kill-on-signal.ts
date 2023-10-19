@@ -30,7 +30,7 @@ export class KillOnSignal implements FlowController {
                     map((exitInfo) => {
                         const exitCode = caughtSignal === 'SIGINT' ? 0 : exitInfo.exitCode;
                         return { ...exitInfo, exitCode };
-                    })
+                    }),
                 );
                 return new Proxy(command, {
                     get(target, prop: keyof Command) {

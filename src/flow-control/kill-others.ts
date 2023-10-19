@@ -31,7 +31,7 @@ export class KillOthers implements FlowController {
 
     handle(commands: Command[]) {
         const conditions = this.conditions.filter(
-            (condition) => condition === 'failure' || condition === 'success'
+            (condition) => condition === 'failure' || condition === 'success',
         );
 
         if (!conditions.length) {
@@ -41,10 +41,10 @@ export class KillOthers implements FlowController {
         const closeStates = commands.map((command) =>
             command.close.pipe(
                 map(({ exitCode }) =>
-                    exitCode === 0 ? ('success' as const) : ('failure' as const)
+                    exitCode === 0 ? ('success' as const) : ('failure' as const),
                 ),
-                filter((state) => conditions.includes(state))
-            )
+                filter((state) => conditions.includes(state)),
+            ),
         );
 
         closeStates.forEach((closeState) =>
@@ -52,11 +52,11 @@ export class KillOthers implements FlowController {
                 const killableCommands = commands.filter((command) => Command.canKill(command));
                 if (killableCommands.length) {
                     this.logger.logGlobalEvent(
-                        `Sending ${this.killSignal || 'SIGTERM'} to other processes..`
+                        `Sending ${this.killSignal || 'SIGTERM'} to other processes..`,
                     );
                     killableCommands.forEach((command) => command.kill(this.killSignal));
                 }
-            })
+            }),
         );
 
         return { commands };

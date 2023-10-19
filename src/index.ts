@@ -93,7 +93,7 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
 
 export default (
     commands: ConcurrentlyCommandInput[],
-    options: Partial<ConcurrentlyOptions> = {}
+    options: Partial<ConcurrentlyOptions> = {},
 ) => {
     const logger = new Logger({
         hide: options.hide,

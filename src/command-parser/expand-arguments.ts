@@ -35,7 +35,7 @@ export class ExpandArguments implements CommandParser {
                 // Replace placeholder with empty string
                 // if value doesn't exist in additional arguments.
                 return '';
-            }
+            },
         );
 
         return { ...commandInfo, command };

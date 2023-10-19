@@ -18,7 +18,7 @@ export class FakeCommand extends Command {
             },
             {},
             jest.fn(),
-            jest.fn()
+            jest.fn(),
         );
 
         this.stdin = createMockInstance(Writable);
