@@ -34,7 +34,9 @@ const defaults: ConcurrentlyOptions = {
 export type ConcurrentlyCommandInput = string | ({ command: string } & Partial<CommandInfo>);
 
 export type ConcurrentlyResult = {
-    /** All commands created and ran by concurrently.*/
+    /**
+     * All commands created and ran by concurrently.
+     */
     commands: Command[];
 
     /**
@@ -49,10 +51,14 @@ export type ConcurrentlyResult = {
 export type ConcurrentlyOptions = {
     logger?: Logger;
 
-    /** Which stream should the commands output be written to. */
+    /**
+     * Which stream should the commands output be written to.
+     */
     outputStream?: Writable;
 
-    /** Whether the output should be ordered as if the commands were run sequentially.*/
+    /**
+     * Whether the output should be ordered as if the commands were run sequentially.
+     */
     group?: boolean;
 
     /**

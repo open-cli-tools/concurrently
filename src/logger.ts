@@ -32,7 +32,9 @@ export class Logger {
         raw = false,
         timestampFormat,
     }: {
-        /** Which command(s) should have their output hidden. */
+        /**
+         * Which command(s) should have their output hidden.
+         */
         hide?: CommandIdentifier | CommandIdentifier[];
 
         /**
@@ -47,7 +49,9 @@ export class Logger {
          */
         prefixFormat?: string;
 
-        /** How many characters should a prefix have at most, used when the prefix format is `command`. */
+        /**
+         * How many characters should a prefix have at most, used when the prefix format is `command`.
+         */
         prefixLength?: number;
 
         /**

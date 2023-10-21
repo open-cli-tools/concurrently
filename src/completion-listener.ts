@@ -19,7 +19,9 @@ export type SuccessCondition =
     | `command-${string | number}`
     | `!command-${string | number}`;
 
-/** Provides logic to determine whether lists of commands ran successfully. */
+/**
+ * Provides logic to determine whether lists of commands ran successfully.
+ */
 export class CompletionListener {
     private readonly successCondition: SuccessCondition;
     private readonly scheduler?: Rx.SchedulerLike;
@@ -36,7 +38,9 @@ export class CompletionListener {
          */
         successCondition?: SuccessCondition;
 
-        /** For testing only.*/
+        /**
+         * For testing only.
+         */
         scheduler?: Rx.SchedulerLike;
     }) {
         this.successCondition = successCondition;

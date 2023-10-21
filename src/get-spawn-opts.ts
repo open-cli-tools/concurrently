@@ -16,7 +16,9 @@ export const getSpawnOpts = ({
      */
     colorSupport?: Pick<supportsColor.supportsColor.Level, 'level'> | false;
 
-    /** The NodeJS process. */
+    /**
+     * The NodeJS process.
+     */
     process?: Pick<NodeJS.Process, 'cwd' | 'platform' | 'env'>;
 
     /**
@@ -31,7 +33,9 @@ export const getSpawnOpts = ({
      */
     raw?: boolean;
 
-    /** Map of custom environment variables to include in the spawn options. */
+    /**
+     * Map of custom environment variables to include in the spawn options.
+     */
     env?: Record<string, unknown>;
 }): SpawnOptions => ({
     cwd: cwd || process.cwd(),

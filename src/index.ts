@@ -18,9 +18,11 @@ import { LogTimings } from './flow-control/log-timings';
 import { RestartProcess } from './flow-control/restart-process';
 import { Logger } from './logger';
 
-/** Logger options  */
 export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
-    /** Which command(s) should have their output hidden. */
+    // Logger options
+    /**
+     * Which command(s) should have their output hidden.
+     */
     hide?: CommandIdentifier | CommandIdentifier[];
 
     /**
@@ -29,10 +31,14 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
      */
     prefix?: string;
 
-    /** How many characters should a prefix have at most, used when the prefix format is `command`. */
+    /**
+     * How many characters should a prefix have at most, used when the prefix format is `command`.
+     */
     prefixLength?: number;
 
-    /**  Whether output should be formatted to include prefixes and whether "event" logs will be logged. */
+    /**
+     * Whether output should be formatted to include prefixes and whether "event" logs will be logged.
+     */
     raw?: boolean;
 
     /**
