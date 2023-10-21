@@ -24,7 +24,7 @@
   "scripts": {
     "build": "tsc --build",
     "postbuild": "chmod +x dist/bin/concurrently.js",
-    "generate:doc:api": "typedoc",
+    "generate:doc:api": "./scripts/generate-documentation.sh",
     "clean": "tsc --build --clean",
     "format": "prettier --check '**/*.{json,y?(a)ml,md}'",
     "format:fix": "pnpm run format --write",
