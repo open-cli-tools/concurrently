@@ -1,5 +1,6 @@
 import * as Rx from 'rxjs';
 import { Writable } from 'stream';
+import { WriteStream as TtyWriteStream } from 'tty';
 
 import { Command } from './command';
 
@@ -8,8 +9,18 @@ import { Command } from './command';
  */
 export class OutputWriter {
     private readonly outputStream: Writable;
+    private get maybeTtyStream(): TtyWriteStream | undefined {
+        const outputStream = this.outputStream as TtyWriteStream;
+        if (outputStream instanceof TtyWriteStream) {
+            return outputStream;
+        }
+    }
+
     private readonly group: boolean;
-    readonly buffers: string[][];
+    readonly commandBuffers: string[][];
+    private readonly namedBuffers: Record<string, string> = {};
+    private readonly offset = { x: 0, y: 0 };
+
     activeCommandIndex = 0;
 
     constructor({
@@ -23,7 +34,7 @@ export class OutputWriter {
     }) {
         this.outputStream = outputStream;
         this.group = group;
-        this.buffers = commands.map(() => []);
+        this.commandBuffers = commands.map(() => []);
 
         if (this.group) {
             Rx.merge(...commands.map((c) => c.close)).subscribe((command) => {
@@ -42,21 +53,80 @@ export class OutputWriter {
         }
     }
 
-    write(command: Command | undefined, text: string) {
+    write(command: Command | undefined, text: string, id?: string) {
         if (this.group && command) {
             if (command.index <= this.activeCommandIndex) {
-                this.outputStream.write(text);
+                this.actualWrite(text);
             } else {
-                this.buffers[command.index].push(text);
+                this.commandBuffers[command.index].push(text);
             }
+        } else if (id != null) {
+            this.namedBuffers[id] = text;
+            this.clearNamedBuffers();
+            this.rewriteNamedBuffers();
         } else {
             // "global" logs (command=null) are output out of order
-            this.outputStream.write(text);
+            this.actualWrite(text);
+        }
+    }
+
+    private async actualWrite(text: string) {
+        const { maybeTtyStream, outputStream } = this;
+        this.clearNamedBuffers();
+        if (maybeTtyStream) {
+            const lines = text.split('\n');
+            const lastLine = maybeClearAnsiStyles(
+                lines[lines.length - 1],
+                maybeTtyStream.getColorDepth(),
+            );
+
+            // In case of no line breaks, append to the existing line
+            const totalLength = (lines.length === 1 ? this.offset.x : 0) + lastLine.length;
+
+            // Account for line wrapping
+            this.offset.x = totalLength % maybeTtyStream.columns;
+        }
+
+        outputStream.write(text);
+        this.rewriteNamedBuffers();
+    }
+
+    private clearNamedBuffers() {
+        const { maybeTtyStream } = this;
+        if (!maybeTtyStream) {
+            return;
+        }
+
+        // Rewind to the end of unnamed buffers
+        maybeTtyStream.moveCursor(0, -this.offset.y);
+        maybeTtyStream.cursorTo(this.offset.x);
+        maybeTtyStream.clearScreenDown();
+    }
+
+    private rewriteNamedBuffers() {
+        const outputStream = this.maybeTtyStream;
+        if (!outputStream) {
+            return;
+        }
+
+        this.offset.y = 0;
+        for (const text of Object.values(this.namedBuffers)) {
+            outputStream.write('\n' + text);
+            this.offset.y += text.split('\n').reduce((count, chunk) => {
+                return count + 1 + Math.floor(chunk.length / outputStream.columns);
+            }, 0);
         }
     }
 
     private flushBuffer(index: number) {
-        this.buffers[index].forEach((t) => this.outputStream.write(t));
-        this.buffers[index] = [];
+        this.commandBuffers[index].forEach((t) => this.actualWrite(t));
+        this.commandBuffers[index] = [];
     }
+}
+
+// Exported for testing
+export function maybeClearAnsiStyles(text: string, colorSupport: number) {
+    // Matches https://github.com/chalk/ansi-styles/blob/v4.3.0/index.js#L3-L16
+    // eslint-disable-next-line no-control-regex
+    return colorSupport > 2 ? text.replace(/\u001B\[\d+(;5;\d+|;2;\d+;\d+;\d+)?m/g, '') : text;
 }

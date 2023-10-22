@@ -34,7 +34,7 @@ export class Logger {
      * Observable that emits when there's been output logged.
      * If `command` is is `undefined`, then the log is for a global event.
      */
-    readonly output = new Rx.Subject<{ command: Command | undefined; text: string }>();
+    readonly output = new Rx.Subject<{ command: Command | undefined; text: string; id?: string }>();
 
     constructor({
         hide,
@@ -265,6 +265,12 @@ export class Logger {
         this.logGlobalEvent(`└─${borderRowFormatted.join('─┴─')}─┘`);
     }
 
+    logAt(id: string, text: string) {
+        if (!this.raw) {
+            this.emit(undefined, text + '\n', id);
+        }
+    }
+
     log(prefix: string, text: string, command?: Command) {
         if (this.raw) {
             return this.emit(command, text);
@@ -287,8 +293,8 @@ export class Logger {
         this.emit(command, textToWrite);
     }
 
-    emit(command: Command | undefined, text: string) {
+    private emit(command: Command | undefined, text: string, id?: string) {
         this.lastWrite = { command, char: text[text.length - 1] };
-        this.output.next({ command, text });
+        this.output.next({ command, text, id });
     }
 }

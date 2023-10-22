@@ -228,7 +228,9 @@ export function concurrently(
             group: !!options.group,
             commands,
         });
-        options.logger.output.subscribe(({ command, text }) => outputWriter.write(command, text));
+        options.logger.output.subscribe(({ command, text, id }) =>
+            outputWriter.write(command, text, id),
+        );
     }
 
     const commandsLeft = commands.slice();

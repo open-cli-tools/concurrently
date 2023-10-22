@@ -18,6 +18,7 @@ import { LogOutput } from './flow-control/log-output';
 import { LogTimings } from './flow-control/log-timings';
 import { LoggerPadding } from './flow-control/logger-padding';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process';
+import { StatusLine } from './flow-control/status-line';
 import { Teardown } from './flow-control/teardown';
 import { Logger } from './logger';
 
@@ -172,6 +173,7 @@ export function concurrently(
                 logger: options.timings ? logger : undefined,
                 timestampFormat: options.timestampFormat,
             }),
+            new StatusLine({ logger }),
             new Teardown({ logger, spawn: options.spawn, commands: options.teardown || [] }),
         ],
         prefixColors: options.prefixColors || [],

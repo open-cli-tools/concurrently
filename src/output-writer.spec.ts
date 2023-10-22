@@ -52,7 +52,7 @@ describe('#write()', () => {
             const writer = createWriter({ group: true });
             writer.write(commands[2], 'hello');
             expect(outputStream.write).toHaveBeenCalledTimes(0);
-            expect(writer.buffers[2]).toEqual(['hello']);
+            expect(writer.commandBuffers[2]).toEqual(['hello']);
         });
 
         it('write instantly for active command', () => {
