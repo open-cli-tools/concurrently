@@ -79,6 +79,9 @@ export class RestartProcess implements FlowController {
                     }),
                 );
 
+                // Return a proxy so that mutations happen on the original Command object.
+                // If either `Object.assign()` or `Object.create()` were used, it'd be hard to
+                // reflect the mutations on Command objects referenced by previous flow controllers.
                 return new Proxy(command, {
                     get(target, prop: keyof Command) {
                         return prop === 'close' ? closeStream : target[prop];
