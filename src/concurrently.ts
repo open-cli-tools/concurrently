@@ -106,6 +106,11 @@ export type ConcurrentlyOptions = {
     successCondition?: SuccessCondition;
 
     /**
+     * A signal to stop spawning further processes.
+     */
+    abortSignal?: AbortSignal;
+
+    /**
      * Which flow controllers should be applied on commands spawned by concurrently.
      * Defaults to an empty array.
      */
@@ -217,7 +222,7 @@ export function concurrently(
             : Number(options.maxProcesses)) || commandsLeft.length,
     );
     for (let i = 0; i < maxProcesses; i++) {
-        maybeRunMore(commandsLeft);
+        maybeRunMore(commandsLeft, options.abortSignal);
     }
 
     const result = new CompletionListener({ successCondition: options.successCondition })
@@ -263,14 +268,14 @@ function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     );
 }
 
-function maybeRunMore(commandsLeft: Command[]) {
+function maybeRunMore(commandsLeft: Command[], abortSignal?: AbortSignal) {
     const command = commandsLeft.shift();
-    if (!command) {
+    if (!command || abortSignal?.aborted) {
         return;
     }
 
     command.start();
     command.close.subscribe(() => {
-        maybeRunMore(commandsLeft);
+        maybeRunMore(commandsLeft, abortSignal);
     });
 }

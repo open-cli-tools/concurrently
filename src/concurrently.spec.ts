@@ -111,6 +111,16 @@ it('spawns commands up to percent based limit at once', () => {
     expect(spawn).toHaveBeenCalledWith('qux', expect.objectContaining({}));
 });
 
+it('does not spawn further commands on abort signal aborted', () => {
+    const abortController = new AbortController();
+    create(['foo', 'bar'], { maxProcesses: 1, abortSignal: abortController.signal });
+    expect(spawn).toHaveBeenCalledTimes(1);
+
+    abortController.abort();
+    processes[0].emit('close', 0, null);
+    expect(spawn).toHaveBeenCalledTimes(1);
+});
+
 it('runs controllers with the commands', () => {
     create(['echo', '"echo wrapped"']);
 
