@@ -14,14 +14,17 @@ beforeAll(() => {
 
 let commands: FakeCommand[];
 let logger: Logger;
+let abortController: AbortController;
 beforeEach(() => {
     commands = [new FakeCommand(), new FakeCommand()];
     logger = createMockInstance(Logger);
+    abortController = new AbortController();
 });
 
 const createWithConditions = (conditions: ProcessCloseCondition[], killSignal?: string) =>
     new KillOthers({
         logger,
+        abortController,
         conditions,
         killSignal,
     });
@@ -43,6 +46,7 @@ it('does not kill others if condition does not match', () => {
 
 describe.each(['success', 'failure'] as const)('on %s', (condition) => {
     const exitCode = condition === 'success' ? 0 : 1;
+    const inversedCode = exitCode === 1 ? 0 : 1;
 
     it('kills other killable processes', () => {
         createWithConditions([condition]).handle(commands);
@@ -64,6 +68,20 @@ describe.each(['success', 'failure'] as const)('on %s', (condition) => {
         expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGKILL to other processes..');
         expect(commands[0].kill).not.toHaveBeenCalled();
         expect(commands[1].kill).toHaveBeenCalledWith('SIGKILL');
+    });
+
+    it('sends abort signal on condition match', () => {
+        createWithConditions([condition]).handle(commands);
+        commands[0].close.next(createFakeCloseEvent({ exitCode }));
+
+        expect(abortController.signal.aborted).toBe(true);
+    });
+
+    it('does not send abort signal on condition mismatch', () => {
+        createWithConditions([condition]).handle(commands);
+        commands[0].close.next(createFakeCloseEvent({ exitCode: inversedCode }));
+
+        expect(abortController.signal.aborted).toBe(false);
     });
 });
 

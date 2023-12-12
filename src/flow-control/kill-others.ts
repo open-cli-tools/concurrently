@@ -12,19 +12,23 @@ export type ProcessCloseCondition = 'failure' | 'success';
  */
 export class KillOthers implements FlowController {
     private readonly logger: Logger;
+    private readonly abortController?: AbortController;
     private readonly conditions: ProcessCloseCondition[];
     private readonly killSignal: string | undefined;
 
     constructor({
         logger,
+        abortController,
         conditions,
         killSignal,
     }: {
         logger: Logger;
+        abortController?: AbortController;
         conditions: ProcessCloseCondition | ProcessCloseCondition[];
         killSignal: string | undefined;
     }) {
         this.logger = logger;
+        this.abortController = abortController;
         this.conditions = _.castArray(conditions);
         this.killSignal = killSignal;
     }
@@ -49,6 +53,8 @@ export class KillOthers implements FlowController {
 
         closeStates.forEach((closeState) =>
             closeState.subscribe(() => {
+                this.abortController?.abort();
+
                 const killableCommands = commands.filter((command) => Command.canKill(command));
                 if (killableCommands.length) {
                     this.logger.logGlobalEvent(
