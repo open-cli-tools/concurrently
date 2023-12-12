@@ -51,29 +51,13 @@ it('returns commands that keep non-SIGINT exit codes', () => {
     expect(callback).toHaveBeenCalledWith(expect.objectContaining({ exitCode: 1 }));
 });
 
-it('kills all commands on SIGINT', () => {
-    controller.handle(commands);
-    process.emit('SIGINT');
+describe.each(['SIGINT', 'SIGTERM', 'SIGHUP'])('on %s', (signal) => {
+    it('kills all commands', () => {
+        controller.handle(commands);
+        process.emit(signal);
 
-    expect(process.listenerCount('SIGINT')).toBe(1);
-    expect(commands[0].kill).toHaveBeenCalledWith('SIGINT');
-    expect(commands[1].kill).toHaveBeenCalledWith('SIGINT');
-});
-
-it('kills all commands on SIGTERM', () => {
-    controller.handle(commands);
-    process.emit('SIGTERM');
-
-    expect(process.listenerCount('SIGTERM')).toBe(1);
-    expect(commands[0].kill).toHaveBeenCalledWith('SIGTERM');
-    expect(commands[1].kill).toHaveBeenCalledWith('SIGTERM');
-});
-
-it('kills all commands on SIGHUP', () => {
-    controller.handle(commands);
-    process.emit('SIGHUP');
-
-    expect(process.listenerCount('SIGHUP')).toBe(1);
-    expect(commands[0].kill).toHaveBeenCalledWith('SIGHUP');
-    expect(commands[1].kill).toHaveBeenCalledWith('SIGHUP');
+        expect(process.listenerCount(signal)).toBe(1);
+        expect(commands[0].kill).toHaveBeenCalledWith(signal);
+        expect(commands[1].kill).toHaveBeenCalledWith(signal);
+    });
 });
