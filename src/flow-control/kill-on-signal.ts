@@ -10,9 +10,17 @@ import { FlowController } from './flow-controller';
  */
 export class KillOnSignal implements FlowController {
     private readonly process: EventEmitter;
+    private readonly abortController?: AbortController;
 
-    constructor({ process }: { process: EventEmitter }) {
+    constructor({
+        process,
+        abortController,
+    }: {
+        process: EventEmitter;
+        abortController?: AbortController;
+    }) {
         this.process = process;
+        this.abortController = abortController;
     }
 
     handle(commands: Command[]) {
@@ -20,6 +28,7 @@ export class KillOnSignal implements FlowController {
         (['SIGINT', 'SIGTERM', 'SIGHUP'] as NodeJS.Signals[]).forEach((signal) => {
             this.process.on(signal, () => {
                 caughtSignal = signal;
+                this.abortController?.abort();
                 commands.forEach((command) => command.kill(signal));
             });
         });

@@ -7,10 +7,12 @@ import { KillOnSignal } from './kill-on-signal';
 let commands: Command[];
 let controller: KillOnSignal;
 let process: EventEmitter;
+let abortController: AbortController;
 beforeEach(() => {
     process = new EventEmitter();
     commands = [new FakeCommand(), new FakeCommand()];
-    controller = new KillOnSignal({ process });
+    abortController = new AbortController();
+    controller = new KillOnSignal({ process, abortController });
 });
 
 it('returns commands that keep non-close streams from original commands', () => {
@@ -59,5 +61,12 @@ describe.each(['SIGINT', 'SIGTERM', 'SIGHUP'])('on %s', (signal) => {
         expect(process.listenerCount(signal)).toBe(1);
         expect(commands[0].kill).toHaveBeenCalledWith(signal);
         expect(commands[1].kill).toHaveBeenCalledWith(signal);
+    });
+
+    it('sends abort signal', () => {
+        controller.handle(commands);
+        process.emit(signal);
+
+        expect(abortController.signal.aborted).toBe(true);
     });
 });
