@@ -206,7 +206,7 @@ describe('#logCommandText()', () => {
         logger.logCommandText('foo', cmd);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.hex(prefixColor).inverse()('[1]') + ' ',
+            chalk.hex(prefixColor).inverse('[1]') + ' ',
             'foo',
             cmd,
         );
