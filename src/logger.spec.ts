@@ -205,7 +205,11 @@ describe('#logCommandText()', () => {
         });
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.hex(prefixColor).inverse()('[1]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.hex(prefixColor).inverse()('[1]') + ' ',
+            'foo',
+            cmd,
+        );
     });
 
     it('does nothing if command is hidden by name', () => {

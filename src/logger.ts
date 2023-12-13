@@ -121,10 +121,10 @@ export class Logger {
     colorText(command: Command, text: string) {
         let color: chalk.Chalk;
         if (command.prefixColor && command.prefixColor.startsWith('#')) {
-            const [hexColor, ...modifiers] = command.prefixColor.split('.')
+            const [hexColor, ...modifiers] = command.prefixColor.split('.');
             color = chalk.hex(hexColor);
             if (modifiers.length) {
-                color = _.get(color, modifiers)
+                color = _.get(color, modifiers);
             }
         } else {
             const defaultColor = _.get(chalk, defaults.prefixColors, chalk.reset);
