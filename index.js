@@ -5,5 +5,5 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const concurrently = require('./dist/src/index.js');
 
-module.exports = exports = concurrently.default;
+module.exports = exports = concurrently;
 Object.assign(exports, concurrently);

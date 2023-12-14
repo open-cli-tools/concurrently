@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
 import {
-    concurrently,
+    concurrently as createConcurrently,
     ConcurrentlyCommandInput,
     ConcurrentlyOptions as BaseConcurrentlyOptions,
     ConcurrentlyResult,
@@ -91,10 +91,10 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
     additionalArguments?: string[];
 };
 
-export default (
+export function concurrently(
     commands: ConcurrentlyCommandInput[],
     options: Partial<ConcurrentlyOptions> = {},
-) => {
+) {
     const logger = new Logger({
         hide: options.hide,
         prefixFormat: options.prefix,
@@ -103,7 +103,7 @@ export default (
         timestampFormat: options.timestampFormat,
     });
 
-    return concurrently(commands, {
+    return createConcurrently(commands, {
         maxProcesses: options.maxProcesses,
         raw: options.raw,
         successCondition: options.successCondition,
@@ -141,28 +141,26 @@ export default (
         prefixColors: options.prefixColors || [],
         additionalArguments: options.additionalArguments,
     });
-};
+}
 
 // Export all flow controllers, types, and the main concurrently function,
 // so that 3rd-parties can use them however they want
+
+// Main
+export { ConcurrentlyCommandInput, ConcurrentlyResult, createConcurrently, Logger };
+
+// Command specific
+export { CloseEvent, Command, CommandIdentifier, TimerEvent };
+
+// Flow controllers
 export {
-    CloseEvent,
-    // Command specific
-    Command,
-    CommandIdentifier,
-    concurrently,
-    ConcurrentlyCommandInput,
-    ConcurrentlyResult,
-    // Flow controllers
     FlowController,
     InputHandler,
     KillOnSignal,
     KillOthers,
     LogError,
     LogExit,
-    Logger,
     LogOutput,
     LogTimings,
     RestartProcess,
-    TimerEvent,
 };
