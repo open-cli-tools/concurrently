@@ -3,7 +3,7 @@
   "version": "8.2.2",
   "description": "Run commands concurrently",
   "main": "index.js",
-  "types": "dist/src/index.d.ts",
+  "types": "index.d.ts",
   "type": "commonjs",
   "bin": {
     "concurrently": "./dist/bin/concurrently.js",
