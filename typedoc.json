@@ -1,0 +1,8 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Concurrently API documentation",
+  "entryPoints": ["./src"],
+  "hideBreadcrumbs": true,
+  "disableSources": true,
+  "plugin": "typedoc-plugin-markdown"
+}
