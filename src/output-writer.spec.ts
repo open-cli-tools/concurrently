@@ -15,7 +15,7 @@ function createWriter(overrides?: { group: boolean }) {
 }
 
 function closeCommand(command: FakeCommand) {
-    command.exited = true;
+    command.state = 'exited';
     command.close.next(createFakeCloseEvent({ command, index: command.index }));
 }
 

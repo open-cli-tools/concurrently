@@ -392,7 +392,11 @@ It has the following properties:
 - `cwd`: the current working directory of the command.
 - `env`: an object with all the environment variables that the command will be spawned with.
 - `killed`: whether the command has been killed.
-- `exited`: whether the command exited yet.
+- `state`: the command's state. Can be one of
+  - `stopped`: if the command was never started
+  - `started`: if the command is currently running
+  - `errored`: if the command failed spawning
+  - `exited`: if the command is not running anymore, e.g. it received a close event
 - `pid`: the command's process ID.
 - `stdin`: a Writable stream to the command's `stdin`.
 - `stdout`: an RxJS observable to the command's `stdout`.

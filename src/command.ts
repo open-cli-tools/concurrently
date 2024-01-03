@@ -84,6 +84,16 @@ export type KillProcess = (pid: number, signal?: string) => void;
  */
 export type SpawnCommand = (command: string, options: SpawnOptions) => ChildProcess;
 
+/**
+ * The state of a command.
+ *
+ * - `stopped`: command was never started
+ * - `started`: command is currently running
+ * - `errored`: command failed spawning
+ * - `exited`: command is not running anymore, e.g. it received a close event
+ */
+type CommandState = 'stopped' | 'started' | 'errored' | 'exited';
+
 export class Command implements CommandInfo {
     private readonly killProcess: KillProcess;
     private readonly spawn: SpawnCommand;
@@ -117,6 +127,8 @@ export class Command implements CommandInfo {
     killed = false;
     exited = false;
 
+    state: CommandState = 'stopped';
+
     /** @deprecated */
     get killable() {
         return Command.canKill(this);
@@ -144,6 +156,7 @@ export class Command implements CommandInfo {
      */
     start() {
         const child = this.spawn(this.command, this.spawnOpts);
+        this.state = 'started';
         this.process = child;
         this.pid = child.pid;
         const startDate = new Date(Date.now());
@@ -155,12 +168,13 @@ export class Command implements CommandInfo {
             const endDate = new Date(Date.now());
             this.timer.next({ startDate, endDate });
             this.error.next(event);
+            this.state = 'errored';
         });
         Rx.fromEvent(child, 'close')
             .pipe(Rx.map((event) => event as [number | null, NodeJS.Signals | null]))
             .subscribe(([exitCode, signal]) => {
                 this.process = undefined;
-                this.exited = true;
+                this.state = 'exited';
 
                 const endDate = new Date(Date.now());
                 this.timer.next({ startDate, endDate });
