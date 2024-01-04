@@ -97,7 +97,9 @@
   "files": [
     "dist",
     "index.js",
+    "index.d.ts",
     "index.mjs",
+    "index.d.mts",
     "!**/fixtures",
     "!**/*.spec.js",
     "!**/*.spec.d.ts"
