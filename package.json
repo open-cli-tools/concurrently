@@ -35,7 +35,8 @@
     "lint:fix": "pnpm run lint --fix",
     "prepublishOnly": "safe-publish-latest && pnpm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
-    "test": "jest",
+    "test": "jest --selectProjects unit",
+    "test:smoke": "jest --selectProjects smoke",
     "prepare": "husky install"
   },
   "repository": {
