@@ -129,11 +129,6 @@ export class Command implements CommandInfo {
 
     state: CommandState = 'stopped';
 
-    /** @deprecated */
-    get killable() {
-        return Command.canKill(this);
-    }
-
     constructor(
         { index, name, command, prefixColor, env, cwd }: CommandInfo & { index: number },
         spawnOpts: SpawnOptions,
