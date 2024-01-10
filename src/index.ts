@@ -18,7 +18,7 @@ import { LogTimings } from './flow-control/log-timings';
 import { RestartProcess } from './flow-control/restart-process';
 import { Logger } from './logger';
 
-export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
+export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal'> & {
     // Logger options
     /**
      * Which command(s) should have their output hidden.
@@ -103,6 +103,8 @@ export default (
         timestampFormat: options.timestampFormat,
     });
 
+    const abortController = new AbortController();
+
     return concurrently(commands, {
         maxProcesses: options.maxProcesses,
         raw: options.raw,
@@ -111,6 +113,7 @@ export default (
         logger,
         outputStream: options.outputStream || process.stdout,
         group: options.group,
+        abortSignal: abortController.signal,
         controllers: [
             new LogError({ logger }),
             new LogOutput({ logger }),
@@ -122,7 +125,7 @@ export default (
                     options.inputStream || (options.handleInput ? process.stdin : undefined),
                 pauseInputStreamOnFinish: options.pauseInputStreamOnFinish,
             }),
-            new KillOnSignal({ process }),
+            new KillOnSignal({ process, abortController }),
             new RestartProcess({
                 logger,
                 delay: options.restartDelay,
@@ -132,6 +135,7 @@ export default (
                 logger,
                 conditions: options.killOthers || [],
                 killSignal: options.killSignal,
+                abortController,
             }),
             new LogTimings({
                 logger: options.timings ? logger : undefined,

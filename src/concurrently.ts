@@ -227,7 +227,7 @@ export function concurrently(
     }
 
     const result = new CompletionListener({ successCondition: options.successCondition })
-        .listen(commands)
+        .listen(commands, options.abortSignal)
         .finally(() => {
             handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
         });
