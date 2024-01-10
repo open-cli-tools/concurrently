@@ -24,6 +24,31 @@ const createController = (successCondition?: SuccessCondition) =>
 const emitFakeCloseEvent = (command: FakeCommand, event?: Partial<CloseEvent>) =>
     command.close.next(createFakeCloseEvent({ ...event, command, index: command.index }));
 
+it('completes only when commands emit a close event, returns close event', async () => {
+    const abortCtrl = new AbortController();
+    const result = createController('all').listen(commands, abortCtrl.signal);
+
+    commands[0].state = 'started';
+    abortCtrl.abort();
+
+    const event = createFakeCloseEvent({ exitCode: 0 });
+    commands[0].close.next(event);
+    scheduler.flush();
+
+    await expect(result).resolves.toHaveLength(1);
+    await expect(result).resolves.toEqual([event]);
+});
+
+it('completes when abort signal is received and command is stopped, returns nothing', async () => {
+    const abortCtrl = new AbortController();
+    const result = createController('all').listen([new FakeCommand()], abortCtrl.signal);
+
+    abortCtrl.abort();
+    scheduler.flush();
+
+    await expect(result).resolves.toHaveLength(0);
+});
+
 describe('with default success condition set', () => {
     it('succeeds if all processes exited with code 0', () => {
         const result = createController().listen(commands);

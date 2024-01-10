@@ -43,7 +43,8 @@ export type ConcurrentlyResult = {
      * A promise that resolves when concurrently ran successfully according to the specified
      * success condition, or reject otherwise.
      *
-     * Both the resolved and rejected value is the list of all command's close events.
+     * Both the resolved and rejected value is a list of all the close events for commands that
+     * spawned; commands that didn't spawn are filtered out.
      */
     result: Promise<CloseEvent[]>;
 };

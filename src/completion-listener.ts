@@ -1,5 +1,5 @@
 import * as Rx from 'rxjs';
-import { bufferCount, switchMap, take } from 'rxjs/operators';
+import { bufferCount, delay, filter, map, switchMap, take } from 'rxjs/operators';
 
 import { CloseEvent, Command } from './command';
 
@@ -47,17 +47,17 @@ export class CompletionListener {
         this.scheduler = scheduler;
     }
 
-    private isSuccess(events: CloseEvent[]) {
+    private isSuccess(events: (CloseEvent | undefined)[]) {
         if (this.successCondition === 'first') {
-            return events[0].exitCode === 0;
+            return isSuccess(events[0]);
         } else if (this.successCondition === 'last') {
-            return events[events.length - 1].exitCode === 0;
+            return isSuccess(events[events.length - 1]);
         }
 
         const commandSyntaxMatch = this.successCondition.match(/^!?command-(.+)$/);
         if (commandSyntaxMatch == null) {
             // If not a `command-` syntax, then it's an 'all' condition or it's treated as such.
-            return events.every(({ exitCode }) => exitCode === 0);
+            return events.every(isSuccess);
         }
 
         // Check `command-` syntax condition.
@@ -65,36 +65,54 @@ export class CompletionListener {
         // in which case all of them must meet the success condition.
         const nameOrIndex = commandSyntaxMatch[1];
         const targetCommandsEvents = events.filter(
-            ({ command, index }) => command.name === nameOrIndex || index === Number(nameOrIndex),
+            (event) => event?.command.name === nameOrIndex || event?.index === Number(nameOrIndex),
         );
         if (this.successCondition.startsWith('!')) {
             // All commands except the specified ones must exit succesfully
             return events.every(
-                (event) => targetCommandsEvents.includes(event) || event.exitCode === 0,
+                (event) => targetCommandsEvents.includes(event) || isSuccess(event),
             );
         }
         // Only the specified commands must exit succesfully
-        return (
-            targetCommandsEvents.length > 0 &&
-            targetCommandsEvents.every((event) => event.exitCode === 0)
-        );
+        return targetCommandsEvents.length > 0 && targetCommandsEvents.every(isSuccess);
     }
 
     /**
      * Given a list of commands, wait for all of them to exit and then evaluate their exit codes.
      *
      * @returns A Promise that resolves if the success condition is met, or rejects otherwise.
+     *          In either case, the value is a list of close events for commands that spawned.
+     *          Commands that didn't spawn are filtered out.
      */
-    listen(commands: Command[]): Promise<CloseEvent[]> {
-        const closeStreams = commands.map((command) => command.close);
+    listen(commands: Command[], abortSignal?: AbortSignal): Promise<CloseEvent[]> {
+        const abort =
+            abortSignal &&
+            Rx.fromEvent(abortSignal, 'abort', { once: true }).pipe(
+                // The abort signal must happen before commands are killed, otherwise new commands
+                // might spawn. Because of this, it's not be possible to capture the close events
+                // without an immediate delay
+                delay(0, this.scheduler),
+                map(() => undefined),
+            );
+
+        const closeStreams = commands.map((command) =>
+            abort
+                ? // Commands that have been started must close.
+                  Rx.race(command.close, abort.pipe(filter(() => command.state === 'stopped')))
+                : command.close,
+        );
         return Rx.lastValueFrom(
             Rx.merge(...closeStreams).pipe(
                 bufferCount(closeStreams.length),
-                switchMap((exitInfos) =>
-                    this.isSuccess(exitInfos)
-                        ? this.emitWithScheduler(Rx.of(exitInfos))
-                        : this.emitWithScheduler(Rx.throwError(() => exitInfos)),
-                ),
+                switchMap((events) => {
+                    const success = this.isSuccess(events);
+                    const filteredEvents = events.filter(
+                        (event): event is CloseEvent => event != null,
+                    );
+                    return success
+                        ? this.emitWithScheduler(Rx.of(filteredEvents))
+                        : this.emitWithScheduler(Rx.throwError(() => filteredEvents));
+                }),
                 take(1),
             ),
         );
@@ -103,4 +121,8 @@ export class CompletionListener {
     private emitWithScheduler<O>(input: Rx.Observable<O>): Rx.Observable<O> {
         return this.scheduler ? input.pipe(Rx.observeOn(this.scheduler)) : input;
     }
+}
+
+function isSuccess(event: CloseEvent | undefined) {
+    return event == null || event.exitCode === 0;
 }
