@@ -1,10 +1,12 @@
 import * as Rx from 'rxjs';
-import { defaultIfEmpty, delay, filter, map, skip, take, takeWhile } from 'rxjs/operators';
+import { defaultIfEmpty, delayWhen, filter, map, skip, take, takeWhile } from 'rxjs/operators';
 
 import { Command } from '../command';
 import * as defaults from '../defaults';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
+
+export type RestartDelay = number | 'exponential';
 
 /**
  * Restarts commands that fail up to a defined number of times.
@@ -12,7 +14,7 @@ import { FlowController } from './flow-controller';
 export class RestartProcess implements FlowController {
     private readonly logger: Logger;
     private readonly scheduler?: Rx.SchedulerLike;
-    readonly delay: number;
+    private readonly delay: RestartDelay;
     readonly tries: number;
 
     constructor({
@@ -21,13 +23,13 @@ export class RestartProcess implements FlowController {
         logger,
         scheduler,
     }: {
-        delay?: number;
+        delay?: RestartDelay;
         tries?: number;
         logger: Logger;
         scheduler?: Rx.SchedulerLike;
     }) {
         this.logger = logger;
-        this.delay = delay != null ? +delay : defaults.restartDelay;
+        this.delay = delay != null ? delay : 0;
         this.tries = tries != null ? +tries : defaults.restartTries;
         this.tries = this.tries < 0 ? Infinity : this.tries;
         this.scheduler = scheduler;
@@ -37,6 +39,12 @@ export class RestartProcess implements FlowController {
         if (this.tries === 0) {
             return { commands };
         }
+
+        const delayOperator = delayWhen((_, index) => {
+            const { delay } = this;
+            const value = delay === 'exponential' ? Math.pow(2, index) * 1000 : delay;
+            return Rx.timer(value, this.scheduler);
+        });
 
         commands
             .map((command) =>
@@ -50,7 +58,7 @@ export class RestartProcess implements FlowController {
                     // Delay the emission (so that the restarts happen on time),
                     // explicitly telling the subscriber that a restart is needed
                     failure.pipe(
-                        delay(this.delay, this.scheduler),
+                        delayOperator,
                         map(() => true),
                     ),
                     // Skip the first N emissions (as these would be duplicates of the above),
