@@ -15,7 +15,7 @@ import { LogError } from './flow-control/log-error';
 import { LogExit } from './flow-control/log-exit';
 import { LogOutput } from './flow-control/log-output';
 import { LogTimings } from './flow-control/log-timings';
-import { RestartProcess } from './flow-control/restart-process';
+import { RestartDelay, RestartProcess } from './flow-control/restart-process';
 import { Logger } from './logger';
 
 export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
@@ -59,7 +59,7 @@ export type ConcurrentlyOptions = BaseConcurrentlyOptions & {
      *
      * @see RestartProcess
      */
-    restartDelay?: number;
+    restartDelay?: RestartDelay;
 
     /**
      * How many times commands should be restarted when they exit with a failure.

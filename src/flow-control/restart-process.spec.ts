@@ -1,5 +1,5 @@
 import { createMockInstance } from 'jest-create-mock-instance';
-import { TestScheduler } from 'rxjs/testing';
+import { VirtualTimeScheduler } from 'rxjs';
 
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
@@ -8,12 +8,14 @@ import { RestartProcess } from './restart-process';
 let commands: FakeCommand[];
 let controller: RestartProcess;
 let logger: Logger;
-let scheduler: TestScheduler;
+let scheduler: VirtualTimeScheduler;
 beforeEach(() => {
     commands = [new FakeCommand(), new FakeCommand()];
-
     logger = createMockInstance(Logger);
-    scheduler = new TestScheduler(() => true);
+
+    // Don't use TestScheduler as it's hardcoded to a max number of "frames" (time),
+    // which don't work for some tests in this suite
+    scheduler = new VirtualTimeScheduler();
     controller = new RestartProcess({
         logger,
         scheduler,
@@ -34,7 +36,23 @@ it('does not restart processes that complete with success', () => {
     expect(commands[1].start).toHaveBeenCalledTimes(0);
 });
 
-it('restarts processes that fail after delay has passed', () => {
+it('restarts processes that fail immediately, if no delay was passed', () => {
+    controller = new RestartProcess({ logger, scheduler, tries: 1 });
+    controller.handle(commands);
+
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+    scheduler.flush();
+
+    expect(scheduler.now()).toBe(0);
+    expect(logger.logCommandEvent).toHaveBeenCalledTimes(1);
+    expect(logger.logCommandEvent).toHaveBeenCalledWith(
+        `${commands[0].command} restarted`,
+        commands[0],
+    );
+    expect(commands[0].start).toHaveBeenCalledTimes(1);
+});
+
+it('restarts processes that fail after delay ms has passed', () => {
     controller.handle(commands);
 
     commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
@@ -42,6 +60,7 @@ it('restarts processes that fail after delay has passed', () => {
 
     scheduler.flush();
 
+    expect(scheduler.now()).toBe(100);
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(1);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
         `${commands[0].command} restarted`,
@@ -49,6 +68,23 @@ it('restarts processes that fail after delay has passed', () => {
     );
     expect(commands[0].start).toHaveBeenCalledTimes(1);
     expect(commands[1].start).not.toHaveBeenCalled();
+});
+
+it('restarts processes that fail with an exponential back-off', () => {
+    const tries = 4;
+    controller = new RestartProcess({ logger, scheduler, tries, delay: 'exponential' });
+    controller.handle(commands);
+
+    let time = 0;
+    for (let i = 0; i < tries; i++) {
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        scheduler.flush();
+
+        time += Math.pow(2, i) * 1000;
+        expect(scheduler.now()).toBe(time);
+        expect(logger.logCommandEvent).toHaveBeenCalledTimes(i + 1);
+        expect(commands[0].start).toHaveBeenCalledTimes(i + 1);
+    }
 });
 
 it('restarts processes up to tries', () => {

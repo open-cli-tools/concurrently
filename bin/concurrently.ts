@@ -165,9 +165,9 @@ const args = yargs(argsBeforeSep)
             type: 'number',
         },
         'restart-after': {
-            describe: 'Delay time to respawn the process, in milliseconds.',
+            describe: 'Delay before restarting the process, in milliseconds, or "exponential".',
             default: defaults.restartDelay,
-            type: 'number',
+            type: 'string',
         },
 
         // Input
@@ -223,7 +223,8 @@ concurrently(
         prefix: args.prefix,
         prefixColors: args.prefixColors.split(','),
         prefixLength: args.prefixLength,
-        restartDelay: args.restartAfter,
+        restartDelay:
+            args.restartAfter === 'exponential' ? 'exponential' : Number(args.restartAfter),
         restartTries: args.restartTries,
         successCondition: args.success,
         timestampFormat: args.timestampFormat,
