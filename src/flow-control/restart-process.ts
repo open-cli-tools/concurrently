@@ -29,7 +29,7 @@ export class RestartProcess implements FlowController {
         scheduler?: Rx.SchedulerLike;
     }) {
         this.logger = logger;
-        this.delay = delay != null ? delay : 0;
+        this.delay = delay ?? 0;
         this.tries = tries != null ? +tries : defaults.restartTries;
         this.tries = this.tries < 0 ? Infinity : this.tries;
         this.scheduler = scheduler;
