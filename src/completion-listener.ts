@@ -27,9 +27,9 @@ export class CompletionListener {
     private readonly scheduler?: Rx.SchedulerLike;
 
     constructor({
-        successCondition = 'all',
-        scheduler,
-    }: {
+                    successCondition = 'all',
+                    scheduler,
+                }: {
         /**
          * How this instance will define that a list of commands ran successfully.
          * Defaults to `all`.
@@ -68,12 +68,12 @@ export class CompletionListener {
             ({ command, index }) => command.name === nameOrIndex || index === Number(nameOrIndex),
         );
         if (this.successCondition.startsWith('!')) {
-            // All commands except the specified ones must exit succesfully
+            // All commands except the specified ones must exit successfully
             return events.every(
                 (event) => targetCommandsEvents.includes(event) || event.exitCode === 0,
             );
         }
-        // Only the specified commands must exit succesfully
+        // Only the specified commands must exit successfully
         return (
             targetCommandsEvents.length > 0 &&
             targetCommandsEvents.every((event) => event.exitCode === 0)
@@ -86,7 +86,8 @@ export class CompletionListener {
      * @returns A Promise that resolves if the success condition is met, or rejects otherwise.
      */
     listen(commands: Command[]): Promise<CloseEvent[]> {
-        const closeStreams = commands.map((command) => command.close);
+        const closeStreams = commands.map((command) => command.close.pipe(take(1)));
+
         return Rx.lastValueFrom(
             Rx.merge(...closeStreams).pipe(
                 bufferCount(closeStreams.length),
