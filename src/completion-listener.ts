@@ -27,9 +27,9 @@ export class CompletionListener {
     private readonly scheduler?: Rx.SchedulerLike;
 
     constructor({
-                    successCondition = 'all',
-                    scheduler,
-                }: {
+        successCondition = 'all',
+        scheduler,
+    }: {
         /**
          * How this instance will define that a list of commands ran successfully.
          * Defaults to `all`.
