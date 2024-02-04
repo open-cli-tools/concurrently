@@ -3,7 +3,7 @@
   "version": "8.2.2",
   "description": "Run commands concurrently",
   "main": "index.js",
-  "types": "dist/src/index.d.ts",
+  "types": "index.d.ts",
   "type": "commonjs",
   "bin": {
     "concurrently": "./dist/bin/concurrently.js",
@@ -14,10 +14,14 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "import": "./index.mjs",
-      "require": "./index.js",
-      "default": "./index.js"
+      "import": {
+        "types": "./index.d.mts",
+        "default": "./index.mjs"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      }
     },
     "./package.json": "./package.json"
   },
@@ -94,7 +98,9 @@
   "files": [
     "dist",
     "index.js",
+    "index.d.ts",
     "index.mjs",
+    "index.d.mts",
     "!**/fixtures",
     "!**/*.spec.js",
     "!**/*.spec.d.ts"
