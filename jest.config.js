@@ -16,7 +16,8 @@ const config = {
         {
             ...baseConfig,
             displayName: 'unit',
-            testMatch: ['<rootDir>/(src|bin)/**/*.spec.ts'],
+            // (src|bin) doesn't seem to work on Windows
+            testMatch: ['src', 'bin'].map((dir) => `<rootDir>/${dir}/**/*.spec.ts`),
         },
         {
             ...baseConfig,
