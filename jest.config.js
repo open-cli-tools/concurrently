@@ -11,11 +11,11 @@ const baseConfig = {
 /** @type {import('@jest/types').Config.InitialOptions} */
 const config = {
     collectCoverage: true,
-    collectCoverageFrom: ['src/**/*.ts', '!src/index.ts'],
     projects: [
         {
             ...baseConfig,
             displayName: 'unit',
+            collectCoverageFrom: ['src/**/*.ts', '!src/index.ts'],
             // (src|bin) doesn't seem to work on Windows
             testMatch: ['src', 'bin'].map((dir) => `<rootDir>/${dir}/**/*.spec.ts`),
         },
