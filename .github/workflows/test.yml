@@ -59,7 +59,8 @@ jobs:
         run: concurrently --prefix none --group "pnpm:build" "pnpm:test"
 
       - name: Smoke Test
-        run: pnpm test:smoke
+        # Don't collect coverage here as it overrides the unit test's coverage
+        run: pnpm test:smoke --coverage=false
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master
