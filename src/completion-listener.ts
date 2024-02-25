@@ -1,5 +1,5 @@
 import * as Rx from 'rxjs';
-import { bufferCount, switchMap, take } from 'rxjs/operators';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 
 import { CloseEvent, Command } from './command';
 
@@ -86,11 +86,18 @@ export class CompletionListener {
      * @returns A Promise that resolves if the success condition is met, or rejects otherwise.
      */
     listen(commands: Command[]): Promise<CloseEvent[]> {
-        const closeStreams = commands.map((command) => command.close.pipe(take(1)));
+        const closeStreams = commands.map((command) => command.close.pipe());
 
         return Rx.lastValueFrom(
-            Rx.merge(...closeStreams).pipe(
-                bufferCount(closeStreams.length),
+            Rx.combineLatest(closeStreams).pipe(
+                filter((exitInfos) => exitInfos.every((exitInfo) => exitInfo.exitCode !== null)),
+                map((exitInfos) =>
+                    exitInfos.sort((first, second) => {
+                        return (
+                            first.timings.startDate.getTime() - second.timings.startDate.getTime()
+                        );
+                    }),
+                ),
                 switchMap((exitInfos) =>
                     this.isSuccess(exitInfos)
                         ? this.emitWithScheduler(Rx.of(exitInfos))

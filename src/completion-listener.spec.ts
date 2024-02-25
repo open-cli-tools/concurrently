@@ -24,6 +24,8 @@ const createController = (successCondition?: SuccessCondition) =>
 const emitFakeCloseEvent = (command: FakeCommand, event?: Partial<CloseEvent>) =>
     command.close.next(createFakeCloseEvent({ ...event, command, index: command.index }));
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 describe('listen', () => {
     it('check for success once all commands have emitted at least a single close event', async () => {
         const finallyCallback = jest.fn();
@@ -36,7 +38,7 @@ describe('listen', () => {
 
         scheduler.flush();
 
-        await Promise.resolve();
+        await sleep(100);
         expect(finallyCallback).not.toHaveBeenCalled();
 
         commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
@@ -47,6 +49,19 @@ describe('listen', () => {
         await expect(result).resolves.toEqual(expect.anything());
 
         expect(finallyCallback).toHaveBeenCalled();
+    });
+
+    it('Takes last event emitted from each command', async () => {
+        const result = createController().listen(commands);
+
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
+        commands[2].close.next(createFakeCloseEvent({ exitCode: 0 }));
+
+        scheduler.flush();
+
+        await expect(result).rejects.toEqual(expect.anything());
     });
 });
 
@@ -173,7 +188,6 @@ describe('Detect commands exit conditions', () => {
         });
 
         it(`fails if some commands ${nameOrIndex} exit with non-0 code`, () => {
-            commands = [commands[0], commands[1], commands[1]];
             const result = createController(condition).listen(commands);
 
             emitFakeCloseEvent(commands[0], { exitCode: 1 });

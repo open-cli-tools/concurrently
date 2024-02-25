@@ -39,6 +39,7 @@ export const getSpawnOpts = ({
     env?: Record<string, unknown>;
 }): SpawnOptions => ({
     cwd: cwd || process.cwd(),
+    stdio: ['pipe', 'pipe', 'pipe', 'ipc'],
     ...(raw && { stdio: 'inherit' as const }),
     ...(/^win/.test(process.platform) && { detached: false }),
     env: {
