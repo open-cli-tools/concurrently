@@ -151,6 +151,14 @@ describe('#start()', () => {
             expect(command.state).toBe('exited');
         });
 
+        it('does not change state if there was an error', () => {
+            const { command } = createCommand();
+            command.start();
+            process.emit('error', 'foo');
+            process.emit('close', 0, null);
+            expect(command.state).toBe('errored');
+        });
+
         it('shares start and close timing events to the timing stream', async () => {
             const { command, values } = createCommand();
             const startDate = new Date();

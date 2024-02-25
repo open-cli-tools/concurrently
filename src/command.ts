@@ -169,7 +169,11 @@ export class Command implements CommandInfo {
             .pipe(Rx.map((event) => event as [number | null, NodeJS.Signals | null]))
             .subscribe(([exitCode, signal]) => {
                 this.process = undefined;
-                this.state = 'exited';
+
+                // Don't override error event
+                if (this.state !== 'errored') {
+                    this.state = 'exited';
+                }
 
                 const endDate = new Date(Date.now());
                 this.timer.next({ startDate, endDate });

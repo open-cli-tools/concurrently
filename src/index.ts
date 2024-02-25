@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
 import {
-    concurrently,
+    concurrently as createConcurrently,
     ConcurrentlyCommandInput,
     ConcurrentlyOptions as BaseConcurrentlyOptions,
     ConcurrentlyResult,
@@ -15,7 +15,7 @@ import { LogError } from './flow-control/log-error';
 import { LogExit } from './flow-control/log-exit';
 import { LogOutput } from './flow-control/log-output';
 import { LogTimings } from './flow-control/log-timings';
-import { RestartProcess } from './flow-control/restart-process';
+import { RestartDelay, RestartProcess } from './flow-control/restart-process';
 import { Logger } from './logger';
 
 export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal'> & {
@@ -59,7 +59,7 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal'> &
      *
      * @see RestartProcess
      */
-    restartDelay?: number;
+    restartDelay?: RestartDelay;
 
     /**
      * How many times commands should be restarted when they exit with a failure.
@@ -91,10 +91,10 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal'> &
     additionalArguments?: string[];
 };
 
-export default (
+export function concurrently(
     commands: ConcurrentlyCommandInput[],
     options: Partial<ConcurrentlyOptions> = {},
-) => {
+) {
     const logger = new Logger({
         hide: options.hide,
         prefixFormat: options.prefix,
@@ -105,7 +105,7 @@ export default (
 
     const abortController = new AbortController();
 
-    return concurrently(commands, {
+    return createConcurrently(commands, {
         maxProcesses: options.maxProcesses,
         raw: options.raw,
         successCondition: options.successCondition,
@@ -145,28 +145,26 @@ export default (
         prefixColors: options.prefixColors || [],
         additionalArguments: options.additionalArguments,
     });
-};
+}
 
 // Export all flow controllers, types, and the main concurrently function,
 // so that 3rd-parties can use them however they want
+
+// Main
+export { ConcurrentlyCommandInput, ConcurrentlyResult, createConcurrently, Logger };
+
+// Command specific
+export { CloseEvent, Command, CommandIdentifier, TimerEvent };
+
+// Flow controllers
 export {
-    CloseEvent,
-    // Command specific
-    Command,
-    CommandIdentifier,
-    concurrently,
-    ConcurrentlyCommandInput,
-    ConcurrentlyResult,
-    // Flow controllers
     FlowController,
     InputHandler,
     KillOnSignal,
     KillOthers,
     LogError,
     LogExit,
-    Logger,
     LogOutput,
     LogTimings,
     RestartProcess,
-    TimerEvent,
 };
