@@ -281,7 +281,7 @@ it('uses overridden raw option for each command if specified', () => {
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith(
         'echo',
-        expect.objectContaining({
+        expect.not.objectContaining({
             stdio: expect.anything(),
         }),
     );
