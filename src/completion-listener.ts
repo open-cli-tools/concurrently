@@ -86,17 +86,16 @@ export class CompletionListener {
      * @returns A Promise that resolves if the success condition is met, or rejects otherwise.
      */
     listen(commands: Command[]): Promise<CloseEvent[]> {
-        const closeStreams = commands.map((command) => command.close.pipe());
+        const closeStreams = commands.map((command) => command.close);
 
         return Rx.lastValueFrom(
             Rx.combineLatest(closeStreams).pipe(
-                filter((exitInfos) => exitInfos.every((exitInfo) => exitInfo.exitCode !== null)),
+                filter((exitInfos) => exitInfos.every(({ state }) => state !== 'started')),
                 map((exitInfos) =>
-                    exitInfos.sort((first, second) => {
-                        return (
-                            first.timings.startDate.getTime() - second.timings.startDate.getTime()
-                        );
-                    }),
+                    exitInfos.sort(
+                        (first, second) =>
+                            first.timings.endDate.getTime() - second.timings.endDate.getTime(),
+                    ),
                 ),
                 switchMap((exitInfos) =>
                     this.isSuccess(exitInfos)

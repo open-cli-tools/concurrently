@@ -51,7 +51,7 @@ describe('listen', () => {
         expect(finallyCallback).toHaveBeenCalled();
     });
 
-    it('Takes last event emitted from each command', async () => {
+    it('takes last event emitted from each command', async () => {
         const result = createController().listen(commands);
 
         commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
