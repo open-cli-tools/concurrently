@@ -40,7 +40,7 @@ export const createFakeCloseEvent = (overrides?: Partial<CloseEvent>): CloseEven
     index: 0,
     killed: false,
     exitCode: 0,
-    state: 'started',
+    state: 'exited',
     timings: {
         startDate: new Date(),
         endDate: new Date(),
