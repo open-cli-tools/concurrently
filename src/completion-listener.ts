@@ -56,7 +56,7 @@ export class CompletionListener {
 
         const commandSyntaxMatch = this.successCondition.match(/^!?command-(.+)$/);
         if (commandSyntaxMatch == null) {
-            // If not a `command-` syntax, then it's an 'all' condition or it's treated as such.
+            // If not a `command-` syntax, then it's an 'all' condition, or it's treated as such.
             return events.every(({ exitCode }) => exitCode === 0);
         }
 
