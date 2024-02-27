@@ -3,7 +3,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import * as defaults from '../src/defaults';
-import concurrently from '../src/index';
+import { concurrently } from '../src/index';
 import { epilogue } from './epilogue';
 
 // Clean-up arguments (yargs expects only the arguments after the program name)
