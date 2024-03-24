@@ -126,11 +126,11 @@ export class CompletionListener {
                                 first.timings.endDate.getTime() - second.timings.endDate.getTime(),
                         ),
                 ),
-                switchMap((events) => {
-                    return this.isSuccess(events)
+                switchMap((events) =>
+                    this.isSuccess(events)
                         ? this.emitWithScheduler(Rx.of(events))
-                        : this.emitWithScheduler(Rx.throwError(() => events));
-                }),
+                        : this.emitWithScheduler(Rx.throwError(() => events)),
+                ),
                 take(1),
             ),
         );
