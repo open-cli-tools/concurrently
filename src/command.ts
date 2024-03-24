@@ -57,11 +57,6 @@ export interface CloseEvent {
      */
     exitCode: string | number;
 
-    /**
-     * The state of the command.
-     */
-    state: CommandState;
-
     timings: {
         startDate: Date;
         endDate: Date;
@@ -186,7 +181,6 @@ export class Command implements CommandInfo {
                 const [durationSeconds, durationNanoSeconds] = process.hrtime(highResStartTime);
                 this.close.next({
                     command: this,
-                    state: this.state,
                     index: this.index,
                     exitCode: exitCode ?? String(signal),
                     killed: this.killed,

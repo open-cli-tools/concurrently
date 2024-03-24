@@ -90,7 +90,7 @@ export class CompletionListener {
 
         return Rx.lastValueFrom(
             Rx.combineLatest(closeStreams).pipe(
-                filter((exitInfos) => exitInfos.every(({ state }) => state !== 'started')),
+                filter(() => commands.every((command) => command.state !== 'started')),
                 map((exitInfos) =>
                     exitInfos.sort(
                         (first, second) =>

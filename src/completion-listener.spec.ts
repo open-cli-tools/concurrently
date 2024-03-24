@@ -24,7 +24,7 @@ const createController = (successCondition?: SuccessCondition) =>
 const emitFakeCloseEvent = (command: FakeCommand, event?: Partial<CloseEvent>) =>
     command.close.next(createFakeCloseEvent({ ...event, command, index: command.index }));
 
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('listen', () => {
     it('check for success once all commands have emitted at least a single close event', async () => {
@@ -37,8 +37,8 @@ describe('listen', () => {
         commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
 
         scheduler.flush();
-
-        await sleep(100);
+        // A broken implementantion will have called finallyCallback only after flushing promises
+        await flushPromises();
         expect(finallyCallback).not.toHaveBeenCalled();
 
         commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
@@ -62,6 +62,28 @@ describe('listen', () => {
         scheduler.flush();
 
         await expect(result).rejects.toEqual(expect.anything());
+    });
+
+    it('waits for manually restarted events to close', async () => {
+        const finallyCallback = jest.fn();
+        const result = createController().listen(commands).finally(finallyCallback);
+
+        commands[0].close.next(createFakeCloseEvent());
+        commands[0].state = 'started';
+        commands[1].close.next(createFakeCloseEvent());
+        commands[2].close.next(createFakeCloseEvent());
+
+        scheduler.flush();
+        // A broken implementantion will have called finallyCallback only after flushing promises
+        await flushPromises();
+        expect(finallyCallback).not.toHaveBeenCalled();
+
+        commands[0].state = 'exited';
+        commands[0].close.next(createFakeCloseEvent());
+        scheduler.flush();
+
+        await expect(result).resolves.toEqual(expect.anything());
+        expect(finallyCallback).toHaveBeenCalled();
     });
 });
 
