@@ -21,12 +21,41 @@ const createController = (successCondition?: SuccessCondition) =>
         scheduler,
     });
 
-const emitFakeCloseEvent = (command: FakeCommand, event?: Partial<CloseEvent>) =>
-    command.close.next(createFakeCloseEvent({ ...event, command, index: command.index }));
+const emitFakeCloseEvent = (command: FakeCommand, event?: Partial<CloseEvent>) => {
+    const fakeEvent = createFakeCloseEvent({ ...event, command, index: command.index });
+    command.state = 'exited';
+    command.close.next(fakeEvent);
+    return fakeEvent;
+};
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('listen', () => {
+    it('completes only when commands emit a close event, returns close event', async () => {
+        const abortCtrl = new AbortController();
+        const result = createController('all').listen(commands, abortCtrl.signal);
+
+        commands[0].state = 'started';
+        abortCtrl.abort();
+
+        const event = emitFakeCloseEvent(commands[0]);
+        scheduler.flush();
+
+        await expect(result).resolves.toHaveLength(1);
+        await expect(result).resolves.toEqual([event]);
+    });
+
+    it('completes when abort signal is received and command is stopped, returns nothing', async () => {
+        const abortCtrl = new AbortController();
+        // Use success condition = first to test index access when there are no close events
+        const result = createController('first').listen([new FakeCommand()], abortCtrl.signal);
+
+        abortCtrl.abort();
+        scheduler.flush();
+
+        await expect(result).resolves.toHaveLength(0);
+    });
+
     it('check for success once all commands have emitted at least a single close event', async () => {
         const finallyCallback = jest.fn();
         const result = createController().listen(commands).finally(finallyCallback);

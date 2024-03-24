@@ -43,7 +43,8 @@ export type ConcurrentlyResult = {
      * A promise that resolves when concurrently ran successfully according to the specified
      * success condition, or reject otherwise.
      *
-     * Both the resolved and rejected value is the list of all command's close events.
+     * Both the resolved and rejected value is a list of all the close events for commands that
+     * spawned; commands that didn't spawn are filtered out.
      */
     result: Promise<CloseEvent[]>;
 };
@@ -104,6 +105,11 @@ export type ConcurrentlyOptions = {
      * @see CompletionListener
      */
     successCondition?: SuccessCondition;
+
+    /**
+     * A signal to stop spawning further processes.
+     */
+    abortSignal?: AbortSignal;
 
     /**
      * Which flow controllers should be applied on commands spawned by concurrently.
@@ -217,11 +223,11 @@ export function concurrently(
             : Number(options.maxProcesses)) || commandsLeft.length,
     );
     for (let i = 0; i < maxProcesses; i++) {
-        maybeRunMore(commandsLeft);
+        maybeRunMore(commandsLeft, options.abortSignal);
     }
 
     const result = new CompletionListener({ successCondition: options.successCondition })
-        .listen(commands)
+        .listen(commands, options.abortSignal)
         .finally(() => {
             handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
         });
@@ -263,14 +269,14 @@ function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     );
 }
 
-function maybeRunMore(commandsLeft: Command[]) {
+function maybeRunMore(commandsLeft: Command[], abortSignal?: AbortSignal) {
     const command = commandsLeft.shift();
-    if (!command) {
+    if (!command || abortSignal?.aborted) {
         return;
     }
 
     command.start();
     command.close.subscribe(() => {
-        maybeRunMore(commandsLeft);
+        maybeRunMore(commandsLeft, abortSignal);
     });
 }

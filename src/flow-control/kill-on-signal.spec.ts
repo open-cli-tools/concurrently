@@ -7,10 +7,12 @@ import { KillOnSignal } from './kill-on-signal';
 let commands: Command[];
 let controller: KillOnSignal;
 let process: EventEmitter;
+let abortController: AbortController;
 beforeEach(() => {
     process = new EventEmitter();
     commands = [new FakeCommand(), new FakeCommand()];
-    controller = new KillOnSignal({ process });
+    abortController = new AbortController();
+    controller = new KillOnSignal({ process, abortController });
 });
 
 it('returns commands that keep non-close streams from original commands', () => {
@@ -51,29 +53,20 @@ it('returns commands that keep non-SIGINT exit codes', () => {
     expect(callback).toHaveBeenCalledWith(expect.objectContaining({ exitCode: 1 }));
 });
 
-it('kills all commands on SIGINT', () => {
-    controller.handle(commands);
-    process.emit('SIGINT');
+describe.each(['SIGINT', 'SIGTERM', 'SIGHUP'])('on %s', (signal) => {
+    it('kills all commands', () => {
+        controller.handle(commands);
+        process.emit(signal);
 
-    expect(process.listenerCount('SIGINT')).toBe(1);
-    expect(commands[0].kill).toHaveBeenCalledWith('SIGINT');
-    expect(commands[1].kill).toHaveBeenCalledWith('SIGINT');
-});
+        expect(process.listenerCount(signal)).toBe(1);
+        expect(commands[0].kill).toHaveBeenCalledWith(signal);
+        expect(commands[1].kill).toHaveBeenCalledWith(signal);
+    });
 
-it('kills all commands on SIGTERM', () => {
-    controller.handle(commands);
-    process.emit('SIGTERM');
+    it('sends abort signal', () => {
+        controller.handle(commands);
+        process.emit(signal);
 
-    expect(process.listenerCount('SIGTERM')).toBe(1);
-    expect(commands[0].kill).toHaveBeenCalledWith('SIGTERM');
-    expect(commands[1].kill).toHaveBeenCalledWith('SIGTERM');
-});
-
-it('kills all commands on SIGHUP', () => {
-    controller.handle(commands);
-    process.emit('SIGHUP');
-
-    expect(process.listenerCount('SIGHUP')).toBe(1);
-    expect(commands[0].kill).toHaveBeenCalledWith('SIGHUP');
-    expect(commands[1].kill).toHaveBeenCalledWith('SIGHUP');
+        expect(abortController.signal.aborted).toBe(true);
+    });
 });
