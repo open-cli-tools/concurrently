@@ -56,6 +56,7 @@ export interface CloseEvent {
      * The exit code or signal for the command.
      */
     exitCode: string | number;
+
     timings: {
         startDate: Date;
         endDate: Date;

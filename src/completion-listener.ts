@@ -1,5 +1,5 @@
 import * as Rx from 'rxjs';
-import { bufferCount, switchMap, take } from 'rxjs/operators';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 
 import { CloseEvent, Command } from './command';
 
@@ -56,7 +56,7 @@ export class CompletionListener {
 
         const commandSyntaxMatch = this.successCondition.match(/^!?command-(.+)$/);
         if (commandSyntaxMatch == null) {
-            // If not a `command-` syntax, then it's an 'all' condition or it's treated as such.
+            // If not a `command-` syntax, then it's an 'all' condition, or it's treated as such.
             return events.every(({ exitCode }) => exitCode === 0);
         }
 
@@ -68,12 +68,12 @@ export class CompletionListener {
             ({ command, index }) => command.name === nameOrIndex || index === Number(nameOrIndex),
         );
         if (this.successCondition.startsWith('!')) {
-            // All commands except the specified ones must exit succesfully
+            // All commands except the specified ones must exit successfully
             return events.every(
                 (event) => targetCommandsEvents.includes(event) || event.exitCode === 0,
             );
         }
-        // Only the specified commands must exit succesfully
+        // Only the specified commands must exit successfully
         return (
             targetCommandsEvents.length > 0 &&
             targetCommandsEvents.every((event) => event.exitCode === 0)
@@ -87,9 +87,16 @@ export class CompletionListener {
      */
     listen(commands: Command[]): Promise<CloseEvent[]> {
         const closeStreams = commands.map((command) => command.close);
+
         return Rx.lastValueFrom(
-            Rx.merge(...closeStreams).pipe(
-                bufferCount(closeStreams.length),
+            Rx.combineLatest(closeStreams).pipe(
+                filter(() => commands.every((command) => command.state !== 'started')),
+                map((exitInfos) =>
+                    exitInfos.sort(
+                        (first, second) =>
+                            first.timings.endDate.getTime() - second.timings.endDate.getTime(),
+                    ),
+                ),
                 switchMap((exitInfos) =>
                     this.isSuccess(exitInfos)
                         ? this.emitWithScheduler(Rx.of(exitInfos))
