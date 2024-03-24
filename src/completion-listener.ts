@@ -47,17 +47,22 @@ export class CompletionListener {
         this.scheduler = scheduler;
     }
 
-    private isSuccess(events: (CloseEvent | undefined)[]) {
+    private isSuccess(events: CloseEvent[]) {
+        if (!events.length) {
+            // When every command was aborted, consider a success.
+            return true;
+        }
+
         if (this.successCondition === 'first') {
-            return isSuccess(events[0]);
+            return events[0].exitCode === 0;
         } else if (this.successCondition === 'last') {
-            return isSuccess(events[events.length - 1]);
+            return events[events.length - 1].exitCode === 0;
         }
 
         const commandSyntaxMatch = this.successCondition.match(/^!?command-(.+)$/);
         if (commandSyntaxMatch == null) {
             // If not a `command-` syntax, then it's an 'all' condition or it's treated as such.
-            return events.every(isSuccess);
+            return events.every(({ exitCode }) => exitCode === 0);
         }
 
         // Check `command-` syntax condition.
@@ -65,16 +70,19 @@ export class CompletionListener {
         // in which case all of them must meet the success condition.
         const nameOrIndex = commandSyntaxMatch[1];
         const targetCommandsEvents = events.filter(
-            (event) => event?.command.name === nameOrIndex || event?.index === Number(nameOrIndex),
+            ({ command, index }) => command.name === nameOrIndex || index === Number(nameOrIndex),
         );
         if (this.successCondition.startsWith('!')) {
             // All commands except the specified ones must exit successfully
             return events.every(
-                (event) => targetCommandsEvents.includes(event) || isSuccess(event),
+                (event) => targetCommandsEvents.includes(event) || event.exitCode === 0,
             );
         }
         // Only the specified commands must exit succesfully
-        return targetCommandsEvents.length > 0 && targetCommandsEvents.every(isSuccess);
+        return (
+            targetCommandsEvents.length > 0 &&
+            targetCommandsEvents.every((event) => event.exitCode === 0)
+        );
     }
 
     /**
@@ -108,22 +116,20 @@ export class CompletionListener {
                         (command, i) => command.state !== 'started' || events[i] === undefined,
                     ),
                 ),
-                map((exitInfos) =>
-                    exitInfos.sort((first, second) => {
-                        if (!first || !second) {
-                            return 0;
-                        }
-                        return first.timings.endDate.getTime() - second.timings.endDate.getTime();
-                    }),
+                map((events) =>
+                    events
+                        // Filter out aborts, since they cannot be sorted and are considered success condition anyways
+                        .filter((event): event is CloseEvent => event != null)
+                        // Sort according to exit time
+                        .sort(
+                            (first, second) =>
+                                first.timings.endDate.getTime() - second.timings.endDate.getTime(),
+                        ),
                 ),
                 switchMap((events) => {
-                    const success = this.isSuccess(events);
-                    const filteredEvents = events.filter(
-                        (event): event is CloseEvent => event != null,
-                    );
-                    return success
-                        ? this.emitWithScheduler(Rx.of(filteredEvents))
-                        : this.emitWithScheduler(Rx.throwError(() => filteredEvents));
+                    return this.isSuccess(events)
+                        ? this.emitWithScheduler(Rx.of(events))
+                        : this.emitWithScheduler(Rx.throwError(() => events));
                 }),
                 take(1),
             ),
@@ -133,8 +139,4 @@ export class CompletionListener {
     private emitWithScheduler<O>(input: Rx.Observable<O>): Rx.Observable<O> {
         return this.scheduler ? input.pipe(Rx.observeOn(this.scheduler)) : input;
     }
-}
-
-function isSuccess(event: CloseEvent | undefined) {
-    return event == null || event.exitCode === 0;
 }

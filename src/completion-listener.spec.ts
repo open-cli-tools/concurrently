@@ -47,7 +47,8 @@ describe('listen', () => {
 
     it('completes when abort signal is received and command is stopped, returns nothing', async () => {
         const abortCtrl = new AbortController();
-        const result = createController('all').listen([new FakeCommand()], abortCtrl.signal);
+        // Use success condition = first to test index access when there are no close events
+        const result = createController('first').listen([new FakeCommand()], abortCtrl.signal);
 
         abortCtrl.abort();
         scheduler.flush();
