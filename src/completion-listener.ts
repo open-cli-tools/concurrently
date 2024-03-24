@@ -1,5 +1,5 @@
 import * as Rx from 'rxjs';
-import { bufferCount, delay, filter, map, switchMap, take } from 'rxjs/operators';
+import { delay, filter, map, switchMap, take } from 'rxjs/operators';
 
 import { CloseEvent, Command } from './command';
 
@@ -68,7 +68,7 @@ export class CompletionListener {
             (event) => event?.command.name === nameOrIndex || event?.index === Number(nameOrIndex),
         );
         if (this.successCondition.startsWith('!')) {
-            // All commands except the specified ones must exit succesfully
+            // All commands except the specified ones must exit successfully
             return events.every(
                 (event) => targetCommandsEvents.includes(event) || isSuccess(event),
             );
@@ -102,8 +102,20 @@ export class CompletionListener {
                 : command.close,
         );
         return Rx.lastValueFrom(
-            Rx.merge(...closeStreams).pipe(
-                bufferCount(closeStreams.length),
+            Rx.combineLatest(closeStreams).pipe(
+                filter((events) =>
+                    commands.every(
+                        (command, i) => command.state !== 'started' || events[i] === undefined,
+                    ),
+                ),
+                map((exitInfos) =>
+                    exitInfos.sort((first, second) => {
+                        if (!first || !second) {
+                            return 0;
+                        }
+                        return first.timings.endDate.getTime() - second.timings.endDate.getTime();
+                    }),
+                ),
                 switchMap((events) => {
                     const success = this.isSuccess(events);
                     const filteredEvents = events.filter(
