@@ -32,32 +32,31 @@ describe('listen', () => {
         const result = createController().listen(commands).finally(finallyCallback);
 
         // Emitting multiple close events to mimic calling command `kill/start` APIs.
-        commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
-        commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
-        commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
+        emitFakeCloseEvent(commands[0]);
+        emitFakeCloseEvent(commands[0]);
+        emitFakeCloseEvent(commands[0]);
 
         scheduler.flush();
         // A broken implementantion will have called finallyCallback only after flushing promises
         await flushPromises();
         expect(finallyCallback).not.toHaveBeenCalled();
 
-        commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
-        commands[2].close.next(createFakeCloseEvent({ exitCode: 0 }));
+        emitFakeCloseEvent(commands[1]);
+        emitFakeCloseEvent(commands[2]);
 
         scheduler.flush();
 
         await expect(result).resolves.toEqual(expect.anything());
-
         expect(finallyCallback).toHaveBeenCalled();
     });
 
     it('takes last event emitted from each command', async () => {
         const result = createController().listen(commands);
 
-        commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
-        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
-        commands[1].close.next(createFakeCloseEvent({ exitCode: 0 }));
-        commands[2].close.next(createFakeCloseEvent({ exitCode: 0 }));
+        emitFakeCloseEvent(commands[0], { exitCode: 0 });
+        emitFakeCloseEvent(commands[0], { exitCode: 1 });
+        emitFakeCloseEvent(commands[1], { exitCode: 0 });
+        emitFakeCloseEvent(commands[2], { exitCode: 0 });
 
         scheduler.flush();
 
@@ -68,10 +67,10 @@ describe('listen', () => {
         const finallyCallback = jest.fn();
         const result = createController().listen(commands).finally(finallyCallback);
 
-        commands[0].close.next(createFakeCloseEvent());
+        emitFakeCloseEvent(commands[0]);
         commands[0].state = 'started';
-        commands[1].close.next(createFakeCloseEvent());
-        commands[2].close.next(createFakeCloseEvent());
+        emitFakeCloseEvent(commands[1]);
+        emitFakeCloseEvent(commands[2]);
 
         scheduler.flush();
         // A broken implementantion will have called finallyCallback only after flushing promises
@@ -79,7 +78,7 @@ describe('listen', () => {
         expect(finallyCallback).not.toHaveBeenCalled();
 
         commands[0].state = 'exited';
-        commands[0].close.next(createFakeCloseEvent());
+        emitFakeCloseEvent(commands[0]);
         scheduler.flush();
 
         await expect(result).resolves.toEqual(expect.anything());
