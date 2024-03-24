@@ -7,7 +7,7 @@
 
   - Description: Clear and concise description of what the bug is
   - Expected Behavior: What you expected to happen
-  - Environment: At least the OS and version of "concurrently"
+  - Environment: At least the OS, Node.js, and concurrently's versions
   - Reproduction: A way to reproduce the issue
 
   For feature requests, please provide the following information:
