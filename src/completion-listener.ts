@@ -111,11 +111,7 @@ export class CompletionListener {
         );
         return Rx.lastValueFrom(
             Rx.combineLatest(closeStreams).pipe(
-                filter((events) =>
-                    commands.every(
-                        (command, i) => command.state !== 'started' || events[i] === undefined,
-                    ),
-                ),
+                filter(() => commands.every((command) => command.state !== 'started')),
                 map((events) =>
                     events
                         // Filter out aborts, since they cannot be sorted and are considered success condition anyways
