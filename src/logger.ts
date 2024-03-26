@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import formatDate from 'date-fns/format';
+import { formatDateTime } from 'date-and-time-formatter';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
 
@@ -56,7 +56,7 @@ export class Logger {
 
         /**
          * Date format used when logging date/time.
-         * @see https://date-fns.org/v2.0.1/docs/format
+         * @see https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
          */
         timestampFormat?: string;
     }) {
@@ -93,7 +93,7 @@ export class Logger {
             index: String(command.index),
             name: command.name,
             command: this.shortenText(command.command),
-            time: formatDate(Date.now(), this.timestampFormat),
+            time: formatDateTime(new Date(), this.timestampFormat),
         };
     }
 

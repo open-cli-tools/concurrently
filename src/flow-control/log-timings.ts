@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import formatDate from 'date-fns/format';
+import { formatDateTime } from 'date-and-time-formatter';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
 import { bufferCount, combineLatestWith, take } from 'rxjs/operators';
@@ -77,14 +77,14 @@ export class LogTimings implements FlowController {
         commands.forEach((command) => {
             command.timer.subscribe(({ startDate, endDate }) => {
                 if (!endDate) {
-                    const formattedStartDate = formatDate(startDate, this.timestampFormat);
+                    const formattedStartDate = formatDateTime(startDate, this.timestampFormat);
                     logger.logCommandEvent(
                         `${command.command} started at ${formattedStartDate}`,
                         command,
                     );
                 } else {
                     const durationMs = endDate.getTime() - startDate.getTime();
-                    const formattedEndDate = formatDate(endDate, this.timestampFormat);
+                    const formattedEndDate = formatDateTime(endDate, this.timestampFormat);
                     logger.logCommandEvent(
                         `${
                             command.command
