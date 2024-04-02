@@ -117,10 +117,16 @@ it('has help command', async () => {
 });
 
 describe('has version command', () => {
-    it.each(['--version', '-V', '-v'])('%s', async (arg) => {
-        const exit = await run(arg).exit;
+    const pkg = fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8');
+    const { version } = JSON.parse(pkg);
 
-        expect(exit.code).toBe(0);
+    it.each(['--version', '-V', '-v'])('%s', async (arg) => {
+        const child = run(arg);
+        const log = await child.getLogLines();
+        expect(log).toContain(version);
+
+        const { code } = await child.exit;
+        expect(code).toBe(0);
     });
 });
 
