@@ -21,8 +21,8 @@ dependencies:
     specifier: ^1.8.1
     version: 1.8.1
   spawn-command:
-    specifier: 0.0.2
-    version: 0.0.2
+    specifier: 0.0.2-1
+    version: 0.0.2-1
   supports-color:
     specifier: ^8.1.1
     version: 8.1.1
@@ -4386,8 +4386,8 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: true
 
-  /spawn-command@0.0.2:
-    resolution: {integrity: sha512-zC8zGoGkmc8J9ndvml8Xksr1Amk9qBujgbF0JAIWO7kXr43w0h/0GJNM/Vustixu+YE8N/MTrQ7N31FvHUACxQ==}
+  /spawn-command@0.0.2-1:
+    resolution: {integrity: sha512-n98l9E2RMSJ9ON1AKisHzz7V42VDiBQGY6PB1BwRglz99wpVsSuGzQ+jOi6lFXBGVTCrRpltvjm+/XA+tpeJrg==}
     dev: false
 
   /sprintf-js@1.0.3:
