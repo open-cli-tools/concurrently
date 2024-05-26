@@ -1,7 +1,6 @@
 import assert from 'assert';
 import _ from 'lodash';
 import { cpus } from 'os';
-import spawn from 'spawn-command';
 import { Writable } from 'stream';
 import treeKill from 'tree-kill';
 
@@ -13,10 +12,10 @@ import { ExpandNpmWildcard } from './command-parser/expand-npm-wildcard';
 import { StripQuotes } from './command-parser/strip-quotes';
 import { CompletionListener, SuccessCondition } from './completion-listener';
 import { FlowController } from './flow-control/flow-controller';
-import { getSpawnOpts } from './get-spawn-opts';
 import { Logger } from './logger';
 import { OutputWriter } from './output-writer';
 import { PrefixColorSelector } from './prefix-color-selector';
+import { getSpawnOpts, spawn } from './spawn';
 
 const defaults: ConcurrentlyOptions = {
     spawn,
@@ -119,7 +118,7 @@ export type ConcurrentlyOptions = {
 
     /**
      * A function that will spawn commands.
-     * Defaults to the `spawn-command` module.
+     * Defaults to a function that spawns using either `cmd.exe` or `/bin/sh`.
      */
     spawn: SpawnCommand;
 
