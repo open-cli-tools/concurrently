@@ -39,7 +39,6 @@ tired of opening terminals and made **concurrently**.
 - Cross platform (including Windows)
 - Output is easy to follow with prefixes
 - With `--kill-others` switch, all commands are killed if one dies
-- Spawns commands with [spawn-command](https://github.com/mmalecki/spawn-command)
 
 ## Installation
 
