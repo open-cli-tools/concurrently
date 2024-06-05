@@ -1,5 +1,26 @@
-import { SpawnOptions } from 'child_process';
+import { ChildProcess, spawn as baseSpawn, SpawnOptions } from 'child_process';
 import supportsColor from 'supports-color';
+
+/**
+ * Spawns a command using `cmd.exe` on Windows, or `/bin/sh` elsewhere.
+ */
+// Implementation based off of https://github.com/mmalecki/spawn-command/blob/v0.0.2-1/lib/spawn-command.js
+export function spawn(
+    command: string,
+    options: SpawnOptions,
+    // For testing
+    spawn: (command: string, args: string[], options: SpawnOptions) => ChildProcess = baseSpawn,
+    process: Pick<NodeJS.Process, 'platform'> = global.process,
+): ChildProcess {
+    let file = '/bin/sh';
+    let args = ['-c', command];
+    if (process.platform === 'win32') {
+        file = 'cmd.exe';
+        args = ['/s', '/c', `"${command}"`];
+        options.windowsVerbatimArguments = true;
+    }
+    return spawn(file, args, options);
+}
 
 export const getSpawnOpts = ({
     colorSupport = supportsColor.stdout,
