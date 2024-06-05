@@ -61,15 +61,19 @@ const examples = [
     },
     {
         description: "Passthrough some additional arguments via '{<number>}' placeholder",
-        example: '$ $0 -P "echo {1}" -- foo',
+        example: ['$ $0 -P "echo {1}" -- foo bar', '# Results in: echo foo'].join('\n'),
     },
     {
         description: "Passthrough all additional arguments via '{@}' placeholder",
-        example: '$ $0 -P "npm:dev-* -- {@}" -- --watch --noEmit',
+        example: [
+            '$ $0 -P "npm:dev-* -- {@}" -- --watch --noEmit',
+            '# Results in something like: npm run dev-example -- --watch --noEmit',
+        ].join('\n'),
     },
     {
-        description: "Passthrough all additional arguments combined via '{*}' placeholder",
-        example: '$ $0 -P "npm:dev-* -- {*}" -- --watch --noEmit',
+        description:
+            "Passthrough all additional arguments combined into one argument via '{*}' placeholder",
+        example: ['$ $0 -P "echo {*}" -- foo bar', "# Results in: echo 'foo bar'"].join('\n'),
     },
 ];
 

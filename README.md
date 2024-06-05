@@ -296,14 +296,17 @@ Examples:
  - Passthrough some additional arguments via '{<number>}' placeholder
 
      $ concurrently -P "echo {1}" -- foo
+     # Results in: echo foo
 
  - Passthrough all additional arguments via '{@}' placeholder
 
      $ concurrently -P "npm:dev-* -- {@}" -- --watch --noEmit
+     # Results in something like: npm run dev-example -- --watch --noEmit
 
- - Passthrough all additional arguments combined via '{*}' placeholder
+ - Passthrough all additional arguments combined into one argument via '{*}' placeholder
 
-     $ concurrently -P "npm:dev-* -- {*}" -- --watch --noEmit
+     $ concurrently -P "echo {*}" -- foo bar
+     # Results in: echo 'foo bar'
 
 For more details, visit https://github.com/open-cli-tools/concurrently
 ```
