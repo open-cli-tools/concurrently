@@ -71,7 +71,8 @@ const examples = [
         ].join('\n'),
     },
     {
-        description: "Passthrough all additional arguments combined into one argument via '{*}' placeholder",
+        description:
+            "Passthrough all additional arguments combined into one argument via '{*}' placeholder",
         example: ['$ $0 -P "echo {*}" -- foo bar', "# Results in: echo 'foo bar'"].join('\n'),
     },
 ];
