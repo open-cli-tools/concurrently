@@ -31,6 +31,10 @@ describe('getSpawnOpts()', () => {
         expect(getSpawnOpts({ raw: true }).stdio).toBe('inherit');
     });
 
+    it('unsets stdio when raw and hide', () => {
+        expect(getSpawnOpts({ raw: true, hide: true }).stdio).toBeUndefined();
+    });
+
     it('merges FORCE_COLOR into env vars if color supported', () => {
         const process = { ...baseProcess, env: { foo: 'bar' } };
         expect(getSpawnOpts({ process, colorSupport: false }).env).toEqual(process.env);
