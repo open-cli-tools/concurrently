@@ -4,7 +4,14 @@ import { cpus } from 'os';
 import { Writable } from 'stream';
 import treeKill from 'tree-kill';
 
-import { CloseEvent, Command, CommandInfo, KillProcess, SpawnCommand } from './command';
+import {
+    CloseEvent,
+    Command,
+    CommandIdentifier,
+    CommandInfo,
+    KillProcess,
+    SpawnCommand,
+} from './command';
 import { CommandParser } from './command-parser/command-parser';
 import { ExpandArguments } from './command-parser/expand-arguments';
 import { ExpandNpmShortcut } from './command-parser/expand-npm-shortcut';
@@ -95,6 +102,11 @@ export type ConcurrentlyOptions = {
     raw?: boolean;
 
     /**
+     * Which command(s) should have their output hidden.
+     */
+    hide?: CommandIdentifier | CommandIdentifier[];
+
+    /**
      * The current working directory of commands which didn't specify one.
      * Defaults to `process.cwd()`.
      */
@@ -169,6 +181,13 @@ export function concurrently(
         commandParsers.push(new ExpandArguments(options.additionalArguments));
     }
 
+    // To avoid empty strings from hiding the output of commands that don't have a name,
+    // keep in the list of commands to hide only strings with some length.
+    // This might happen through the CLI when no `--hide` argument is specified, for example.
+    const hide = _.castArray(options.hide)
+        .filter((name) => name || name === 0)
+        .map(String);
+
     let commands = _(baseCommands)
         .map(mapToCommandInfo)
         .flatMap((command) => parseCommand(command, commandParsers))
@@ -183,6 +202,7 @@ export function concurrently(
                     raw: command.raw ?? options.raw,
                     env: command.env,
                     cwd: command.cwd || options.cwd,
+                    hide: hide.includes(String(index)) || hide.includes(command.name),
                 }),
                 options.spawn,
                 options.kill,
