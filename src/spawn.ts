@@ -28,6 +28,7 @@ export const getSpawnOpts = ({
     process = global.process,
     raw = false,
     env = {},
+    hide = false,
 }: {
     /**
      * What the color support of the spawned processes should be.
@@ -58,9 +59,15 @@ export const getSpawnOpts = ({
      * Map of custom environment variables to include in the spawn options.
      */
     env?: Record<string, unknown>;
+
+    /**
+     * Whether to hide the standard output.
+     * Defaults to false.
+     */
+    hide?: boolean;
 }): SpawnOptions => ({
     cwd: cwd || process.cwd(),
-    ...(raw && { stdio: 'inherit' as const }),
+    ...(raw && !hide && { stdio: 'inherit' as const }),
     ...(/^win/.test(process.platform) && { detached: false }),
     env: {
         ...(colorSupport ? { FORCE_COLOR: colorSupport.level.toString() } : {}),
