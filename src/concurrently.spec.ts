@@ -1,3 +1,5 @@
+import process from 'node:process';
+
 import { createMockInstance } from 'jest-create-mock-instance';
 import os from 'os';
 import { Writable } from 'stream';
@@ -13,6 +15,8 @@ let kill: KillProcess;
 let onFinishHooks: (() => void)[];
 let controllers: jest.Mocked<FlowController>[];
 let processes: ChildProcess[];
+
+const isWin32 = process.platform === 'win32';
 const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) =>
     concurrently(commands, Object.assign(options, { controllers, spawn, kill }));
 
@@ -319,7 +323,10 @@ it('argument placeholders are properly replaced when additional arguments are pa
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('echo foo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo foo bar', expect.objectContaining({}));
-    expect(spawn).toHaveBeenCalledWith("echo 'foo bar'", expect.objectContaining({}));
+    expect(spawn).toHaveBeenCalledWith(
+        isWin32 ? 'echo "foo bar"' : "echo 'foo bar'",
+        expect.objectContaining({}),
+    );
     expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
 });
 

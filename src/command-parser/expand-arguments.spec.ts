@@ -1,5 +1,9 @@
+import process from 'node:process';
+
 import { CommandInfo } from '../command';
 import { ExpandArguments } from './expand-arguments';
+
+const isWin32 = process.platform === 'win32';
 
 const createCommandInfo = (command: string): CommandInfo => ({
     command,
@@ -21,7 +25,10 @@ it('single argument placeholder is replaced', () => {
 it('argument placeholder is replaced and quoted properly', () => {
     const parser = new ExpandArguments(['foo bar']);
     const commandInfo = createCommandInfo('echo {1}');
-    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: "echo 'foo bar'" });
+    expect(parser.parse(commandInfo)).toEqual({
+        ...commandInfo,
+        command: isWin32 ? 'echo "foo bar"' : "echo 'foo bar'",
+    });
 });
 
 it('multiple single argument placeholders are replaced', () => {
@@ -57,7 +64,10 @@ it('all arguments placeholder is replaced', () => {
 it('combined arguments placeholder is replaced', () => {
     const parser = new ExpandArguments(['foo', 'bar']);
     const commandInfo = createCommandInfo('echo {*}');
-    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: "echo 'foo bar'" });
+    expect(parser.parse(commandInfo)).toEqual({
+        ...commandInfo,
+        command: isWin32 ? 'echo "foo bar"' : "echo 'foo bar'",
+    });
 });
 
 it('escaped argument placeholders are not replaced', () => {
