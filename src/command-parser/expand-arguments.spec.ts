@@ -27,7 +27,7 @@ it('argument placeholder is replaced and quoted properly', () => {
     const commandInfo = createCommandInfo('echo {1}');
     expect(parser.parse(commandInfo)).toEqual({
         ...commandInfo,
-        command: isWin32 ? 'echo "foo bar"' : "echo 'foo bar'",
+        command: isWin32 ? 'echo "foo bar"' : 'echo foo\\ bar',
     });
 });
 
@@ -66,7 +66,7 @@ it('combined arguments placeholder is replaced', () => {
     const commandInfo = createCommandInfo('echo {*}');
     expect(parser.parse(commandInfo)).toEqual({
         ...commandInfo,
-        command: isWin32 ? 'echo "foo bar"' : "echo 'foo bar'",
+        command: isWin32 ? 'echo "foo bar"' : 'echo foo\\ bar',
     });
 });
 

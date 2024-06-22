@@ -324,7 +324,7 @@ it('argument placeholders are properly replaced when additional arguments are pa
     expect(spawn).toHaveBeenCalledWith('echo foo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo foo bar', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith(
-        isWin32 ? 'echo "foo bar"' : "echo 'foo bar'",
+        isWin32 ? 'echo "foo bar"' : 'echo foo\\ bar',
         expect.objectContaining({}),
     );
     expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
