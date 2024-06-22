@@ -306,7 +306,7 @@ Examples:
  - Passthrough all additional arguments combined into one argument via '{*}' placeholder
 
      $ concurrently -P "echo {*}" -- foo bar
-     # Results in: echo 'foo bar'
+     # Results in something like: echo 'foo bar'
 
 For more details, visit https://github.com/open-cli-tools/concurrently
 ```
