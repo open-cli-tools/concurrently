@@ -234,6 +234,22 @@ describe('--hide', () => {
         expect(lines).toContainEqual(expect.stringContaining('foo'));
         expect(lines).not.toContainEqual(expect.stringContaining('bar'));
     });
+
+    it('hides the output of a process by its index in raw mode', async () => {
+        const lines = await run('--hide 1 --raw "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toHaveLength(1);
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).not.toContainEqual(expect.stringContaining('bar'));
+    });
+
+    it('hides the output of a process by its name in raw mode', async () => {
+        const lines = await run('-n foo,bar --hide bar --raw "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toHaveLength(1);
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).not.toContainEqual(expect.stringContaining('bar'));
+    });
 });
 
 describe('--group', () => {

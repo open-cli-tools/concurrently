@@ -110,6 +110,7 @@ export function concurrently(
         raw: options.raw,
         successCondition: options.successCondition,
         cwd: options.cwd,
+        hide: options.hide,
         logger,
         outputStream: options.outputStream || process.stdout,
         group: options.group,
