@@ -291,14 +291,55 @@ it('uses overridden raw option for each command if specified', () => {
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith(
         'echo',
-        expect.not.objectContaining({
-            stdio: expect.anything(),
+        expect.objectContaining({
+            stdio: 'pipe',
         }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
             stdio: 'inherit',
+        }),
+    );
+});
+
+it('uses hide from options for each command', () => {
+    create([{ command: 'echo' }, 'kill'], {
+        hide: [1],
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            stdio: 'pipe',
+        }),
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            stdio: ['ignore', 'ignore', 'pipe'],
+        }),
+    );
+});
+
+it('hides output for commands even if raw option is on', () => {
+    create([{ command: 'echo' }, 'kill'], {
+        hide: [1],
+        raw: true,
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            stdio: 'inherit',
+        }),
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            stdio: ['ignore', 'ignore', 'pipe'],
         }),
     );
 });

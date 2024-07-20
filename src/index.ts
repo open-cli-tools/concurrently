@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { Readable } from 'stream';
 
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
@@ -18,7 +19,7 @@ import { LogTimings } from './flow-control/log-timings';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process';
 import { Logger } from './logger';
 
-export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal'> & {
+export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 'hide'> & {
     // Logger options
     /**
      * Which command(s) should have their output hidden.
@@ -95,8 +96,12 @@ export function concurrently(
     commands: ConcurrentlyCommandInput[],
     options: Partial<ConcurrentlyOptions> = {},
 ) {
+    // To avoid empty strings from hiding the output of commands that don't have a name,
+    // keep in the list of commands to hide only strings with some length.
+    // This might happen through the CLI when no `--hide` argument is specified, for example.
+    const hide = _.castArray(options.hide).filter((id) => id || id === 0);
     const logger = new Logger({
-        hide: options.hide,
+        hide,
         prefixFormat: options.prefix,
         prefixLength: options.prefixLength,
         raw: options.raw,
@@ -110,7 +115,7 @@ export function concurrently(
         raw: options.raw,
         successCondition: options.successCondition,
         cwd: options.cwd,
-        hide: options.hide,
+        hide,
         logger,
         outputStream: options.outputStream || process.stdout,
         group: options.group,

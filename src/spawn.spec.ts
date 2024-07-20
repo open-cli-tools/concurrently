@@ -27,12 +27,16 @@ describe('getSpawnOpts()', () => {
         expect(getSpawnOpts({ process: baseProcess }).detached).toBe(false);
     });
 
-    it('sets stdio to inherit when raw', () => {
-        expect(getSpawnOpts({ raw: true }).stdio).toBe('inherit');
+    it('sets stdio to pipe when stdio mode is normal', () => {
+        expect(getSpawnOpts({ stdio: 'normal' }).stdio).toBe('pipe');
     });
 
-    it('unsets stdio when raw and hide', () => {
-        expect(getSpawnOpts({ raw: true, hide: true }).stdio).toBeUndefined();
+    it('sets stdio to inherit when stdio mode is raw', () => {
+        expect(getSpawnOpts({ stdio: 'raw' }).stdio).toBe('inherit');
+    });
+
+    it('sets stdio to ignore stdout + stderr when stdio mode is hidden', () => {
+        expect(getSpawnOpts({ stdio: 'hidden' }).stdio).toEqual(['ignore', 'ignore', 'pipe']);
     });
 
     it('merges FORCE_COLOR into env vars if color supported', () => {

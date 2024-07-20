@@ -33,9 +33,9 @@ export class Logger {
         timestampFormat,
     }: {
         /**
-         * Which command(s) should have their output hidden.
+         * Which commands should have their output hidden.
          */
-        hide?: CommandIdentifier | CommandIdentifier[];
+        hide?: CommandIdentifier[];
 
         /**
          * Whether output should be formatted to include prefixes and whether "event" logs will be
@@ -60,12 +60,7 @@ export class Logger {
          */
         timestampFormat?: string;
     }) {
-        // To avoid empty strings from hiding the output of commands that don't have a name,
-        // keep in the list of commands to hide only strings with some length.
-        // This might happen through the CLI when no `--hide` argument is specified, for example.
-        this.hide = _.castArray(hide)
-            .filter((name) => name || name === 0)
-            .map(String);
+        this.hide = (hide || []).map(String);
         this.raw = raw;
         this.prefixFormat = prefixFormat;
         this.prefixLength = prefixLength || defaults.prefixLength;

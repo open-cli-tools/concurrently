@@ -26,9 +26,8 @@ export const getSpawnOpts = ({
     colorSupport = supportsColor.stdout,
     cwd,
     process = global.process,
-    raw = false,
+    stdio = 'normal',
     env = {},
-    hide = false,
 }: {
     /**
      * What the color support of the spawned processes should be.
@@ -50,24 +49,23 @@ export const getSpawnOpts = ({
     cwd?: string;
 
     /**
-     * Whether to customize the options for spawning processes in raw mode.
-     * Defaults to false.
+     * Which stdio mode to use. Raw implies inheriting the parent process' stdio.
+     *
+     * - `normal`: all of stdout, stderr and stdin are piped
+     * - `hidden`: stdin is piped, stdout/stderr outputs are ignored
+     * - `raw`: all of stdout, stderr and stdin are inherited from the main process
+     *
+     * Defaults to `normal`.
      */
-    raw?: boolean;
+    stdio?: 'normal' | 'hidden' | 'raw';
 
     /**
      * Map of custom environment variables to include in the spawn options.
      */
     env?: Record<string, unknown>;
-
-    /**
-     * Whether to hide the standard output.
-     * Defaults to false.
-     */
-    hide?: boolean;
 }): SpawnOptions => ({
     cwd: cwd || process.cwd(),
-    ...(raw && !hide && { stdio: 'inherit' as const }),
+    stdio: stdio === 'normal' ? 'pipe' : stdio === 'raw' ? 'inherit' : ['ignore', 'ignore', 'pipe'],
     ...(/^win/.test(process.platform) && { detached: false }),
     env: {
         ...(colorSupport ? { FORCE_COLOR: colorSupport.level.toString() } : {}),

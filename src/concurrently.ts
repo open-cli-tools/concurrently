@@ -102,9 +102,9 @@ export type ConcurrentlyOptions = {
     raw?: boolean;
 
     /**
-     * Which command(s) should have their output hidden.
+     * Which commands should have their output hidden.
      */
-    hide?: CommandIdentifier | CommandIdentifier[];
+    hide?: CommandIdentifier[];
 
     /**
      * The current working directory of commands which didn't specify one.
@@ -181,17 +181,12 @@ export function concurrently(
         commandParsers.push(new ExpandArguments(options.additionalArguments));
     }
 
-    // To avoid empty strings from hiding the output of commands that don't have a name,
-    // keep in the list of commands to hide only strings with some length.
-    // This might happen through the CLI when no `--hide` argument is specified, for example.
-    const hide = _.castArray(options.hide)
-        .filter((name) => name || name === 0)
-        .map(String);
-
+    const hide = (options.hide || []).map(String);
     let commands = _(baseCommands)
         .map(mapToCommandInfo)
         .flatMap((command) => parseCommand(command, commandParsers))
         .map((command, index) => {
+            const hidden = hide.includes(command.name) || hide.includes(String(index));
             return new Command(
                 {
                     index,
@@ -199,10 +194,9 @@ export function concurrently(
                     ...command,
                 },
                 getSpawnOpts({
-                    raw: command.raw ?? options.raw,
+                    stdio: hidden ? 'hidden' : command.raw ?? options.raw ? 'raw' : 'normal',
                     env: command.env,
                     cwd: command.cwd || options.cwd,
-                    hide: hide.includes(String(index)) || hide.includes(command.name),
                 }),
                 options.spawn,
                 options.kill,
