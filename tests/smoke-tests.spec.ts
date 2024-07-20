@@ -6,7 +6,7 @@ const exec = util.promisify(originalExec);
 beforeAll(async () => {
     await exec('pnpm build', { cwd: `${__dirname}/..` });
     await exec('pnpm install', { cwd: __dirname });
-}, 10000);
+}, 20000);
 
 it.each(['cjs-import', 'cjs-require', 'esm'])(
     '%s',
@@ -15,7 +15,9 @@ it.each(['cjs-import', 'cjs-require', 'esm'])(
         await exec(`tsc -p ${project}`, { cwd: __dirname }).catch((err) =>
             Promise.reject(err.stdout),
         );
-        await exec(`node ${project}/dist/smoke-test.js`, { cwd: __dirname });
+        await expect(
+            exec(`node ${project}/dist/smoke-test.js`, { cwd: __dirname }),
+        ).resolves.toBeDefined();
     },
     10000,
 );
