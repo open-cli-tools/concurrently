@@ -166,6 +166,24 @@ describe('#logCommandText()', () => {
         expect(logger.log).toHaveBeenCalledWith(chalk.reset('[ec..oo]') + ' ', 'foo', cmd);
     });
 
+    it('logs default prefixes with padding', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('foo');
+        logger.setPrefixLength(5);
+        logger.logCommandText('bar', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[foo  ]') + ' ', 'bar', cmd);
+    });
+
+    it('logs templated prefixes with padding', () => {
+        const { logger } = createLogger({ prefixFormat: '{name}-{index}' });
+        const cmd = new FakeCommand('foo', undefined, 0);
+        logger.setPrefixLength(6);
+        logger.logCommandText('bar', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('foo-0 ') + ' ', 'bar', cmd);
+    });
+
     it('logs prefix using prefixColor from command', () => {
         const { logger } = createLogger({});
         const cmd = new FakeCommand('', undefined, 1, {

@@ -14,6 +14,12 @@ export class Logger {
     private readonly timestampFormat: string;
 
     /**
+     * How many characters should a prefix have.
+     * Prefixes shorter than this will be padded with spaces to the right.
+     */
+    private prefixLength = 0;
+
+    /**
      * Last character emitted.
      * If `undefined`, then nothing has been logged yet.
      */
@@ -92,18 +98,20 @@ export class Logger {
         };
     }
 
-    getPrefix(command: Command) {
+    getPrefixContent(
+        command: Command,
+    ): { type: 'default' | 'template'; value: string } | undefined {
         const prefix = this.prefixFormat || (command.name ? 'name' : 'index');
         if (prefix === 'none') {
-            return '';
+            return;
         }
 
         const prefixes = this.getPrefixesFor(command);
         if (Object.keys(prefixes).includes(prefix)) {
-            return `[${prefixes[prefix]}]`;
+            return { type: 'default', value: prefixes[prefix] };
         }
 
-        return _.reduce(
+        const value = _.reduce(
             prefixes,
             (prev, val, key) => {
                 const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
@@ -111,6 +119,22 @@ export class Logger {
             },
             prefix,
         );
+        return { type: 'template', value };
+    }
+
+    getPrefix(command: Command): string {
+        const content = this.getPrefixContent(command);
+        if (!content) {
+            return '';
+        }
+
+        return content.type === 'template'
+            ? content.value.padEnd(this.prefixLength, ' ')
+            : `[${content.value.padEnd(this.prefixLength, ' ')}]`;
+    }
+
+    setPrefixLength(length: number) {
+        this.prefixLength = length;
     }
 
     colorText(command: Command, text: string) {
