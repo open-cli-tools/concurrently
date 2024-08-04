@@ -90,7 +90,7 @@ export class Logger {
 
     private getPrefixesFor(command: Command): Record<string, string> {
         return {
-            pid: String(command.pid),
+            pid: command.pid != null ? String(command.pid) : '',
             index: String(command.index),
             name: command.name,
             command: this.shortenText(command.command),

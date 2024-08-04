@@ -18,15 +18,18 @@ it('returns same commands', () => {
     expect(controller.handle(commands)).toMatchObject({ commands });
 });
 
-it('sets the prefix length when commands emit a start timer', () => {
+it('sets the prefix length on handle', () => {
     controller.handle(commands);
-    expect(logger.setPrefixLength).toHaveBeenCalledTimes(0);
-
-    commands[0].timer.next({ startDate: new Date() });
     expect(logger.setPrefixLength).toHaveBeenCalledTimes(1);
+});
+
+it('updates the prefix length when commands emit a start timer', () => {
+    controller.handle(commands);
+    commands[0].timer.next({ startDate: new Date() });
+    expect(logger.setPrefixLength).toHaveBeenCalledTimes(2);
 
     commands[1].timer.next({ startDate: new Date() });
-    expect(logger.setPrefixLength).toHaveBeenCalledTimes(2);
+    expect(logger.setPrefixLength).toHaveBeenCalledTimes(3);
 });
 
 it('sets prefix length to the longest prefix of all commands', () => {
@@ -35,8 +38,6 @@ it('sets prefix length to the longest prefix of all commands', () => {
         .mockReturnValueOnce({ type: 'default', value: 'baz' });
 
     controller.handle(commands);
-    commands.forEach((command) => command.timer.next({ startDate: new Date() }));
-
     expect(logger.setPrefixLength).toHaveBeenCalledWith(6);
 });
 
@@ -58,8 +59,9 @@ it('unsubscribes from start timers on finish', () => {
 
     const { onFinish } = controller.handle(commands);
     commands[0].timer.next({ startDate: new Date() });
+    expect(logger.setPrefixLength).toHaveBeenCalledTimes(2);
 
     onFinish();
     commands[0].timer.next({ startDate: new Date() });
-    expect(logger.setPrefixLength).toHaveBeenCalledTimes(1);
+    expect(logger.setPrefixLength).toHaveBeenCalledTimes(2);
 });
