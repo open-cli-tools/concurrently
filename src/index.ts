@@ -16,6 +16,7 @@ import { LogError } from './flow-control/log-error';
 import { LogExit } from './flow-control/log-exit';
 import { LogOutput } from './flow-control/log-output';
 import { LogTimings } from './flow-control/log-timings';
+import { LoggerPadding } from './flow-control/logger-padding';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process';
 import { Logger } from './logger';
 
@@ -36,6 +37,11 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
      * How many characters should a prefix have at most, used when the prefix format is `command`.
      */
     prefixLength?: number;
+
+    /**
+     * Pads short prefixes with spaces so that all prefixes have the same length.
+     */
+    padPrefix?: boolean;
 
     /**
      * Whether output should be formatted to include prefixes and whether "event" logs will be logged.
@@ -103,7 +109,7 @@ export function concurrently(
     const logger = new Logger({
         hide,
         prefixFormat: options.prefix,
-        prefixLength: options.prefixLength,
+        commandLength: options.prefixLength,
         raw: options.raw,
         timestampFormat: options.timestampFormat,
     });
@@ -121,6 +127,8 @@ export function concurrently(
         group: options.group,
         abortSignal: abortController.signal,
         controllers: [
+            // LoggerPadding needs to run before any other controllers that might output something
+            ...(options.padPrefix ? [new LoggerPadding({ logger })] : []),
             new LogError({ logger }),
             new LogOutput({ logger }),
             new LogExit({ logger }),

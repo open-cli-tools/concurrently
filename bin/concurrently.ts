@@ -149,6 +149,10 @@ const args = yargs(argsBeforeSep)
             default: defaults.prefixLength,
             type: 'number',
         },
+        'pad-prefix': {
+            describe: 'Pads short prefixes with spaces so that the length of all prefixes match',
+            type: 'boolean',
+        },
         'timestamp-format': {
             alias: 't',
             describe: 'Specify the timestamp in moment/date-fns format.',
@@ -190,7 +194,7 @@ const args = yargs(argsBeforeSep)
         ['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P'],
         'General',
     )
-    .group(['p', 'c', 'l', 't'], 'Prefix styling')
+    .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail', 'kill-signal'], 'Killing other processes')
     .group(['restart-tries', 'restart-after'], 'Restarting')
@@ -223,6 +227,7 @@ concurrently(
         prefix: args.prefix,
         prefixColors: args.prefixColors.split(','),
         prefixLength: args.prefixLength,
+        padPrefix: args.padPrefix,
         restartDelay:
             args.restartAfter === 'exponential' ? 'exponential' : Number(args.restartAfter),
         restartTries: args.restartTries,

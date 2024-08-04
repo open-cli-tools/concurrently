@@ -158,12 +158,30 @@ describe('#logCommandText()', () => {
         expect(logger.log).toHaveBeenCalledWith(chalk.reset('[echo foo]') + ' ', 'foo', cmd);
     });
 
-    it('logs prefix using command line itself, capped at prefixLength bytes', () => {
-        const { logger } = createLogger({ prefixFormat: 'command', prefixLength: 6 });
+    it('logs prefix using command line itself, capped at commandLength bytes', () => {
+        const { logger } = createLogger({ prefixFormat: 'command', commandLength: 6 });
         const cmd = new FakeCommand();
         logger.logCommandText('foo', cmd);
 
         expect(logger.log).toHaveBeenCalledWith(chalk.reset('[ec..oo]') + ' ', 'foo', cmd);
+    });
+
+    it('logs default prefixes with padding', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('foo');
+        logger.setPrefixLength(5);
+        logger.logCommandText('bar', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[foo  ]') + ' ', 'bar', cmd);
+    });
+
+    it('logs templated prefixes with padding', () => {
+        const { logger } = createLogger({ prefixFormat: '{name}-{index}' });
+        const cmd = new FakeCommand('foo', undefined, 0);
+        logger.setPrefixLength(6);
+        logger.logCommandText('bar', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('foo-0 ') + ' ', 'bar', cmd);
     });
 
     it('logs prefix using prefixColor from command', () => {
