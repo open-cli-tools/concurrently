@@ -158,8 +158,8 @@ describe('#logCommandText()', () => {
         expect(logger.log).toHaveBeenCalledWith(chalk.reset('[echo foo]') + ' ', 'foo', cmd);
     });
 
-    it('logs prefix using command line itself, capped at prefixLength bytes', () => {
-        const { logger } = createLogger({ prefixFormat: 'command', prefixLength: 6 });
+    it('logs prefix using command line itself, capped at commandLength bytes', () => {
+        const { logger } = createLogger({ prefixFormat: 'command', commandLength: 6 });
         const cmd = new FakeCommand();
         logger.logCommandText('foo', cmd);
 

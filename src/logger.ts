@@ -10,7 +10,7 @@ export class Logger {
     private readonly hide: CommandIdentifier[];
     private readonly raw: boolean;
     private readonly prefixFormat?: string;
-    private readonly prefixLength: number;
+    private readonly commandLength: number;
     private readonly timestampFormat: string;
 
     /**
@@ -28,7 +28,7 @@ export class Logger {
     constructor({
         hide,
         prefixFormat,
-        prefixLength,
+        commandLength,
         raw = false,
         timestampFormat,
     }: {
@@ -50,9 +50,9 @@ export class Logger {
         prefixFormat?: string;
 
         /**
-         * How many characters should a prefix have at most, used when the prefix format is `command`.
+         * How many characters should a prefix have at most when the format is `command`.
          */
-        prefixLength?: number;
+        commandLength?: number;
 
         /**
          * Date format used when logging date/time.
@@ -63,17 +63,17 @@ export class Logger {
         this.hide = (hide || []).map(String);
         this.raw = raw;
         this.prefixFormat = prefixFormat;
-        this.prefixLength = prefixLength || defaults.prefixLength;
+        this.commandLength = commandLength || defaults.prefixLength;
         this.timestampFormat = timestampFormat || defaults.timestampFormat;
     }
 
     private shortenText(text: string) {
-        if (!text || text.length <= this.prefixLength) {
+        if (!text || text.length <= this.commandLength) {
             return text;
         }
 
         const ellipsis = '..';
-        const prefixLength = this.prefixLength - ellipsis.length;
+        const prefixLength = this.commandLength - ellipsis.length;
         const endLength = Math.floor(prefixLength / 2);
         const beginningLength = prefixLength - endLength;
 
