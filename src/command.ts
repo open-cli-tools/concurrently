@@ -274,7 +274,7 @@ export class Command implements CommandInfo {
      *          or rejects if it fails to deliver the message.
      */
     send(message: object, handle?: SendHandle, options?: MessageOptions): Promise<void> {
-        if (!this.ipc) {
+        if (this.ipc == null) {
             throw new Error('Command IPC is disabled');
         }
         return new Promise((resolve, reject) => {
