@@ -40,11 +40,11 @@ export interface CommandInfo {
 
     /**
      * Whether sending of messages to/from this command (also known as "inter-process communication")
-     * should be enabled.
+     * should be enabled, and using which file descriptor number.
      *
-     * @default false
+     * If set, must be > 2.
      */
-    ipc?: boolean;
+    ipc?: number;
 
     /**
      * Output command in raw format.
@@ -140,7 +140,7 @@ export class Command implements CommandInfo {
     readonly cwd?: string;
 
     /** @inheritdoc */
-    readonly ipc?: boolean = false;
+    readonly ipc?: number;
 
     readonly close = new Rx.Subject<CloseEvent>();
     readonly error = new Rx.Subject<unknown>();

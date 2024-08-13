@@ -20,6 +20,8 @@ let sendMessage: jest.Mock;
 let spawn: jest.Mocked<SpawnCommand>;
 let killProcess: KillProcess;
 
+const IPC_FD = 3;
+
 autoUnsubscribe();
 
 beforeEach(() => {
@@ -254,7 +256,7 @@ describe('#start()', () => {
 
     describe('on incoming messages', () => {
         it('does not share to the incoming messages stream, if IPC is disabled', () => {
-            const { command } = createCommand({ ipc: false });
+            const { command } = createCommand();
             const spy = subscribeSpyTo(command.messages.incoming);
             command.start();
 
@@ -263,7 +265,7 @@ describe('#start()', () => {
         });
 
         it('shares to the incoming messages stream, if IPC is enabled', () => {
-            const { command } = createCommand({ ipc: true });
+            const { command } = createCommand({ ipc: IPC_FD });
             const spy = subscribeSpyTo(command.messages.incoming);
             command.start();
 
@@ -282,7 +284,7 @@ describe('#start()', () => {
 
     describe('on outgoing messages', () => {
         it('calls onSent with an error if the process does not have IPC enabled', () => {
-            const { command } = createCommand({ ipc: true });
+            const { command } = createCommand({ ipc: IPC_FD });
             command.start();
 
             Object.assign(process, {
@@ -297,7 +299,7 @@ describe('#start()', () => {
         });
 
         it('sends the message to the process', () => {
-            const { command } = createCommand({ ipc: true });
+            const { command } = createCommand({ ipc: IPC_FD });
             command.start();
 
             const message1 = {};
@@ -336,7 +338,7 @@ describe('#start()', () => {
         });
 
         it('sends the message to the process, if it starts late', () => {
-            const { command } = createCommand({ ipc: true });
+            const { command } = createCommand({ ipc: IPC_FD });
             command.messages.outgoing.next({ message: {}, onSent() {} });
             expect(process.send).not.toHaveBeenCalled();
 
@@ -345,7 +347,7 @@ describe('#start()', () => {
         });
 
         it('calls onSent with the result of sending the message', () => {
-            const { command } = createCommand({ ipc: true });
+            const { command } = createCommand({ ipc: IPC_FD });
             command.start();
 
             const onSent = jest.fn();
@@ -364,13 +366,13 @@ describe('#start()', () => {
 
 describe('#send()', () => {
     it('throws if IPC is not set up', () => {
-        const { command } = createCommand({ ipc: false });
+        const { command } = createCommand({ ipc: IPC_FD });
         const fn = () => command.send({});
         expect(fn).toThrow();
     });
 
     it('pushes the message on the outgoing messages stream', () => {
-        const { command } = createCommand({ ipc: true });
+        const { command } = createCommand({ ipc: IPC_FD });
         const spy = subscribeSpyTo(command.messages.outgoing);
 
         const message1 = { foo: true };
@@ -395,7 +397,7 @@ describe('#send()', () => {
     });
 
     it('resolves when onSent callback is called with no arguments', async () => {
-        const { command } = createCommand({ ipc: true });
+        const { command } = createCommand({ ipc: IPC_FD });
         const spy = subscribeSpyTo(command.messages.outgoing);
         const promise = command.send({});
         spy.getFirstValue().onSent();
@@ -403,7 +405,7 @@ describe('#send()', () => {
     });
 
     it('rejects when onSent callback is called with an argument', async () => {
-        const { command } = createCommand({ ipc: true });
+        const { command } = createCommand({ ipc: IPC_FD });
         const spy = subscribeSpyTo(command.messages.outgoing);
         const promise = command.send({});
         spy.getFirstValue().onSent('foo');
