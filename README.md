@@ -318,7 +318,7 @@ For more details, visit https://github.com/open-cli-tools/concurrently
 ### `concurrently(commands[, options])`
 
 - `commands`: an array of either strings (containing the commands to run) or objects
-  with the shape `{ command, name, prefixColor, env, cwd }`.
+  with the shape `{ command, name, prefixColor, env, cwd, ipc }`.
 
 - `options` (optional): an object containing any of the below:
   - `cwd`: the working directory to be used by all commands. Can be overriden per command.
