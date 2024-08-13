@@ -90,6 +90,8 @@ export class Logger {
 
     private getPrefixesFor(command: Command): Record<string, string> {
         return {
+            // When there's limited concurrency, the PID might not be immediately available,
+            // so avoid the string 'undefined' from becoming a prefix
             pid: command.pid != null ? String(command.pid) : '',
             index: String(command.index),
             name: command.name,
