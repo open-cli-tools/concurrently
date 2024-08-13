@@ -1,5 +1,5 @@
 import { autoUnsubscribe, subscribeSpyTo } from '@hirez_io/observer-spy';
-import { SpawnOptions } from 'child_process';
+import { SendHandle, SpawnOptions } from 'child_process';
 import { EventEmitter } from 'events';
 import * as Rx from 'rxjs';
 import { Readable, Writable } from 'stream';
@@ -16,14 +16,17 @@ import {
 type CommandValues = { error: unknown; close: CloseEvent; timer: unknown[] };
 
 let process: ChildProcess;
+let sendMessage: jest.Mock;
 let spawn: jest.Mocked<SpawnCommand>;
 let killProcess: KillProcess;
 
 autoUnsubscribe();
 
 beforeEach(() => {
+    sendMessage = jest.fn();
     process = new (class extends EventEmitter {
         readonly pid = 1;
+        send = sendMessage;
         readonly stdout = new Readable({
             read() {
                 // do nothing
@@ -247,6 +250,155 @@ describe('#start()', () => {
         process.stderr?.emit('data', Buffer.from('dang'));
 
         expect((await stderr).toString()).toBe('dang');
+    });
+
+    describe('on incoming messages', () => {
+        it('does not share to the incoming messages stream, if IPC is disabled', () => {
+            const { command } = createCommand({ ipc: false });
+            const spy = subscribeSpyTo(command.messages.incoming);
+            command.start();
+
+            process.emit('message', {});
+            expect(spy.getValuesLength()).toBe(0);
+        });
+
+        it('shares to the incoming messages stream, if IPC is enabled', () => {
+            const { command } = createCommand({ ipc: true });
+            const spy = subscribeSpyTo(command.messages.incoming);
+            command.start();
+
+            const message1 = {};
+            process.emit('message', message1, undefined);
+
+            const message2 = {};
+            const handle = {} as SendHandle;
+            process.emit('message', message2, handle);
+
+            expect(spy.getValuesLength()).toBe(2);
+            expect(spy.getValueAt(0)).toEqual({ message: message1, handle: undefined });
+            expect(spy.getValueAt(1)).toEqual({ message: message2, handle });
+        });
+    });
+
+    describe('on outgoing messages', () => {
+        it('calls onSent with an error if the process does not have IPC enabled', () => {
+            const { command } = createCommand({ ipc: true });
+            command.start();
+
+            Object.assign(process, {
+                // The TS types don't assume `send` can be undefined,
+                // despite the Node docs saying so
+                send: undefined,
+            });
+
+            const onSent = jest.fn();
+            command.messages.outgoing.next({ message: {}, onSent });
+            expect(onSent).toHaveBeenCalledWith(expect.any(Error));
+        });
+
+        it('sends the message to the process', () => {
+            const { command } = createCommand({ ipc: true });
+            command.start();
+
+            const message1 = {};
+            command.messages.outgoing.next({ message: message1, onSent() {} });
+
+            const message2 = {};
+            const handle = {} as SendHandle;
+            command.messages.outgoing.next({ message: message2, handle, onSent() {} });
+
+            const message3 = {};
+            const options = {};
+            command.messages.outgoing.next({ message: message3, options, onSent() {} });
+
+            expect(process.send).toHaveBeenCalledTimes(3);
+            expect(process.send).toHaveBeenNthCalledWith(
+                1,
+                message1,
+                undefined,
+                undefined,
+                expect.any(Function),
+            );
+            expect(process.send).toHaveBeenNthCalledWith(
+                2,
+                message2,
+                handle,
+                undefined,
+                expect.any(Function),
+            );
+            expect(process.send).toHaveBeenNthCalledWith(
+                3,
+                message3,
+                undefined,
+                options,
+                expect.any(Function),
+            );
+        });
+
+        it('calls onSent with the result of sending the message', () => {
+            const { command } = createCommand({ ipc: true });
+            command.start();
+
+            const onSent = jest.fn();
+            command.messages.outgoing.next({ message: {}, onSent });
+            expect(onSent).not.toHaveBeenCalled();
+
+            sendMessage.mock.calls[0][3]();
+            expect(onSent).toHaveBeenCalledWith(undefined);
+
+            const error = new Error();
+            sendMessage.mock.calls[0][3](error);
+            expect(onSent).toHaveBeenCalledWith(error);
+        });
+    });
+});
+
+describe('#send()', () => {
+    it('throws if IPC is not set up', () => {
+        const { command } = createCommand({ ipc: false });
+        const fn = () => command.send({});
+        expect(fn).toThrow();
+    });
+
+    it('pushes the message on the outgoing messages stream', () => {
+        const { command } = createCommand({ ipc: true });
+        const spy = subscribeSpyTo(command.messages.outgoing);
+
+        const message1 = { foo: true };
+        command.send(message1);
+
+        const message2 = { bar: 123 };
+        const handle = {} as SendHandle;
+        command.send(message2, handle);
+
+        const message3 = { baz: 'yes' };
+        const options = {};
+        command.send(message3, undefined, options);
+
+        expect(spy.getValuesLength()).toBe(3);
+        expect(spy.getValueAt(0)).toMatchObject({
+            message: message1,
+            handle: undefined,
+            options: undefined,
+        });
+        expect(spy.getValueAt(1)).toMatchObject({ message: message2, handle, options: undefined });
+        expect(spy.getValueAt(2)).toMatchObject({ message: message3, handle: undefined, options });
+    });
+
+    it('resolves when onSent callback is called with no arguments', async () => {
+        const { command } = createCommand({ ipc: true });
+        const spy = subscribeSpyTo(command.messages.outgoing);
+        const promise = command.send({});
+        spy.getFirstValue().onSent();
+        await expect(promise).resolves.toBeUndefined();
+    });
+
+    it('rejects when onSent callback is called with an argument', async () => {
+        const { command } = createCommand({ ipc: true });
+        const spy = subscribeSpyTo(command.messages.outgoing);
+        const promise = command.send({});
+        spy.getFirstValue().onSent('foo');
+        await expect(promise).rejects.toBe('foo');
     });
 });
 
