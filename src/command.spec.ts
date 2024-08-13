@@ -335,6 +335,15 @@ describe('#start()', () => {
             );
         });
 
+        it('sends the message to the process, if it starts late', () => {
+            const { command } = createCommand({ ipc: true });
+            command.messages.outgoing.next({ message: {}, onSent() {} });
+            expect(process.send).not.toHaveBeenCalled();
+
+            command.start();
+            expect(process.send).toHaveBeenCalled();
+        });
+
         it('calls onSent with the result of sending the message', () => {
             const { command } = createCommand({ ipc: true });
             command.start();

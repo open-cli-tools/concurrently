@@ -267,7 +267,7 @@ export class Command implements CommandInfo {
     }
 
     /**
-     * Sends a message to the underlying process.
+     * Sends a message to the underlying process once it starts.
      *
      * @throws  If the command doesn't have an IPC channel enabled
      * @returns Promise that resolves when the message is sent,
