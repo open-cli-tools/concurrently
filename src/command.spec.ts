@@ -366,7 +366,7 @@ describe('#start()', () => {
 
 describe('#send()', () => {
     it('throws if IPC is not set up', () => {
-        const { command } = createCommand({ ipc: IPC_FD });
+        const { command } = createCommand();
         const fn = () => command.send({});
         expect(fn).toThrow();
     });

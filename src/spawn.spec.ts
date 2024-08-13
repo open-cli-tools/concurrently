@@ -28,7 +28,7 @@ describe('getSpawnOpts()', () => {
     });
 
     it('sets stdio to pipe when stdio mode is normal', () => {
-        expect(getSpawnOpts({ stdio: 'normal' }).stdio).toBe(['pipe', 'pipe', 'pipe']);
+        expect(getSpawnOpts({ stdio: 'normal' }).stdio).toEqual(['pipe', 'pipe', 'pipe']);
     });
 
     it('sets stdio to inherit when stdio mode is raw', () => {
