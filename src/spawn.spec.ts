@@ -28,15 +28,25 @@ describe('getSpawnOpts()', () => {
     });
 
     it('sets stdio to pipe when stdio mode is normal', () => {
-        expect(getSpawnOpts({ stdio: 'normal' }).stdio).toBe('pipe');
+        expect(getSpawnOpts({ stdio: 'normal' }).stdio).toBe(['pipe', 'pipe', 'pipe']);
     });
 
     it('sets stdio to inherit when stdio mode is raw', () => {
-        expect(getSpawnOpts({ stdio: 'raw' }).stdio).toBe('inherit');
+        expect(getSpawnOpts({ stdio: 'raw' }).stdio).toEqual(['inherit', 'inherit', 'inherit']);
     });
 
     it('sets stdio to ignore stdout + stderr when stdio mode is hidden', () => {
         expect(getSpawnOpts({ stdio: 'hidden' }).stdio).toEqual(['ignore', 'ignore', 'pipe']);
+    });
+
+    it('sets an ipc channel at the specified descriptor index', () => {
+        const opts = getSpawnOpts({ ipc: 3 });
+        expect(opts.stdio?.[3]).toBe('ipc');
+    });
+
+    it('throws if the ipc channel is <= 2', () => {
+        const fn = () => getSpawnOpts({ ipc: 0 });
+        expect(fn).toThrow();
     });
 
     it('merges FORCE_COLOR into env vars if color supported', () => {
