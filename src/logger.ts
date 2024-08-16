@@ -10,8 +10,14 @@ export class Logger {
     private readonly hide: CommandIdentifier[];
     private readonly raw: boolean;
     private readonly prefixFormat?: string;
-    private readonly prefixLength: number;
+    private readonly commandLength: number;
     private readonly timestampFormat: string;
+
+    /**
+     * How many characters should a prefix have.
+     * Prefixes shorter than this will be padded with spaces to the right.
+     */
+    private prefixLength = 0;
 
     /**
      * Last character emitted.
@@ -28,7 +34,7 @@ export class Logger {
     constructor({
         hide,
         prefixFormat,
-        prefixLength,
+        commandLength,
         raw = false,
         timestampFormat,
     }: {
@@ -50,9 +56,9 @@ export class Logger {
         prefixFormat?: string;
 
         /**
-         * How many characters should a prefix have at most, used when the prefix format is `command`.
+         * How many characters should a prefix have at most when the format is `command`.
          */
-        prefixLength?: number;
+        commandLength?: number;
 
         /**
          * Date format used when logging date/time.
@@ -63,17 +69,17 @@ export class Logger {
         this.hide = (hide || []).map(String);
         this.raw = raw;
         this.prefixFormat = prefixFormat;
-        this.prefixLength = prefixLength || defaults.prefixLength;
+        this.commandLength = commandLength || defaults.prefixLength;
         this.timestampFormat = timestampFormat || defaults.timestampFormat;
     }
 
     private shortenText(text: string) {
-        if (!text || text.length <= this.prefixLength) {
+        if (!text || text.length <= this.commandLength) {
             return text;
         }
 
         const ellipsis = '..';
-        const prefixLength = this.prefixLength - ellipsis.length;
+        const prefixLength = this.commandLength - ellipsis.length;
         const endLength = Math.floor(prefixLength / 2);
         const beginningLength = prefixLength - endLength;
 
@@ -84,7 +90,9 @@ export class Logger {
 
     private getPrefixesFor(command: Command): Record<string, string> {
         return {
-            pid: String(command.pid),
+            // When there's limited concurrency, the PID might not be immediately available,
+            // so avoid the string 'undefined' from becoming a prefix
+            pid: command.pid != null ? String(command.pid) : '',
             index: String(command.index),
             name: command.name,
             command: this.shortenText(command.command),
@@ -92,18 +100,20 @@ export class Logger {
         };
     }
 
-    getPrefix(command: Command) {
+    getPrefixContent(
+        command: Command,
+    ): { type: 'default' | 'template'; value: string } | undefined {
         const prefix = this.prefixFormat || (command.name ? 'name' : 'index');
         if (prefix === 'none') {
-            return '';
+            return;
         }
 
         const prefixes = this.getPrefixesFor(command);
         if (Object.keys(prefixes).includes(prefix)) {
-            return `[${prefixes[prefix]}]`;
+            return { type: 'default', value: prefixes[prefix] };
         }
 
-        return _.reduce(
+        const value = _.reduce(
             prefixes,
             (prev, val, key) => {
                 const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
@@ -111,6 +121,22 @@ export class Logger {
             },
             prefix,
         );
+        return { type: 'template', value };
+    }
+
+    getPrefix(command: Command): string {
+        const content = this.getPrefixContent(command);
+        if (!content) {
+            return '';
+        }
+
+        return content.type === 'template'
+            ? content.value.padEnd(this.prefixLength, ' ')
+            : `[${content.value.padEnd(this.prefixLength, ' ')}]`;
+    }
+
+    setPrefixLength(length: number) {
+        this.prefixLength = length;
     }
 
     colorText(command: Command, text: string) {

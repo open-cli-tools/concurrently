@@ -305,6 +305,15 @@ describe('specifies custom prefix length', () => {
     });
 });
 
+describe('--pad-prefix', () => {
+    it('pads prefixes with spaces', async () => {
+        const lines = await run('--pad-prefix -n foo,barbaz "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('[foo   ]'));
+        expect(lines).toContainEqual(expect.stringContaining('[barbaz]'));
+    });
+});
+
 describe('--restart-tries', () => {
     it('changes how many times a command will restart', async () => {
         const lines = await run('--restart-tries 1 "exit 1"').getLogLines();
