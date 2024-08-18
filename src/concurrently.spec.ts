@@ -318,7 +318,7 @@ it('uses hide from options for each command', () => {
     expect(spawn).toHaveBeenCalledWith(
         'kill',
         expect.objectContaining({
-            stdio: ['ignore', 'ignore', 'pipe'],
+            stdio: ['pipe', 'ignore', 'ignore'],
         }),
     );
 });
@@ -339,7 +339,7 @@ it('hides output for commands even if raw option is on', () => {
     expect(spawn).toHaveBeenCalledWith(
         'kill',
         expect.objectContaining({
-            stdio: ['ignore', 'ignore', 'pipe'],
+            stdio: ['pipe', 'ignore', 'ignore'],
         }),
     );
 });

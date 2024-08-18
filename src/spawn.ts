@@ -77,7 +77,7 @@ export const getSpawnOpts = ({
             ? ['pipe', 'pipe', 'pipe']
             : stdio === 'raw'
             ? ['inherit', 'inherit', 'inherit']
-            : ['ignore', 'ignore', 'pipe'];
+            : ['pipe', 'ignore', 'ignore'];
 
     if (ipc != null) {
         // Avoid overriding the stdout/stderr/stdin

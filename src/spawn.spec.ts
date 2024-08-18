@@ -36,7 +36,7 @@ describe('getSpawnOpts()', () => {
     });
 
     it('sets stdio to ignore stdout + stderr when stdio mode is hidden', () => {
-        expect(getSpawnOpts({ stdio: 'hidden' }).stdio).toEqual(['ignore', 'ignore', 'pipe']);
+        expect(getSpawnOpts({ stdio: 'hidden' }).stdio).toEqual(['pipe', 'ignore', 'ignore']);
     });
 
     it('sets an ipc channel at the specified descriptor index', () => {
