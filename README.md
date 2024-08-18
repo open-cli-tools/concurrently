@@ -318,7 +318,7 @@ For more details, visit https://github.com/open-cli-tools/concurrently
 ### `concurrently(commands[, options])`
 
 - `commands`: an array of either strings (containing the commands to run) or objects
-  with the shape `{ command, name, prefixColor, env, cwd }`.
+  with the shape `{ command, name, prefixColor, env, cwd, ipc }`.
 
 - `options` (optional): an object containing any of the below:
   - `cwd`: the working directory to be used by all commands. Can be overriden per command.
@@ -405,10 +405,32 @@ It has the following properties:
 - `stderr`: an RxJS observable to the command's `stderr`.
 - `error`: an RxJS observable to the command's error events (e.g. when it fails to spawn).
 - `timer`: an RxJS observable to the command's timing events (e.g. starting, stopping).
+- `messages`: an object with the following properties:
+
+  - `incoming`: an RxJS observable for the IPC messages received from the underlying process.
+  - `outgoing`: an RxJS observable for the IPC messages sent to the underlying process.
+
+  Both observables emit [`MessageEvent`](#messageevent)s.<br>
+  Note that if the command wasn't spawned with IPC support, these won't emit any values.
+
 - `close`: an RxJS observable to the command's close events.
   See [`CloseEvent`](#CloseEvent) for more information.
-- `start()`: starts the command, setting up all
+- `start()`: starts the command and sets up all of the above streams
+- `send(message[, handle, options])`: sends a message to the underlying process via IPC channels,
+  returning a promise that resolves once the message has been sent.
+  See [Node.js docs](https://nodejs.org/docs/latest/api/child_process.html#subprocesssendmessage-sendhandle-options-callback).
 - `kill([signal])`: kills the command, optionally specifying a signal (e.g. `SIGTERM`, `SIGKILL`, etc).
+
+### `MessageEvent`
+
+An object that represents a message that was received from/sent to the underlying command process.<br>
+It has the following properties:
+
+- `message`: the message itself.
+- `handle`: a [`net.Socket`](https://nodejs.org/docs/latest/api/net.html#class-netsocket),
+  [`net.Server`](https://nodejs.org/docs/latest/api/net.html#class-netserver) or
+  [`dgram.Socket`](https://nodejs.org/docs/latest/api/dgram.html#class-dgramsocket),
+  if one was sent, or `undefined`.
 
 ### `CloseEvent`
 

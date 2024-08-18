@@ -194,6 +194,7 @@ export function concurrently(
                     ...command,
                 },
                 getSpawnOpts({
+                    ipc: command.ipc,
                     stdio: hidden ? 'hidden' : command.raw ?? options.raw ? 'raw' : 'normal',
                     env: command.env,
                     cwd: command.cwd || options.cwd,
@@ -262,6 +263,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
         name: command.name || '',
         env: command.env || {},
         cwd: command.cwd || '',
+        ipc: command.ipc,
         ...(command.prefixColor
             ? {
                   prefixColor: command.prefixColor,

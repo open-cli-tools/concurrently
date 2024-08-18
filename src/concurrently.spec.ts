@@ -272,13 +272,13 @@ it('uses raw from options for each command', () => {
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
-            stdio: 'inherit',
+            stdio: ['inherit', 'inherit', 'inherit'],
         }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'kill',
         expect.objectContaining({
-            stdio: 'inherit',
+            stdio: ['inherit', 'inherit', 'inherit'],
         }),
     );
 });
@@ -292,13 +292,13 @@ it('uses overridden raw option for each command if specified', () => {
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
-            stdio: 'pipe',
+            stdio: ['pipe', 'pipe', 'pipe'],
         }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
-            stdio: 'inherit',
+            stdio: ['inherit', 'inherit', 'inherit'],
         }),
     );
 });
@@ -312,7 +312,7 @@ it('uses hide from options for each command', () => {
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
-            stdio: 'pipe',
+            stdio: ['pipe', 'pipe', 'pipe'],
         }),
     );
     expect(spawn).toHaveBeenCalledWith(
@@ -333,7 +333,7 @@ it('hides output for commands even if raw option is on', () => {
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
-            stdio: 'inherit',
+            stdio: ['inherit', 'inherit', 'inherit'],
         }),
     );
     expect(spawn).toHaveBeenCalledWith(

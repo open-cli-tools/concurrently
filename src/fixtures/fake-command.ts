@@ -30,6 +30,7 @@ export class FakeCommand extends Command {
 export const createFakeProcess = (pid: number): ChildProcess =>
     Object.assign(new EventEmitter(), {
         pid,
+        send: jest.fn(),
         stdin: new PassThrough(),
         stdout: new PassThrough(),
         stderr: new PassThrough(),

@@ -1,4 +1,5 @@
-import { ChildProcess, spawn as baseSpawn, SpawnOptions } from 'child_process';
+import assert from 'assert';
+import { ChildProcess, IOType, spawn as baseSpawn, SpawnOptions } from 'child_process';
 import supportsColor from 'supports-color';
 
 /**
@@ -26,6 +27,7 @@ export const getSpawnOpts = ({
     colorSupport = supportsColor.stdout,
     cwd,
     process = global.process,
+    ipc,
     stdio = 'normal',
     env = {},
 }: {
@@ -49,6 +51,12 @@ export const getSpawnOpts = ({
     cwd?: string;
 
     /**
+     * The file descriptor number at which the channel for inter-process communication
+     * should be set up.
+     */
+    ipc?: number;
+
+    /**
      * Which stdio mode to use. Raw implies inheriting the parent process' stdio.
      *
      * - `normal`: all of stdout, stderr and stdin are piped
@@ -63,13 +71,28 @@ export const getSpawnOpts = ({
      * Map of custom environment variables to include in the spawn options.
      */
     env?: Record<string, unknown>;
-}): SpawnOptions => ({
-    cwd: cwd || process.cwd(),
-    stdio: stdio === 'normal' ? 'pipe' : stdio === 'raw' ? 'inherit' : ['ignore', 'ignore', 'pipe'],
-    ...(/^win/.test(process.platform) && { detached: false }),
-    env: {
-        ...(colorSupport ? { FORCE_COLOR: colorSupport.level.toString() } : {}),
-        ...process.env,
-        ...env,
-    },
-});
+}): SpawnOptions => {
+    const stdioValues: (IOType | 'ipc')[] =
+        stdio === 'normal'
+            ? ['pipe', 'pipe', 'pipe']
+            : stdio === 'raw'
+            ? ['inherit', 'inherit', 'inherit']
+            : ['ignore', 'ignore', 'pipe'];
+
+    if (ipc != null) {
+        // Avoid overriding the stdout/stderr/stdin
+        assert.ok(ipc > 2, '[concurrently] the IPC channel number should be > 2');
+        stdioValues[ipc] = 'ipc';
+    }
+
+    return {
+        cwd: cwd || process.cwd(),
+        stdio: stdioValues,
+        ...(/^win/.test(process.platform) && { detached: false }),
+        env: {
+            ...(colorSupport ? { FORCE_COLOR: colorSupport.level.toString() } : {}),
+            ...process.env,
+            ...env,
+        },
+    };
+};
