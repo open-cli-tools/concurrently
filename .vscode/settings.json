@@ -1,5 +1,6 @@
 {
-  "jest.showCoverageOnLoad": true,
+  "jest.runMode": "watch",
+  "jest.jestCommandLine": "pnpm test --",
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
