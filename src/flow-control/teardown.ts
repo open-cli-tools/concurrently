@@ -12,7 +12,7 @@ export class Teardown implements FlowController {
 
     constructor({
         logger,
-        spawn = baseSpawn,
+        spawn,
         commands,
     }: {
         logger: Logger;
@@ -24,7 +24,7 @@ export class Teardown implements FlowController {
         commands: readonly string[];
     }) {
         this.logger = logger;
-        this.spawn = spawn;
+        this.spawn = spawn || baseSpawn;
         this.teardown = commands;
     }
 
