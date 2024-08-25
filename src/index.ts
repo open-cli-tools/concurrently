@@ -18,6 +18,7 @@ import { LogOutput } from './flow-control/log-output';
 import { LogTimings } from './flow-control/log-timings';
 import { LoggerPadding } from './flow-control/logger-padding';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process';
+import { Teardown } from './flow-control/teardown';
 import { Logger } from './logger';
 
 export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 'hide'> & {
@@ -92,6 +93,12 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
     timings?: boolean;
 
     /**
+     * Clean up command(s) to execute before exiting concurrently.
+     * These won't be prefixed and don't affect concurrently's exit code.
+     */
+    teardown?: readonly string[];
+
+    /**
      * List of additional arguments passed that will get replaced in each command.
      * If not defined, no argument replacing will happen.
      */
@@ -155,6 +162,7 @@ export function concurrently(
                 logger: options.timings ? logger : undefined,
                 timestampFormat: options.timestampFormat,
             }),
+            new Teardown({ logger, spawn: options.spawn, commands: options.teardown || [] }),
         ],
         prefixColors: options.prefixColors || [],
         additionalArguments: options.additionalArguments,

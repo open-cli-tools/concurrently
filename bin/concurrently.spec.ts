@@ -438,6 +438,27 @@ describe('--handle-input', () => {
     });
 });
 
+describe('--teardown', () => {
+    it('runs teardown commands when input commands exit', async () => {
+        const lines = await run('--teardown "echo bye" "echo hey"').getLogLines();
+        expect(lines).toEqual([
+            expect.stringContaining('[0] hey'),
+            expect.stringContaining('[0] echo hey exited with code 0'),
+            expect.stringContaining('--> Running teardown command "echo bye"'),
+            expect.stringContaining('bye'),
+            expect.stringContaining('--> Teardown command "echo bye" exited with code 0'),
+        ]);
+    });
+
+    it('runs multiple teardown commands', async () => {
+        const lines = await run(
+            '--teardown "echo bye" --teardown "echo bye2" "echo hey"',
+        ).getLogLines();
+        expect(lines).toContain('bye');
+        expect(lines).toContain('bye2');
+    });
+});
+
 describe('--timings', () => {
     const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
     const processStartedMessageRegex = (index: number, command: string) => {
