@@ -242,9 +242,7 @@ export function concurrently(
 
     const result = new CompletionListener({ successCondition: options.successCondition })
         .listen(commands, options.abortSignal)
-        .finally(() => {
-            handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
-        });
+        .finally(() => Promise.all(handleResult.onFinishCallbacks.map((onFinish) => onFinish())));
 
     return {
         result,

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import _ from 'lodash';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
@@ -7,15 +8,13 @@ import { concurrently } from '../src/index';
 import { epilogue } from './epilogue';
 
 // Clean-up arguments (yargs expects only the arguments after the program name)
-const cleanArgs = hideBin(process.argv);
-// Find argument separator (double dash)
-const argsSepIdx = cleanArgs.findIndex((arg) => arg === '--');
-// Arguments before separator
-const argsBeforeSep = argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs;
-// Arguments after separator
-const argsAfterSep = argsSepIdx >= 0 ? cleanArgs.slice(argsSepIdx + 1) : [];
-
-const args = yargs(argsBeforeSep)
+const args = yargs(hideBin(process.argv))
+    .parserConfiguration({
+        // Avoids options that can be specified multiple times from requiring a `--` to pass commands
+        'greedy-arrays': false,
+        // Makes sure that --passthrough-arguments works correctly
+        'populate--': true,
+    })
     .usage('$0 [options] <command ...>')
     .help('h')
     .alias('h', 'help')
@@ -98,6 +97,13 @@ const args = yargs(argsBeforeSep)
                 'instead of treating them as commands.',
             type: 'boolean',
             default: defaults.passthroughArguments,
+        },
+        teardown: {
+            describe:
+                'Clean up command(s) to execute before exiting concurrently. Might be specified multiple times.\n' +
+                "These aren't prefixed and they don't affect concurrently's exit code.",
+            type: 'string',
+            array: true,
         },
 
         // Kill others
@@ -191,7 +197,7 @@ const args = yargs(argsBeforeSep)
         },
     })
     .group(
-        ['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P'],
+        ['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P', 'teardown'],
         'General',
     )
     .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
@@ -203,8 +209,9 @@ const args = yargs(argsBeforeSep)
 
 // Get names of commands by the specified separator
 const names = (args.names || '').split(args.nameSeparator);
-// If "passthrough-arguments" is disabled, treat additional arguments as commands
-const commands = args.passthroughArguments ? args._ : [...args._, ...argsAfterSep];
+
+const additionalArguments = _.castArray(args['--'] ?? []).map(String);
+const commands = args.passthroughArguments ? args._ : args._.concat(additionalArguments);
 
 concurrently(
     commands.map((command, index) => ({
@@ -234,7 +241,8 @@ concurrently(
         successCondition: args.success,
         timestampFormat: args.timestampFormat,
         timings: args.timings,
-        additionalArguments: args.passthroughArguments ? argsAfterSep : undefined,
+        teardown: args.teardown,
+        additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
     },
 ).result.then(
     () => process.exit(0),

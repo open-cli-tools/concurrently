@@ -10,7 +10,7 @@ import { Logger } from './logger';
 
 let spawn: SpawnCommand;
 let kill: KillProcess;
-let onFinishHooks: (() => void)[];
+let onFinishHooks: jest.Mock[];
 let controllers: jest.Mocked<FlowController>[];
 let processes: ChildProcess[];
 const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) =>
@@ -395,4 +395,25 @@ it('runs onFinish hook after all commands run', async () => {
 
     expect(onFinishHooks[0]).toHaveBeenCalled();
     expect(onFinishHooks[1]).toHaveBeenCalled();
+});
+
+// This test should time out if broken
+it('waits for onFinish hooks to complete before resolving', async () => {
+    onFinishHooks[0].mockResolvedValue(undefined);
+    const { result } = create(['foo', 'bar']);
+
+    processes[0].emit('close', 0, null);
+    processes[1].emit('close', 0, null);
+
+    await expect(result).resolves.toBeDefined();
+});
+
+it('rejects if onFinish hooks reject', async () => {
+    onFinishHooks[0].mockRejectedValue('error');
+    const { result } = create(['foo', 'bar']);
+
+    processes[0].emit('close', 0, null);
+    processes[1].emit('close', 0, null);
+
+    await expect(result).rejects.toBe('error');
 });
