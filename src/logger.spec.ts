@@ -37,13 +37,29 @@ describe('#log()', () => {
         expect(values[1]).toEqual({ command: undefined, text: 'bar\nfoobaz\n' });
     });
 
-    it('does not emit prefix if last call did not finish with a LF', () => {
+    it('does not emit prefix if previous call from same command did not finish with a LF', () => {
         const { logger, spy } = createLogger({});
-        logger.log('foo', 'bar');
-        logger.log('foo', 'baz');
+        const command = new FakeCommand();
+        logger.log('foo', 'bar', command);
+        logger.log('foo', 'baz', command);
 
         expect(spy.getValuesLength()).toBe(3);
-        expect(spy.getLastValue()).toEqual({ command: undefined, text: 'baz' });
+        expect(spy.getLastValue()).toEqual({ command, text: 'baz' });
+    });
+
+    it('emits LF and prefix if previous call is from different command and did not finish with a LF', () => {
+        const { logger, spy } = createLogger({});
+        const command1 = new FakeCommand();
+        logger.log('foo', 'bar', command1);
+
+        const command2 = new FakeCommand();
+        logger.log('foo', 'baz', command2);
+
+        const values = spy.getValues();
+        expect(values).toHaveLength(5);
+        expect(values).toContainEqual({ command: command1, text: '\n' });
+        expect(values).toContainEqual({ command: command2, text: 'foo' });
+        expect(values).toContainEqual({ command: command2, text: 'baz' });
     });
 
     it('does not emit prefix nor handle text if logger is in raw mode', () => {
@@ -264,6 +280,19 @@ describe('#logCommandEvent()', () => {
         expect(logger.log).toHaveBeenCalledWith(
             chalk.reset('[1]') + ' ',
             chalk.reset('foo') + '\n',
+            cmd,
+        );
+    });
+
+    it('prepends a LF if previous command write did not end with a LF', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1);
+        logger.logCommandText('text', cmd);
+        logger.logCommandEvent('event', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('[1]') + ' ',
+            '\n' + chalk.reset('event') + '\n',
             cmd,
         );
     });

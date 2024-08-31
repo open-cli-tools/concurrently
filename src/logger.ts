@@ -20,10 +20,10 @@ export class Logger {
     private prefixLength = 0;
 
     /**
-     * Last character emitted.
+     * Last character emitted, and from which command.
      * If `undefined`, then nothing has been logged yet.
      */
-    private lastChar?: string;
+    private lastWrite?: { command: Command | undefined; char: string };
 
     /**
      * Observable that emits when there's been output logged.
@@ -160,7 +160,14 @@ export class Logger {
             return;
         }
 
-        this.logCommandText(chalk.reset(text) + '\n', command);
+        // Last write was from this command, but it didn't end with a line feed.
+        // Prepend one, otherwise the event's text will be concatenated to that write.
+        // A line feed is otherwise inserted anyway.
+        let prefix = '';
+        if (this.lastWrite?.command === command && this.lastWrite.char !== '\n') {
+            prefix = '\n';
+        }
+        this.logCommandText(prefix + chalk.reset(text) + '\n', command);
     }
 
     logCommandText(text: string, command: Command) {
@@ -254,24 +261,22 @@ export class Logger {
         // #70 - replace some ANSI code that would impact clearing lines
         text = text.replace(/\u2026/g, '...');
 
-        const lines = text.split('\n').map((line, index, lines) => {
-            // First line will write prefix only if we finished the last write with a LF.
-            // Last line won't write prefix because it should be empty.
-            if (index === 0 || index === lines.length - 1) {
-                return line;
-            }
-            return prefix + line;
-        });
+        // This write's interrupting another command, emit a line feed to start clean.
+        if (this.lastWrite && this.lastWrite.command !== command && this.lastWrite.char !== '\n') {
+            this.emit(this.lastWrite.command, '\n');
+        }
 
-        if (!this.lastChar || this.lastChar === '\n') {
+        // Clean lines should emit a prefix
+        if (!this.lastWrite || this.lastWrite.char === '\n') {
             this.emit(command, prefix);
         }
 
-        this.lastChar = text[text.length - 1];
-        this.emit(command, lines.join('\n'));
+        const textToWrite = text.replace(/\n(.)/g, `\n${prefix}$1`);
+        this.emit(command, textToWrite);
     }
 
     emit(command: Command | undefined, text: string) {
+        this.lastWrite = { command, char: text[text.length - 1] };
         this.output.next({ command, text });
     }
 }
