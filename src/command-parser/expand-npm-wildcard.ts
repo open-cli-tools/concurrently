@@ -25,8 +25,8 @@ export class ExpandNpmWildcard implements CommandParser {
     constructor(private readonly readPackage = ExpandNpmWildcard.readPackage) {}
 
     parse(commandInfo: CommandInfo) {
-        const [, npmCmd, cmdName, args] =
-            commandInfo.command.match(/(npm|yarn|pnpm|bun) run (\S+)([^&]*)/) || [];
+        const [, npmCmd, runCmd, cmdName, args] =
+            commandInfo.command.match(/(node|npm|yarn|pnpm|bun) ((?:--)?run) (\S+)([^&]*)/) || [];
         const wildcardPosition = (cmdName || '').indexOf('*');
 
         // If the regex didn't match an npm script, or it has no wildcard,
@@ -63,7 +63,7 @@ export class ExpandNpmWildcard implements CommandParser {
                 if (match) {
                     return {
                         ...commandInfo,
-                        command: `${npmCmd} run ${script}${args}`,
+                        command: `${npmCmd} ${runCmd} ${script}${args}`,
                         // Will use an empty command name if no prefix has been specified and
                         // the wildcard match is empty, e.g. if `npm:watch-*` matches `npm run watch-`.
                         name: prefix + match[1],

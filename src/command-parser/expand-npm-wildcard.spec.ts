@@ -67,82 +67,86 @@ it('expands to nothing if no scripts exist in package.json', () => {
     expect(parser.parse(createCommandInfo('npm run foo-*-baz qux'))).toEqual([]);
 });
 
-for (const npmCmd of ['npm', 'yarn', 'pnpm', 'bun']) {
-    describe(`with an ${npmCmd}: prefix`, () => {
-        it('expands to all scripts matching pattern', () => {
-            readPkg.mockReturnValue({
-                scripts: {
-                    'foo-bar-baz': '',
-                    'foo--baz': '',
-                },
-            });
-
-            expect(parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`))).toEqual([
-                { name: 'bar', command: `${npmCmd} run foo-bar-baz qux` },
-                { name: '', command: `${npmCmd} run foo--baz qux` },
-            ]);
+describe.each([
+    ['npm', 'run'],
+    ['yarn', 'run'],
+    ['pnpm', 'run'],
+    ['bun', 'run'],
+    ['node', '--run'],
+])(`with a %s: prefix`, (npmCmd, runCmd) => {
+    it('expands to all scripts matching pattern', () => {
+        readPkg.mockReturnValue({
+            scripts: {
+                'foo-bar-baz': '',
+                'foo--baz': '',
+            },
         });
 
-        it('uses wildcard match of script as command name', () => {
-            readPkg.mockReturnValue({
-                scripts: {
-                    'watch-js': '',
-                    'watch-css': '',
-                },
-            });
-
-            expect(
-                parser.parse({
-                    name: '',
-                    command: `${npmCmd} run watch-*`,
-                }),
-            ).toEqual([
-                { name: 'js', command: `${npmCmd} run watch-js` },
-                { name: 'css', command: `${npmCmd} run watch-css` },
-            ]);
-        });
-
-        it('uses existing command name as prefix to the wildcard match', () => {
-            readPkg.mockReturnValue({
-                scripts: {
-                    'watch-js': '',
-                    'watch-css': '',
-                },
-            });
-
-            expect(
-                parser.parse({
-                    name: 'w:',
-                    command: `${npmCmd} run watch-*`,
-                }),
-            ).toEqual([
-                { name: 'w:js', command: `${npmCmd} run watch-js` },
-                { name: 'w:css', command: `${npmCmd} run watch-css` },
-            ]);
-        });
-
-        it('allows negation', () => {
-            readPkg.mockReturnValue({
-                scripts: {
-                    'lint:js': '',
-                    'lint:ts': '',
-                    'lint:fix:js': '',
-                    'lint:fix:ts': '',
-                },
-            });
-
-            expect(parser.parse(createCommandInfo(`${npmCmd} run lint:*(!fix)`))).toEqual([
-                { name: 'js', command: `${npmCmd} run lint:js` },
-                { name: 'ts', command: `${npmCmd} run lint:ts` },
-            ]);
-        });
-
-        it('caches scripts upon calls', () => {
-            readPkg.mockReturnValue({});
-            parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`));
-            parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`));
-
-            expect(readPkg).toHaveBeenCalledTimes(1);
-        });
+        expect(parser.parse(createCommandInfo(`${npmCmd} ${runCmd} foo-*-baz qux`))).toEqual([
+            { name: 'bar', command: `${npmCmd} ${runCmd} foo-bar-baz qux` },
+            { name: '', command: `${npmCmd} ${runCmd} foo--baz qux` },
+        ]);
     });
-}
+
+    it('uses wildcard match of script as command name', () => {
+        readPkg.mockReturnValue({
+            scripts: {
+                'watch-js': '',
+                'watch-css': '',
+            },
+        });
+
+        expect(
+            parser.parse({
+                name: '',
+                command: `${npmCmd} ${runCmd} watch-*`,
+            }),
+        ).toEqual([
+            { name: 'js', command: `${npmCmd} ${runCmd} watch-js` },
+            { name: 'css', command: `${npmCmd} ${runCmd} watch-css` },
+        ]);
+    });
+
+    it('uses existing command name as prefix to the wildcard match', () => {
+        readPkg.mockReturnValue({
+            scripts: {
+                'watch-js': '',
+                'watch-css': '',
+            },
+        });
+
+        expect(
+            parser.parse({
+                name: 'w:',
+                command: `${npmCmd} ${runCmd} watch-*`,
+            }),
+        ).toEqual([
+            { name: 'w:js', command: `${npmCmd} ${runCmd} watch-js` },
+            { name: 'w:css', command: `${npmCmd} ${runCmd} watch-css` },
+        ]);
+    });
+
+    it('allows negation', () => {
+        readPkg.mockReturnValue({
+            scripts: {
+                'lint:js': '',
+                'lint:ts': '',
+                'lint:fix:js': '',
+                'lint:fix:ts': '',
+            },
+        });
+
+        expect(parser.parse(createCommandInfo(`${npmCmd} ${runCmd} lint:*(!fix)`))).toEqual([
+            { name: 'js', command: `${npmCmd} ${runCmd} lint:js` },
+            { name: 'ts', command: `${npmCmd} ${runCmd} lint:ts` },
+        ]);
+    });
+
+    it('caches scripts upon calls', () => {
+        readPkg.mockReturnValue({});
+        parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`));
+        parser.parse(createCommandInfo(`${npmCmd} run foo-*-baz qux`));
+
+        expect(readPkg).toHaveBeenCalledTimes(1);
+    });
+});
