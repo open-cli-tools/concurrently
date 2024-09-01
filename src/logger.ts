@@ -271,7 +271,7 @@ export class Logger {
             this.emit(command, prefix);
         }
 
-        const textToWrite = text.replace(/\n(.)/g, `\n${prefix}$1`);
+        const textToWrite = text.replaceAll('\n', (lf, i) => lf + (text[i + 1] ? prefix : ''));
         this.emit(command, textToWrite);
     }
 
