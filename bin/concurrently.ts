@@ -5,7 +5,10 @@ import { hideBin } from 'yargs/helpers';
 
 import * as defaults from '../src/defaults';
 import { concurrently } from '../src/index';
-import { epilogue } from './epilogue';
+import { readPackage } from './read-package';
+
+const version = String(readPackage().version);
+const epilogue = `For documentation and more examples, visit:\nhttps://github.com/open-cli-tools/concurrently/tree/v${version}/docs`;
 
 // Clean-up arguments (yargs expects only the arguments after the program name)
 const args = yargs(hideBin(process.argv))
@@ -18,7 +21,7 @@ const args = yargs(hideBin(process.argv))
     .usage('$0 [options] <command ...>')
     .help('h')
     .alias('h', 'help')
-    .version()
+    .version(version)
     .alias('version', 'v')
     .alias('version', 'V')
     // TODO: Add some tests for this.
