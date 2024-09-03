@@ -104,7 +104,8 @@
     "index.d.mts",
     "!**/fixtures",
     "!**/*.spec.js",
-    "!**/*.spec.d.ts"
+    "!**/*.spec.d.ts",
+    "docs"
   ],
   "lint-staged": {
     "*.?(m){js,ts}": "eslint --fix",
