@@ -12,6 +12,7 @@ The following are supported:
 | `node:<script>` | `node --run <script>` |
 
 > [!NOTE]
+>
 > `node --run` is only available from [Node 22 onwards](https://nodejs.org/en/blog/announcements/v22-release-announce#running-packagejson-scripts).
 
 For example, given the following `package.json` contents:
