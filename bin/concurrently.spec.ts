@@ -32,6 +32,7 @@ beforeAll(async () => {
         bundle: true,
         outfile: path.join(tmpDir, 'concurrently.js'),
     });
+    fs.copyFileSync(path.join(__dirname, '..', 'package.json'), path.join(tmpDir, 'package.json'));
 }, 8000);
 
 afterAll(() => {
