@@ -82,9 +82,11 @@ export type ConcurrentlyOptions = {
      * Available background colors:
      * - `bgBlack`, `bgRed`, `bgGreen`, `bgYellow`, `bgBlue`, `bgMagenta`, `bgCyan`, `bgWhite`
      *
+     * Set to `false` to disable colors.
+     *
      * @see {@link https://www.npmjs.com/package/chalk} for more information.
      */
-    prefixColors?: string | string[];
+    prefixColors?: string | string[] | false;
 
     /**
      * Maximum number of commands to run at once.
@@ -169,7 +171,7 @@ export function concurrently(
 
     const options = _.defaults(baseOptions, defaults);
 
-    const prefixColorSelector = new PrefixColorSelector(options.prefixColors);
+    const prefixColorSelector = new PrefixColorSelector(options.prefixColors || []);
 
     const commandParsers: CommandParser[] = [
         new StripQuotes(),

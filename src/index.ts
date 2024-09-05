@@ -121,6 +121,10 @@ export function concurrently(
         timestampFormat: options.timestampFormat,
     });
 
+    if (options.prefixColors === false) {
+        logger.toggleColors(false);
+    }
+
     const abortController = new AbortController();
 
     return createConcurrently(commands, {

@@ -406,3 +406,31 @@ describe('#logTable()', () => {
         );
     });
 });
+
+describe('#toggleColors()', () => {
+    it('uses supported color level when on', () => {
+        const { logger, spy } = createLogger({});
+        logger.toggleColors(true);
+
+        const command1 = new FakeCommand('foo', 'command', 0, { prefixColor: 'red' });
+        logger.logCommandText('bar', command1);
+        logger.logGlobalEvent('baz');
+
+        const texts = spy.getValues().map((value) => value.text);
+        expect(texts).toContain(chalk.red('[foo]') + ' ');
+        expect(texts).toContain(chalk.reset('-->') + ' ');
+    });
+
+    it('uses no colors when off', () => {
+        const { logger, spy } = createLogger({});
+        logger.toggleColors(false);
+
+        const command1 = new FakeCommand('foo', 'command', 0, { prefixColor: 'red' });
+        logger.logCommandText('bar', command1);
+        logger.logGlobalEvent('baz');
+
+        const texts = spy.getValues().map((value) => value.text);
+        expect(texts).toContain('[foo] ');
+        expect(texts).toContain('--> ');
+    });
+});

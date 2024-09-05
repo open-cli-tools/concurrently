@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import chalk, { Chalk } from 'chalk';
 import formatDate from 'date-fns/format';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
@@ -6,12 +6,17 @@ import * as Rx from 'rxjs';
 import { Command, CommandIdentifier } from './command';
 import * as defaults from './defaults';
 
+const defaultChalk = chalk;
+const noColorChalk = new chalk.Instance({ level: 0 });
+
 export class Logger {
     private readonly hide: CommandIdentifier[];
     private readonly raw: boolean;
     private readonly prefixFormat?: string;
     private readonly commandLength: number;
     private readonly timestampFormat: string;
+
+    private chalk: Chalk = defaultChalk;
 
     /**
      * How many characters should a prefix have.
@@ -71,6 +76,13 @@ export class Logger {
         this.prefixFormat = prefixFormat;
         this.commandLength = commandLength || defaults.prefixLength;
         this.timestampFormat = timestampFormat || defaults.timestampFormat;
+    }
+
+    /**
+     * Toggles colors on/off globally.
+     */
+    toggleColors(on: boolean) {
+        this.chalk = on ? defaultChalk : noColorChalk;
     }
 
     private shortenText(text: string) {
@@ -142,10 +154,10 @@ export class Logger {
     colorText(command: Command, text: string) {
         let color: chalk.Chalk;
         if (command.prefixColor && command.prefixColor.startsWith('#')) {
-            color = chalk.hex(command.prefixColor);
+            color = this.chalk.hex(command.prefixColor);
         } else {
-            const defaultColor = _.get(chalk, defaults.prefixColors, chalk.reset);
-            color = _.get(chalk, command.prefixColor ?? '', defaultColor);
+            const defaultColor = _.get(this.chalk, defaults.prefixColors, this.chalk.reset);
+            color = _.get(this.chalk, command.prefixColor ?? '', defaultColor);
         }
         return color(text);
     }
@@ -167,7 +179,7 @@ export class Logger {
         if (this.lastWrite?.command === command && this.lastWrite.char !== '\n') {
             prefix = '\n';
         }
-        this.logCommandText(prefix + chalk.reset(text) + '\n', command);
+        this.logCommandText(prefix + this.chalk.reset(text) + '\n', command);
     }
 
     logCommandText(text: string, command: Command) {
@@ -189,7 +201,7 @@ export class Logger {
             return;
         }
 
-        this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n');
+        this.log(this.chalk.reset('-->') + ' ', this.chalk.reset(text) + '\n');
     }
 
     /**
