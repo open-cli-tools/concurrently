@@ -197,10 +197,7 @@ describe('exiting conditions', () => {
         expect(lines).toContainEqual(
             expect.stringMatching(
                 createKillMessage(
-                    isWindows
-                        ? // '^C' is echoed by read-echo.js (also happens without the wrapper)
-                          '[0] ^Cnode fixtures/read-echo.js'
-                        : '[0] node fixtures/read-echo.js',
+                    '[0] node fixtures/read-echo.js',
                     // TODO: Flappy value due to race condition, sometimes killed by concurrently (exit code 1),
                     //       sometimes terminated on its own (exit code 0).
                     //       Related issue: https://github.com/open-cli-tools/concurrently/issues/283
