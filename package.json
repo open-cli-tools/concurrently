@@ -11,7 +11,7 @@
     "conc": "./dist/bin/concurrently.js"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "exports": {
     ".": {
