@@ -115,7 +115,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
     Anything else means all processes should exit successfully.
   - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
   - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
-  - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
+  - `timestampFormat`: a [Unicode format](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
   - `additionalArguments`: list of additional arguments passed that will get replaced in each command. If not defined, no argument replacing will happen.
 

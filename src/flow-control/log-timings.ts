@@ -1,10 +1,10 @@
 import * as assert from 'assert';
-import formatDate from 'date-fns/format';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
 import { bufferCount, combineLatestWith, take } from 'rxjs/operators';
 
 import { CloseEvent, Command } from '../command';
+import { DateFormatter } from '../date-format';
 import * as defaults from '../defaults';
 import { Logger } from '../logger';
 import { FlowController } from './flow-controller';
@@ -40,7 +40,7 @@ export class LogTimings implements FlowController {
     }
 
     private readonly logger?: Logger;
-    private readonly timestampFormat: string;
+    private readonly dateFormatter: DateFormatter;
 
     constructor({
         logger,
@@ -50,7 +50,7 @@ export class LogTimings implements FlowController {
         timestampFormat?: string;
     }) {
         this.logger = logger;
-        this.timestampFormat = timestampFormat;
+        this.dateFormatter = new DateFormatter(timestampFormat);
     }
 
     private printExitInfoTimingTable(exitInfos: CloseEvent[]) {
@@ -77,14 +77,14 @@ export class LogTimings implements FlowController {
         commands.forEach((command) => {
             command.timer.subscribe(({ startDate, endDate }) => {
                 if (!endDate) {
-                    const formattedStartDate = formatDate(startDate, this.timestampFormat);
+                    const formattedStartDate = this.dateFormatter.format(startDate);
                     logger.logCommandEvent(
                         `${command.command} started at ${formattedStartDate}`,
                         command,
                     );
                 } else {
                     const durationMs = endDate.getTime() - startDate.getTime();
-                    const formattedEndDate = formatDate(endDate, this.timestampFormat);
+                    const formattedEndDate = this.dateFormatter.format(endDate);
                     logger.logCommandEvent(
                         `${
                             command.command

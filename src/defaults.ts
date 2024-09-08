@@ -61,7 +61,7 @@ export const success = 'all' as SuccessCondition;
 
 /**
  * Date format used when logging date/time.
- * @see https://date-fns.org/v2.0.1/docs/format
+ * @see https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
  */
 export const timestampFormat = 'yyyy-MM-dd HH:mm:ss.SSS';
 

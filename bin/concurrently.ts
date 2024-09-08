@@ -164,7 +164,9 @@ const args = yargs(hideBin(process.argv))
         },
         'timestamp-format': {
             alias: 't',
-            describe: 'Specify the timestamp in moment/date-fns format.',
+            describe:
+                'Specify the timestamp in Unicode format:\n' +
+                'https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table',
             default: defaults.timestampFormat,
             type: 'string',
         },

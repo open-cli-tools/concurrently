@@ -1,9 +1,9 @@
 import chalk, { Chalk } from 'chalk';
-import formatDate from 'date-fns/format';
 import _ from 'lodash';
 import * as Rx from 'rxjs';
 
 import { Command, CommandIdentifier } from './command';
+import { DateFormatter } from './date-format';
 import * as defaults from './defaults';
 
 const defaultChalk = chalk;
@@ -14,7 +14,7 @@ export class Logger {
     private readonly raw: boolean;
     private readonly prefixFormat?: string;
     private readonly commandLength: number;
-    private readonly timestampFormat: string;
+    private readonly dateFormatter: DateFormatter;
 
     private chalk: Chalk = defaultChalk;
 
@@ -67,7 +67,7 @@ export class Logger {
 
         /**
          * Date format used when logging date/time.
-         * @see https://date-fns.org/v2.0.1/docs/format
+         * @see https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
          */
         timestampFormat?: string;
     }) {
@@ -75,7 +75,7 @@ export class Logger {
         this.raw = raw;
         this.prefixFormat = prefixFormat;
         this.commandLength = commandLength || defaults.prefixLength;
-        this.timestampFormat = timestampFormat || defaults.timestampFormat;
+        this.dateFormatter = new DateFormatter(timestampFormat || defaults.timestampFormat);
     }
 
     /**
@@ -108,7 +108,7 @@ export class Logger {
             index: String(command.index),
             name: command.name,
             command: this.shortenText(command.command),
-            time: formatDate(Date.now(), this.timestampFormat),
+            time: this.dateFormatter.format(new Date()),
         };
     }
 

@@ -1,7 +1,7 @@
-import formatDate from 'date-fns/format';
 import { createMockInstance } from 'jest-create-mock-instance';
 
 import { CloseEvent } from '../command';
+import { DateFormatter } from '../date-format';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { LogTimings } from './log-timings';
@@ -70,6 +70,7 @@ it("does not log timings and doesn't throw if no logger is provided", () => {
 });
 
 it('logs the timings at the start and end (ie complete or error) event of each command', () => {
+    const formatter = new DateFormatter(timestampFormat);
     controller.handle(commands);
 
     commands[0].timer.next({ startDate: startDate0 });
@@ -79,24 +80,22 @@ it('logs the timings at the start and end (ie complete or error) event of each c
 
     expect(logger.logCommandEvent).toHaveBeenCalledTimes(4);
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
-        `${commands[0].command} started at ${formatDate(startDate0, timestampFormat)}`,
+        `${commands[0].command} started at ${formatter.format(startDate0)}`,
         commands[0],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
-        `${commands[1].command} started at ${formatDate(startDate1, timestampFormat)}`,
+        `${commands[1].command} started at ${formatter.format(startDate1)}`,
         commands[1],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
-        `${commands[1].command} stopped at ${formatDate(
+        `${commands[1].command} stopped at ${formatter.format(
             endDate1,
-            timestampFormat,
         )} after ${command1DurationTextMs}`,
         commands[1],
     );
     expect(logger.logCommandEvent).toHaveBeenCalledWith(
-        `${commands[0].command} stopped at ${formatDate(
+        `${commands[0].command} stopped at ${formatter.format(
             endDate0,
-            timestampFormat,
         )} after ${command0DurationTextMs}`,
         commands[0],
     );
