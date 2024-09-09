@@ -1,5 +1,5 @@
 import * as Rx from 'rxjs';
-import { delay, filter, map, switchMap, take } from 'rxjs/operators';
+import { delay, filter, map, share, switchMap, take } from 'rxjs/operators';
 
 import { CloseEvent, Command } from './command';
 
@@ -101,6 +101,9 @@ export class CompletionListener {
                 // without an immediate delay
                 delay(0, this.scheduler),
                 map(() => undefined),
+                // #502 - node might warn of too many active listeners on this object if it isn't shared,
+                // as each command subscribes to abort event over and over
+                share(),
             );
 
         const closeStreams = commands.map((command) =>
