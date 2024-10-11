@@ -1,9 +1,9 @@
 import fs from 'fs';
 
 import { CommandInfo } from '../command';
-import { ExpandNpmWildcard } from './expand-npm-wildcard';
+import { ExpandWildcard } from './expand-wildcard';
 
-let parser: ExpandNpmWildcard;
+let parser: ExpandWildcard;
 let readPackage: jest.Mock;
 let readDeno: jest.Mock;
 
@@ -15,7 +15,7 @@ const createCommandInfo = (command: string): CommandInfo => ({
 beforeEach(() => {
     readDeno = jest.fn();
     readPackage = jest.fn();
-    parser = new ExpandNpmWildcard(readDeno, readPackage);
+    parser = new ExpandWildcard(readDeno, readPackage);
 });
 
 afterEach(() => {
@@ -35,7 +35,7 @@ describe('ExpandWildcard#readDeno', () => {
             return '';
         });
 
-        const actualReadDeno = ExpandNpmWildcard.readDeno();
+        const actualReadDeno = ExpandWildcard.readDeno();
         expect(actualReadDeno).toEqual(expectedDeno);
     });
 
@@ -44,8 +44,8 @@ describe('ExpandWildcard#readDeno', () => {
             throw new Error('Error reading deno');
         });
 
-        expect(() => ExpandNpmWildcard.readDeno()).not.toThrow();
-        expect(ExpandNpmWildcard.readDeno()).toEqual({});
+        expect(() => ExpandWildcard.readDeno()).not.toThrow();
+        expect(ExpandWildcard.readDeno()).toEqual({});
     });
 });
 
@@ -62,7 +62,7 @@ describe('ExpandWildcard#readPackage', () => {
             return '';
         });
 
-        const actualReadPackage = ExpandNpmWildcard.readPackage();
+        const actualReadPackage = ExpandWildcard.readPackage();
         expect(actualReadPackage).toEqual(expectedPackage);
     });
 
@@ -71,8 +71,8 @@ describe('ExpandWildcard#readPackage', () => {
             throw new Error('Error reading package');
         });
 
-        expect(() => ExpandNpmWildcard.readPackage()).not.toThrow();
-        expect(ExpandNpmWildcard.readPackage()).toEqual({});
+        expect(() => ExpandWildcard.readPackage()).not.toThrow();
+        expect(ExpandWildcard.readPackage()).toEqual({});
     });
 });
 

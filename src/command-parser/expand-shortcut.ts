@@ -13,7 +13,7 @@ import { CommandParser } from './command-parser';
  * | `node:<script>` | `node --run <script>` |
  * | `deno:<script>` | `deno task <script>`  |
  */
-export class ExpandNpmShortcut implements CommandParser {
+export class ExpandShortcut implements CommandParser {
     parse(commandInfo: CommandInfo) {
         const [, prefix, script, args] =
             /^(npm|yarn|pnpm|bun|node|deno):(\S+)(.*)/.exec(commandInfo.command) || [];

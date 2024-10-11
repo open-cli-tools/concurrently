@@ -11,7 +11,7 @@ const OMISSION = /\(!([^)]+)\)/;
  * commands and replaces them with all matching scripts in the `package.json`
  * and `deno.json` files of the current directory.
  */
-export class ExpandNpmWildcard implements CommandParser {
+export class ExpandWildcard implements CommandParser {
     static readDeno() {
         try {
             const json = fs.readFileSync('deno.json', { encoding: 'utf-8' });
@@ -34,8 +34,8 @@ export class ExpandNpmWildcard implements CommandParser {
     private denoTasks?: string[];
 
     constructor(
-        private readonly readDeno = ExpandNpmWildcard.readDeno,
-        private readonly readPackage = ExpandNpmWildcard.readPackage,
+        private readonly readDeno = ExpandWildcard.readDeno,
+        private readonly readPackage = ExpandWildcard.readPackage,
     ) {}
 
     private relevantScripts(command: string): string[] {

@@ -1,7 +1,7 @@
 import { CommandInfo } from '../command';
-import { ExpandNpmShortcut } from './expand-npm-shortcut';
+import { ExpandShortcut } from './expand-shortcut';
 
-const parser = new ExpandNpmShortcut();
+const parser = new ExpandShortcut();
 
 const createCommandInfo = (command: string, name = ''): CommandInfo => ({
     name,
