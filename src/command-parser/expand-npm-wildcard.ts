@@ -7,10 +7,20 @@ import { CommandParser } from './command-parser';
 const OMISSION = /\(!([^)]+)\)/;
 
 /**
- * Finds wildcards in npm/yarn/pnpm/bun run commands and replaces them with all matching scripts in the
- * `package.json` file of the current directory.
+ * Finds wildcards in 'npm/yarn/pnpm/bun run', 'node --run' and 'deno task'
+ * commands and replaces them with all matching scripts in the `package.json`
+ * and `deno.json` files of the current directory.
  */
 export class ExpandNpmWildcard implements CommandParser {
+    static readDeno() {
+        try {
+            const json = fs.readFileSync('deno.json', { encoding: 'utf-8' });
+            return JSON.parse(json);
+        } catch (e) {
+            return {};
+        }
+    }
+
     static readPackage() {
         try {
             const json = fs.readFileSync('package.json', { encoding: 'utf-8' });
@@ -20,53 +30,77 @@ export class ExpandNpmWildcard implements CommandParser {
         }
     }
 
-    private scripts?: string[];
+    private packageScripts?: string[];
+    private denoTasks?: string[];
 
-    constructor(private readonly readPackage = ExpandNpmWildcard.readPackage) {}
+    constructor(
+        private readonly readDeno = ExpandNpmWildcard.readDeno,
+        private readonly readPackage = ExpandNpmWildcard.readPackage,
+    ) {}
+
+    private relevantScripts(command: string): string[] {
+        if (!this.packageScripts) {
+            this.packageScripts = Object.keys(this.readPackage().scripts || {});
+        }
+
+        if (command === 'deno task') {
+            if (!this.denoTasks) {
+                // If Deno tries to run a task that doesn't exist,
+                // it can fall back to running a script with the same name.
+                // Therefore, the actual list of tasks is the union of the tasks and scripts.
+                this.denoTasks = [
+                    ...Object.keys(this.readDeno().tasks || {}),
+                    ...this.packageScripts,
+                ];
+            }
+
+            return this.denoTasks;
+        }
+
+        return this.packageScripts;
+    }
 
     parse(commandInfo: CommandInfo) {
-        const [, npmCmd, runCmd, cmdName, args] =
-            commandInfo.command.match(/(node|npm|yarn|pnpm|bun) ((?:--)?run) (\S+)([^&]*)/) || [];
-        const wildcardPosition = (cmdName || '').indexOf('*');
+        // We expect one of the following patterns:
+        // - <npm|yarn|pnpm|bun> run <script> [args]
+        // - node --run <script> [args]
+        // - deno task <script> [args]
+        const [, command, scriptGlob, args] =
+            /((?:npm|yarn|pnpm|bun) (?:run)|node --run|deno task) (\S+)([^&]*)/.exec(
+                commandInfo.command,
+            ) || [];
+
+        const wildcardPosition = (scriptGlob || '').indexOf('*');
 
         // If the regex didn't match an npm script, or it has no wildcard,
         // then we have nothing to do here
-        if (!cmdName || wildcardPosition === -1) {
+        if (wildcardPosition === -1) {
             return commandInfo;
         }
 
-        if (!this.scripts) {
-            this.scripts = Object.keys(this.readPackage().scripts || {});
-        }
-
-        const omissionRegex = cmdName.match(OMISSION);
-        const cmdNameSansOmission = cmdName.replace(OMISSION, '');
-        const preWildcard = _.escapeRegExp(cmdNameSansOmission.slice(0, wildcardPosition));
-        const postWildcard = _.escapeRegExp(cmdNameSansOmission.slice(wildcardPosition + 1));
+        const [, omission] = OMISSION.exec(scriptGlob) || [];
+        const scriptGlobSansOmission = scriptGlob.replace(OMISSION, '');
+        const preWildcard = _.escapeRegExp(scriptGlobSansOmission.slice(0, wildcardPosition));
+        const postWildcard = _.escapeRegExp(scriptGlobSansOmission.slice(wildcardPosition + 1));
         const wildcardRegex = new RegExp(`^${preWildcard}(.*?)${postWildcard}$`);
-        // If 'commandInfo.name' doesn't match 'cmdName', this means a custom name
+        // If 'commandInfo.name' doesn't match 'scriptGlob', this means a custom name
         // has been specified and thus becomes the prefix (as described in the README).
-        const prefix = commandInfo.name !== cmdName ? commandInfo.name : '';
+        const prefix = commandInfo.name !== scriptGlob ? commandInfo.name : '';
 
-        return this.scripts
+        return this.relevantScripts(command)
             .map((script) => {
-                const match = script.match(wildcardRegex);
-
-                if (omissionRegex) {
-                    const toOmit = script.match(new RegExp(omissionRegex[1]));
-
-                    if (toOmit) {
-                        return;
-                    }
+                if (omission && RegExp(omission).test(script)) {
+                    return;
                 }
 
-                if (match) {
+                const [, match] = wildcardRegex.exec(script) || [];
+                if (match !== undefined) {
                     return {
                         ...commandInfo,
-                        command: `${npmCmd} ${runCmd} ${script}${args}`,
+                        command: `${command} ${script}${args}`,
                         // Will use an empty command name if no prefix has been specified and
                         // the wildcard match is empty, e.g. if `npm:watch-*` matches `npm run watch-`.
-                        name: prefix + match[1],
+                        name: prefix + match,
                     };
                 }
             })

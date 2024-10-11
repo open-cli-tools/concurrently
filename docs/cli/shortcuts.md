@@ -1,6 +1,6 @@
 # Command Shortcuts
 
-Package managers that execute scripts from a `package.json` file can be shortened when in concurrently.<br/>
+Package managers that execute scripts from a `package.json` or `deno.json` file can be shortened when in concurrently.<br/>
 The following are supported:
 
 | Syntax          | Expands to            |
@@ -10,6 +10,7 @@ The following are supported:
 | `yarn:<script>` | `yarn run <script>`   |
 | `bun:<script>`  | `bun run <script>`    |
 | `node:<script>` | `node --run <script>` |
+| `deno:<script>` | `deno task <script>`  |
 
 > [!NOTE]
 >

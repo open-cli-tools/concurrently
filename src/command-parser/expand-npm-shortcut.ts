@@ -2,21 +2,38 @@ import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
 
 /**
- * Expands commands prefixed with `node:`, `npm:`, `yarn:`, `pnpm:`, or `bun:` into the full version `npm run <command>` and so on.
+ * Expands shortcuts according to the following table:
+ *
+ * | Syntax          | Expands to            |
+ * | --------------- | --------------------- |
+ * | `npm:<script>`  | `npm run <script>`    |
+ * | `pnpm:<script>` | `pnpm run <script>`   |
+ * | `yarn:<script>` | `yarn run <script>`   |
+ * | `bun:<script>`  | `bun run <script>`    |
+ * | `node:<script>` | `node --run <script>` |
+ * | `deno:<script>` | `deno task <script>`  |
  */
 export class ExpandNpmShortcut implements CommandParser {
     parse(commandInfo: CommandInfo) {
-        const [, npmCmd, cmdName, args] =
-            commandInfo.command.match(/^(node|npm|yarn|pnpm|bun):(\S+)(.*)/) || [];
-        if (!cmdName) {
+        const [, prefix, script, args] =
+            /^(npm|yarn|pnpm|bun|node|deno):(\S+)(.*)/.exec(commandInfo.command) || [];
+        if (!script) {
             return commandInfo;
         }
 
-        const runCmd = npmCmd === 'node' ? '--run' : 'run';
+        let command: string;
+        if (prefix === 'node') {
+            command = 'node --run';
+        } else if (prefix === 'deno') {
+            command = 'deno task';
+        } else {
+            command = `${prefix} run`;
+        }
+
         return {
             ...commandInfo,
-            name: commandInfo.name || cmdName,
-            command: `${npmCmd} ${runCmd} ${cmdName}${args}`,
+            name: commandInfo.name || script,
+            command: `${command} ${script}${args}`,
         };
     }
 }
