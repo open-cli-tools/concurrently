@@ -4,6 +4,7 @@ import _ from 'lodash';
 import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
 
+// Matches a negative filter surrounded by '(!' and ')'.
 const OMISSION = /\(!([^)]+)\)/;
 
 /**
