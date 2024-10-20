@@ -58,7 +58,10 @@ tired of opening terminals and made **concurrently**.
 
 The tool is written in Node.js, but you can use it to run **any** commands.
 
-Remember to surround separate commands with quotes:
+Remember to surround separate commands with **double quotes**:
+
+> **Note**
+> The use of double quotes instead of single quotes is important to maintain compatibility between different operating systems.
 
 ```bash
 concurrently "command1 arg" "command2 arg"
