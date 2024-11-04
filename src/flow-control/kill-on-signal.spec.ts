@@ -32,7 +32,7 @@ it('returns commands that map SIGINT to exit code 0', () => {
 
     const callback = jest.fn();
     newCommands[0].close.subscribe(callback);
-    process.emit('SIGINT');
+    process.emit('SIGINT', 'SIGINT');
 
     // A fake command's .kill() call won't trigger a close event automatically...
     commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
@@ -56,7 +56,7 @@ it('returns commands that keep non-SIGINT exit codes', () => {
 describe.each(['SIGINT', 'SIGTERM', 'SIGHUP'])('on %s', (signal) => {
     it('kills all commands', () => {
         controller.handle(commands);
-        process.emit(signal);
+        process.emit(signal, signal);
 
         expect(process.listenerCount(signal)).toBe(1);
         expect(commands[0].kill).toHaveBeenCalledWith(signal);
@@ -65,8 +65,14 @@ describe.each(['SIGINT', 'SIGTERM', 'SIGHUP'])('on %s', (signal) => {
 
     it('sends abort signal', () => {
         controller.handle(commands);
-        process.emit(signal);
+        process.emit(signal, signal);
 
         expect(abortController.signal.aborted).toBe(true);
+    });
+
+    it('removes event listener on finish', () => {
+        const { onFinish } = controller.handle(commands);
+        onFinish();
+        expect(process.listenerCount(signal)).toBe(0);
     });
 });
