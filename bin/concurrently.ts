@@ -11,7 +11,7 @@ const version = String(readPackage().version);
 const epilogue = `For documentation and more examples, visit:\nhttps://github.com/open-cli-tools/concurrently/tree/v${version}/docs`;
 
 // Clean-up arguments (yargs expects only the arguments after the program name)
-const args = yargs(hideBin(process.argv))
+const program = yargs(hideBin(process.argv))
     .parserConfiguration({
         // Avoids options that can be specified multiple times from requiring a `--` to pass commands
         'greedy-arrays': false,
@@ -209,14 +209,20 @@ const args = yargs(hideBin(process.argv))
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail', 'kill-signal'], 'Killing other processes')
     .group(['restart-tries', 'restart-after'], 'Restarting')
-    .epilogue(epilogue)
-    .parseSync();
+    .epilogue(epilogue);
+
+const args = program.parseSync();
 
 // Get names of commands by the specified separator
 const names = (args.names || '').split(args.nameSeparator);
 
 const additionalArguments = _.castArray(args['--'] ?? []).map(String);
 const commands = args.passthroughArguments ? args._ : args._.concat(additionalArguments);
+
+if (!commands.length) {
+    program.showHelp();
+    process.exit();
+}
 
 concurrently(
     commands.map((command, index) => ({

@@ -117,6 +117,11 @@ it('has help command', async () => {
     expect(exit.code).toBe(0);
 });
 
+it('prints help when no arguments are passed', async () => {
+    const exit = await run('').exit;
+    expect(exit.code).toBe(0);
+});
+
 describe('has version command', () => {
     const pkg = fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8');
     const { version } = JSON.parse(pkg);
