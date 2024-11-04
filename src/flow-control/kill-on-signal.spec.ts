@@ -69,4 +69,10 @@ describe.each(['SIGINT', 'SIGTERM', 'SIGHUP'])('on %s', (signal) => {
 
         expect(abortController.signal.aborted).toBe(true);
     });
+
+    it('removes event listener on finish', () => {
+        const { onFinish } = controller.handle(commands);
+        onFinish();
+        expect(process.listenerCount(signal)).toBe(0);
+    });
 });
