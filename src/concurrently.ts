@@ -14,8 +14,8 @@ import {
 } from './command';
 import { CommandParser } from './command-parser/command-parser';
 import { ExpandArguments } from './command-parser/expand-arguments';
-import { ExpandNpmShortcut } from './command-parser/expand-npm-shortcut';
-import { ExpandNpmWildcard } from './command-parser/expand-npm-wildcard';
+import { ExpandShortcut } from './command-parser/expand-shortcut';
+import { ExpandWildcard } from './command-parser/expand-wildcard';
 import { StripQuotes } from './command-parser/strip-quotes';
 import { CompletionListener, SuccessCondition } from './completion-listener';
 import { FlowController } from './flow-control/flow-controller';
@@ -175,8 +175,8 @@ export function concurrently(
 
     const commandParsers: CommandParser[] = [
         new StripQuotes(),
-        new ExpandNpmShortcut(),
-        new ExpandNpmWildcard(),
+        new ExpandShortcut(),
+        new ExpandWildcard(),
     ];
 
     if (options.additionalArguments) {
