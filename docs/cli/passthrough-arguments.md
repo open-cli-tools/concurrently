@@ -17,9 +17,9 @@ For example, imagine you have in your `package.json` file scripts like this:
 ```
 
 If you wanted to run only either `build:server` or `build:client` with an additional `--noEmit` flag,
-you can do so with `npm run build:server -- --watch`, for example.<br/>
-However, if you want to do that while using concurrently, as `npm run dev -- --noEmit` for example,
-you might find that concurrently actually parses `--watch` as its own flag, which does nothing,
+you can do so with `npm run build:server -- --noEmit`, for example.<br/>
+However, if you want to do that while using concurrently, as `npm run build -- --noEmit` for example,
+you might find that concurrently actually parses `--noEmit` as its own flag, which does nothing,
 because it doesn't exist.
 
 To solve this, you can set the `--passthrough-arguments`/`-P` flag, which instructs concurrently to
