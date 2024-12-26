@@ -2,6 +2,7 @@ import fs from 'fs';
 import _ from 'lodash';
 
 import { CommandInfo } from '../command';
+import JSONC from '../jsonc';
 import { CommandParser } from './command-parser';
 
 // Matches a negative filter surrounded by '(!' and ')'.
@@ -9,14 +10,21 @@ const OMISSION = /\(!([^)]+)\)/;
 
 /**
  * Finds wildcards in 'npm/yarn/pnpm/bun run', 'node --run' and 'deno task'
- * commands and replaces them with all matching scripts in the `package.json`
- * and `deno.json` files of the current directory.
+ * commands and replaces them with all matching scripts in the NodeJS and Deno
+ * configuration files of the current directory.
  */
 export class ExpandWildcard implements CommandParser {
     static readDeno() {
         try {
-            const json = fs.readFileSync('deno.json', { encoding: 'utf-8' });
-            return JSON.parse(json);
+            let json: string = '{}';
+
+            if (fs.existsSync('deno.json')) {
+                json = fs.readFileSync('deno.json', { encoding: 'utf-8' });
+            } else if (fs.existsSync('deno.jsonc')) {
+                json = fs.readFileSync('deno.jsonc', { encoding: 'utf-8' });
+            }
+
+            return JSONC.parse(json);
         } catch (e) {
             return {};
         }
