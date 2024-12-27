@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs, { PathOrFileDescriptor } from 'fs';
 
 import { CommandInfo } from '../command';
 import { ExpandWildcard } from './expand-wildcard';
@@ -23,12 +23,53 @@ afterEach(() => {
 });
 
 describe('ExpandWildcard#readDeno', () => {
-    it('can read deno', () => {
+    it('can read deno.json', () => {
         const expectedDeno = {
             name: 'deno',
             version: '1.14.0',
         };
-        jest.spyOn(fs, 'readFileSync').mockImplementation((path) => {
+        jest.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
+            return path === 'deno.json';
+        });
+        jest.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
+            if (path === 'deno.json') {
+                return JSON.stringify(expectedDeno);
+            }
+            return '';
+        });
+
+        const actualReadDeno = ExpandWildcard.readDeno();
+        expect(actualReadDeno).toEqual(expectedDeno);
+    });
+
+    it('can read deno.jsonc', () => {
+        const expectedDeno = {
+            name: 'deno',
+            version: '1.14.0',
+        };
+        jest.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
+            return path === 'deno.jsonc';
+        });
+        jest.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
+            if (path === 'deno.jsonc') {
+                return '/* comment */\n' + JSON.stringify(expectedDeno);
+            }
+            return '';
+        });
+
+        const actualReadDeno = ExpandWildcard.readDeno();
+        expect(actualReadDeno).toEqual(expectedDeno);
+    });
+
+    it('prefers deno.json over deno.jsonc', () => {
+        const expectedDeno = {
+            name: 'deno',
+            version: '1.14.0',
+        };
+        jest.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
+            return path === 'deno.json' || path === 'deno.jsonc';
+        });
+        jest.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
             if (path === 'deno.json') {
                 return JSON.stringify(expectedDeno);
             }
@@ -40,6 +81,7 @@ describe('ExpandWildcard#readDeno', () => {
     });
 
     it('can handle errors reading deno', () => {
+        jest.spyOn(fs, 'existsSync').mockReturnValue(true);
         jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
             throw new Error('Error reading deno');
         });
@@ -55,7 +97,7 @@ describe('ExpandWildcard#readPackage', () => {
             name: 'concurrently',
             version: '6.4.0',
         };
-        jest.spyOn(fs, 'readFileSync').mockImplementation((path) => {
+        jest.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
             if (path === 'package.json') {
                 return JSON.stringify(expectedPackage);
             }
@@ -105,7 +147,7 @@ it('expands to nothing if no scripts exist in package.json', () => {
     expect(parser.parse(createCommandInfo('npm run foo-*-baz qux'))).toEqual([]);
 });
 
-it('expands to nothing if no tasks exist in deno.json and no scripts exist in package.json', () => {
+it('expands to nothing if no tasks exist in Deno config and no scripts exist in NodeJS config', () => {
     readDeno.mockReturnValue({});
     readPackage.mockReturnValue({});
 
@@ -192,7 +234,7 @@ describe.each(['npm run', 'yarn run', 'pnpm run', 'bun run', 'node --run'])(
             expect(readPackage).toHaveBeenCalledTimes(1);
         });
 
-        it("doesn't read deno.json", () => {
+        it("doesn't read Deno config", () => {
             readPackage.mockReturnValue({});
 
             parser.parse(createCommandInfo(`${command} foo-*-baz qux`));

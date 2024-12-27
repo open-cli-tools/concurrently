@@ -1,6 +1,6 @@
 # Command Shortcuts
 
-Package managers that execute scripts from a `package.json` or `deno.json` file can be shortened when in concurrently.<br/>
+Package managers that execute scripts from a `package.json` or `deno.(json|jsonc)` file can be shortened when in concurrently.<br/>
 The following are supported:
 
 | Syntax          | Expands to            |
