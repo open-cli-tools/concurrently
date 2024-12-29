@@ -113,13 +113,15 @@ export function concurrently(
     // keep in the list of commands to hide only strings with some length.
     // This might happen through the CLI when no `--hide` argument is specified, for example.
     const hide = _.castArray(options.hide).filter((id) => id || id === 0);
-    const logger = options.logger || new Logger({
-        hide,
-        prefixFormat: options.prefix,
-        commandLength: options.prefixLength,
-        raw: options.raw,
-        timestampFormat: options.timestampFormat,
-    });
+    const logger =
+        options.logger ||
+        new Logger({
+            hide,
+            prefixFormat: options.prefix,
+            commandLength: options.prefixLength,
+            raw: options.raw,
+            timestampFormat: options.timestampFormat,
+        });
 
     if (options.prefixColors === false) {
         logger.toggleColors(false);
