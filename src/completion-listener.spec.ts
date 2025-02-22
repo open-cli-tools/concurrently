@@ -32,6 +32,11 @@ const emitFakeCloseEvent = (command: FakeCommand, event?: Partial<CloseEvent>) =
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('listen', () => {
+    it('resolves when there are no commands', async () => {
+        const result = createController().listen([]);
+        await expect(result).resolves.toHaveLength(0);
+    });
+
     it('completes only when commands emit a close event, returns close event', async () => {
         const abortCtrl = new AbortController();
         const result = createController('all').listen(commands, abortCtrl.signal);
