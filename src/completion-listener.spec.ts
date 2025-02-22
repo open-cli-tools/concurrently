@@ -1,4 +1,4 @@
-import { getEventListeners, getMaxListeners } from 'events';
+import { getEventListeners } from 'events';
 import { TestScheduler } from 'rxjs/testing';
 
 import { CloseEvent } from './command';
@@ -59,9 +59,8 @@ describe('listen', () => {
 
     it('does not leak memory when listening for abort signals', () => {
         const abortCtrl = new AbortController();
-        const maxListeners = getMaxListeners(abortCtrl.signal);
         createController().listen(
-            Array.from({ length: maxListeners + 1 }, () => new FakeCommand()),
+            Array.from({ length: 10 }, () => new FakeCommand()),
             abortCtrl.signal,
         );
         expect(getEventListeners(abortCtrl.signal, 'abort')).toHaveLength(1);
