@@ -96,8 +96,8 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
   - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
     to read the input from. Should only be used in the rare instance you would like to stream anything other than `process.stdin`. Overrides `handleInput`.
   - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
-  - `killOthers`: an array of exitting conditions that will cause a process to kill others.
-    Can contain any of `success` or `failure`.
+  - `killOthersOn`: once the first command exits with one of these statuses, kill other commands.
+    Can be an array containing the strings `success` (status code zero) and/or `failure` (non-zero exit status).
   - `maxProcesses`: how many processes should run at once.
   - `outputStream`: a [`Writable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_writable_streams)
     to write logs to. Default: `process.stdout`.

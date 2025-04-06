@@ -112,7 +112,7 @@ const program = yargs(hideBin(process.argv))
         // Kill others
         'kill-others': {
             alias: 'k',
-            describe: 'Kill other processes if one exits or dies.',
+            describe: 'Kill other processes once the first exits.',
             type: 'boolean',
         },
         'kill-others-on-fail': {
@@ -232,7 +232,7 @@ concurrently(
     {
         handleInput: args.handleInput,
         defaultInputTarget: args.defaultInputTarget,
-        killOthers: args.killOthers
+        killOthersOn: args.killOthers
             ? ['success', 'failure']
             : args.killOthersOnFail
             ? ['failure']

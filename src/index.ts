@@ -78,11 +78,15 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
 
     // Process killing options
     /**
-     * Under which condition(s) should other commands be killed when the first one exits.
-     *
+     * @deprecated Use `killOthersOn` instead.
      * @see KillOthers
      */
     killOthers?: ProcessCloseCondition | ProcessCloseCondition[];
+    /**
+     * Once the first command exits with one of these statuses, kill other commands.
+     * @see KillOthers
+     */
+    killOthersOn?: ProcessCloseCondition | ProcessCloseCondition[];
 
     // Timing options
     /**
@@ -160,7 +164,7 @@ export function concurrently(
             }),
             new KillOthers({
                 logger,
-                conditions: options.killOthers || [],
+                conditions: options.killOthersOn || options.killOthers || [],
                 killSignal: options.killSignal,
                 abortController,
             }),
