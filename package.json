@@ -38,7 +38,7 @@
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "test": "jest --selectProjects unit",
     "test:smoke": "jest --selectProjects smoke",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
