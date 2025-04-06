@@ -107,6 +107,11 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
      * If not defined, no argument replacing will happen.
      */
     additionalArguments?: string[];
+
+    /**
+     * This command should be run multiple times, for each of the provided matrices.
+     */
+    matrices?: readonly string[][];
 };
 
 export function concurrently(
@@ -175,6 +180,7 @@ export function concurrently(
             new Teardown({ logger, spawn: options.spawn, commands: options.teardown || [] }),
         ],
         prefixColors: options.prefixColors || [],
+        matrices: options.matrices,
         additionalArguments: options.additionalArguments,
     });
 }

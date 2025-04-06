@@ -93,6 +93,13 @@ const program = yargs(hideBin(process.argv))
             type: 'boolean',
             default: defaults.timings,
         },
+        matrix: {
+            describe:
+                'Run many commands as a matrix using space-separated parameters. ' +
+                'E.g. concurrently --matrix "a b c" --matrix "1 2 3" "echo {1}{2}"',
+            type: 'string',
+            array: true,
+        },
         'passthrough-arguments': {
             alias: 'P',
             describe:
@@ -253,6 +260,7 @@ concurrently(
         timestampFormat: args.timestampFormat,
         timings: args.timings,
         teardown: args.teardown,
+        matrices: args.matrix?.map((matrix) => matrix.split(' ')),
         additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
     },
 ).result.then(
