@@ -110,16 +110,21 @@ describe('#start()', () => {
 
     it('changes state to started', () => {
         const { command } = createCommand();
+        const spy = subscribeSpyTo(command.stateChange);
         command.start();
         expect(command.state).toBe('started');
+        expect(spy.getFirstValue()).toBe('started');
     });
 
     describe('on errors', () => {
         it('changes state to errored', () => {
             const { command } = createCommand();
             command.start();
+
+            const spy = subscribeSpyTo(command.stateChange);
             process.emit('error', 'foo');
             expect(command.state).toBe('errored');
+            expect(spy.getFirstValue()).toBe('errored');
         });
 
         it('shares to the error stream', async () => {
@@ -152,16 +157,22 @@ describe('#start()', () => {
         it('changes state to exited', () => {
             const { command } = createCommand();
             command.start();
+
+            const spy = subscribeSpyTo(command.stateChange);
             process.emit('close', 0, null);
             expect(command.state).toBe('exited');
+            expect(spy.getFirstValue()).toBe('exited');
         });
 
         it('does not change state if there was an error', () => {
             const { command } = createCommand();
             command.start();
             process.emit('error', 'foo');
+
+            const spy = subscribeSpyTo(command.stateChange);
             process.emit('close', 0, null);
             expect(command.state).toBe('errored');
+            expect(spy.getValuesLength()).toBe(0);
         });
 
         it('shares start and close timing events to the timing stream', async () => {
