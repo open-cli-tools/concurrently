@@ -89,6 +89,11 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
      */
     killOthersOn?: ProcessCloseCondition | ProcessCloseCondition[];
 
+    /**
+     * Signal to send to killed processes.
+     */
+    killSignal?: string;
+
     // Timing options
     /**
      * Whether to output timing information for processes.
