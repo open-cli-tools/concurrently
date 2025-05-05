@@ -3,8 +3,8 @@ import _ from 'lodash';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
+import { assertDeprecated } from '../src/assert';
 import * as defaults from '../src/defaults';
-import { deprecatedOption } from '../src/deprecations';
 import { concurrently } from '../src/index';
 import { readPackage } from './read-package';
 
@@ -213,7 +213,11 @@ const program = yargs(hideBin(process.argv))
     .epilogue(epilogue);
 
 const args = program.parseSync();
-deprecatedOption(args, 'name-separator', 'Use commas as name separators instead.');
+assertDeprecated(
+    args.nameSeparator === defaults.nameSeparator,
+    'name-separator',
+    'Use commas as name separators instead.',
+);
 
 // Get names of commands by the specified separator
 const names = (args.names || '').split(args.nameSeparator);

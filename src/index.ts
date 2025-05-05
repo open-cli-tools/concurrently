@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { Readable } from 'stream';
 
+import { assertDeprecated } from './assert';
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
 import {
     concurrently as createConcurrently,
@@ -8,7 +9,6 @@ import {
     ConcurrentlyOptions as BaseConcurrentlyOptions,
     ConcurrentlyResult,
 } from './concurrently';
-import { deprecatedOption } from './deprecations';
 import { FlowController } from './flow-control/flow-controller';
 import { InputHandler } from './flow-control/input-handler';
 import { KillOnSignal } from './flow-control/kill-on-signal';
@@ -119,7 +119,7 @@ export function concurrently(
     commands: ConcurrentlyCommandInput[],
     options: Partial<ConcurrentlyOptions> = {},
 ) {
-    deprecatedOption(options, 'killOthers', 'Use killOthersOn instead.');
+    assertDeprecated(options.killOthers === undefined, 'killOthers', 'Use killOthersOn instead.');
 
     // To avoid empty strings from hiding the output of commands that don't have a name,
     // keep in the list of commands to hide only strings with some length.
