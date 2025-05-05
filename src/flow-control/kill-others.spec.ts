@@ -13,18 +13,27 @@ beforeEach(() => {
     abortController = new AbortController();
 });
 
-const createWithConditions = (conditions: ProcessCloseCondition[], killSignal?: string) =>
+const createWithConditions = (
+    conditions: ProcessCloseCondition[],
+    opts?: { timeoutMs?: number; killSignal?: string },
+) =>
     new KillOthers({
         logger,
         abortController,
         conditions,
-        killSignal,
+        killSignal: undefined,
+        ...opts,
     });
 
 const assignProcess = (command: FakeCommand) => {
     const process = createFakeProcess(1);
     command.pid = process.pid;
     command.process = process;
+};
+
+const unassignProcess = (command: FakeCommand) => {
+    command.pid = undefined;
+    command.process = undefined;
 };
 
 it('returns same commands', () => {
@@ -58,7 +67,7 @@ describe.each(['success', 'failure'] as const)('on %s', (condition) => {
     });
 
     it('kills other processes, with specified signal', () => {
-        createWithConditions([condition], 'SIGKILL').handle(commands);
+        createWithConditions([condition], { killSignal: 'SIGKILL' }).handle(commands);
         assignProcess(commands[1]);
         commands[0].close.next(createFakeCloseEvent({ exitCode }));
 
@@ -99,4 +108,21 @@ it('does not try to kill processes already dead', () => {
     expect(logger.logGlobalEvent).not.toHaveBeenCalled();
     expect(commands[0].kill).not.toHaveBeenCalled();
     expect(commands[1].kill).not.toHaveBeenCalled();
+});
+
+it('force kills misbehaving processes after a timeout', () => {
+    jest.useFakeTimers();
+    commands.push(new FakeCommand());
+
+    createWithConditions(['failure'], { timeoutMs: 500 }).handle(commands);
+    assignProcess(commands[1]);
+    assignProcess(commands[2]);
+    commands[2].kill = jest.fn(() => unassignProcess(commands[2]));
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+
+    jest.advanceTimersByTime(500);
+
+    expect(commands[1].kill).toHaveBeenCalledTimes(2);
+    expect(commands[1].kill).toHaveBeenCalledWith('SIGKILL');
+    expect(commands[2].kill).toHaveBeenCalledTimes(1);
 });
