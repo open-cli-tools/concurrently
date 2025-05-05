@@ -34,3 +34,19 @@ The default is `SIGTERM`, but it's also possible to send `SIGKILL`.
 ```bash
 $ concurrently --kill-others --kill-signal SIGKILL 'npm start' 'npm test'
 ```
+
+### Timeout
+
+In case you have a misbehaving process that ignores the kill signal, you can force kill it after some
+timeout (in milliseconds) by using the `--kill-timeout` flag.
+This sends a `SIGKILL`, which cannot be caught.
+
+```bash
+$ concurrently --kill-others --kill-timeout 1000 'sleep 1 && echo bye' './misbehaving'
+[0] bye
+[0] sleep 1 && echo bye exited with code 0
+--> Sending SIGTERM to other processes..
+[1] IGNORING SIGNAL
+--> Sending SIGKILL to 1 processes..
+[1] ./misbehaving exited with code SIGKILL
+```
