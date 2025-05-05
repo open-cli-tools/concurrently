@@ -5,9 +5,6 @@ import { PassThrough, Writable } from 'stream';
 import { ChildProcess, CloseEvent, Command, CommandInfo } from '../command';
 
 export class FakeCommand extends Command {
-    // Placeholder value for dynamically mocking `canKill` in 'kill-others.spec.ts'.
-    isKillable = false;
-
     constructor(name = 'foo', command = 'echo foo', index = 0, info?: Partial<CommandInfo>) {
         super(
             {
