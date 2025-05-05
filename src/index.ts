@@ -94,6 +94,11 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
      */
     killSignal?: string;
 
+    /**
+     * How many milliseconds to wait before killing processes.
+     */
+    killTimeout?: number;
+
     // Timing options
     /**
      * Whether to output timing information for processes.
@@ -173,6 +178,7 @@ export function concurrently(
             new KillOthers({
                 logger,
                 conditions: options.killOthersOn || options.killOthers || [],
+                timeoutMs: options.killTimeout,
                 killSignal: options.killSignal,
                 abortController,
             }),
