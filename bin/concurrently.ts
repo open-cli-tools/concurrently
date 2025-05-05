@@ -127,6 +127,10 @@ const program = yargs(hideBin(process.argv))
             type: 'string',
             default: defaults.killSignal,
         },
+        'kill-timeout': {
+            describe: 'How many milliseconds to wait before forcing process terminating.',
+            type: 'number',
+        },
 
         // Prefix
         prefix: {
@@ -208,7 +212,7 @@ const program = yargs(hideBin(process.argv))
     )
     .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
-    .group(['k', 'kill-others-on-fail', 'kill-signal'], 'Killing other processes')
+    .group(['k', 'kill-others-on-fail', 'kill-signal', 'kill-timeout'], 'Killing other processes')
     .group(['restart-tries', 'restart-after'], 'Restarting')
     .epilogue(epilogue);
 
@@ -244,6 +248,7 @@ concurrently(
             ? ['failure']
             : [],
         killSignal: args.killSignal,
+        killTimeout: args.killTimeout,
         maxProcesses: args.maxProcesses,
         raw: args.raw,
         hide: args.hide.split(','),
