@@ -30,7 +30,18 @@ beforeEach(() => {
     ];
 });
 
+it('throws if outputStream already is in errored state', () => {
+    Object.assign(outputStream, { errored: new Error() });
+    expect(() => createWriter()).toThrow(TypeError);
+});
+
 describe('#write()', () => {
+    it('throws if outputStream has errored', () => {
+        const writer = createWriter();
+        Object.assign(outputStream, { errored: new Error() });
+        expect(() => writer.write(commands[0], 'hello')).toThrow(TypeError);
+    });
+
     describe('with group=false', () => {
         it('writes instantly', () => {
             const writer = createWriter({ group: false });
