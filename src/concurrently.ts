@@ -1,6 +1,7 @@
 import assert from 'assert';
 import _ from 'lodash';
 import { cpus } from 'os';
+import { takeUntil } from 'rxjs';
 import { Writable } from 'stream';
 import treeKill from 'tree-kill';
 
@@ -223,7 +224,10 @@ export function concurrently(
             group: !!options.group,
             commands,
         });
-        options.logger.output.subscribe(({ command, text }) => outputWriter.write(command, text));
+        options.logger.output
+            // Stop trying to write after there's been an error.
+            .pipe(takeUntil(outputWriter.error))
+            .subscribe(({ command, text }) => outputWriter.write(command, text));
     }
 
     const commandsLeft = commands.slice();
