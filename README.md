@@ -116,7 +116,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
   - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
   - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
   - `timestampFormat`: a [Unicode format](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
-    to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
+    to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.SSS`
   - `additionalArguments`: list of additional arguments passed that will get replaced in each command. If not defined, no argument replacing will happen.
 
 > **Returns:** an object in the shape `{ result, commands }`.
