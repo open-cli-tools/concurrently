@@ -316,7 +316,7 @@ describe('#logTable()', () => {
         expect(logger.log).not.toHaveBeenCalled();
     });
 
-    it('does not log anything if array is empy', () => {
+    it('does not log anything if array is empty', () => {
         const { logger } = createLogger({});
         logger.logTable([]);
 

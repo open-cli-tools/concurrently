@@ -35,7 +35,7 @@ function* createColorGenerator(customColors: string[]): Generator<string, string
     const lastCustomColor = customColors[customColors.length - 1] || '';
     if (lastCustomColor !== 'auto') {
         while (true) {
-            yield lastCustomColor; // If last custom color was not "auto" then return same color forever, to maintain existing behaviour
+            yield lastCustomColor; // If last custom color was not "auto" then return same color forever, to maintain existing behavior
         }
     }
 
