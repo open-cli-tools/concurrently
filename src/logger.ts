@@ -95,9 +95,9 @@ export class Logger {
         const endLength = Math.floor(prefixLength / 2);
         const beginningLength = prefixLength - endLength;
 
-        const beginnning = text.slice(0, beginningLength);
+        const beginning = text.slice(0, beginningLength);
         const end = text.slice(text.length - endLength, text.length);
-        return beginnning + ellipsis + end;
+        return beginning + ellipsis + end;
     }
 
     private getPrefixesFor(command: Command): Record<string, string> {
@@ -153,7 +153,7 @@ export class Logger {
 
     colorText(command: Command, text: string) {
         let color: chalk.Chalk;
-        if (command.prefixColor && command.prefixColor.startsWith('#')) {
+        if (command.prefixColor?.startsWith('#')) {
             color = this.chalk.hex(command.prefixColor);
         } else {
             const defaultColor = _.get(this.chalk, defaults.prefixColors, this.chalk.reset);
