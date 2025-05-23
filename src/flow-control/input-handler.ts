@@ -72,7 +72,7 @@ export class InputHandler implements FlowController {
                     input = data;
                 }
 
-                if (command && command.stdin) {
+                if (command?.stdin) {
                     command.stdin.write(input);
                 } else {
                     this.logger.logGlobalEvent(
