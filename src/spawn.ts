@@ -88,7 +88,7 @@ export const getSpawnOpts = ({
     return {
         cwd: cwd || process.cwd(),
         stdio: stdioValues,
-        ...(/^win/.test(process.platform) && { detached: false }),
+        ...(process.platform.startsWith('win') && { detached: false }),
         env: {
             ...(colorSupport ? { FORCE_COLOR: colorSupport.level.toString() } : {}),
             ...process.env,
