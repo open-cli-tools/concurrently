@@ -155,12 +155,13 @@ describe('#getNextColor', function () {
             map ? expectedColors.map(() => 'auto') : ['auto'],
         );
 
-        expectedColors.reduce((previousColor, currentExpectedColor) => {
+        let previousColor = '';
+        for (const expectedColor of expectedColors) {
             const actualSelectedColor = prefixColorSelector.getNextColor();
             expect(actualSelectedColor).not.toBe(previousColor); // No consecutive colors
-            expect(actualSelectedColor).toBe(currentExpectedColor); // Expected color
-            return actualSelectedColor;
-        }, '');
+            expect(actualSelectedColor).toBe(expectedColor); // Expected color
+            previousColor = actualSelectedColor;
+        }
     });
 });
 

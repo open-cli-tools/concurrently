@@ -53,7 +53,7 @@ export class RestartProcess implements FlowController {
                     takeWhile(({ exitCode }) => exitCode !== 0),
                 ),
             )
-            .map((failure, index) =>
+            .forEach((failure, index) =>
                 Rx.merge(
                     // Delay the emission (so that the restarts happen on time),
                     // explicitly telling the subscriber that a restart is needed
