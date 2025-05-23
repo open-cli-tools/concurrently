@@ -88,7 +88,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
   with the shape `{ command, name, prefixColor, env, cwd, ipc }`.
 
 - `options` (optional): an object containing any of the below:
-  - `cwd`: the working directory to be used by all commands. Can be overriden per command.
+  - `cwd`: the working directory to be used by all commands. Can be overridden per command.
     Default: `process.cwd()`.
   - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
@@ -109,7 +109,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
   - `raw`: whether raw mode should be used, meaning strictly process output will
-    be logged, without any prefixes, coloring or extra stuff. Can be overriden per command.
+    be logged, without any prefixes, coloring or extra stuff. Can be overridden per command.
   - `successCondition`: the condition to consider the run was successful.
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.

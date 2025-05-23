@@ -78,7 +78,7 @@ export class CompletionListener {
                 (event) => targetCommandsEvents.includes(event) || event.exitCode === 0,
             );
         }
-        // Only the specified commands must exit succesfully
+        // Only the specified commands must exit successfully
         return (
             targetCommandsEvents.length > 0 &&
             targetCommandsEvents.every((event) => event.exitCode === 0)

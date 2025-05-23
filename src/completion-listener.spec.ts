@@ -81,7 +81,7 @@ describe('listen', () => {
         emitFakeCloseEvent(commands[0]);
 
         scheduler.flush();
-        // A broken implementantion will have called finallyCallback only after flushing promises
+        // A broken implementation will have called finallyCallback only after flushing promises
         await flushPromises();
         expect(finallyCallback).not.toHaveBeenCalled();
 
@@ -117,7 +117,7 @@ describe('listen', () => {
         emitFakeCloseEvent(commands[2]);
 
         scheduler.flush();
-        // A broken implementantion will have called finallyCallback only after flushing promises
+        // A broken implementation will have called finallyCallback only after flushing promises
         await flushPromises();
         expect(finallyCallback).not.toHaveBeenCalled();
 
