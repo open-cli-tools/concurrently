@@ -18,6 +18,7 @@ import { LogExit } from './flow-control/log-exit';
 import { LogOutput } from './flow-control/log-output';
 import { LogTimings } from './flow-control/log-timings';
 import { LoggerPadding } from './flow-control/logger-padding';
+import { OutputErrorHandler } from './flow-control/output-error-handler';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process';
 import { Teardown } from './flow-control/teardown';
 import { Logger } from './logger';
@@ -145,6 +146,7 @@ export function concurrently(
     }
 
     const abortController = new AbortController();
+    const outputStream = options.outputStream || process.stdout;
 
     return createConcurrently(commands, {
         maxProcesses: options.maxProcesses,
@@ -153,7 +155,7 @@ export function concurrently(
         cwd: options.cwd,
         hide,
         logger,
-        outputStream: options.outputStream || process.stdout,
+        outputStream,
         group: options.group,
         abortSignal: abortController.signal,
         controllers: [
@@ -182,6 +184,7 @@ export function concurrently(
                 killSignal: options.killSignal,
                 abortController,
             }),
+            new OutputErrorHandler({ abortController, outputStream }),
             new LogTimings({
                 logger: options.timings ? logger : undefined,
                 timestampFormat: options.timestampFormat,
