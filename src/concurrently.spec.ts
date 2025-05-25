@@ -62,6 +62,18 @@ it('log output is passed to output stream if logger is specified in options', ()
     expect(outputStream.write).toHaveBeenCalledWith('bar');
 });
 
+it('log output is not passed to output stream after it has errored', () => {
+    const logger = new Logger({ hide: [] });
+    const outputStream = new Writable();
+    jest.spyOn(outputStream, 'write');
+
+    create(['foo'], { logger, outputStream });
+    outputStream.emit('error', new Error());
+    logger.log('foo', 'bar');
+
+    expect(outputStream.write).not.toHaveBeenCalled();
+});
+
 it('spawns commands up to configured limit at once', () => {
     create(['foo', 'bar', 'baz', 'qux'], { maxProcesses: 2 });
     expect(spawn).toHaveBeenCalledTimes(2);

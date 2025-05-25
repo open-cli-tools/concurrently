@@ -34,3 +34,17 @@ describe('on output stream error', () => {
         expect(abortController.signal.aborted).toBe(true);
     });
 });
+
+describe('on finish', () => {
+    it('unsubscribes from output stream error', () => {
+        const { onFinish } = controller.handle(commands);
+        onFinish();
+
+        outputStream.on('error', jest.fn());
+        outputStream.emit('error', new Error());
+
+        expect(commands[0].kill).not.toHaveBeenCalled();
+        expect(commands[1].kill).not.toHaveBeenCalled();
+        expect(abortController.signal.aborted).toBe(false);
+    });
+});
