@@ -98,7 +98,7 @@ $ concurrently -c red,bold.blue.dim 'echo Hello there' 'echo General Kenobi!'
 - `underline`
 </details>
 
-A background color can be set in a similary fashion.
+A background color can be set in a similarly fashion.
 
 ```bash
 $ concurrently -c bgGray,red.bgBlack 'echo Hello there' 'echo General Kenobi!'
