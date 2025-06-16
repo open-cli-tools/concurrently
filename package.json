@@ -69,7 +69,7 @@
     "@jest/types": "^30.0.0",
     "@swc/core": "^1.7.23",
     "@swc/jest": "^0.2.36",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.7",
     "@types/node": "^18.19.50",
     "@types/shell-quote": "^1.7.5",
