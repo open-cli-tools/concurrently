@@ -9,6 +9,9 @@
   "[javascript, typescript]": {
     "editor.formatOnSave": false
   },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "editor.rulers": [100],
   "typescript.tsdk": "node_modules/typescript/lib"
 }
