@@ -85,7 +85,7 @@
     "eslint-plugin-import": "^2.30.0",
     "eslint-plugin-jest": "^27.9.0",
     "eslint-plugin-prettier": "^5.2.1",
-    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "husky": "^9.1.5",
     "jest": "^30.0.0",
     "jest-create-mock-instance": "^2.0.0",
