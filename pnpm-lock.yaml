@@ -77,8 +77,8 @@ devDependencies:
     specifier: ^8.57.0
     version: 8.57.0(supports-color@8.1.1)
   eslint-config-prettier:
-    specifier: ^9.1.0
-    version: 9.1.0(eslint@8.57.0)
+    specifier: ^10.1.5
+    version: 10.1.5(eslint@8.57.0)
   eslint-plugin-import:
     specifier: ^2.30.0
     version: 2.30.0(@typescript-eslint/parser@7.18.0)(eslint@8.57.0)(supports-color@8.1.1)
@@ -87,7 +87,7 @@ devDependencies:
     version: 27.9.0(@typescript-eslint/eslint-plugin@7.18.0)(eslint@8.57.0)(jest@30.0.0)(supports-color@8.1.1)(typescript@5.2.2)
   eslint-plugin-prettier:
     specifier: ^5.2.1
-    version: 5.2.1(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.0.3)
+    version: 5.2.1(eslint-config-prettier@10.1.5)(eslint@8.57.0)(prettier@3.0.3)
   eslint-plugin-simple-import-sort:
     specifier: ^10.0.0
     version: 10.0.0(eslint@8.57.0)
@@ -2816,8 +2816,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /eslint-config-prettier@9.1.0(eslint@8.57.0):
-    resolution: {integrity: sha512-NSWl5BFQWEPi1j4TjVNItzYV7dZXZ+wP6I6ZhrBGpChQhZRUaElihE9uRRkcbRnNb76UMKDF3r+WTmNcGPKsqw==}
+  /eslint-config-prettier@10.1.5(eslint@8.57.0):
+    resolution: {integrity: sha512-zc1UmCpNltmVY34vuLRV61r1K27sWuX39E+uyUnY8xS2Bex88VV9cugG+UZbRSRGtGyFboj+D8JODyme1plMpw==}
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
@@ -2922,7 +2922,7 @@ packages:
       - typescript
     dev: true
 
-  /eslint-plugin-prettier@5.2.1(eslint-config-prettier@9.1.0)(eslint@8.57.0)(prettier@3.0.3):
+  /eslint-plugin-prettier@5.2.1(eslint-config-prettier@10.1.5)(eslint@8.57.0)(prettier@3.0.3):
     resolution: {integrity: sha512-gH3iR3g4JfF+yYPaJYkN7jEl9QbweL/YfkoRlNnuIEHEz1vHVlCmWOS+eGGiRuzHQXdJFCOTxRgvju9b8VUmrw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -2937,7 +2937,7 @@ packages:
         optional: true
     dependencies:
       eslint: 8.57.0(supports-color@8.1.1)
-      eslint-config-prettier: 9.1.0(eslint@8.57.0)
+      eslint-config-prettier: 10.1.5(eslint@8.57.0)
       prettier: 3.0.3
       prettier-linter-helpers: 1.0.0
       synckit: 0.9.1
