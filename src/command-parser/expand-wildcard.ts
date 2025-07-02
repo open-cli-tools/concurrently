@@ -1,5 +1,5 @@
+import _ from 'es-toolkit/compat';
 import fs from 'fs';
-import _ from 'lodash';
 
 import { CommandInfo } from '../command';
 import JSONC from '../jsonc';

@@ -1,5 +1,5 @@
 import assert from 'assert';
-import _ from 'lodash';
+import _ from 'es-toolkit/compat';
 import { cpus } from 'os';
 import { takeUntil } from 'rxjs';
 import { Writable } from 'stream';
@@ -180,7 +180,7 @@ export function concurrently(
     }
 
     const hide = (options.hide || []).map(String);
-    let commands = _(baseCommands)
+    let commands = baseCommands
         .map(mapToCommandInfo)
         .flatMap((command) => parseCommand(command, commandParsers))
         .map((command, index) => {
@@ -200,8 +200,7 @@ export function concurrently(
                 options.spawn,
                 options.kill,
             );
-        })
-        .value();
+        });
 
     const handleResult = options.controllers.reduce(
         ({ commands: prevCommands, onFinishCallbacks }, controller) => {
@@ -241,7 +240,9 @@ export function concurrently(
         maybeRunMore(commandsLeft, options.abortSignal);
     }
 
-    const result = new CompletionListener({ successCondition: options.successCondition })
+    const result = new CompletionListener({
+        successCondition: options.successCondition,
+    })
         .listen(commands, options.abortSignal)
         .finally(() => Promise.all(handleResult.onFinishCallbacks.map((onFinish) => onFinish())));
 

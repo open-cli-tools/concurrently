@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'es-toolkit/compat';
 import { filter, map } from 'rxjs/operators';
 
 import { Command } from '../command';
