@@ -195,7 +195,7 @@ packages:
     dependencies:
       chalk: 4.1.2
       date-fns: 2.30.0
-      es-toolkit/compat: 4.17.21
+      es-toolkit: 1.39.5
       rxjs: 7.8.1
       shell-quote: 1.8.1
       spawn-command: 0.0.2
