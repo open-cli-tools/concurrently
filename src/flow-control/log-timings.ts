@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import _ from 'lodash';
+import { sortBy } from 'es-toolkit/compat';
 import * as Rx from 'rxjs';
 import { bufferCount, combineLatestWith, take } from 'rxjs/operators';
 
@@ -56,11 +56,9 @@ export class LogTimings implements FlowController {
     private printExitInfoTimingTable(exitInfos: CloseEvent[]) {
         assert.ok(this.logger);
 
-        const exitInfoTable = _(exitInfos)
-            .sortBy(({ timings }) => timings.durationSeconds)
+        const exitInfoTable = sortBy(exitInfos, ({ timings }) => timings.durationSeconds)
             .reverse()
-            .map(LogTimings.mapCloseEventToTimingInfo)
-            .value();
+            .map(LogTimings.mapCloseEventToTimingInfo);
 
         this.logger.logGlobalEvent('Timings:');
         this.logger.logTable(exitInfoTable);

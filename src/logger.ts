@@ -1,5 +1,5 @@
 import chalk, { Chalk } from 'chalk';
-import _ from 'lodash';
+import _ from 'es-toolkit/compat';
 import * as Rx from 'rxjs';
 
 import { Command, CommandIdentifier } from './command';

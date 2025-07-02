@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import _ from 'lodash';
+import _ from 'es-toolkit/compat';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 

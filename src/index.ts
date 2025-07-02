@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'es-toolkit/compat';
 import { Readable } from 'stream';
 
 import { assertDeprecated } from './assert';
@@ -189,7 +189,11 @@ export function concurrently(
                 logger: options.timings ? logger : undefined,
                 timestampFormat: options.timestampFormat,
             }),
-            new Teardown({ logger, spawn: options.spawn, commands: options.teardown || [] }),
+            new Teardown({
+                logger,
+                spawn: options.spawn,
+                commands: options.teardown || [],
+            }),
         ],
         prefixColors: options.prefixColors || [],
         additionalArguments: options.additionalArguments,

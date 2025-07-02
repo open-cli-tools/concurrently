@@ -89,7 +89,7 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /lodash@4.17.21:
+  /es-toolkit/compat@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
     dev: false
 
@@ -195,7 +195,7 @@ packages:
     dependencies:
       chalk: 4.1.2
       date-fns: 2.30.0
-      lodash: 4.17.21
+      es-toolkit/compat: 4.17.21
       rxjs: 7.8.1
       shell-quote: 1.8.1
       spawn-command: 0.0.2

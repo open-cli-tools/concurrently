@@ -1,9 +1,9 @@
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { spawn } from 'child_process';
 import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
+import { escapeRegExp } from 'es-toolkit/compat';
 import { build } from 'esbuild';
 import fs from 'fs';
-import { escapeRegExp } from 'lodash';
 import os from 'os';
 import path from 'path';
 import * as readline from 'readline';
