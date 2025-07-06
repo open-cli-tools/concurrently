@@ -5,7 +5,7 @@ import concurrently = require('concurrently');
 
 const { concurrently: concurrently2, createConcurrently } = concurrently;
 
-const result: concurrently.ConcurrentlyResult = concurrently(['ls'], {
+const result: concurrently.ConcurrentlyResult = concurrently.default(['ls'], {
     raw: true,
 });
 
