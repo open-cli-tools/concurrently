@@ -1,6 +1,7 @@
 {
-  "jest.runMode": "watch",
-  "jest.jestCommandLine": "pnpm test --",
+  // For contributors with the Jest extension installed,
+  // it might incorrectly report errors in the suite
+  "jest.enable": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
