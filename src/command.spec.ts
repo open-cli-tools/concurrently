@@ -3,6 +3,7 @@ import { SendHandle, SpawnOptions } from 'child_process';
 import { EventEmitter } from 'events';
 import * as Rx from 'rxjs';
 import { Readable, Writable } from 'stream';
+import { Mock, vi } from 'vitest';
 
 import {
     ChildProcess,
@@ -16,8 +17,8 @@ import {
 type CommandValues = { error: unknown; close: CloseEvent; timer: unknown[] };
 
 let process: ChildProcess;
-let sendMessage: jest.Mock;
-let spawn: jest.Mocked<SpawnCommand>;
+let sendMessage: Mock;
+let spawn: Mock<SpawnCommand>;
 let killProcess: KillProcess;
 
 const IPC_FD = 3;
@@ -25,7 +26,7 @@ const IPC_FD = 3;
 autoUnsubscribe();
 
 beforeEach(() => {
-    sendMessage = jest.fn();
+    sendMessage = vi.fn();
     process = new (class extends EventEmitter {
         readonly pid = 1;
         send = sendMessage;
@@ -45,8 +46,8 @@ beforeEach(() => {
             },
         });
     })();
-    spawn = jest.fn().mockReturnValue(process);
-    killProcess = jest.fn();
+    spawn = vi.fn().mockReturnValue(process);
+    killProcess = vi.fn();
 });
 
 const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts: SpawnOptions = {}) => {
@@ -304,7 +305,7 @@ describe('#start()', () => {
                 send: undefined,
             });
 
-            const onSent = jest.fn();
+            const onSent = vi.fn();
             command.messages.outgoing.next({ message: {}, onSent });
             expect(onSent).toHaveBeenCalledWith(expect.any(Error));
         });
@@ -361,7 +362,7 @@ describe('#start()', () => {
             const { command } = createCommand({ ipc: IPC_FD });
             command.start();
 
-            const onSent = jest.fn();
+            const onSent = vi.fn();
             command.messages.outgoing.next({ message: {}, onSent });
             expect(onSent).not.toHaveBeenCalled();
 
