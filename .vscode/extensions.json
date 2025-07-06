@@ -3,6 +3,6 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "editorconfig.editorconfig",
-    "orta.vscode-jest"
+    "vitest.explorer"
   ]
 }
