@@ -1,6 +1,7 @@
-import { createMockInstance } from 'jest-create-mock-instance';
 import { Writable } from 'stream';
+import { MockedObject } from 'vitest';
 
+import { createMockInstance } from './fixtures/create-mock-instance';
 import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
 import { OutputWriter } from './output-writer';
 
@@ -19,7 +20,7 @@ function closeCommand(command: FakeCommand) {
     command.close.next(createFakeCloseEvent({ command, index: command.index }));
 }
 
-let outputStream: jest.Mocked<Writable>;
+let outputStream: MockedObject<Writable>;
 let commands: FakeCommand[];
 beforeEach(() => {
     outputStream = createMockInstance(Writable);

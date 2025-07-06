@@ -1,9 +1,9 @@
-import { createMockInstance } from 'jest-create-mock-instance';
 import os from 'os';
 import { Writable } from 'stream';
 
 import { ChildProcess, KillProcess, SpawnCommand } from './command';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';
+import { createMockInstance } from './fixtures/create-mock-instance';
 import { createFakeProcess, FakeCommand } from './fixtures/fake-command';
 import { FlowController } from './flow-control/flow-controller';
 import { Logger } from './logger';
