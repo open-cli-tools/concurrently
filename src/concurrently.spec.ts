@@ -18,7 +18,7 @@ const create = (commands: ConcurrentlyCommandInput[], options: Partial<Concurren
     concurrently(commands, Object.assign(options, { controllers, spawn, kill }));
 
 beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     processes = [];
     spawn = vi.fn(() => {
@@ -66,7 +66,7 @@ it('log output is passed to output stream if logger is specified in options', ()
 it('log output is not passed to output stream after it has errored', () => {
     const logger = new Logger({ hide: [] });
     const outputStream = new Writable();
-    jest.spyOn(outputStream, 'write');
+    vi.spyOn(outputStream, 'write');
 
     create(['foo'], { logger, outputStream });
     outputStream.emit('error', new Error());
@@ -97,7 +97,7 @@ it('spawns commands up to configured limit at once', () => {
 
 it('spawns commands up to percent based limit at once', () => {
     // Mock architecture with 4 cores
-    const cpusSpy = jest.spyOn(os, 'cpus');
+    const cpusSpy = vi.spyOn(os, 'cpus');
     cpusSpy.mockReturnValue(
         new Array(4).fill({
             model: 'Intel',

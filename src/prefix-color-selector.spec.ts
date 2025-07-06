@@ -1,9 +1,10 @@
 import chalk from 'chalk';
+import { vi } from 'vitest';
 
 import { PrefixColorSelector } from './prefix-color-selector';
 
 afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
 });
 
 describe('#getNextColor', function () {
@@ -127,7 +128,7 @@ describe('#getNextColor', function () {
         '%s',
         (_, { acceptableConsoleColors, customColors, expectedColors }) => {
             if (acceptableConsoleColors) {
-                jest.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue(
+                vi.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue(
                     acceptableConsoleColors,
                 );
             }
