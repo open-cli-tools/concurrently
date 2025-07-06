@@ -91,7 +91,8 @@
     "prettier": "^3.0.3",
     "safe-publish-latest": "^2.0.0",
     "string-argv": "^0.3.2",
-    "typescript": "~5.2.2"
+    "typescript": "~5.2.2",
+    "vitest": "^3.2.4"
   },
   "files": [
     "dist",
