@@ -7,6 +7,8 @@ export default defineConfig({
         coverage: {
             enabled: true,
             include: ['src/**/*.ts', '!src/index.ts'],
+            // lcov is used for coveralls
+            reporter: ['text', 'html', 'lcov'],
         },
         projects: [
             {
