@@ -1,4 +1,5 @@
 import { VirtualTimeScheduler } from 'rxjs';
+import { vi } from 'vitest';
 
 import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
@@ -147,7 +148,7 @@ describe('returned commands', () => {
     it('skip close events followed by restarts', () => {
         const { commands: newCommands } = controller.handle(commands);
 
-        const callback = jest.fn();
+        const callback = vi.fn();
         newCommands[0].close.subscribe(callback);
         newCommands[1].close.subscribe(callback);
 

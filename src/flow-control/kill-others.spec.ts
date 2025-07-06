@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeCloseEvent, createFakeProcess, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
@@ -116,7 +118,7 @@ it('force kills misbehaving processes after a timeout', () => {
     createWithConditions(['failure'], { timeoutMs: 500 }).handle(commands);
     assignProcess(commands[1]);
     assignProcess(commands[2]);
-    commands[2].kill = jest.fn(() => unassignProcess(commands[2]));
+    commands[2].kill = vi.fn(() => unassignProcess(commands[2]));
     commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
 
     jest.advanceTimersByTime(500);

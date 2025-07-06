@@ -1,5 +1,6 @@
 import os from 'os';
 import { Writable } from 'stream';
+import { Mock, MockedObject, vi } from 'vitest';
 
 import { ChildProcess, KillProcess, SpawnCommand } from './command';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';
@@ -10,8 +11,8 @@ import { Logger } from './logger';
 
 let spawn: SpawnCommand;
 let kill: KillProcess;
-let onFinishHooks: jest.Mock[];
-let controllers: jest.Mocked<FlowController>[];
+let onFinishHooks: Mock[];
+let controllers: MockedObject<FlowController>[];
 let processes: ChildProcess[];
 const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) =>
     concurrently(commands, Object.assign(options, { controllers, spawn, kill }));
@@ -20,17 +21,17 @@ beforeEach(() => {
     jest.resetAllMocks();
 
     processes = [];
-    spawn = jest.fn(() => {
+    spawn = vi.fn(() => {
         const process = createFakeProcess(processes.length);
         processes.push(process);
         return process;
     });
-    kill = jest.fn();
+    kill = vi.fn();
 
-    onFinishHooks = [jest.fn(), jest.fn()];
+    onFinishHooks = [vi.fn(), vi.fn()];
     controllers = [
-        { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[0] })) },
-        { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[1] })) },
+        { handle: vi.fn((commands) => ({ commands, onFinish: onFinishHooks[0] })) },
+        { handle: vi.fn((commands) => ({ commands, onFinish: onFinishHooks[1] })) },
     ];
 });
 

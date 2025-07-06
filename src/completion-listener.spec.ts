@@ -1,5 +1,6 @@
 import { getEventListeners } from 'events';
 import { TestScheduler } from 'rxjs/testing';
+import { vi } from 'vitest';
 
 import { CloseEvent } from './command';
 import { CompletionListener, SuccessCondition } from './completion-listener';
@@ -72,7 +73,7 @@ describe('listen', () => {
     });
 
     it('check for success once all commands have emitted at least a single close event', async () => {
-        const finallyCallback = jest.fn();
+        const finallyCallback = vi.fn();
         const result = createController().listen(commands).finally(finallyCallback);
 
         // Emitting multiple close events to mimic calling command `kill/start` APIs.
@@ -108,7 +109,7 @@ describe('listen', () => {
     });
 
     it('waits for manually restarted events to close', async () => {
-        const finallyCallback = jest.fn();
+        const finallyCallback = vi.fn();
         const result = createController().listen(commands).finally(finallyCallback);
 
         emitFakeCloseEvent(commands[0]);

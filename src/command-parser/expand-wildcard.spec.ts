@@ -1,11 +1,12 @@
 import fs, { PathOrFileDescriptor } from 'fs';
+import { Mock, vi } from 'vitest';
 
 import { CommandInfo } from '../command';
 import { ExpandWildcard } from './expand-wildcard';
 
 let parser: ExpandWildcard;
-let readPackage: jest.Mock;
-let readDeno: jest.Mock;
+let readPackage: Mock;
+let readDeno: Mock;
 
 const createCommandInfo = (command: string): CommandInfo => ({
     command,
@@ -13,8 +14,8 @@ const createCommandInfo = (command: string): CommandInfo => ({
 });
 
 beforeEach(() => {
-    readDeno = jest.fn();
-    readPackage = jest.fn();
+    readDeno = vi.fn();
+    readPackage = vi.fn();
     parser = new ExpandWildcard(readDeno, readPackage);
 });
 
