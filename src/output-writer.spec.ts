@@ -1,9 +1,9 @@
 import { Writable } from 'stream';
 import { beforeEach, describe, expect, it, MockedObject } from 'vitest';
 
-import { createMockInstance } from './fixtures/create-mock-instance';
-import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
-import { OutputWriter } from './output-writer';
+import { createMockInstance } from './fixtures/create-mock-instance.js';
+import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command.js';
+import { OutputWriter } from './output-writer.js';
 
 function createWriter(overrides?: { group: boolean }) {
     const options = {

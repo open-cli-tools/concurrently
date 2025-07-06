@@ -1,10 +1,10 @@
 import chalk, { Chalk } from 'chalk';
 import * as Rx from 'rxjs';
 
-import { Command, CommandIdentifier } from './command';
-import { DateFormatter } from './date-format';
-import * as defaults from './defaults';
-import { escapeRegExp } from './utils';
+import { Command, CommandIdentifier } from './command.js';
+import { DateFormatter } from './date-format.js';
+import * as defaults from './defaults.js';
+import { escapeRegExp } from './utils.js';
 
 const defaultChalk = chalk;
 const noColorChalk = new chalk.Instance({ level: 0 });

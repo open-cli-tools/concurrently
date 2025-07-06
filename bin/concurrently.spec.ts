@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { escapeRegExp } from '../src/utils';
+import { escapeRegExp } from '../src/utils.js';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string) => {

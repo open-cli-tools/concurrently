@@ -8,7 +8,7 @@ Copied due to the dependency not being compatible with CommonJS
 
 import { describe, expect, it } from 'vitest';
 
-import JSONC from './jsonc';
+import JSONC from './jsonc.js';
 
 const Fixtures = {
     errors: {
@@ -34,7 +34,7 @@ const Fixtures = {
                 "one": null,
                 "two" :true,
                 "three": false,
-                "four": "asd\\n\\u0022\\"",  
+                "four": "asd\\n\\u0022\\"",
                 "five": -123.123e10,
                 "six": [ 123, true, [],],
             },

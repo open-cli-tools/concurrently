@@ -2,11 +2,11 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { assertDeprecated } from '../src/assert';
-import * as defaults from '../src/defaults';
-import { concurrently } from '../src/index';
-import { castArray } from '../src/utils';
-import { readPackage } from './read-package';
+import { assertDeprecated } from '../src/assert.js';
+import * as defaults from '../src/defaults.js';
+import { concurrently } from '../src/index.js';
+import { castArray } from '../src/utils.js';
+import { readPackage } from './read-package.js';
 
 const version = String(readPackage().version);
 const epilogue = `For documentation and more examples, visit:\nhttps://github.com/open-cli-tools/concurrently/tree/v${version}/docs`;

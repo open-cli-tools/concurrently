@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import { describe, expect, it } from 'vitest';
 
-import { fromSharedEvent } from './observables';
+import { fromSharedEvent } from './observables.js';
 
 describe('fromSharedEvent()', () => {
     it('returns same observable for event emitter/name pair', () => {

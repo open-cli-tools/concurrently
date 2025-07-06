@@ -2,12 +2,12 @@ import { ChildProcess } from 'node:child_process';
 
 import { afterEach, describe, expect, it, Mock, vi } from 'vitest';
 
-import { SpawnCommand } from '../command';
-import { createMockInstance } from '../fixtures/create-mock-instance';
-import { createFakeProcess, FakeCommand } from '../fixtures/fake-command';
-import { Logger } from '../logger';
-import * as spawn from '../spawn';
-import { Teardown } from './teardown';
+import { SpawnCommand } from '../command.js';
+import { createMockInstance } from '../fixtures/create-mock-instance.js';
+import { createFakeProcess, FakeCommand } from '../fixtures/fake-command.js';
+import { Logger } from '../logger.js';
+import * as spawn from '../spawn.js';
+import { Teardown } from './teardown.js';
 
 const spySpawn = vi
     .spyOn(spawn, 'spawn')

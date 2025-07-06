@@ -2,8 +2,8 @@ import EventEmitter from 'events';
 import { PassThrough, Writable } from 'stream';
 import { vi } from 'vitest';
 
-import { ChildProcess, CloseEvent, Command, CommandInfo } from '../command';
-import { createMockInstance } from './create-mock-instance';
+import { ChildProcess, CloseEvent, Command, CommandInfo } from '../command.js';
+import { createMockInstance } from './create-mock-instance.js';
 
 export class FakeCommand extends Command {
     constructor(name = 'foo', command = 'echo foo', index = 0, info?: Partial<CommandInfo>) {

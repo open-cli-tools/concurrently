@@ -1,9 +1,9 @@
 import { beforeEach, expect, it, MockedObject } from 'vitest';
 
-import { createMockInstance } from '../fixtures/create-mock-instance';
-import { FakeCommand } from '../fixtures/fake-command';
-import { Logger } from '../logger';
-import { LoggerPadding } from './logger-padding';
+import { createMockInstance } from '../fixtures/create-mock-instance.js';
+import { FakeCommand } from '../fixtures/fake-command.js';
+import { Logger } from '../logger.js';
+import { LoggerPadding } from './logger-padding.js';
 
 let logger: MockedObject<Logger>;
 let controller: LoggerPadding;

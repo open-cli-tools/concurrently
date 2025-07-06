@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { getSpawnOpts, spawn } from './spawn';
+import { getSpawnOpts, spawn } from './spawn.js';
 
 const baseProcess = {
     platform: 'win32' as const,

@@ -1,10 +1,10 @@
 import * as Rx from 'rxjs';
 import { defaultIfEmpty, delayWhen, filter, map, skip, take, takeWhile } from 'rxjs/operators';
 
-import { Command } from '../command';
-import * as defaults from '../defaults';
-import { Logger } from '../logger';
-import { FlowController } from './flow-controller';
+import { Command } from '../command.js';
+import * as defaults from '../defaults.js';
+import { Logger } from '../logger.js';
+import { FlowController } from './flow-controller.js';
 
 export type RestartDelay = number | 'exponential';
 

@@ -2,7 +2,7 @@
 // It's read by the flow controllers, the executable, etc.
 // Refer to tests for the meaning of the different possible values.
 
-import { SuccessCondition } from './completion-listener';
+import { SuccessCondition } from './completion-listener.js';
 
 export const defaultInputTarget = 0;
 

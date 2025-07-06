@@ -1,8 +1,8 @@
 import { Writable } from 'stream';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FakeCommand } from '../fixtures/fake-command';
-import { OutputErrorHandler } from './output-error-handler';
+import { FakeCommand } from '../fixtures/fake-command.js';
+import { OutputErrorHandler } from './output-error-handler.js';
 
 let controller: OutputErrorHandler;
 let outputStream: Writable;

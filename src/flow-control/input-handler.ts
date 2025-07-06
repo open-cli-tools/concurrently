@@ -2,10 +2,10 @@ import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Readable } from 'stream';
 
-import { Command, CommandIdentifier } from '../command';
-import * as defaults from '../defaults';
-import { Logger } from '../logger';
-import { FlowController } from './flow-controller';
+import { Command, CommandIdentifier } from '../command.js';
+import * as defaults from '../defaults.js';
+import { Logger } from '../logger.js';
+import { FlowController } from './flow-controller.js';
 
 /**
  * Sends input from concurrently through to commands.

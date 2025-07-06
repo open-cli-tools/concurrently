@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { Command } from '../command';
-import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
-import { KillOnSignal } from './kill-on-signal';
+import { Command } from '../command.js';
+import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command.js';
+import { KillOnSignal } from './kill-on-signal.js';
 
 let commands: Command[];
 let controller: KillOnSignal;

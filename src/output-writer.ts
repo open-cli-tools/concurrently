@@ -1,8 +1,8 @@
 import * as Rx from 'rxjs';
 import { Writable } from 'stream';
 
-import { Command } from './command';
-import { fromSharedEvent } from './observables';
+import { Command } from './command.js';
+import { fromSharedEvent } from './observables.js';
 
 /**
  * Class responsible for actually writing output onto a writable stream.

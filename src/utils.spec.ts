@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { castArray, escapeRegExp } from './utils';
+import { castArray, escapeRegExp } from './utils.js';
 
 describe('#escapeRegExp()', () => {
     it('escapes all RegExp chars', () => {

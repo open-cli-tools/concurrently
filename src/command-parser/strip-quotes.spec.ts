@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 
-import { CommandInfo } from '../command';
-import { StripQuotes } from './strip-quotes';
+import { CommandInfo } from '../command.js';
+import { StripQuotes } from './strip-quotes.js';
 
 const parser = new StripQuotes();
 

@@ -2,11 +2,11 @@ import * as assert from 'assert';
 import * as Rx from 'rxjs';
 import { bufferCount, combineLatestWith, take } from 'rxjs/operators';
 
-import { CloseEvent, Command } from '../command';
-import { DateFormatter } from '../date-format';
-import * as defaults from '../defaults';
-import { Logger } from '../logger';
-import { FlowController } from './flow-controller';
+import { CloseEvent, Command } from '../command.js';
+import { DateFormatter } from '../date-format.js';
+import * as defaults from '../defaults.js';
+import { Logger } from '../logger.js';
+import { FlowController } from './flow-controller.js';
 
 type TimingInfo = {
     name: string;

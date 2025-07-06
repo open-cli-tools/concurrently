@@ -1,4 +1,4 @@
-import { CommandInfo } from '../command';
+import { CommandInfo } from '../command.js';
 
 /**
  * A command parser encapsulates a specific logic for mapping `CommandInfo` objects
