@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { CommandInfo } from '../command';
-import { ExpandShortcut } from './expand-shortcut';
+import { CommandInfo } from '../command.js';
+import { ExpandShortcut } from './expand-shortcut.js';
 
 const parser = new ExpandShortcut();
 

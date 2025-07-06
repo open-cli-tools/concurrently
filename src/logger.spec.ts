@@ -2,8 +2,8 @@ import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import chalk from 'chalk';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FakeCommand } from './fixtures/fake-command';
-import { Logger } from './logger';
+import { FakeCommand } from './fixtures/fake-command.js';
+import { Logger } from './logger.js';
 
 beforeEach(() => {
     // Force chalk to use colors, otherwise tests may pass when they were supposed to be failing.

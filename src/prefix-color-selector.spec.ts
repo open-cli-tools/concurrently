@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { PrefixColorSelector } from './prefix-color-selector';
+import { PrefixColorSelector } from './prefix-color-selector.js';
 
 afterEach(() => {
     vi.restoreAllMocks();

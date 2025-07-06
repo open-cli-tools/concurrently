@@ -1,27 +1,27 @@
 import { Readable } from 'stream';
 
-import { assertDeprecated } from './assert';
-import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
+import { assertDeprecated } from './assert.js';
+import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command.js';
 import {
     concurrently as createConcurrently,
     ConcurrentlyCommandInput,
     ConcurrentlyOptions as BaseConcurrentlyOptions,
     ConcurrentlyResult,
-} from './concurrently';
-import { FlowController } from './flow-control/flow-controller';
-import { InputHandler } from './flow-control/input-handler';
-import { KillOnSignal } from './flow-control/kill-on-signal';
-import { KillOthers, ProcessCloseCondition } from './flow-control/kill-others';
-import { LogError } from './flow-control/log-error';
-import { LogExit } from './flow-control/log-exit';
-import { LogOutput } from './flow-control/log-output';
-import { LogTimings } from './flow-control/log-timings';
-import { LoggerPadding } from './flow-control/logger-padding';
-import { OutputErrorHandler } from './flow-control/output-error-handler';
-import { RestartDelay, RestartProcess } from './flow-control/restart-process';
-import { Teardown } from './flow-control/teardown';
-import { Logger } from './logger';
-import { castArray } from './utils';
+} from './concurrently.js';
+import { FlowController } from './flow-control/flow-controller.js';
+import { InputHandler } from './flow-control/input-handler.js';
+import { KillOnSignal } from './flow-control/kill-on-signal.js';
+import { KillOthers, ProcessCloseCondition } from './flow-control/kill-others.js';
+import { LogError } from './flow-control/log-error.js';
+import { LogExit } from './flow-control/log-exit.js';
+import { LogOutput } from './flow-control/log-output.js';
+import { LogTimings } from './flow-control/log-timings.js';
+import { LoggerPadding } from './flow-control/logger-padding.js';
+import { OutputErrorHandler } from './flow-control/output-error-handler.js';
+import { RestartDelay, RestartProcess } from './flow-control/restart-process.js';
+import { Teardown } from './flow-control/teardown.js';
+import { Logger } from './logger.js';
+import { castArray } from './utils.js';
 
 export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 'hide'> & {
     // Logger options

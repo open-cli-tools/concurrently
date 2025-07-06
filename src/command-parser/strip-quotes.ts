@@ -1,5 +1,5 @@
-import { CommandInfo } from '../command';
-import { CommandParser } from './command-parser';
+import { CommandInfo } from '../command.js';
+import { CommandParser } from './command-parser.js';
 
 /**
  * Strips quotes around commands so that they can run on the current shell.

@@ -1,8 +1,8 @@
 import fs, { PathOrFileDescriptor } from 'fs';
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
-import { CommandInfo } from '../command';
-import { ExpandWildcard } from './expand-wildcard';
+import { CommandInfo } from '../command.js';
+import { ExpandWildcard } from './expand-wildcard.js';
 
 let parser: ExpandWildcard;
 let readPackage: Mock;

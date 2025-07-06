@@ -2,12 +2,12 @@ import os from 'os';
 import { Writable } from 'stream';
 import { beforeEach, expect, it, Mock, MockedObject, vi } from 'vitest';
 
-import { ChildProcess, KillProcess, SpawnCommand } from './command';
-import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';
-import { createMockInstance } from './fixtures/create-mock-instance';
-import { createFakeProcess, FakeCommand } from './fixtures/fake-command';
-import { FlowController } from './flow-control/flow-controller';
-import { Logger } from './logger';
+import { ChildProcess, KillProcess, SpawnCommand } from './command.js';
+import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently.js';
+import { createMockInstance } from './fixtures/create-mock-instance.js';
+import { createFakeProcess, FakeCommand } from './fixtures/fake-command.js';
+import { FlowController } from './flow-control/flow-controller.js';
+import { Logger } from './logger.js';
 
 let spawn: SpawnCommand;
 let kill: KillProcess;

@@ -2,9 +2,9 @@ import { getEventListeners } from 'events';
 import { TestScheduler } from 'rxjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { CloseEvent } from './command';
-import { CompletionListener, SuccessCondition } from './completion-listener';
-import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
+import { CloseEvent } from './command.js';
+import { CompletionListener, SuccessCondition } from './completion-listener.js';
+import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command.js';
 
 let commands: FakeCommand[];
 let scheduler: TestScheduler;

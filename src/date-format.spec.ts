@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { DateFormatter, FormatterOptions } from './date-format';
+import { DateFormatter, FormatterOptions } from './date-format.js';
 
 const withTime = (time: string) => `2000-01-01T${time}`;
 const withDate = (date: string) => `${date}T00:00:00`;

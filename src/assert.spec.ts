@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { assertDeprecated } from './assert';
+import { assertDeprecated } from './assert.js';
 
 describe('#assertDeprecated()', () => {
     const consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => {});

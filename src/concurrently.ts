@@ -11,19 +11,19 @@ import {
     CommandInfo,
     KillProcess,
     SpawnCommand,
-} from './command';
-import { CommandParser } from './command-parser/command-parser';
-import { ExpandArguments } from './command-parser/expand-arguments';
-import { ExpandShortcut } from './command-parser/expand-shortcut';
-import { ExpandWildcard } from './command-parser/expand-wildcard';
-import { StripQuotes } from './command-parser/strip-quotes';
-import { CompletionListener, SuccessCondition } from './completion-listener';
-import { FlowController } from './flow-control/flow-controller';
-import { Logger } from './logger';
-import { OutputWriter } from './output-writer';
-import { PrefixColorSelector } from './prefix-color-selector';
-import { getSpawnOpts, spawn } from './spawn';
-import { castArray } from './utils';
+} from './command.js';
+import { CommandParser } from './command-parser/command-parser.js';
+import { ExpandArguments } from './command-parser/expand-arguments.js';
+import { ExpandShortcut } from './command-parser/expand-shortcut.js';
+import { ExpandWildcard } from './command-parser/expand-wildcard.js';
+import { StripQuotes } from './command-parser/strip-quotes.js';
+import { CompletionListener, SuccessCondition } from './completion-listener.js';
+import { FlowController } from './flow-control/flow-controller.js';
+import { Logger } from './logger.js';
+import { OutputWriter } from './output-writer.js';
+import { PrefixColorSelector } from './prefix-color-selector.js';
+import { getSpawnOpts, spawn } from './spawn.js';
+import { castArray } from './utils.js';
 
 const defaults: ConcurrentlyOptions = {
     spawn,
