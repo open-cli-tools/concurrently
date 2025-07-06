@@ -1,5 +1,4 @@
-import { createMockInstance } from 'jest-create-mock-instance';
-
+import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { LogExit } from './log-exit';

@@ -1,8 +1,8 @@
 import EventEmitter from 'events';
-import { createMockInstance } from 'jest-create-mock-instance';
 import { PassThrough, Writable } from 'stream';
 
 import { ChildProcess, CloseEvent, Command, CommandInfo } from '../command';
+import { createMockInstance } from './create-mock-instance';
 
 export class FakeCommand extends Command {
     constructor(name = 'foo', command = 'echo foo', index = 0, info?: Partial<CommandInfo>) {

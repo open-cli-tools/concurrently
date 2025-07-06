@@ -1,6 +1,6 @@
-import { createMockInstance } from 'jest-create-mock-instance';
 import { VirtualTimeScheduler } from 'rxjs';
 
+import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { RestartProcess } from './restart-process';
