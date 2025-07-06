@@ -142,7 +142,7 @@ describe('#start()', () => {
             const { command, values } = createCommand();
             const startDate = new Date();
             const endDate = new Date(startDate.getTime() + 1000);
-            jest.spyOn(Date, 'now')
+            vi.spyOn(Date, 'now')
                 .mockReturnValueOnce(startDate.getTime())
                 .mockReturnValueOnce(endDate.getTime());
             command.start();
@@ -180,7 +180,7 @@ describe('#start()', () => {
             const { command, values } = createCommand();
             const startDate = new Date();
             const endDate = new Date(startDate.getTime() + 1000);
-            jest.spyOn(Date, 'now')
+            vi.spyOn(Date, 'now')
                 .mockReturnValueOnce(startDate.getTime())
                 .mockReturnValueOnce(endDate.getTime());
             command.start();
@@ -214,10 +214,10 @@ describe('#start()', () => {
             const { command, values } = createCommand();
             const startDate = new Date();
             const endDate = new Date(startDate.getTime() + 1000);
-            jest.spyOn(Date, 'now')
+            vi.spyOn(Date, 'now')
                 .mockReturnValueOnce(startDate.getTime())
                 .mockReturnValueOnce(endDate.getTime());
-            jest.spyOn(global.process, 'hrtime')
+            vi.spyOn(global.process, 'hrtime')
                 .mockReturnValueOnce([0, 0])
                 .mockReturnValueOnce([1, 1e8]);
             command.start();

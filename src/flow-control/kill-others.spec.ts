@@ -112,7 +112,7 @@ it('does not try to kill processes already dead', () => {
 });
 
 it('force kills misbehaving processes after a timeout', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     commands.push(new FakeCommand());
 
     createWithConditions(['failure'], { timeoutMs: 500 }).handle(commands);
@@ -121,7 +121,7 @@ it('force kills misbehaving processes after a timeout', () => {
     commands[2].kill = vi.fn(() => unassignProcess(commands[2]));
     commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     expect(commands[1].kill).toHaveBeenCalledTimes(2);
     expect(commands[1].kill).toHaveBeenCalledWith('SIGKILL');
