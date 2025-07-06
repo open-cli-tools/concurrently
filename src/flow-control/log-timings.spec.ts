@@ -1,7 +1,6 @@
-import { createMockInstance } from 'jest-create-mock-instance';
-
 import { CloseEvent } from '../command';
 import { DateFormatter } from '../date-format';
+import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { LogTimings } from './log-timings';

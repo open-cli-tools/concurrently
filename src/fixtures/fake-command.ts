@@ -1,8 +1,9 @@
 import EventEmitter from 'events';
-import { createMockInstance } from 'jest-create-mock-instance';
 import { PassThrough, Writable } from 'stream';
+import { vi } from 'vitest';
 
 import { ChildProcess, CloseEvent, Command, CommandInfo } from '../command';
+import { createMockInstance } from './create-mock-instance';
 
 export class FakeCommand extends Command {
     constructor(name = 'foo', command = 'echo foo', index = 0, info?: Partial<CommandInfo>) {
@@ -14,20 +15,20 @@ export class FakeCommand extends Command {
                 ...info,
             },
             {},
-            jest.fn(),
-            jest.fn(),
+            vi.fn(),
+            vi.fn(),
         );
 
         this.stdin = createMockInstance(Writable);
-        this.start = jest.fn();
-        this.kill = jest.fn();
+        this.start = vi.fn();
+        this.kill = vi.fn();
     }
 }
 
 export const createFakeProcess = (pid: number): ChildProcess =>
     Object.assign(new EventEmitter(), {
         pid,
-        send: jest.fn(),
+        send: vi.fn(),
         stdin: new PassThrough(),
         stdout: new PassThrough(),
         stderr: new PassThrough(),

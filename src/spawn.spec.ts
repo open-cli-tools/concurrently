@@ -1,3 +1,5 @@
+import { vi } from 'vitest';
+
 import { getSpawnOpts, spawn } from './spawn';
 
 const baseProcess = {
@@ -8,7 +10,7 @@ const baseProcess = {
 
 describe('spawn()', () => {
     it('spawns the given command', async () => {
-        const fakeSpawn = jest.fn();
+        const fakeSpawn = vi.fn();
         spawn('echo banana', {}, fakeSpawn, baseProcess);
         expect(fakeSpawn).toHaveBeenCalled();
         expect(fakeSpawn.mock.calls[0][1].join(' ')).toContain('echo banana');
@@ -16,7 +18,7 @@ describe('spawn()', () => {
 
     it('returns spawned process', async () => {
         const childProcess = {};
-        const fakeSpawn = jest.fn().mockReturnValue(childProcess);
+        const fakeSpawn = vi.fn().mockReturnValue(childProcess);
         const child = spawn('echo banana', {}, fakeSpawn, baseProcess);
         expect(child).toBe(childProcess);
     });

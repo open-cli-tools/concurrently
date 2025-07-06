@@ -1,7 +1,7 @@
-import { createMockInstance } from 'jest-create-mock-instance';
 import { PassThrough } from 'stream';
 
 import { Command } from '../command';
+import { createMockInstance } from '../fixtures/create-mock-instance';
 import { FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { InputHandler } from './input-handler';
