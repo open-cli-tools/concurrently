@@ -1,5 +1,4 @@
 import assert from 'assert';
-import _ from 'lodash';
 import { cpus } from 'os';
 import { takeUntil } from 'rxjs';
 import { Writable } from 'stream';
@@ -166,7 +165,7 @@ export function concurrently(
     assert.ok(Array.isArray(baseCommands), '[concurrently] commands should be an array');
     assert.notStrictEqual(baseCommands.length, 0, '[concurrently] no commands provided');
 
-    const options = _.defaults(baseOptions, defaults);
+    const options = { ...defaults, ...baseOptions };
 
     const prefixColorSelector = new PrefixColorSelector(options.prefixColors || []);
 
