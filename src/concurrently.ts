@@ -208,7 +208,7 @@ export function concurrently(
             const { commands, onFinish } = controller.handle(prevCommands);
             return {
                 commands,
-                onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : []),
+                onFinishCallbacks: onFinishCallbacks.concat(onFinish ? [onFinish] : []),
             };
         },
         { commands, onFinishCallbacks: [] } as {
@@ -278,7 +278,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
 
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
-        (commands, parser) => _.flatMap(commands, (command) => parser.parse(command)),
+        (commands, parser) => commands.flatMap((command) => parser.parse(command)),
         castArray(command),
     );
 }
