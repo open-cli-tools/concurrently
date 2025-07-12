@@ -126,14 +126,10 @@ export class Logger {
             return { type: 'default', value: prefixes[prefix] };
         }
 
-        const value = _.reduce(
-            prefixes,
-            (prev, val, key) => {
-                const keyRegex = new RegExp(escapeRegExp(`{${key}}`), 'g');
-                return prev.replace(keyRegex, String(val));
-            },
-            prefix,
-        );
+        const value = Object.entries(prefixes).reduce((prev, [key, val]) => {
+            const keyRegex = new RegExp(escapeRegExp(`{${key}}`), 'g');
+            return prev.replace(keyRegex, String(val));
+        }, prefix);
         return { type: 'template', value };
     }
 
