@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { Readable } from 'stream';
 
 import { assertDeprecated } from './assert';
@@ -22,6 +21,7 @@ import { OutputErrorHandler } from './flow-control/output-error-handler';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process';
 import { Teardown } from './flow-control/teardown';
 import { Logger } from './logger';
+import { castArray } from './utils';
 
 export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 'hide'> & {
     // Logger options
@@ -130,7 +130,7 @@ export function concurrently(
     // To avoid empty strings from hiding the output of commands that don't have a name,
     // keep in the list of commands to hide only strings with some length.
     // This might happen through the CLI when no `--hide` argument is specified, for example.
-    const hide = _.castArray(options.hide).filter((id) => id || id === 0);
+    const hide = castArray(options.hide).filter((id) => id || id === 0);
     const logger =
         options.logger ||
         new Logger({

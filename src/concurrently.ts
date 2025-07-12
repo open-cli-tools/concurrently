@@ -1,5 +1,4 @@
 import assert from 'assert';
-import _ from 'lodash';
 import { cpus } from 'os';
 import { takeUntil } from 'rxjs';
 import { Writable } from 'stream';
@@ -24,6 +23,7 @@ import { Logger } from './logger';
 import { OutputWriter } from './output-writer';
 import { PrefixColorSelector } from './prefix-color-selector';
 import { getSpawnOpts, spawn } from './spawn';
+import { castArray } from './utils';
 
 const defaults: ConcurrentlyOptions = {
     spawn,
@@ -165,7 +165,7 @@ export function concurrently(
     assert.ok(Array.isArray(baseCommands), '[concurrently] commands should be an array');
     assert.notStrictEqual(baseCommands.length, 0, '[concurrently] no commands provided');
 
-    const options = _.defaults(baseOptions, defaults);
+    const options = { ...defaults, ...baseOptions };
 
     const prefixColorSelector = new PrefixColorSelector(options.prefixColors || []);
 
@@ -180,7 +180,7 @@ export function concurrently(
     }
 
     const hide = (options.hide || []).map(String);
-    let commands = _(baseCommands)
+    let commands = baseCommands
         .map(mapToCommandInfo)
         .flatMap((command) => parseCommand(command, commandParsers))
         .map((command, index) => {
@@ -200,15 +200,14 @@ export function concurrently(
                 options.spawn,
                 options.kill,
             );
-        })
-        .value();
+        });
 
     const handleResult = options.controllers.reduce(
         ({ commands: prevCommands, onFinishCallbacks }, controller) => {
             const { commands, onFinish } = controller.handle(prevCommands);
             return {
                 commands,
-                onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : []),
+                onFinishCallbacks: onFinishCallbacks.concat(onFinish ? [onFinish] : []),
             };
         },
         { commands, onFinishCallbacks: [] } as {
@@ -278,8 +277,8 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
 
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
-        (commands, parser) => _.flatMap(commands, (command) => parser.parse(command)),
-        _.castArray(command),
+        (commands, parser) => commands.flatMap((command) => parser.parse(command)),
+        castArray(command),
     );
 }
 

@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import _ from 'lodash';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 import { assertDeprecated } from '../src/assert';
 import * as defaults from '../src/defaults';
 import { concurrently } from '../src/index';
+import { castArray } from '../src/utils';
 import { readPackage } from './read-package';
 
 const version = String(readPackage().version);
@@ -226,7 +226,7 @@ assertDeprecated(
 // Get names of commands by the specified separator
 const names = (args.names || '').split(args.nameSeparator);
 
-const additionalArguments = _.castArray(args['--'] ?? []).map(String);
+const additionalArguments = castArray(args['--'] ?? []).map(String);
 const commands = args.passthroughArguments ? args._ : args._.concat(additionalArguments);
 
 if (!commands.length) {

@@ -3,13 +3,14 @@ import { spawn } from 'child_process';
 import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
 import { build } from 'esbuild';
 import fs from 'fs';
-import { escapeRegExp } from 'lodash';
 import os from 'os';
 import path from 'path';
 import * as readline from 'readline';
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
+
+import { escapeRegExp } from '../src/utils';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string) => {
