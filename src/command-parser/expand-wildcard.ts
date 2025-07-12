@@ -1,8 +1,8 @@
 import fs from 'fs';
-import _ from 'lodash';
 
 import { CommandInfo } from '../command';
 import JSONC from '../jsonc';
+import { escapeRegExp } from '../utils';
 import { CommandParser } from './command-parser';
 
 // Matches a negative filter surrounded by '(!' and ')'.
@@ -89,8 +89,8 @@ export class ExpandWildcard implements CommandParser {
 
         const [, omission] = OMISSION.exec(scriptGlob) || [];
         const scriptGlobSansOmission = scriptGlob.replace(OMISSION, '');
-        const preWildcard = _.escapeRegExp(scriptGlobSansOmission.slice(0, wildcardPosition));
-        const postWildcard = _.escapeRegExp(scriptGlobSansOmission.slice(wildcardPosition + 1));
+        const preWildcard = escapeRegExp(scriptGlobSansOmission.slice(0, wildcardPosition));
+        const postWildcard = escapeRegExp(scriptGlobSansOmission.slice(wildcardPosition + 1));
         const wildcardRegex = new RegExp(`^${preWildcard}(.*?)${postWildcard}$`);
         // If 'commandInfo.name' doesn't match 'scriptGlob', this means a custom name
         // has been specified and thus becomes the prefix (as described in the README).

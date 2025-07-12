@@ -5,6 +5,7 @@ import * as Rx from 'rxjs';
 import { Command, CommandIdentifier } from './command';
 import { DateFormatter } from './date-format';
 import * as defaults from './defaults';
+import { escapeRegExp } from './utils';
 
 const defaultChalk = chalk;
 const noColorChalk = new chalk.Instance({ level: 0 });
@@ -128,7 +129,7 @@ export class Logger {
         const value = _.reduce(
             prefixes,
             (prev, val, key) => {
-                const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
+                const keyRegex = new RegExp(escapeRegExp(`{${key}}`), 'g');
                 return prev.replace(keyRegex, String(val));
             },
             prefix,
