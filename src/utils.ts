@@ -8,6 +8,6 @@ export function escapeRegExp(str: string) {
 /**
  * Casts a value to an array if it's not one.
  */
-export function castArray<T>(value?: T | readonly T[]): readonly T[] {
+export function castArray<T>(value?: T | readonly T[]): T[] {
     return Array.isArray(value) ? value : value ? [value as T] : [];
 }
