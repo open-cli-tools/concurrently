@@ -181,7 +181,7 @@ export function concurrently(
     }
 
     const hide = (options.hide || []).map(String);
-    let commands = _(baseCommands)
+    let commands = baseCommands
         .map(mapToCommandInfo)
         .flatMap((command) => parseCommand(command, commandParsers))
         .map((command, index) => {
@@ -201,8 +201,7 @@ export function concurrently(
                 options.spawn,
                 options.kill,
             );
-        })
-        .value();
+        });
 
     const handleResult = options.controllers.reduce(
         ({ commands: prevCommands, onFinishCallbacks }, controller) => {
