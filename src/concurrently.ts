@@ -24,6 +24,7 @@ import { Logger } from './logger';
 import { OutputWriter } from './output-writer';
 import { PrefixColorSelector } from './prefix-color-selector';
 import { getSpawnOpts, spawn } from './spawn';
+import { castArray } from './utils';
 
 const defaults: ConcurrentlyOptions = {
     spawn,
@@ -279,7 +280,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
         (commands, parser) => _.flatMap(commands, (command) => parser.parse(command)),
-        _.castArray(command),
+        castArray(command),
     );
 }
 

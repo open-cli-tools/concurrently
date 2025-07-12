@@ -1,8 +1,8 @@
-import _ from 'lodash';
 import { filter, map } from 'rxjs/operators';
 
 import { Command } from '../command';
 import { Logger } from '../logger';
+import { castArray } from '../utils';
 import { FlowController } from './flow-controller';
 
 export type ProcessCloseCondition = 'failure' | 'success';
@@ -32,7 +32,7 @@ export class KillOthers implements FlowController {
     }) {
         this.logger = logger;
         this.abortController = abortController;
-        this.conditions = _.castArray(conditions);
+        this.conditions = castArray(conditions);
         this.killSignal = killSignal;
         this.timeoutMs = timeoutMs;
     }
