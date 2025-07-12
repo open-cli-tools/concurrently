@@ -1,5 +1,4 @@
 import chalk, { Chalk } from 'chalk';
-import _ from 'lodash';
 import * as Rx from 'rxjs';
 
 import { Command, CommandIdentifier } from './command';
@@ -9,6 +8,12 @@ import { escapeRegExp } from './utils';
 
 const defaultChalk = chalk;
 const noColorChalk = new chalk.Instance({ level: 0 });
+
+function getChalkPath(chalk: Chalk, path: string): Chalk | undefined {
+    return path
+        .split('.')
+        .reduce((prev, key) => (prev as unknown as Record<string, Chalk>)[key], chalk);
+}
 
 export class Logger {
     private readonly hide: CommandIdentifier[];
@@ -153,8 +158,9 @@ export class Logger {
         if (command.prefixColor?.startsWith('#')) {
             color = this.chalk.hex(command.prefixColor);
         } else {
-            const defaultColor = _.get(this.chalk, defaults.prefixColors, this.chalk.reset);
-            color = _.get(this.chalk, command.prefixColor ?? '', defaultColor);
+            const defaultColor =
+                getChalkPath(this.chalk, defaults.prefixColors) ?? this.chalk.reset;
+            color = getChalkPath(this.chalk, command.prefixColor ?? '') ?? defaultColor;
         }
         return color(text);
     }
