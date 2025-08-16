@@ -75,7 +75,7 @@
     "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "coveralls-next": "^4.2.1",
+    "coveralls-next": "^5.0.0",
     "ctrlc-wrapper": "^0.0.4",
     "esbuild": "~0.25.0",
     "eslint": "^8.57.0",
