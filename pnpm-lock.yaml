@@ -3,7 +3,6 @@ lockfileVersion: '9.0'
 settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
-  injectWorkspacePackages: true
 
 importers:
 
