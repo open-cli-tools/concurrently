@@ -1,13 +1,11 @@
-# See also https://github.com/actions/cache/blob/main/examples.md#node---npm
-
 name: Setup pnpm
+description: Setup the environment for the project
+
 runs:
   using: composite
   steps:
     - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
+      uses: pnpm/action-setup@v4
 
     - name: Get pnpm store directory
       id: pnpm-cache-dir
@@ -15,7 +13,7 @@ runs:
       run: echo "dir=$(pnpm store path)" >> $GITHUB_OUTPUT
 
     - name: Setup pnpm cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ steps.pnpm-cache-dir.outputs.dir }}
         key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
