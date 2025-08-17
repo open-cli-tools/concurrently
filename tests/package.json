@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "concurrently": "file:.."
+    "concurrently": "workspace:*"
   },
   "scripts": {
     "test": "pnpm --prefix .. test -- --selectProjects smoke"
