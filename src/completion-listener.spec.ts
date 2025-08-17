@@ -1,5 +1,6 @@
 import { getEventListeners } from 'events';
 import { TestScheduler } from 'rxjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CloseEvent } from './command';
 import { CompletionListener, SuccessCondition } from './completion-listener';
@@ -7,6 +8,7 @@ import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
 
 let commands: FakeCommand[];
 let scheduler: TestScheduler;
+
 beforeEach(() => {
     commands = [
         new FakeCommand('foo', 'echo', 0),
@@ -72,7 +74,7 @@ describe('listen', () => {
     });
 
     it('check for success once all commands have emitted at least a single close event', async () => {
-        const finallyCallback = jest.fn();
+        const finallyCallback = vi.fn();
         const result = createController().listen(commands).finally(finallyCallback);
 
         // Emitting multiple close events to mimic calling command `kill/start` APIs.
@@ -108,7 +110,7 @@ describe('listen', () => {
     });
 
     it('waits for manually restarted events to close', async () => {
-        const finallyCallback = jest.fn();
+        const finallyCallback = vi.fn();
         const result = createController().listen(commands).finally(finallyCallback);
 
         emitFakeCloseEvent(commands[0]);

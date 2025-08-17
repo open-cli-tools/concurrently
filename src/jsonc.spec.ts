@@ -6,6 +6,8 @@ MIT license
 Copied due to the dependency not being compatible with CommonJS
 */
 
+import { describe, expect, it } from 'vitest';
+
 import JSONC from './jsonc';
 
 const Fixtures = {

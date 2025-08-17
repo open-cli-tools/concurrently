@@ -1,4 +1,5 @@
 import { Writable } from 'stream';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeCommand } from '../fixtures/fake-command';
 import { OutputErrorHandler } from './output-error-handler';
@@ -40,7 +41,7 @@ describe('on finish', () => {
         const { onFinish } = controller.handle(commands);
         onFinish();
 
-        outputStream.on('error', jest.fn());
+        outputStream.on('error', vi.fn());
         outputStream.emit('error', new Error());
 
         expect(commands[0].kill).not.toHaveBeenCalled();

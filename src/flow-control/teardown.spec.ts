@@ -1,18 +1,19 @@
-import createMockInstance from 'jest-create-mock-instance';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
+import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeProcess, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { getSpawnOpts } from '../spawn';
 import { Teardown } from './teardown';
 
-let spawn: jest.Mock;
+let spawn: Mock;
 let logger: Logger;
 const commands = [new FakeCommand()];
 const teardown = 'cowsay bye';
 
 beforeEach(() => {
     logger = createMockInstance(Logger);
-    spawn = jest.fn(() => createFakeProcess(1));
+    spawn = vi.fn(() => createFakeProcess(1));
 });
 
 const create = (teardown: string[]) =>

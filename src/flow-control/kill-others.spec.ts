@@ -1,5 +1,6 @@
-import { createMockInstance } from 'jest-create-mock-instance';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeCloseEvent, createFakeProcess, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { KillOthers, ProcessCloseCondition } from './kill-others';
@@ -111,16 +112,16 @@ it('does not try to kill processes already dead', () => {
 });
 
 it('force kills misbehaving processes after a timeout', () => {
-    jest.useFakeTimers();
+    vi.useFakeTimers();
     commands.push(new FakeCommand());
 
     createWithConditions(['failure'], { timeoutMs: 500 }).handle(commands);
     assignProcess(commands[1]);
     assignProcess(commands[2]);
-    commands[2].kill = jest.fn(() => unassignProcess(commands[2]));
+    commands[2].kill = vi.fn(() => unassignProcess(commands[2]));
     commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
 
-    jest.advanceTimersByTime(500);
+    vi.advanceTimersByTime(500);
 
     expect(commands[1].kill).toHaveBeenCalledTimes(2);
     expect(commands[1].kill).toHaveBeenCalledWith('SIGKILL');

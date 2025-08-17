@@ -1,36 +1,37 @@
-import { createMockInstance } from 'jest-create-mock-instance';
 import os from 'os';
 import { Writable } from 'stream';
+import { beforeEach, expect, it, Mock, MockedObject, vi } from 'vitest';
 
 import { ChildProcess, KillProcess, SpawnCommand } from './command';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';
+import { createMockInstance } from './fixtures/create-mock-instance';
 import { createFakeProcess, FakeCommand } from './fixtures/fake-command';
 import { FlowController } from './flow-control/flow-controller';
 import { Logger } from './logger';
 
 let spawn: SpawnCommand;
 let kill: KillProcess;
-let onFinishHooks: jest.Mock[];
-let controllers: jest.Mocked<FlowController>[];
+let onFinishHooks: Mock[];
+let controllers: MockedObject<FlowController>[];
 let processes: ChildProcess[];
 const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) =>
     concurrently(commands, Object.assign(options, { controllers, spawn, kill }));
 
 beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     processes = [];
-    spawn = jest.fn(() => {
+    spawn = vi.fn(() => {
         const process = createFakeProcess(processes.length);
         processes.push(process);
         return process;
     });
-    kill = jest.fn();
+    kill = vi.fn();
 
-    onFinishHooks = [jest.fn(), jest.fn()];
+    onFinishHooks = [vi.fn(), vi.fn()];
     controllers = [
-        { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[0] })) },
-        { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[1] })) },
+        { handle: vi.fn((commands) => ({ commands, onFinish: onFinishHooks[0] })) },
+        { handle: vi.fn((commands) => ({ commands, onFinish: onFinishHooks[1] })) },
     ];
 });
 
@@ -65,7 +66,7 @@ it('log output is passed to output stream if logger is specified in options', ()
 it('log output is not passed to output stream after it has errored', () => {
     const logger = new Logger({ hide: [] });
     const outputStream = new Writable();
-    jest.spyOn(outputStream, 'write');
+    vi.spyOn(outputStream, 'write');
 
     create(['foo'], { logger, outputStream });
     outputStream.emit('error', new Error());
@@ -96,7 +97,7 @@ it('spawns commands up to configured limit at once', () => {
 
 it('spawns commands up to percent based limit at once', () => {
     // Mock architecture with 4 cores
-    const cpusSpy = jest.spyOn(os, 'cpus');
+    const cpusSpy = vi.spyOn(os, 'cpus');
     cpusSpy.mockReturnValue(
         new Array(4).fill({
             model: 'Intel',

@@ -1,11 +1,12 @@
 import fs, { PathOrFileDescriptor } from 'fs';
+import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { CommandInfo } from '../command';
 import { ExpandWildcard } from './expand-wildcard';
 
 let parser: ExpandWildcard;
-let readPackage: jest.Mock;
-let readDeno: jest.Mock;
+let readPackage: Mock;
+let readDeno: Mock;
 
 const createCommandInfo = (command: string): CommandInfo => ({
     command,
@@ -13,13 +14,13 @@ const createCommandInfo = (command: string): CommandInfo => ({
 });
 
 beforeEach(() => {
-    readDeno = jest.fn();
-    readPackage = jest.fn();
+    readDeno = vi.fn();
+    readPackage = vi.fn();
     parser = new ExpandWildcard(readDeno, readPackage);
 });
 
 afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
 });
 
 describe('ExpandWildcard#readDeno', () => {
@@ -28,10 +29,10 @@ describe('ExpandWildcard#readDeno', () => {
             name: 'deno',
             version: '1.14.0',
         };
-        jest.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
+        vi.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
             return path === 'deno.json';
         });
-        jest.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
+        vi.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
             if (path === 'deno.json') {
                 return JSON.stringify(expectedDeno);
             }
@@ -47,10 +48,10 @@ describe('ExpandWildcard#readDeno', () => {
             name: 'deno',
             version: '1.14.0',
         };
-        jest.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
+        vi.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
             return path === 'deno.jsonc';
         });
-        jest.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
+        vi.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
             if (path === 'deno.jsonc') {
                 return '/* comment */\n' + JSON.stringify(expectedDeno);
             }
@@ -66,10 +67,10 @@ describe('ExpandWildcard#readDeno', () => {
             name: 'deno',
             version: '1.14.0',
         };
-        jest.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
+        vi.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
             return path === 'deno.json' || path === 'deno.jsonc';
         });
-        jest.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
+        vi.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
             if (path === 'deno.json') {
                 return JSON.stringify(expectedDeno);
             }
@@ -81,8 +82,8 @@ describe('ExpandWildcard#readDeno', () => {
     });
 
     it('can handle errors reading deno', () => {
-        jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-        jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        vi.spyOn(fs, 'existsSync').mockReturnValue(true);
+        vi.spyOn(fs, 'readFileSync').mockImplementation(() => {
             throw new Error('Error reading deno');
         });
 
@@ -97,7 +98,7 @@ describe('ExpandWildcard#readPackage', () => {
             name: 'concurrently',
             version: '6.4.0',
         };
-        jest.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
+        vi.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
             if (path === 'package.json') {
                 return JSON.stringify(expectedPackage);
             }
@@ -109,7 +110,7 @@ describe('ExpandWildcard#readPackage', () => {
     });
 
     it('can handle errors reading package', () => {
-        jest.spyOn(fs, 'readFileSync').mockImplementation(() => {
+        vi.spyOn(fs, 'readFileSync').mockImplementation(() => {
             throw new Error('Error reading package');
         });
 

@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { cpus } from 'os';
+import os from 'os';
 import { takeUntil } from 'rxjs';
 import { Writable } from 'stream';
 import treeKill from 'tree-kill';
@@ -233,7 +233,7 @@ export function concurrently(
     const maxProcesses = Math.max(
         1,
         (typeof options.maxProcesses === 'string' && options.maxProcesses.endsWith('%')
-            ? Math.round((cpus().length * Number(options.maxProcesses.slice(0, -1))) / 100)
+            ? Math.round((os.cpus().length * Number(options.maxProcesses.slice(0, -1))) / 100)
             : Number(options.maxProcesses)) || commandsLeft.length,
     );
     for (let i = 0; i < maxProcesses; i++) {

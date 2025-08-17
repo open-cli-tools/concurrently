@@ -1,3 +1,5 @@
+import { expect, it } from 'vitest';
+
 import { CommandInfo } from '../command';
 import { ExpandArguments } from './expand-arguments';
 

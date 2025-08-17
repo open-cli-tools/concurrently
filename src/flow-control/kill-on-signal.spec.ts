@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Command } from '../command';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
@@ -30,7 +31,7 @@ it('returns commands that map SIGINT to exit code 0', () => {
     expect(newCommands).not.toBe(commands);
     expect(newCommands).toHaveLength(commands.length);
 
-    const callback = jest.fn();
+    const callback = vi.fn();
     newCommands[0].close.subscribe(callback);
     process.emit('SIGINT', 'SIGINT');
 
@@ -46,7 +47,7 @@ it('returns commands that keep non-SIGINT exit codes', () => {
     expect(newCommands).not.toBe(commands);
     expect(newCommands).toHaveLength(commands.length);
 
-    const callback = jest.fn();
+    const callback = vi.fn();
     newCommands[0].close.subscribe(callback);
     commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
 

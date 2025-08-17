@@ -9,6 +9,7 @@ import * as readline from 'readline';
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { escapeRegExp } from '../src/utils';
 

@@ -1,6 +1,7 @@
-import { createMockInstance } from 'jest-create-mock-instance';
 import { VirtualTimeScheduler } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { RestartProcess } from './restart-process';
@@ -147,7 +148,7 @@ describe('returned commands', () => {
     it('skip close events followed by restarts', () => {
         const { commands: newCommands } = controller.handle(commands);
 
-        const callback = jest.fn();
+        const callback = vi.fn();
         newCommands[0].close.subscribe(callback);
         newCommands[1].close.subscribe(callback);
 

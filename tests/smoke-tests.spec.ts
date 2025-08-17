@@ -1,12 +1,13 @@
 import { exec as originalExec } from 'child_process';
 import * as util from 'util';
+import { beforeAll, expect, it } from 'vitest';
 
 const exec = util.promisify(originalExec);
 
 beforeAll(async () => {
     await exec('pnpm build', { cwd: `${__dirname}/..` });
     await exec('pnpm install', { cwd: __dirname });
-}, 20000);
+}, 30000);
 
 it.each(['cjs-import', 'cjs-require', 'esm'])(
     '%s',

@@ -1,6 +1,7 @@
-import { createMockInstance } from 'jest-create-mock-instance';
 import { Writable } from 'stream';
+import { beforeEach, describe, expect, it, MockedObject } from 'vitest';
 
+import { createMockInstance } from './fixtures/create-mock-instance';
 import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
 import { OutputWriter } from './output-writer';
 
@@ -19,7 +20,7 @@ function closeCommand(command: FakeCommand) {
     command.close.next(createFakeCloseEvent({ command, index: command.index }));
 }
 
-let outputStream: jest.Mocked<Writable>;
+let outputStream: MockedObject<Writable>;
 let commands: FakeCommand[];
 beforeEach(() => {
     outputStream = createMockInstance(Writable);
@@ -31,14 +32,14 @@ beforeEach(() => {
 });
 
 it('throws if outputStream already is in errored state', () => {
-    Object.assign(outputStream, { errored: new Error() });
+    Object.defineProperty(outputStream, 'errored', { value: new Error() });
     expect(() => createWriter()).toThrow(TypeError);
 });
 
 describe('#write()', () => {
     it('throws if outputStream has errored', () => {
         const writer = createWriter();
-        Object.assign(outputStream, { errored: new Error() });
+        Object.defineProperty(outputStream, 'errored', { value: new Error() });
         expect(() => writer.write(commands[0], 'hello')).toThrow(TypeError);
     });
 
