@@ -1,3 +1,6 @@
+packages:
+  - tests
+
 injectWorkspacePackages: false
 
 onlyBuiltDependencies:

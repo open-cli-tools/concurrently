@@ -103,6 +103,12 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@18.19.50)(supports-color@8.1.1)(yaml@2.5.1)
 
+  tests:
+    dependencies:
+      concurrently:
+        specifier: workspace:*
+        version: link:..
+
 packages:
 
   '@aashutoshrathi/word-wrap@1.2.6':
