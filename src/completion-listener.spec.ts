@@ -1,6 +1,6 @@
 import { getEventListeners } from 'events';
 import { TestScheduler } from 'rxjs/testing';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CloseEvent } from './command';
 import { CompletionListener, SuccessCondition } from './completion-listener';
@@ -8,6 +8,7 @@ import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
 
 let commands: FakeCommand[];
 let scheduler: TestScheduler;
+
 beforeEach(() => {
     commands = [
         new FakeCommand('foo', 'echo', 0),

@@ -1,5 +1,5 @@
 import { Writable } from 'stream';
-import { MockedObject } from 'vitest';
+import { beforeEach, describe, expect, it, MockedObject } from 'vitest';
 
 import { createMockInstance } from './fixtures/create-mock-instance';
 import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';

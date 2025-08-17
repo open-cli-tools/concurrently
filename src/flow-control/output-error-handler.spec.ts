@@ -1,5 +1,5 @@
 import { Writable } from 'stream';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeCommand } from '../fixtures/fake-command';
 import { OutputErrorHandler } from './output-error-handler';

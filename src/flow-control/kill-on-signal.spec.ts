@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { Command } from '../command';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';

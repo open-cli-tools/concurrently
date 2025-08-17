@@ -1,6 +1,6 @@
 import os from 'os';
 import { Writable } from 'stream';
-import { Mock, MockedObject, vi } from 'vitest';
+import { beforeEach, expect, it, Mock, MockedObject, vi } from 'vitest';
 
 import { ChildProcess, KillProcess, SpawnCommand } from './command';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';

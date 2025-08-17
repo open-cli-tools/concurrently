@@ -1,6 +1,6 @@
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import chalk from 'chalk';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeCommand } from './fixtures/fake-command';
 import { Logger } from './logger';

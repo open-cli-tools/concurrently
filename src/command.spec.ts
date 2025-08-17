@@ -1,9 +1,9 @@
-import { autoUnsubscribe, subscribeSpyTo } from '@hirez_io/observer-spy';
+import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { SendHandle, SpawnOptions } from 'child_process';
 import { EventEmitter } from 'events';
 import * as Rx from 'rxjs';
 import { Readable, Writable } from 'stream';
-import { Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import {
     ChildProcess,
@@ -22,8 +22,6 @@ let spawn: Mock<SpawnCommand>;
 let killProcess: KillProcess;
 
 const IPC_FD = 3;
-
-autoUnsubscribe();
 
 beforeEach(() => {
     sendMessage = vi.fn();

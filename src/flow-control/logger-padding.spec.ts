@@ -1,4 +1,4 @@
-import { MockedObject } from 'vitest';
+import { beforeEach, expect, it, MockedObject } from 'vitest';
 
 import { createMockInstance } from '../fixtures/create-mock-instance';
 import { FakeCommand } from '../fixtures/fake-command';

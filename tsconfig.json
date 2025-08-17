@@ -10,8 +10,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "types": ["vitest/globals"]
+    "forceConsistentCasingInFileNames": true
   },
   "include": ["./bin", "./declarations", "./src"]
 }

@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { PrefixColorSelector } from './prefix-color-selector';
 

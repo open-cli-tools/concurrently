@@ -1,4 +1,4 @@
-import { Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeProcess, FakeCommand } from '../fixtures/fake-command';

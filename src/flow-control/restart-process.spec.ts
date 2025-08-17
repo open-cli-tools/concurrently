@@ -1,5 +1,5 @@
 import { VirtualTimeScheduler } from 'rxjs';
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { createMockInstance } from '../fixtures/create-mock-instance';
 import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';

@@ -1,5 +1,5 @@
 import fs, { PathOrFileDescriptor } from 'fs';
-import { Mock, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { CommandInfo } from '../command';
 import { ExpandWildcard } from './expand-wildcard';

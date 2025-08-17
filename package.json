@@ -36,8 +36,8 @@
     "lint:fix": "pnpm run lint --fix",
     "prepublishOnly": "safe-publish-latest && pnpm run build",
     "report-coverage": "cat coverage/lcov.info | coveralls",
-    "test": "vitest --project unit",
-    "test:smoke": "vitest --project smoke",
+    "test": "vitest run --project unit",
+    "test:smoke": "vitest run --project smoke",
     "prepare": "husky"
   },
   "repository": {

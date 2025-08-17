@@ -1,5 +1,6 @@
 import { exec as originalExec } from 'child_process';
 import * as util from 'util';
+import { beforeAll, expect, it } from 'vitest';
 
 const exec = util.promisify(originalExec);
 
