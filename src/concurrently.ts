@@ -193,7 +193,7 @@ export function concurrently(
                 },
                 getSpawnOpts({
                     ipc: command.ipc,
-                    stdio: hidden ? 'hidden' : command.raw ?? options.raw ? 'raw' : 'normal',
+                    stdio: hidden ? 'hidden' : (command.raw ?? options.raw) ? 'raw' : 'normal',
                     env: command.env,
                     cwd: command.cwd || options.cwd,
                 }),

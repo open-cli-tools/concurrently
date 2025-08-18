@@ -25,9 +25,9 @@ For example, given the following `package.json` contents:
     "lint:js": "...",
     "lint:ts": "...",
     "lint:fix:js": "...",
-    "lint:fix:ts": "..."
+    "lint:fix:ts": "...",
     // ...
-  }
+  },
   // ...
 }
 ```
