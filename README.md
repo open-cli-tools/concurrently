@@ -174,7 +174,6 @@ It has the following properties:
 - `timer`: an RxJS observable to the command's timing events (e.g. starting, stopping).
 - `stateChange`: an RxJS observable for changes to the command's `state` property.
 - `messages`: an object with the following properties:
-
   - `incoming`: an RxJS observable for the IPC messages received from the underlying process.
   - `outgoing`: an RxJS observable for the IPC messages sent to the underlying process.
 

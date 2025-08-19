@@ -245,8 +245,8 @@ concurrently(
         killOthersOn: args.killOthers
             ? ['success', 'failure']
             : args.killOthersOnFail
-            ? ['failure']
-            : [],
+              ? ['failure']
+              : [],
         killSignal: args.killSignal,
         killTimeout: args.killTimeout,
         maxProcesses: args.maxProcesses,

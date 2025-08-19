@@ -26,8 +26,8 @@ export class DateFormatter {
                 char === "'"
                     ? this.compileLiteral(pattern, i)
                     : DateFormatter.tokenRegex.test(char)
-                    ? this.compileToken(pattern, i)
-                    : this.compileOther(pattern, i);
+                      ? this.compileToken(pattern, i)
+                      : this.compileOther(pattern, i);
             this.parts.push(fn);
             i += length;
         }
