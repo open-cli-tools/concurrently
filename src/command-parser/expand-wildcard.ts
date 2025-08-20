@@ -25,7 +25,7 @@ export class ExpandWildcard implements CommandParser {
             }
 
             return JSONC.parse(json);
-        } catch (e) {
+        } catch {
             return {};
         }
     }
@@ -34,7 +34,7 @@ export class ExpandWildcard implements CommandParser {
         try {
             const json = fs.readFileSync('package.json', { encoding: 'utf-8' });
             return JSON.parse(json);
-        } catch (e) {
+        } catch {
             return {};
         }
     }
