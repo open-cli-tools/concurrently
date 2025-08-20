@@ -234,16 +234,18 @@ export class Command implements CommandInfo {
                     },
                 });
             });
-        child.stdout &&
+        if (child.stdout) {
             pipeTo(
                 Rx.fromEvent(child.stdout, 'data').pipe(Rx.map((event) => event as Buffer)),
                 this.stdout,
             );
-        child.stderr &&
+        }
+        if (child.stderr) {
             pipeTo(
                 Rx.fromEvent(child.stderr, 'data').pipe(Rx.map((event) => event as Buffer)),
                 this.stderr,
             );
+        }
         this.stdin = child.stdin || undefined;
     }
 
@@ -296,7 +298,11 @@ export class Command implements CommandInfo {
                 handle,
                 options,
                 onSent(error) {
-                    error ? reject(error) : resolve();
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve();
+                    }
                 },
             });
         });

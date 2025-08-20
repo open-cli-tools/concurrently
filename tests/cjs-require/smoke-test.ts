@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import concurrently = require('concurrently');
 
 const { concurrently: concurrently2, createConcurrently } = concurrently;
