@@ -13,6 +13,5 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "editor.rulers": [100],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "editor.rulers": [100]
 }
