@@ -458,9 +458,14 @@ describe('tokens', () => {
     ]);
 
     describe('hour', () => {
-        makeTests('1-12 format', 'h', [
+        makeTests('1-12 format (1 PM)', 'h', [
             [{ expected: '1', input: withTime('13:00:00') }],
             [{ expected: '01', input: withTime('13:00:00') }],
+        ]);
+
+        makeTests('1-12 format (12 PM)', 'h', [
+            [{ expected: '12', input: withTime('00:00:00') }],
+            [{ expected: '12', input: withTime('00:00:00') }],
         ]);
 
         makeTests('0-23 format', 'H', [

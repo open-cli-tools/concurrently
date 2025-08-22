@@ -12,7 +12,7 @@ describe('#getNextColor', function () {
         string,
         {
             acceptableConsoleColors?: Array<keyof typeof chalk>;
-            customColors?: string[];
+            customColors?: string | string[];
             expectedColors: string[];
         }
     > = {
@@ -35,6 +35,10 @@ describe('#getNextColor', function () {
                 'blue',
                 'blue',
             ],
+        },
+        'accepts a string value for customColors': {
+            customColors: 'red',
+            expectedColors: ['red', 'red'],
         },
         'picks varying colors when user defines an auto color': {
             acceptableConsoleColors: ['green', 'blue'],

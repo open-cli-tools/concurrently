@@ -107,6 +107,14 @@ describe('#start()', () => {
         expect(command.stdin).toBe(process.stdin);
     });
 
+    it('handles process with no stdin', () => {
+        process.stdin = null;
+        const { command } = createCommand();
+        command.start();
+
+        expect(command.stdin).toBe(undefined);
+    });
+
     it('changes state to started', () => {
         const { command } = createCommand();
         const spy = subscribeSpyTo(command.stateChange);

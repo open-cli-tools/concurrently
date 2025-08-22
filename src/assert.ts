@@ -5,7 +5,7 @@ const deprecations = new Set<string>();
  * The message is printed only once.
  */
 export function assertDeprecated(check: boolean, name: string, message: string) {
-    if (!check) {
+    if (!check && !deprecations.has(name)) {
         // eslint-disable-next-line no-console
         console.warn(`[concurrently] ${name} is deprecated. ${message}`);
         deprecations.add(name);
