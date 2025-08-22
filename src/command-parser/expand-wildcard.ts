@@ -102,7 +102,8 @@ export class ExpandWildcard implements CommandParser {
                     return;
                 }
 
-                const [, match] = wildcardRegex.exec(script) || [];
+                const result = wildcardRegex.exec(script);
+                const match = result?.[1];
                 if (match !== undefined) {
                     return {
                         ...commandInfo,

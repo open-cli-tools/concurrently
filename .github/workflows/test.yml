@@ -56,7 +56,7 @@ jobs:
         run: pnpm install && pnpm add --global concurrently
 
       - name: Build & Test
-        run: concurrently --prefix none --group "pnpm:build" "pnpm:test" "pnpm:test:smoke"
+        run: concurrently --prefix none --group "pnpm:build" "pnpm:test --coverage" "pnpm:test:smoke"
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master

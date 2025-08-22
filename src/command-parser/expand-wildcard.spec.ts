@@ -182,7 +182,7 @@ describe.each(['npm run', 'yarn run', 'pnpm run', 'bun run', 'node --run'])(
 
             expect(
                 parser.parse({
-                    name: '',
+                    name: 'watch-*',
                     command: `${command} watch-*`,
                 }),
             ).toEqual([
