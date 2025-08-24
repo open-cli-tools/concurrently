@@ -32,7 +32,10 @@ beforeAll(async () => {
         entryPoints: [path.join(__dirname, 'concurrently.ts')],
         platform: 'node',
         bundle: true,
-        outfile: path.join(tmpDir, 'concurrently.js'),
+        // it doesn't seem like esbuild is able to change a CJS module to ESM, so target CJS instead.
+        // https://github.com/evanw/esbuild/issues/1921
+        format: 'cjs',
+        outfile: path.join(tmpDir, 'concurrently.cjs'),
     });
     fs.copyFileSync(path.join(__dirname, '..', 'package.json'), path.join(tmpDir, 'package.json'));
 }, 8000);
@@ -50,7 +53,7 @@ afterAll(() => {
  */
 const run = (args: string, ctrlcWrapper?: boolean) => {
     const spawnFn = ctrlcWrapper ? spawnWithWrapper : spawn;
-    const child = spawnFn('node', [path.join(tmpDir, 'concurrently.js'), ...stringArgv(args)], {
+    const child = spawnFn('node', [path.join(tmpDir, 'concurrently.cjs'), ...stringArgv(args)], {
         cwd: __dirname,
         env: {
             ...process.env,
