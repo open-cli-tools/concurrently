@@ -17,7 +17,7 @@ export default defineConfig(
             globals: {
                 ...globals.node,
             },
-            ecmaVersion: 2022,
+            ecmaVersion: 2023,
             sourceType: 'commonjs',
         },
     },
