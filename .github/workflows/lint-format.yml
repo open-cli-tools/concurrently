@@ -18,18 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
+      - name: Setup
+        uses: ./.github/actions/setup
 
-      - name: Setup pnpm
-        uses: ./.github/actions/setup-pnpm
-
-      - name: Install dependencies
-        run: pnpm install && pnpm add --global concurrently
+      - name: Install concurrently 🐶🥣
+        run: pnpm add --global concurrently
 
       - name: Lint & Format
         run: concurrently --prefix none --group "pnpm:lint" "pnpm:format"
