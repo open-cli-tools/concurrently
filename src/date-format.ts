@@ -264,6 +264,9 @@ function getLocale(options: FormatterOptions): Intl.Locale {
     return locale;
 }
 
+/**
+ * See https://github.com/moment/luxon/issues/1693
+ */
 const fallbackWeekInfo = {
     minimalDays: 4,
 };
