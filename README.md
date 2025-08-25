@@ -39,7 +39,6 @@ tired of opening terminals and made **concurrently**.
 - Cross platform (including Windows)
 - Output is easy to follow with prefixes
 - With `--kill-others` switch, all commands are killed if one dies
-- Spawns commands with [spawn-command](https://github.com/mmalecki/spawn-command)
 
 ## Installation
 
@@ -55,14 +54,14 @@ tired of opening terminals and made **concurrently**.
 ## Usage
 
 > **Note**
-> The `concurrently` command is now also available under the shorthand alias `conc`.
+> The `concurrently` command is also available under the shorthand alias `conc`.
 
 The tool is written in Node.js, but you can use it to run **any** commands.
 
 Remember to surround separate commands with quotes:
 
 ```bash
-concurrently "command1 arg" "command2 arg"
+concurrently 'command1 arg' 'command2 arg'
 ```
 
 Otherwise **concurrently** would try to run 4 separate commands:
@@ -71,243 +70,13 @@ Otherwise **concurrently** would try to run 4 separate commands:
 In package.json, escape quotes:
 
 ```bash
-"start": "concurrently \"command1 arg\" \"command2 arg\""
+"start": "concurrently 'command1 arg' 'command2 arg'"
 ```
 
-NPM run commands can be shortened:
+You can always check concurrently's flag list by running `concurrently --help`.
+For the version, run `concurrently --version`.
 
-```bash
-concurrently "npm:watch-js" "npm:watch-css" "npm:watch-node"
-
-# Equivalent to:
-concurrently -n watch-js,watch-css,watch-node "npm run watch-js" "npm run watch-css" "npm run watch-node"
-```
-
-NPM shortened commands also support wildcards. Given the following scripts in
-package.json:
-
-```jsonc
-{
-  //...
-  "scripts": {
-    // ...
-    "watch-js": "...",
-    "watch-css": "...",
-    "watch-node": "..."
-    // ...
-  }
-  // ...
-}
-```
-
-```bash
-concurrently "npm:watch-*"
-
-# Equivalent to:
-concurrently -n js,css,node "npm run watch-js" "npm run watch-css" "npm run watch-node"
-
-# Any name provided for the wildcard command will be used as a prefix to the wildcard
-# part of the script name:
-concurrently -n w: npm:watch-*
-
-# Equivalent to:
-concurrently -n w:js,w:css,w:node "npm run watch-js" "npm run watch-css" "npm run watch-node"
-```
-
-Exclusion is also supported. Given the following scripts in package.json:
-
-```jsonc
-{
-  // ...
-  "scripts": {
-    "lint:js": "...",
-    "lint:ts": "...",
-    "lint:fix:js": "...",
-    "lint:fix:ts": "..."
-    // ...
-  }
-  // ...
-}
-```
-
-```bash
-# Running only lint:js and lint:ts
-#   with lint:fix:js and lint:fix:ts excluded
-concurrently "npm:lint:*(!fix)"
-```
-
-Good frontend one-liner example [here](https://github.com/kimmobrunfeldt/dont-copy-paste-this-frontend-template/blob/5cd2bde719654941bdfc0a42c6f1b8e69ae79980/package.json#L9).
-
-Help:
-
-```
-concurrently [options] <command ...>
-
-General
-  -m, --max-processes          How many processes should run at once.
-                               Exact number or a percent of CPUs available (for example "50%").
-                               New processes only spawn after all restart tries
-                               of a process.                            [string]
-  -n, --names                  List of custom names to be used in prefix
-                               template.
-                               Example names: "main,browser,server"     [string]
-      --name-separator         The character to split <names> on. Example usage:
-                               -n "styles|scripts|server" --name-separator "|"
-                                                                  [default: ","]
-  -s, --success                Which command(s) must exit with code 0 in order
-                               for concurrently exit with code 0 too. Options
-                               are:
-                               - "first" for the first command to exit;
-                               - "last" for the last command to exit;
-                               - "all" for all commands;
-                               - "command-{name}"/"command-{index}" for the
-                               commands with that name or index;
-                               - "!command-{name}"/"!command-{index}" for all
-                               commands but the ones with that name or index.
-                                                                [default: "all"]
-  -r, --raw                    Output only raw output of processes, disables
-                               prettifying and concurrently coloring.  [boolean]
-      --no-color               Disables colors from logging            [boolean]
-      --hide                   Comma-separated list of processes to hide the
-                               output.
-                               The processes can be identified by their name or
-                               index.                     [string] [default: ""]
-  -g, --group                  Order the output as if the commands were run
-                               sequentially.                           [boolean]
-      --timings                Show timing information for all processes.
-                                                      [boolean] [default: false]
-  -P, --passthrough-arguments  Passthrough additional arguments to commands
-                               (accessible via placeholders) instead of treating
-                               them as commands.      [boolean] [default: false]
-
-Prefix styling
-  -p, --prefix            Prefix used in logging for each process.
-                          Possible values: index, pid, time, command, name,
-                          none, or a template. Example template: "{time}-{pid}"
-                         [string] [default: index or name (when --names is set)]
-  -c, --prefix-colors     Comma-separated list of chalk colors to use on
-                          prefixes. If there are more commands than colors, the
-                          last color will be repeated.
-                          - Available modifiers: reset, bold, dim, italic,
-                          underline, inverse, hidden, strikethrough
-                          - Available colors: black, red, green, yellow, blue,
-                          magenta, cyan, white, gray,
-                          any hex values for colors (e.g. #23de43) or auto for
-                          an automatically picked color
-                          - Available background colors: bgBlack, bgRed,
-                          bgGreen, bgYellow, bgBlue, bgMagenta, bgCyan, bgWhite
-                          See https://www.npmjs.com/package/chalk for more
-                          information.               [string] [default: "reset"]
-  -l, --prefix-length     Limit how many characters of the command is displayed
-                          in prefix. The option can be used to shorten the
-                          prefix when it is set to "command"
-                                                          [number] [default: 10]
-  -t, --timestamp-format  Specify the timestamp in moment/date-fns format.
-                                   [string] [default: "yyyy-MM-dd HH:mm:ss.SSS"]
-
-Input handling
-  -i, --handle-input          Whether input should be forwarded to the child
-                              processes. See examples for more information.
-                                                                       [boolean]
-      --default-input-target  Identifier for child process to which input on
-                              stdin should be sent if not specified at start of
-                              input.
-                              Can be either the index or the name of the
-                              process.                              [default: 0]
-
-Killing other processes
-  -k, --kill-others          Kill other processes if one exits or dies.[boolean]
-      --kill-others-on-fail  Kill other processes if one exits with non zero
-                             status code.                              [boolean]
-      --kill-signal          Signal to send to other processes if one exits or dies.
-                             (SIGTERM/SIGKILL, defaults to SIGTERM)    [string]
-
-Restarting
-      --restart-tries  How many times a process that died should restart.
-                       Negative numbers will make the process restart forever.
-                                                           [number] [default: 0]
-      --restart-after  Delay time to respawn the process, in milliseconds.
-                                                           [number] [default: 0]
-
-Options:
-  -h, --help         Show help                                         [boolean]
-  -v, -V, --version  Show version number                               [boolean]
-
-
-Examples:
-
- - Output nothing more than stdout+stderr of child processes
-
-     $ concurrently --raw "npm run watch-less" "npm run watch-js"
-
- - Normal output but without colors e.g. when logging to file
-
-     $ concurrently --no-color "grunt watch" "http-server" > log
-
- - Custom prefix
-
-     $ concurrently --prefix "{time}-{pid}" "npm run watch" "http-server"
-
- - Custom names and colored prefixes
-
-     $ concurrently --names "HTTP,WATCH" -c "bgBlue.bold,bgMagenta.bold"
-     "http-server" "npm run watch"
-
- - Auto varying colored prefixes
-
-     $ concurrently -c "auto" "npm run watch" "http-server"
-
- - Mixing auto and manual colored prefixes
-
-     $ concurrently -c "red,auto" "npm run watch" "http-server" "echo hello"
-
- - Configuring via environment variables with CONCURRENTLY_ prefix
-
-     $ CONCURRENTLY_RAW=true CONCURRENTLY_KILL_OTHERS=true concurrently "echo
-     hello" "echo world"
-
- - Send input to default
-
-     $ concurrently --handle-input "nodemon" "npm run watch-js"
-     rs  # Sends rs command to nodemon process
-
- - Send input to specific child identified by index
-
-     $ concurrently --handle-input "npm run watch-js" nodemon
-     1:rs
-
- - Send input to specific child identified by name
-
-     $ concurrently --handle-input -n js,srv "npm run watch-js" nodemon
-     srv:rs
-
- - Shortened NPM run commands
-
-     $ concurrently npm:watch-node npm:watch-js npm:watch-css
-
- - Shortened NPM run command with wildcard (make sure to wrap it in quotes!)
-
-     $ concurrently "npm:watch-*"
-
- - Exclude patterns so that between "lint:js" and "lint:fix:js", only "lint:js"
- is ran
-
-     $ concurrently "npm:*(!fix)"
-
- - Passthrough some additional arguments via '{<number>}' placeholder
-
-     $ concurrently -P "echo {1}" -- foo
-
- - Passthrough all additional arguments via '{@}' placeholder
-
-     $ concurrently -P "npm:dev-* -- {@}" -- --watch --noEmit
-
- - Passthrough all additional arguments combined via '{*}' placeholder
-
-     $ concurrently -P "npm:dev-* -- {*}" -- --watch --noEmit
-
-For more details, visit https://github.com/open-cli-tools/concurrently
-```
+Check out documentation and other usage examples in the [`docs` directory](./docs/README.md).
 
 ## API
 
@@ -316,10 +85,10 @@ For more details, visit https://github.com/open-cli-tools/concurrently
 ### `concurrently(commands[, options])`
 
 - `commands`: an array of either strings (containing the commands to run) or objects
-  with the shape `{ command, name, prefixColor, env, cwd }`.
+  with the shape `{ command, name, prefixColor, env, cwd, ipc }`.
 
 - `options` (optional): an object containing any of the below:
-  - `cwd`: the working directory to be used by all commands. Can be overriden per command.
+  - `cwd`: the working directory to be used by all commands. Can be overridden per command.
     Default: `process.cwd()`.
   - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
@@ -327,8 +96,8 @@ For more details, visit https://github.com/open-cli-tools/concurrently
   - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
     to read the input from. Should only be used in the rare instance you would like to stream anything other than `process.stdin`. Overrides `handleInput`.
   - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
-  - `killOthers`: an array of exitting conditions that will cause a process to kill others.
-    Can contain any of `success` or `failure`.
+  - `killOthersOn`: once the first command exits with one of these statuses, kill other commands.
+    Can be an array containing the strings `success` (status code zero) and/or `failure` (non-zero exit status).
   - `maxProcesses`: how many processes should run at once.
   - `outputStream`: a [`Writable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_writable_streams)
     to write logs to. Default: `process.stdout`.
@@ -340,14 +109,14 @@ For more details, visit https://github.com/open-cli-tools/concurrently
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
   - `raw`: whether raw mode should be used, meaning strictly process output will
-    be logged, without any prefixes, coloring or extra stuff. Can be overriden per command.
+    be logged, without any prefixes, coloring or extra stuff. Can be overridden per command.
   - `successCondition`: the condition to consider the run was successful.
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.
   - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
   - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
-  - `timestampFormat`: a [date-fns format](https://date-fns.org/v2.0.1/docs/format)
-    to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
+  - `timestampFormat`: a [Unicode format](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
+    to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.SSS`
   - `additionalArguments`: list of additional arguments passed that will get replaced in each command. If not defined, no argument replacing will happen.
 
 > **Returns:** an object in the shape `{ result, commands }`.
@@ -392,17 +161,43 @@ It has the following properties:
 - `cwd`: the current working directory of the command.
 - `env`: an object with all the environment variables that the command will be spawned with.
 - `killed`: whether the command has been killed.
-- `exited`: whether the command exited yet.
+- `state`: the command's state. Can be one of
+  - `stopped`: if the command was never started
+  - `started`: if the command is currently running
+  - `errored`: if the command failed spawning
+  - `exited`: if the command is not running anymore, e.g. it received a close event
 - `pid`: the command's process ID.
 - `stdin`: a Writable stream to the command's `stdin`.
 - `stdout`: an RxJS observable to the command's `stdout`.
 - `stderr`: an RxJS observable to the command's `stderr`.
 - `error`: an RxJS observable to the command's error events (e.g. when it fails to spawn).
 - `timer`: an RxJS observable to the command's timing events (e.g. starting, stopping).
+- `stateChange`: an RxJS observable for changes to the command's `state` property.
+- `messages`: an object with the following properties:
+  - `incoming`: an RxJS observable for the IPC messages received from the underlying process.
+  - `outgoing`: an RxJS observable for the IPC messages sent to the underlying process.
+
+  Both observables emit [`MessageEvent`](#messageevent)s.<br>
+  Note that if the command wasn't spawned with IPC support, these won't emit any values.
+
 - `close`: an RxJS observable to the command's close events.
   See [`CloseEvent`](#CloseEvent) for more information.
-- `start()`: starts the command, setting up all
+- `start()`: starts the command and sets up all of the above streams
+- `send(message[, handle, options])`: sends a message to the underlying process via IPC channels,
+  returning a promise that resolves once the message has been sent.
+  See [Node.js docs](https://nodejs.org/docs/latest/api/child_process.html#subprocesssendmessage-sendhandle-options-callback).
 - `kill([signal])`: kills the command, optionally specifying a signal (e.g. `SIGTERM`, `SIGKILL`, etc).
+
+### `MessageEvent`
+
+An object that represents a message that was received from/sent to the underlying command process.<br>
+It has the following properties:
+
+- `message`: the message itself.
+- `handle`: a [`net.Socket`](https://nodejs.org/docs/latest/api/net.html#class-netsocket),
+  [`net.Server`](https://nodejs.org/docs/latest/api/net.html#class-netserver) or
+  [`dgram.Socket`](https://nodejs.org/docs/latest/api/dgram.html#class-dgramsocket),
+  if one was sent, or `undefined`.
 
 ### `CloseEvent`
 

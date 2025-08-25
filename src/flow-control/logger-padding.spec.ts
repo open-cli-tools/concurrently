@@ -1,0 +1,68 @@
+import { beforeEach, expect, it, MockedObject } from 'vitest';
+
+import { createMockInstance } from '../fixtures/create-mock-instance';
+import { FakeCommand } from '../fixtures/fake-command';
+import { Logger } from '../logger';
+import { LoggerPadding } from './logger-padding';
+
+let logger: MockedObject<Logger>;
+let controller: LoggerPadding;
+let commands: FakeCommand[];
+
+beforeEach(() => {
+    commands = [new FakeCommand(), new FakeCommand()];
+    logger = createMockInstance(Logger);
+    controller = new LoggerPadding({ logger });
+});
+
+it('returns same commands', () => {
+    expect(controller.handle(commands)).toMatchObject({ commands });
+});
+
+it('sets the prefix length on handle', () => {
+    controller.handle(commands);
+    expect(logger.setPrefixLength).toHaveBeenCalledTimes(1);
+});
+
+it('updates the prefix length when commands emit a start timer', () => {
+    controller.handle(commands);
+    commands[0].timer.next({ startDate: new Date() });
+    expect(logger.setPrefixLength).toHaveBeenCalledTimes(2);
+
+    commands[1].timer.next({ startDate: new Date() });
+    expect(logger.setPrefixLength).toHaveBeenCalledTimes(3);
+});
+
+it('sets prefix length to the longest prefix of all commands', () => {
+    logger.getPrefixContent
+        .mockReturnValueOnce({ type: 'default', value: 'foobar' })
+        .mockReturnValueOnce({ type: 'default', value: 'baz' });
+
+    controller.handle(commands);
+    expect(logger.setPrefixLength).toHaveBeenCalledWith(6);
+});
+
+it('does not shorten the prefix length', () => {
+    logger.getPrefixContent
+        .mockReturnValueOnce({ type: 'default', value: '100' })
+        .mockReturnValueOnce({ type: 'default', value: '1' });
+
+    controller.handle(commands);
+    commands[0].timer.next({ startDate: new Date() });
+    expect(logger.setPrefixLength).toHaveBeenCalledWith(3);
+
+    commands[0].timer.next({ startDate: new Date() });
+    expect(logger.setPrefixLength).toHaveBeenCalledWith(3);
+});
+
+it('unsubscribes from start timers on finish', () => {
+    logger.getPrefixContent.mockReturnValue({ type: 'default', value: '1' });
+
+    const { onFinish } = controller.handle(commands);
+    commands[0].timer.next({ startDate: new Date() });
+    expect(logger.setPrefixLength).toHaveBeenCalledTimes(2);
+
+    onFinish();
+    commands[0].timer.next({ startDate: new Date() });
+    expect(logger.setPrefixLength).toHaveBeenCalledTimes(2);
+});

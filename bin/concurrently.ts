@@ -2,24 +2,27 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
+import { assertDeprecated } from '../src/assert';
 import * as defaults from '../src/defaults';
-import concurrently from '../src/index';
-import { epilogue } from './epilogue';
+import { concurrently } from '../src/index';
+import { castArray } from '../src/utils';
+import { readPackage } from './read-package';
+
+const version = String(readPackage().version);
+const epilogue = `For documentation and more examples, visit:\nhttps://github.com/open-cli-tools/concurrently/tree/v${version}/docs`;
 
 // Clean-up arguments (yargs expects only the arguments after the program name)
-const cleanArgs = hideBin(process.argv);
-// Find argument separator (double dash)
-const argsSepIdx = cleanArgs.findIndex((arg) => arg === '--');
-// Arguments before separator
-const argsBeforeSep = argsSepIdx >= 0 ? cleanArgs.slice(0, argsSepIdx) : cleanArgs;
-// Arguments after separator
-const argsAfterSep = argsSepIdx >= 0 ? cleanArgs.slice(argsSepIdx + 1) : [];
-
-const args = yargs(argsBeforeSep)
+const program = yargs(hideBin(process.argv))
+    .parserConfiguration({
+        // Avoids options that can be specified multiple times from requiring a `--` to pass commands
+        'greedy-arrays': false,
+        // Makes sure that --passthrough-arguments works correctly
+        'populate--': true,
+    })
     .usage('$0 [options] <command ...>')
     .help('h')
     .alias('h', 'help')
-    .version()
+    .version(version)
     .alias('version', 'v')
     .alias('version', 'V')
     // TODO: Add some tests for this.
@@ -99,11 +102,18 @@ const args = yargs(argsBeforeSep)
             type: 'boolean',
             default: defaults.passthroughArguments,
         },
+        teardown: {
+            describe:
+                'Clean up command(s) to execute before exiting concurrently. Might be specified multiple times.\n' +
+                "These aren't prefixed and they don't affect concurrently's exit code.",
+            type: 'string',
+            array: true,
+        },
 
         // Kill others
         'kill-others': {
             alias: 'k',
-            describe: 'Kill other processes if one exits or dies.',
+            describe: 'Kill other processes once the first exits.',
             type: 'boolean',
         },
         'kill-others-on-fail': {
@@ -116,6 +126,10 @@ const args = yargs(argsBeforeSep)
                 'Signal to send to other processes if one exits or dies. (SIGTERM/SIGKILL, defaults to SIGTERM)',
             type: 'string',
             default: defaults.killSignal,
+        },
+        'kill-timeout': {
+            describe: 'How many milliseconds to wait before forcing process terminating.',
+            type: 'number',
         },
 
         // Prefix
@@ -149,9 +163,15 @@ const args = yargs(argsBeforeSep)
             default: defaults.prefixLength,
             type: 'number',
         },
+        'pad-prefix': {
+            describe: 'Pads short prefixes with spaces so that the length of all prefixes match',
+            type: 'boolean',
+        },
         'timestamp-format': {
             alias: 't',
-            describe: 'Specify the timestamp in moment/date-fns format.',
+            describe:
+                'Specify the timestamp in Unicode format:\n' +
+                'https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table',
             default: defaults.timestampFormat,
             type: 'string',
         },
@@ -165,9 +185,9 @@ const args = yargs(argsBeforeSep)
             type: 'number',
         },
         'restart-after': {
-            describe: 'Delay time to respawn the process, in milliseconds.',
+            describe: 'Delay before restarting the process, in milliseconds, or "exponential".',
             default: defaults.restartDelay,
-            type: 'number',
+            type: 'string',
         },
 
         // Input
@@ -187,20 +207,32 @@ const args = yargs(argsBeforeSep)
         },
     })
     .group(
-        ['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P'],
+        ['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P', 'teardown'],
         'General',
     )
-    .group(['p', 'c', 'l', 't'], 'Prefix styling')
+    .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
-    .group(['k', 'kill-others-on-fail', 'kill-signal'], 'Killing other processes')
+    .group(['k', 'kill-others-on-fail', 'kill-signal', 'kill-timeout'], 'Killing other processes')
     .group(['restart-tries', 'restart-after'], 'Restarting')
-    .epilogue(epilogue)
-    .parseSync();
+    .epilogue(epilogue);
+
+const args = program.parseSync();
+assertDeprecated(
+    args.nameSeparator === defaults.nameSeparator,
+    'name-separator',
+    'Use commas as name separators instead.',
+);
 
 // Get names of commands by the specified separator
 const names = (args.names || '').split(args.nameSeparator);
-// If "passthrough-arguments" is disabled, treat additional arguments as commands
-const commands = args.passthroughArguments ? args._ : [...args._, ...argsAfterSep];
+
+const additionalArguments = castArray(args['--'] ?? []).map(String);
+const commands = args.passthroughArguments ? args._ : args._.concat(additionalArguments);
+
+if (!commands.length) {
+    program.showHelp();
+    process.exit();
+}
 
 concurrently(
     commands.map((command, index) => ({
@@ -210,12 +242,13 @@ concurrently(
     {
         handleInput: args.handleInput,
         defaultInputTarget: args.defaultInputTarget,
-        killOthers: args.killOthers
+        killOthersOn: args.killOthers
             ? ['success', 'failure']
             : args.killOthersOnFail
-            ? ['failure']
-            : [],
+              ? ['failure']
+              : [],
         killSignal: args.killSignal,
+        killTimeout: args.killTimeout,
         maxProcesses: args.maxProcesses,
         raw: args.raw,
         hide: args.hide.split(','),
@@ -223,12 +256,15 @@ concurrently(
         prefix: args.prefix,
         prefixColors: args.prefixColors.split(','),
         prefixLength: args.prefixLength,
-        restartDelay: args.restartAfter,
+        padPrefix: args.padPrefix,
+        restartDelay:
+            args.restartAfter === 'exponential' ? 'exponential' : Number(args.restartAfter),
         restartTries: args.restartTries,
         successCondition: args.success,
         timestampFormat: args.timestampFormat,
         timings: args.timings,
-        additionalArguments: args.passthroughArguments ? argsAfterSep : undefined,
+        teardown: args.teardown,
+        additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
     },
 ).result.then(
     () => process.exit(0),

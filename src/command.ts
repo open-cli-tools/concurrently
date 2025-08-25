@@ -1,4 +1,9 @@
-import { ChildProcess as BaseChildProcess, SpawnOptions } from 'child_process';
+import {
+    ChildProcess as BaseChildProcess,
+    MessageOptions,
+    SendHandle,
+    SpawnOptions,
+} from 'child_process';
 import * as Rx from 'rxjs';
 import { EventEmitter, Writable } from 'stream';
 
@@ -34,6 +39,14 @@ export interface CommandInfo {
     prefixColor?: string;
 
     /**
+     * Whether sending of messages to/from this command (also known as "inter-process communication")
+     * should be enabled, and using which file descriptor number.
+     *
+     * If set, must be > 2.
+     */
+    ipc?: number;
+
+    /**
      * Output command in raw format.
      */
     raw?: boolean;
@@ -56,6 +69,7 @@ export interface CloseEvent {
      * The exit code or signal for the command.
      */
     exitCode: string | number;
+
     timings: {
         startDate: Date;
         endDate: Date;
@@ -68,11 +82,21 @@ export interface TimerEvent {
     endDate?: Date;
 }
 
+export interface MessageEvent {
+    message: object;
+    handle?: SendHandle;
+}
+
+interface OutgoingMessageEvent extends MessageEvent {
+    options?: MessageOptions;
+    onSent(error?: unknown): void;
+}
+
 /**
  * Subtype of NodeJS's child_process including only what's actually needed for a command to work.
  */
 export type ChildProcess = EventEmitter &
-    Pick<BaseChildProcess, 'pid' | 'stdin' | 'stdout' | 'stderr'>;
+    Pick<BaseChildProcess, 'pid' | 'stdin' | 'stdout' | 'stderr' | 'send'>;
 
 /**
  * Interface for a function that must kill the process with `pid`, optionally sending `signal` to it.
@@ -83,6 +107,16 @@ export type KillProcess = (pid: number, signal?: string) => void;
  * Interface for a function that spawns a command and returns its child process instance.
  */
 export type SpawnCommand = (command: string, options: SpawnOptions) => ChildProcess;
+
+/**
+ * The state of a command.
+ *
+ * - `stopped`: command was never started
+ * - `started`: command is currently running
+ * - `errored`: command failed spawning
+ * - `exited`: command is not running anymore, e.g. it received a close event
+ */
+type CommandState = 'stopped' | 'started' | 'errored' | 'exited';
 
 export class Command implements CommandInfo {
     private readonly killProcess: KillProcess;
@@ -105,25 +139,40 @@ export class Command implements CommandInfo {
     /** @inheritdoc */
     readonly cwd?: string;
 
+    /** @inheritdoc */
+    readonly ipc?: number;
+
     readonly close = new Rx.Subject<CloseEvent>();
     readonly error = new Rx.Subject<unknown>();
     readonly stdout = new Rx.Subject<Buffer>();
     readonly stderr = new Rx.Subject<Buffer>();
     readonly timer = new Rx.Subject<TimerEvent>();
 
+    /**
+     * A stream of changes to the `#state` property.
+     *
+     * Note that the command never goes back to the `stopped` state, therefore it's not a value
+     * that's emitted by this stream.
+     */
+    readonly stateChange = new Rx.Subject<Exclude<CommandState, 'stopped'>>();
+    readonly messages = {
+        incoming: new Rx.Subject<MessageEvent>(),
+        outgoing: new Rx.ReplaySubject<OutgoingMessageEvent>(),
+    };
+
     process?: ChildProcess;
+
+    // TODO: Should exit/error/stdio subscriptions be added here?
+    private subscriptions: readonly Rx.Subscription[] = [];
     stdin?: Writable;
     pid?: number;
     killed = false;
     exited = false;
 
-    /** @deprecated */
-    get killable() {
-        return Command.canKill(this);
-    }
+    state: CommandState = 'stopped';
 
     constructor(
-        { index, name, command, prefixColor, env, cwd }: CommandInfo & { index: number },
+        { index, name, command, prefixColor, env, cwd, ipc }: CommandInfo & { index: number },
         spawnOpts: SpawnOptions,
         spawn: SpawnCommand,
         killProcess: KillProcess,
@@ -134,6 +183,7 @@ export class Command implements CommandInfo {
         this.prefixColor = prefixColor;
         this.env = env || {};
         this.cwd = cwd;
+        this.ipc = ipc;
         this.killProcess = killProcess;
         this.spawn = spawn;
         this.spawnOpts = spawnOpts;
@@ -144,23 +194,30 @@ export class Command implements CommandInfo {
      */
     start() {
         const child = this.spawn(this.command, this.spawnOpts);
+        this.changeState('started');
         this.process = child;
         this.pid = child.pid;
         const startDate = new Date(Date.now());
         const highResStartTime = process.hrtime();
         this.timer.next({ startDate });
 
+        this.subscriptions = [...this.maybeSetupIPC(child)];
         Rx.fromEvent(child, 'error').subscribe((event) => {
-            this.process = undefined;
+            this.cleanUp();
             const endDate = new Date(Date.now());
             this.timer.next({ startDate, endDate });
             this.error.next(event);
+            this.changeState('errored');
         });
         Rx.fromEvent(child, 'close')
             .pipe(Rx.map((event) => event as [number | null, NodeJS.Signals | null]))
             .subscribe(([exitCode, signal]) => {
-                this.process = undefined;
-                this.exited = true;
+                this.cleanUp();
+
+                // Don't override error event
+                if (this.state !== 'errored') {
+                    this.changeState('exited');
+                }
 
                 const endDate = new Date(Date.now());
                 this.timer.next({ startDate, endDate });
@@ -177,17 +234,78 @@ export class Command implements CommandInfo {
                     },
                 });
             });
-        child.stdout &&
+        if (child.stdout) {
             pipeTo(
                 Rx.fromEvent(child.stdout, 'data').pipe(Rx.map((event) => event as Buffer)),
                 this.stdout,
             );
-        child.stderr &&
+        }
+        if (child.stderr) {
             pipeTo(
                 Rx.fromEvent(child.stderr, 'data').pipe(Rx.map((event) => event as Buffer)),
                 this.stderr,
             );
+        }
         this.stdin = child.stdin || undefined;
+    }
+
+    private changeState(state: Exclude<CommandState, 'stopped'>) {
+        this.state = state;
+        this.stateChange.next(state);
+    }
+
+    private maybeSetupIPC(child: ChildProcess) {
+        if (!this.ipc) {
+            return [];
+        }
+
+        return [
+            pipeTo(
+                Rx.fromEvent(child, 'message').pipe(
+                    Rx.map((event) => {
+                        const [message, handle] = event as [object, SendHandle | undefined];
+                        return { message, handle };
+                    }),
+                ),
+                this.messages.incoming,
+            ),
+            this.messages.outgoing.subscribe((message) => {
+                if (!child.send) {
+                    return message.onSent(new Error('Command does not have an IPC channel'));
+                }
+
+                child.send(message.message, message.handle, message.options, (error) => {
+                    message.onSent(error);
+                });
+            }),
+        ];
+    }
+
+    /**
+     * Sends a message to the underlying process once it starts.
+     *
+     * @throws  If the command doesn't have an IPC channel enabled
+     * @returns Promise that resolves when the message is sent,
+     *          or rejects if it fails to deliver the message.
+     */
+    send(message: object, handle?: SendHandle, options?: MessageOptions): Promise<void> {
+        if (this.ipc == null) {
+            throw new Error('Command IPC is disabled');
+        }
+        return new Promise((resolve, reject) => {
+            this.messages.outgoing.next({
+                message,
+                handle,
+                options,
+                onSent(error) {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve();
+                    }
+                },
+            });
+        });
     }
 
     /**
@@ -198,6 +316,12 @@ export class Command implements CommandInfo {
             this.killed = true;
             this.killProcess(this.pid, code);
         }
+    }
+
+    private cleanUp() {
+        this.subscriptions?.forEach((sub) => sub.unsubscribe());
+        this.messages.outgoing = new Rx.ReplaySubject();
+        this.process = undefined;
     }
 
     /**
@@ -214,5 +338,5 @@ export class Command implements CommandInfo {
  * Pipes all events emitted by `stream` into `subject`.
  */
 function pipeTo<T>(stream: Rx.Observable<T>, subject: Rx.Subject<T>) {
-    stream.subscribe((event) => subject.next(event));
+    return stream.subscribe((event) => subject.next(event));
 }

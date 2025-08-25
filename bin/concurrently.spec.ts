@@ -3,13 +3,15 @@ import { spawn } from 'child_process';
 import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
 import { build } from 'esbuild';
 import fs from 'fs';
-import { escapeRegExp } from 'lodash';
 import os from 'os';
 import path from 'path';
 import * as readline from 'readline';
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { escapeRegExp } from '../src/utils';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string) => {
@@ -32,6 +34,7 @@ beforeAll(async () => {
         bundle: true,
         outfile: path.join(tmpDir, 'concurrently.js'),
     });
+    fs.copyFileSync(path.join(__dirname, '..', 'package.json'), path.join(tmpDir, 'package.json'));
 }, 8000);
 
 afterAll(() => {
@@ -116,11 +119,22 @@ it('has help command', async () => {
     expect(exit.code).toBe(0);
 });
 
-describe('has version command', () => {
-    it.each(['--version', '-V', '-v'])('%s', async (arg) => {
-        const exit = await run(arg).exit;
+it('prints help when no arguments are passed', async () => {
+    const exit = await run('').exit;
+    expect(exit.code).toBe(0);
+});
 
-        expect(exit.code).toBe(0);
+describe('has version command', () => {
+    const pkg = fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8');
+    const { version } = JSON.parse(pkg);
+
+    it.each(['--version', '-V', '-v'])('%s', async (arg) => {
+        const child = run(arg);
+        const log = await child.getLogLines();
+        expect(log).toContain(version);
+
+        const { code } = await child.exit;
+        expect(code).toBe(0);
     });
 });
 
@@ -171,7 +185,7 @@ describe('exiting conditions', () => {
         // Windows doesn't support sending signals like on POSIX platforms.
         // However, in a console, processes can be interrupted with CTRL+C (like a SIGINT).
         // This is what we simulate here with the help of a wrapper application.
-        const child = run('"node fixtures/read-echo.js"', isWindows ? true : false);
+        const child = run('"node fixtures/read-echo.js"', isWindows);
         // Wait for command to have started before sending SIGINT
         child.log.subscribe((line) => {
             if (/READING/.test(line)) {
@@ -190,10 +204,7 @@ describe('exiting conditions', () => {
         expect(lines).toContainEqual(
             expect.stringMatching(
                 createKillMessage(
-                    isWindows
-                        ? // '^C' is echoed by read-echo.js (also happens without the wrapper)
-                          '[0] ^Cnode fixtures/read-echo.js'
-                        : '[0] node fixtures/read-echo.js',
+                    '[0] node fixtures/read-echo.js',
                     // TODO: Flappy value due to race condition, sometimes killed by concurrently (exit code 1),
                     //       sometimes terminated on its own (exit code 0).
                     //       Related issue: https://github.com/open-cli-tools/concurrently/issues/283
@@ -225,6 +236,22 @@ describe('--hide', () => {
     it('hides the output of a process by its name', async () => {
         const lines = await run('-n foo,bar --hide bar "echo foo" "echo bar"').getLogLines();
 
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).not.toContainEqual(expect.stringContaining('bar'));
+    });
+
+    it('hides the output of a process by its index in raw mode', async () => {
+        const lines = await run('--hide 1 --raw "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toHaveLength(1);
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).not.toContainEqual(expect.stringContaining('bar'));
+    });
+
+    it('hides the output of a process by its name in raw mode', async () => {
+        const lines = await run('-n foo,bar --hide bar --raw "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toHaveLength(1);
         expect(lines).toContainEqual(expect.stringContaining('foo'));
         expect(lines).not.toContainEqual(expect.stringContaining('bar'));
     });
@@ -280,6 +307,15 @@ describe('specifies custom prefix length', () => {
 
         expect(lines).toContainEqual(expect.stringContaining('[ec..o] foo'));
         expect(lines).toContainEqual(expect.stringContaining('[ec..r] bar'));
+    });
+});
+
+describe('--pad-prefix', () => {
+    it('pads prefixes with spaces', async () => {
+        const lines = await run('--pad-prefix -n foo,barbaz "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('[foo   ]'));
+        expect(lines).toContainEqual(expect.stringContaining('[barbaz]'));
     });
 });
 
@@ -404,6 +440,27 @@ describe('--handle-input', () => {
         expect(lines).toContainEqual(
             expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM')),
         );
+    });
+});
+
+describe('--teardown', () => {
+    it('runs teardown commands when input commands exit', async () => {
+        const lines = await run('--teardown "echo bye" "echo hey"').getLogLines();
+        expect(lines).toEqual([
+            expect.stringContaining('[0] hey'),
+            expect.stringContaining('[0] echo hey exited with code 0'),
+            expect.stringContaining('--> Running teardown command "echo bye"'),
+            expect.stringContaining('bye'),
+            expect.stringContaining('--> Teardown command "echo bye" exited with code 0'),
+        ]);
+    });
+
+    it('runs multiple teardown commands', async () => {
+        const lines = await run(
+            '--teardown "echo bye" --teardown "echo bye2" "echo hey"',
+        ).getLogLines();
+        expect(lines).toContain('bye');
+        expect(lines).toContain('bye2');
     });
 });
 

@@ -2,6 +2,7 @@ import * as Rx from 'rxjs';
 import { Writable } from 'stream';
 
 import { Command } from './command';
+import { fromSharedEvent } from './observables';
 
 /**
  * Class responsible for actually writing output onto a writable stream.
@@ -11,6 +12,11 @@ export class OutputWriter {
     private readonly group: boolean;
     readonly buffers: string[][];
     activeCommandIndex = 0;
+
+    readonly error: Rx.Observable<unknown>;
+    private get errored() {
+        return this.outputStream.errored;
+    }
 
     constructor({
         outputStream,
@@ -22,6 +28,9 @@ export class OutputWriter {
         commands: Command[];
     }) {
         this.outputStream = outputStream;
+        this.ensureWritable();
+
+        this.error = fromSharedEvent(this.outputStream, 'error');
         this.group = group;
         this.buffers = commands.map(() => []);
 
@@ -33,7 +42,8 @@ export class OutputWriter {
                 for (let i = command.index + 1; i < commands.length; i++) {
                     this.activeCommandIndex = i;
                     this.flushBuffer(i);
-                    if (!commands[i].exited) {
+                    // TODO: Should errored commands also flush buffer?
+                    if (commands[i].state !== 'exited') {
                         break;
                     }
                 }
@@ -41,7 +51,14 @@ export class OutputWriter {
         }
     }
 
+    private ensureWritable() {
+        if (this.errored) {
+            throw new TypeError('outputStream is in errored state', { cause: this.errored });
+        }
+    }
+
     write(command: Command | undefined, text: string) {
+        this.ensureWritable();
         if (this.group && command) {
             if (command.index <= this.activeCommandIndex) {
                 this.outputStream.write(text);
@@ -55,7 +72,9 @@ export class OutputWriter {
     }
 
     private flushBuffer(index: number) {
-        this.buffers[index].forEach((t) => this.outputStream.write(t));
+        if (!this.errored) {
+            this.buffers[index].forEach((t) => this.outputStream.write(t));
+        }
         this.buffers[index] = [];
     }
 }

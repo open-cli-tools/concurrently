@@ -1,22 +1,29 @@
 import assert from 'assert';
-import _ from 'lodash';
-import { cpus } from 'os';
-import spawn from 'spawn-command';
+import os from 'os';
+import { takeUntil } from 'rxjs';
 import { Writable } from 'stream';
 import treeKill from 'tree-kill';
 
-import { CloseEvent, Command, CommandInfo, KillProcess, SpawnCommand } from './command';
+import {
+    CloseEvent,
+    Command,
+    CommandIdentifier,
+    CommandInfo,
+    KillProcess,
+    SpawnCommand,
+} from './command';
 import { CommandParser } from './command-parser/command-parser';
 import { ExpandArguments } from './command-parser/expand-arguments';
-import { ExpandNpmShortcut } from './command-parser/expand-npm-shortcut';
-import { ExpandNpmWildcard } from './command-parser/expand-npm-wildcard';
+import { ExpandShortcut } from './command-parser/expand-shortcut';
+import { ExpandWildcard } from './command-parser/expand-wildcard';
 import { StripQuotes } from './command-parser/strip-quotes';
 import { CompletionListener, SuccessCondition } from './completion-listener';
 import { FlowController } from './flow-control/flow-controller';
-import { getSpawnOpts } from './get-spawn-opts';
 import { Logger } from './logger';
 import { OutputWriter } from './output-writer';
 import { PrefixColorSelector } from './prefix-color-selector';
+import { getSpawnOpts, spawn } from './spawn';
+import { castArray } from './utils';
 
 const defaults: ConcurrentlyOptions = {
     spawn,
@@ -43,7 +50,8 @@ export type ConcurrentlyResult = {
      * A promise that resolves when concurrently ran successfully according to the specified
      * success condition, or reject otherwise.
      *
-     * Both the resolved and rejected value is the list of all command's close events.
+     * Both the resolved and rejected value is a list of all the close events for commands that
+     * spawned; commands that didn't spawn are filtered out.
      */
     result: Promise<CloseEvent[]>;
 };
@@ -75,9 +83,11 @@ export type ConcurrentlyOptions = {
      * Available background colors:
      * - `bgBlack`, `bgRed`, `bgGreen`, `bgYellow`, `bgBlue`, `bgMagenta`, `bgCyan`, `bgWhite`
      *
+     * Set to `false` to disable colors.
+     *
      * @see {@link https://www.npmjs.com/package/chalk} for more information.
      */
-    prefixColors?: string | string[];
+    prefixColors?: string | string[] | false;
 
     /**
      * Maximum number of commands to run at once.
@@ -95,6 +105,11 @@ export type ConcurrentlyOptions = {
     raw?: boolean;
 
     /**
+     * Which commands should have their output hidden.
+     */
+    hide?: CommandIdentifier[];
+
+    /**
      * The current working directory of commands which didn't specify one.
      * Defaults to `process.cwd()`.
      */
@@ -106,6 +121,11 @@ export type ConcurrentlyOptions = {
     successCondition?: SuccessCondition;
 
     /**
+     * A signal to stop spawning further processes.
+     */
+    abortSignal?: AbortSignal;
+
+    /**
      * Which flow controllers should be applied on commands spawned by concurrently.
      * Defaults to an empty array.
      */
@@ -113,7 +133,7 @@ export type ConcurrentlyOptions = {
 
     /**
      * A function that will spawn commands.
-     * Defaults to the `spawn-command` module.
+     * Defaults to a function that spawns using either `cmd.exe` or `/bin/sh`.
      */
     spawn: SpawnCommand;
 
@@ -122,11 +142,6 @@ export type ConcurrentlyOptions = {
      * Defaults to the `tree-kill` module.
      */
     kill: KillProcess;
-
-    /**
-     * Signal to send to killed processes.
-     */
-    killSignal?: string;
 
     /**
      * List of additional arguments passed that will get replaced in each command.
@@ -150,24 +165,26 @@ export function concurrently(
     assert.ok(Array.isArray(baseCommands), '[concurrently] commands should be an array');
     assert.notStrictEqual(baseCommands.length, 0, '[concurrently] no commands provided');
 
-    const options = _.defaults(baseOptions, defaults);
+    const options = { ...defaults, ...baseOptions };
 
-    const prefixColorSelector = new PrefixColorSelector(options.prefixColors);
+    const prefixColorSelector = new PrefixColorSelector(options.prefixColors || []);
 
     const commandParsers: CommandParser[] = [
         new StripQuotes(),
-        new ExpandNpmShortcut(),
-        new ExpandNpmWildcard(),
+        new ExpandShortcut(),
+        new ExpandWildcard(),
     ];
 
     if (options.additionalArguments) {
         commandParsers.push(new ExpandArguments(options.additionalArguments));
     }
 
-    let commands = _(baseCommands)
+    const hide = (options.hide || []).map(String);
+    let commands = baseCommands
         .map(mapToCommandInfo)
         .flatMap((command) => parseCommand(command, commandParsers))
         .map((command, index) => {
+            const hidden = hide.includes(command.name) || hide.includes(String(index));
             return new Command(
                 {
                     index,
@@ -175,22 +192,22 @@ export function concurrently(
                     ...command,
                 },
                 getSpawnOpts({
-                    raw: command.raw ?? options.raw,
+                    ipc: command.ipc,
+                    stdio: hidden ? 'hidden' : (command.raw ?? options.raw) ? 'raw' : 'normal',
                     env: command.env,
                     cwd: command.cwd || options.cwd,
                 }),
                 options.spawn,
                 options.kill,
             );
-        })
-        .value();
+        });
 
     const handleResult = options.controllers.reduce(
         ({ commands: prevCommands, onFinishCallbacks }, controller) => {
             const { commands, onFinish } = controller.handle(prevCommands);
             return {
                 commands,
-                onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : []),
+                onFinishCallbacks: onFinishCallbacks.concat(onFinish ? [onFinish] : []),
             };
         },
         { commands, onFinishCallbacks: [] } as {
@@ -206,25 +223,26 @@ export function concurrently(
             group: !!options.group,
             commands,
         });
-        options.logger.output.subscribe(({ command, text }) => outputWriter.write(command, text));
+        options.logger.output
+            // Stop trying to write after there's been an error.
+            .pipe(takeUntil(outputWriter.error))
+            .subscribe(({ command, text }) => outputWriter.write(command, text));
     }
 
     const commandsLeft = commands.slice();
     const maxProcesses = Math.max(
         1,
         (typeof options.maxProcesses === 'string' && options.maxProcesses.endsWith('%')
-            ? Math.round((cpus().length * Number(options.maxProcesses.slice(0, -1))) / 100)
+            ? Math.round((os.cpus().length * Number(options.maxProcesses.slice(0, -1))) / 100)
             : Number(options.maxProcesses)) || commandsLeft.length,
     );
     for (let i = 0; i < maxProcesses; i++) {
-        maybeRunMore(commandsLeft);
+        maybeRunMore(commandsLeft, options.abortSignal);
     }
 
     const result = new CompletionListener({ successCondition: options.successCondition })
-        .listen(commands)
-        .finally(() => {
-            handleResult.onFinishCallbacks.forEach((onFinish) => onFinish());
-        });
+        .listen(commands, options.abortSignal)
+        .finally(() => Promise.all(handleResult.onFinishCallbacks.map((onFinish) => onFinish())));
 
     return {
         result,
@@ -243,6 +261,7 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
         name: command.name || '',
         env: command.env || {},
         cwd: command.cwd || '',
+        ipc: command.ipc,
         ...(command.prefixColor
             ? {
                   prefixColor: command.prefixColor,
@@ -258,19 +277,19 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
 
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
-        (commands, parser) => _.flatMap(commands, (command) => parser.parse(command)),
-        _.castArray(command),
+        (commands, parser) => commands.flatMap((command) => parser.parse(command)),
+        castArray(command),
     );
 }
 
-function maybeRunMore(commandsLeft: Command[]) {
+function maybeRunMore(commandsLeft: Command[], abortSignal?: AbortSignal) {
     const command = commandsLeft.shift();
-    if (!command) {
+    if (!command || abortSignal?.aborted) {
         return;
     }
 
     command.start();
     command.close.subscribe(() => {
-        maybeRunMore(commandsLeft);
+        maybeRunMore(commandsLeft, abortSignal);
     });
 }

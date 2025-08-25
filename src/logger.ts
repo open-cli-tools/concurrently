@@ -1,23 +1,40 @@
-import chalk from 'chalk';
-import formatDate from 'date-fns/format';
-import _ from 'lodash';
+import chalk, { Chalk } from 'chalk';
 import * as Rx from 'rxjs';
 
 import { Command, CommandIdentifier } from './command';
+import { DateFormatter } from './date-format';
 import * as defaults from './defaults';
+import { escapeRegExp } from './utils';
+
+const defaultChalk = chalk;
+const noColorChalk = new chalk.Instance({ level: 0 });
+
+function getChalkPath(chalk: Chalk, path: string): Chalk | undefined {
+    return path
+        .split('.')
+        .reduce((prev, key) => (prev as unknown as Record<string, Chalk>)[key], chalk);
+}
 
 export class Logger {
     private readonly hide: CommandIdentifier[];
     private readonly raw: boolean;
     private readonly prefixFormat?: string;
-    private readonly prefixLength: number;
-    private readonly timestampFormat: string;
+    private readonly commandLength: number;
+    private readonly dateFormatter: DateFormatter;
+
+    private chalk: Chalk = defaultChalk;
 
     /**
-     * Last character emitted.
+     * How many characters should a prefix have.
+     * Prefixes shorter than this will be padded with spaces to the right.
+     */
+    private prefixLength = 0;
+
+    /**
+     * Last character emitted, and from which command.
      * If `undefined`, then nothing has been logged yet.
      */
-    private lastChar?: string;
+    private lastWrite?: { command: Command | undefined; char: string };
 
     /**
      * Observable that emits when there's been output logged.
@@ -28,14 +45,14 @@ export class Logger {
     constructor({
         hide,
         prefixFormat,
-        prefixLength,
+        commandLength,
         raw = false,
         timestampFormat,
     }: {
         /**
-         * Which command(s) should have their output hidden.
+         * Which commands should have their output hidden.
          */
-        hide?: CommandIdentifier | CommandIdentifier[];
+        hide?: CommandIdentifier[];
 
         /**
          * Whether output should be formatted to include prefixes and whether "event" logs will be
@@ -50,85 +67,104 @@ export class Logger {
         prefixFormat?: string;
 
         /**
-         * How many characters should a prefix have at most, used when the prefix format is `command`.
+         * How many characters should a prefix have at most when the format is `command`.
          */
-        prefixLength?: number;
+        commandLength?: number;
 
         /**
          * Date format used when logging date/time.
-         * @see https://date-fns.org/v2.0.1/docs/format
+         * @see https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
          */
         timestampFormat?: string;
     }) {
-        // To avoid empty strings from hiding the output of commands that don't have a name,
-        // keep in the list of commands to hide only strings with some length.
-        // This might happen through the CLI when no `--hide` argument is specified, for example.
-        this.hide = _.castArray(hide)
-            .filter((name) => name || name === 0)
-            .map(String);
+        this.hide = (hide || []).map(String);
         this.raw = raw;
         this.prefixFormat = prefixFormat;
-        this.prefixLength = prefixLength || defaults.prefixLength;
-        this.timestampFormat = timestampFormat || defaults.timestampFormat;
+        this.commandLength = commandLength || defaults.prefixLength;
+        this.dateFormatter = new DateFormatter(timestampFormat || defaults.timestampFormat);
+    }
+
+    /**
+     * Toggles colors on/off globally.
+     */
+    toggleColors(on: boolean) {
+        this.chalk = on ? defaultChalk : noColorChalk;
     }
 
     private shortenText(text: string) {
-        if (!text || text.length <= this.prefixLength) {
+        if (!text || text.length <= this.commandLength) {
             return text;
         }
 
         const ellipsis = '..';
-        const prefixLength = this.prefixLength - ellipsis.length;
+        const prefixLength = this.commandLength - ellipsis.length;
         const endLength = Math.floor(prefixLength / 2);
         const beginningLength = prefixLength - endLength;
 
-        const beginnning = text.slice(0, beginningLength);
+        const beginning = text.slice(0, beginningLength);
         const end = text.slice(text.length - endLength, text.length);
-        return beginnning + ellipsis + end;
+        return beginning + ellipsis + end;
     }
 
     private getPrefixesFor(command: Command): Record<string, string> {
         return {
-            pid: String(command.pid),
+            // When there's limited concurrency, the PID might not be immediately available,
+            // so avoid the string 'undefined' from becoming a prefix
+            pid: command.pid != null ? String(command.pid) : '',
             index: String(command.index),
             name: command.name,
             command: this.shortenText(command.command),
-            time: formatDate(Date.now(), this.timestampFormat),
+            time: this.dateFormatter.format(new Date()),
         };
     }
 
-    getPrefix(command: Command) {
+    getPrefixContent(
+        command: Command,
+    ): { type: 'default' | 'template'; value: string } | undefined {
         const prefix = this.prefixFormat || (command.name ? 'name' : 'index');
         if (prefix === 'none') {
-            return '';
+            return;
         }
 
         const prefixes = this.getPrefixesFor(command);
         if (Object.keys(prefixes).includes(prefix)) {
-            return `[${prefixes[prefix]}]`;
+            return { type: 'default', value: prefixes[prefix] };
         }
 
-        return _.reduce(
-            prefixes,
-            (prev, val, key) => {
-                const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
-                return prev.replace(keyRegex, String(val));
-            },
-            prefix,
-        );
+        const value = Object.entries(prefixes).reduce((prev, [key, val]) => {
+            const keyRegex = new RegExp(escapeRegExp(`{${key}}`), 'g');
+            return prev.replace(keyRegex, String(val));
+        }, prefix);
+        return { type: 'template', value };
+    }
+
+    getPrefix(command: Command): string {
+        const content = this.getPrefixContent(command);
+        if (!content) {
+            return '';
+        }
+
+        return content.type === 'template'
+            ? content.value.padEnd(this.prefixLength, ' ')
+            : `[${content.value.padEnd(this.prefixLength, ' ')}]`;
+    }
+
+    setPrefixLength(length: number) {
+        this.prefixLength = length;
     }
 
     colorText(command: Command, text: string) {
         let color: chalk.Chalk;
-        if (command.prefixColor && command.prefixColor.startsWith('#')) {
+        if (command.prefixColor?.startsWith('#')) {
             const [hexColor, ...modifiers] = command.prefixColor.split('.');
-            color = chalk.hex(hexColor);
-            if (modifiers.length) {
-                color = _.get(color, modifiers);
+            color = this.chalk.hex(hexColor);
+            const modifiedColor = getChalkPath(color, modifiers.join('.'));
+            if (modifiedColor) {
+                color = modifiedColor;
             }
         } else {
-            const defaultColor = _.get(chalk, defaults.prefixColors, chalk.reset);
-            color = _.get(chalk, command.prefixColor ?? '', defaultColor);
+            const defaultColor = getChalkPath(this.chalk, defaults.prefixColors) as Chalk;
+            color = getChalkPath(this.chalk, command.prefixColor ?? '') ?? defaultColor;
         }
         return color(text);
     }
@@ -143,7 +179,14 @@ export class Logger {
             return;
         }
 
-        this.logCommandText(chalk.reset(text) + '\n', command);
+        // Last write was from this command, but it didn't end with a line feed.
+        // Prepend one, otherwise the event's text will be concatenated to that write.
+        // A line feed is otherwise inserted anyway.
+        let prefix = '';
+        if (this.lastWrite?.command === command && this.lastWrite.char !== '\n') {
+            prefix = '\n';
+        }
+        this.logCommandText(prefix + this.chalk.reset(text) + '\n', command);
     }
 
     logCommandText(text: string, command: Command) {
@@ -165,7 +208,7 @@ export class Logger {
             return;
         }
 
-        this.log(chalk.reset('-->') + ' ', chalk.reset(text) + '\n');
+        this.log(this.chalk.reset('-->') + ' ', this.chalk.reset(text) + '\n');
     }
 
     /**
@@ -237,24 +280,22 @@ export class Logger {
         // #70 - replace some ANSI code that would impact clearing lines
         text = text.replace(/\u2026/g, '...');
 
-        const lines = text.split('\n').map((line, index, lines) => {
-            // First line will write prefix only if we finished the last write with a LF.
-            // Last line won't write prefix because it should be empty.
-            if (index === 0 || index === lines.length - 1) {
-                return line;
-            }
-            return prefix + line;
-        });
+        // This write's interrupting another command, emit a line feed to start clean.
+        if (this.lastWrite && this.lastWrite.command !== command && this.lastWrite.char !== '\n') {
+            this.emit(this.lastWrite.command, '\n');
+        }
 
-        if (!this.lastChar || this.lastChar === '\n') {
+        // Clean lines should emit a prefix
+        if (!this.lastWrite || this.lastWrite.char === '\n') {
             this.emit(command, prefix);
         }
 
-        this.lastChar = text[text.length - 1];
-        this.emit(command, lines.join('\n'));
+        const textToWrite = text.replaceAll('\n', (lf, i) => lf + (text[i + 1] ? prefix : ''));
+        this.emit(command, textToWrite);
     }
 
     emit(command: Command | undefined, text: string) {
+        this.lastWrite = { command, char: text[text.length - 1] };
         this.output.next({ command, text });
     }
 }

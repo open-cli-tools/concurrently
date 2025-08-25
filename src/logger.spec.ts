@@ -1,5 +1,6 @@
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import chalk from 'chalk';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeCommand } from './fixtures/fake-command';
 import { Logger } from './logger';
@@ -11,7 +12,7 @@ beforeEach(() => {
 
 const createLogger = (...options: ConstructorParameters<typeof Logger>) => {
     const logger = new Logger(...options);
-    jest.spyOn(logger, 'log');
+    vi.spyOn(logger, 'log');
     const spy = subscribeSpyTo(logger.output);
     return { logger, spy };
 };
@@ -37,13 +38,29 @@ describe('#log()', () => {
         expect(values[1]).toEqual({ command: undefined, text: 'bar\nfoobaz\n' });
     });
 
-    it('does not emit prefix if last call did not finish with a LF', () => {
+    it('does not emit prefix if previous call from same command did not finish with a LF', () => {
         const { logger, spy } = createLogger({});
-        logger.log('foo', 'bar');
-        logger.log('foo', 'baz');
+        const command = new FakeCommand();
+        logger.log('foo', 'bar', command);
+        logger.log('foo', 'baz', command);
 
         expect(spy.getValuesLength()).toBe(3);
-        expect(spy.getLastValue()).toEqual({ command: undefined, text: 'baz' });
+        expect(spy.getLastValue()).toEqual({ command, text: 'baz' });
+    });
+
+    it('emits LF and prefix if previous call is from different command and did not finish with a LF', () => {
+        const { logger, spy } = createLogger({});
+        const command1 = new FakeCommand();
+        logger.log('foo', 'bar', command1);
+
+        const command2 = new FakeCommand();
+        logger.log('foo', 'baz', command2);
+
+        const values = spy.getValues();
+        expect(values).toHaveLength(5);
+        expect(values).toContainEqual({ command: command1, text: '\n' });
+        expect(values).toContainEqual({ command: command2, text: 'foo' });
+        expect(values).toContainEqual({ command: command2, text: 'baz' });
     });
 
     it('does not emit prefix nor handle text if logger is in raw mode', () => {
@@ -158,12 +175,30 @@ describe('#logCommandText()', () => {
         expect(logger.log).toHaveBeenCalledWith(chalk.reset('[echo foo]') + ' ', 'foo', cmd);
     });
 
-    it('logs prefix using command line itself, capped at prefixLength bytes', () => {
-        const { logger } = createLogger({ prefixFormat: 'command', prefixLength: 6 });
+    it('logs prefix using command line itself, capped at commandLength bytes', () => {
+        const { logger } = createLogger({ prefixFormat: 'command', commandLength: 6 });
         const cmd = new FakeCommand();
         logger.logCommandText('foo', cmd);
 
         expect(logger.log).toHaveBeenCalledWith(chalk.reset('[ec..oo]') + ' ', 'foo', cmd);
+    });
+
+    it('logs default prefixes with padding', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('foo');
+        logger.setPrefixLength(5);
+        logger.logCommandText('bar', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[foo  ]') + ' ', 'bar', cmd);
+    });
+
+    it('logs templated prefixes with padding', () => {
+        const { logger } = createLogger({ prefixFormat: '{name}-{index}' });
+        const cmd = new FakeCommand('foo', undefined, 0);
+        logger.setPrefixLength(6);
+        logger.logCommandText('bar', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(chalk.reset('foo-0 ') + ' ', 'bar', cmd);
     });
 
     it('logs prefix using prefixColor from command', () => {
@@ -264,6 +299,19 @@ describe('#logCommandEvent()', () => {
             cmd,
         );
     });
+
+    it('prepends a LF if previous command write did not end with a LF', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1);
+        logger.logCommandText('text', cmd);
+        logger.logCommandEvent('event', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.reset('[1]') + ' ',
+            '\n' + chalk.reset('event') + '\n',
+            cmd,
+        );
+    });
 });
 
 describe('#logTable()', () => {
@@ -284,7 +332,7 @@ describe('#logTable()', () => {
         expect(logger.log).not.toHaveBeenCalled();
     });
 
-    it('does not log anything if array is empy', () => {
+    it('does not log anything if array is empty', () => {
         const { logger } = createLogger({});
         logger.logTable([]);
 
@@ -372,5 +420,33 @@ describe('#logTable()', () => {
             chalk.reset('-->') + ' ',
             chalk.reset('│     │ 2   │') + '\n',
         );
+    });
+});
+
+describe('#toggleColors()', () => {
+    it('uses supported color level when on', () => {
+        const { logger, spy } = createLogger({});
+        logger.toggleColors(true);
+
+        const command1 = new FakeCommand('foo', 'command', 0, { prefixColor: 'red' });
+        logger.logCommandText('bar', command1);
+        logger.logGlobalEvent('baz');
+
+        const texts = spy.getValues().map((value) => value.text);
+        expect(texts).toContain(chalk.red('[foo]') + ' ');
+        expect(texts).toContain(chalk.reset('-->') + ' ');
+    });
+
+    it('uses no colors when off', () => {
+        const { logger, spy } = createLogger({});
+        logger.toggleColors(false);
+
+        const command1 = new FakeCommand('foo', 'command', 0, { prefixColor: 'red' });
+        logger.logCommandText('bar', command1);
+        logger.logGlobalEvent('baz');
+
+        const texts = spy.getValues().map((value) => value.text);
+        expect(texts).toContain('[foo] ');
+        expect(texts).toContain('--> ');
     });
 });

@@ -1,36 +1,37 @@
-import { createMockInstance } from 'jest-create-mock-instance';
 import os from 'os';
 import { Writable } from 'stream';
+import { beforeEach, expect, it, Mock, MockedObject, vi } from 'vitest';
 
 import { ChildProcess, KillProcess, SpawnCommand } from './command';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently';
+import { createMockInstance } from './fixtures/create-mock-instance';
 import { createFakeProcess, FakeCommand } from './fixtures/fake-command';
 import { FlowController } from './flow-control/flow-controller';
 import { Logger } from './logger';
 
 let spawn: SpawnCommand;
 let kill: KillProcess;
-let onFinishHooks: (() => void)[];
-let controllers: jest.Mocked<FlowController>[];
+let onFinishHooks: Mock[];
+let controllers: MockedObject<FlowController>[];
 let processes: ChildProcess[];
 const create = (commands: ConcurrentlyCommandInput[], options: Partial<ConcurrentlyOptions> = {}) =>
     concurrently(commands, Object.assign(options, { controllers, spawn, kill }));
 
 beforeEach(() => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
 
     processes = [];
-    spawn = jest.fn(() => {
+    spawn = vi.fn(() => {
         const process = createFakeProcess(processes.length);
         processes.push(process);
         return process;
     });
-    kill = jest.fn();
+    kill = vi.fn();
 
-    onFinishHooks = [jest.fn(), jest.fn()];
+    onFinishHooks = [vi.fn(), vi.fn()];
     controllers = [
-        { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[0] })) },
-        { handle: jest.fn((commands) => ({ commands, onFinish: onFinishHooks[1] })) },
+        { handle: vi.fn((commands) => ({ commands, onFinish: onFinishHooks[0] })) },
+        { handle: vi.fn((commands) => ({ commands, onFinish: onFinishHooks[1] })) },
     ];
 });
 
@@ -62,6 +63,18 @@ it('log output is passed to output stream if logger is specified in options', ()
     expect(outputStream.write).toHaveBeenCalledWith('bar');
 });
 
+it('log output is not passed to output stream after it has errored', () => {
+    const logger = new Logger({ hide: [] });
+    const outputStream = new Writable();
+    vi.spyOn(outputStream, 'write');
+
+    create(['foo'], { logger, outputStream });
+    outputStream.emit('error', new Error());
+    logger.log('foo', 'bar');
+
+    expect(outputStream.write).not.toHaveBeenCalled();
+});
+
 it('spawns commands up to configured limit at once', () => {
     create(['foo', 'bar', 'baz', 'qux'], { maxProcesses: 2 });
     expect(spawn).toHaveBeenCalledTimes(2);
@@ -84,7 +97,7 @@ it('spawns commands up to configured limit at once', () => {
 
 it('spawns commands up to percent based limit at once', () => {
     // Mock architecture with 4 cores
-    const cpusSpy = jest.spyOn(os, 'cpus');
+    const cpusSpy = vi.spyOn(os, 'cpus');
     cpusSpy.mockReturnValue(
         new Array(4).fill({
             model: 'Intel',
@@ -109,6 +122,16 @@ it('spawns commands up to percent based limit at once', () => {
     processes[1].emit('close', 1, null);
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('qux', expect.objectContaining({}));
+});
+
+it('does not spawn further commands on abort signal aborted', () => {
+    const abortController = new AbortController();
+    create(['foo', 'bar'], { maxProcesses: 1, abortSignal: abortController.signal });
+    expect(spawn).toHaveBeenCalledTimes(1);
+
+    abortController.abort();
+    processes[0].emit('close', 0, null);
+    expect(spawn).toHaveBeenCalledTimes(1);
 });
 
 it('runs controllers with the commands', () => {
@@ -262,13 +285,13 @@ it('uses raw from options for each command', () => {
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
-            stdio: 'inherit',
+            stdio: ['inherit', 'inherit', 'inherit'],
         }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'kill',
         expect.objectContaining({
-            stdio: 'inherit',
+            stdio: ['inherit', 'inherit', 'inherit'],
         }),
     );
 });
@@ -281,14 +304,55 @@ it('uses overridden raw option for each command if specified', () => {
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith(
         'echo',
-        expect.not.objectContaining({
-            stdio: expect.anything(),
+        expect.objectContaining({
+            stdio: ['pipe', 'pipe', 'pipe'],
         }),
     );
     expect(spawn).toHaveBeenCalledWith(
         'echo',
         expect.objectContaining({
-            stdio: 'inherit',
+            stdio: ['inherit', 'inherit', 'inherit'],
+        }),
+    );
+});
+
+it('uses hide from options for each command', () => {
+    create([{ command: 'echo' }, 'kill'], {
+        hide: [1],
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            stdio: ['pipe', 'pipe', 'pipe'],
+        }),
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            stdio: ['pipe', 'ignore', 'ignore'],
+        }),
+    );
+});
+
+it('hides output for commands even if raw option is on', () => {
+    create([{ command: 'echo' }, 'kill'], {
+        hide: [1],
+        raw: true,
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            stdio: ['inherit', 'inherit', 'inherit'],
+        }),
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            stdio: ['pipe', 'ignore', 'ignore'],
         }),
     );
 });
@@ -344,4 +408,25 @@ it('runs onFinish hook after all commands run', async () => {
 
     expect(onFinishHooks[0]).toHaveBeenCalled();
     expect(onFinishHooks[1]).toHaveBeenCalled();
+});
+
+// This test should time out if broken
+it('waits for onFinish hooks to complete before resolving', async () => {
+    onFinishHooks[0].mockResolvedValue(undefined);
+    const { result } = create(['foo', 'bar']);
+
+    processes[0].emit('close', 0, null);
+    processes[1].emit('close', 0, null);
+
+    await expect(result).resolves.toBeDefined();
+});
+
+it('rejects if onFinish hooks reject', async () => {
+    onFinishHooks[0].mockRejectedValue('error');
+    const { result } = create(['foo', 'bar']);
+
+    processes[0].emit('close', 0, null);
+    processes[1].emit('close', 0, null);
+
+    await expect(result).rejects.toBe('error');
 });

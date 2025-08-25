@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "concurrently": "workspace:*"
+  },
+  "scripts": {
+    "test": "pnpm --workspace-root test:smoke"
+  }
+}

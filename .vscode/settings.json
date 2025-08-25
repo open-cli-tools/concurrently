@@ -1,10 +1,17 @@
 {
-  "jest.showCoverageOnLoad": true,
-  "editor.codeActionsOnSave": { "source.fixAll.eslint": true },
+  // For contributors with the Jest extension installed,
+  // it might incorrectly report errors in the suite
+  "jest.enable": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "[javascript, typescript]": {
     "editor.formatOnSave": false
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "editor.rulers": [100]
 }

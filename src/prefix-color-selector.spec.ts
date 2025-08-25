@@ -1,9 +1,10 @@
 import chalk from 'chalk';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { PrefixColorSelector } from './prefix-color-selector';
 
 afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
 });
 
 describe('#getNextColor', function () {
@@ -11,7 +12,7 @@ describe('#getNextColor', function () {
         string,
         {
             acceptableConsoleColors?: Array<keyof typeof chalk>;
-            customColors?: string[];
+            customColors?: string | string[];
             expectedColors: string[];
         }
     > = {
@@ -34,6 +35,10 @@ describe('#getNextColor', function () {
                 'blue',
                 'blue',
             ],
+        },
+        'accepts a string value for customColors': {
+            customColors: 'red',
+            expectedColors: ['red', 'red'],
         },
         'picks varying colors when user defines an auto color': {
             acceptableConsoleColors: ['green', 'blue'],
@@ -127,7 +132,7 @@ describe('#getNextColor', function () {
         '%s',
         (_, { acceptableConsoleColors, customColors, expectedColors }) => {
             if (acceptableConsoleColors) {
-                jest.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue(
+                vi.spyOn(PrefixColorSelector, 'ACCEPTABLE_CONSOLE_COLORS', 'get').mockReturnValue(
                     acceptableConsoleColors,
                 );
             }
@@ -155,12 +160,13 @@ describe('#getNextColor', function () {
             map ? expectedColors.map(() => 'auto') : ['auto'],
         );
 
-        expectedColors.reduce((previousColor, currentExpectedColor) => {
+        let previousColor = '';
+        for (const expectedColor of expectedColors) {
             const actualSelectedColor = prefixColorSelector.getNextColor();
             expect(actualSelectedColor).not.toBe(previousColor); // No consecutive colors
-            expect(actualSelectedColor).toBe(currentExpectedColor); // Expected color
-            return actualSelectedColor;
-        }, '');
+            expect(actualSelectedColor).toBe(expectedColor); // Expected color
+            previousColor = actualSelectedColor;
+        }
     });
 });
 
