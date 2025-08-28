@@ -224,7 +224,7 @@ describe('tokens', () => {
             });
 
             makeTests(
-                // needs to be a different locale than in tests to not use cached weekInfo
+                // Needs to be a different locale than in tests above to not use cached weekInfo
                 'with de-CH locale',
                 'Y',
                 [
