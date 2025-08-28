@@ -58,10 +58,11 @@ tired of opening terminals and made **concurrently**.
 
 The tool is written in Node.js, but you can use it to run **any** commands.
 
-Remember to surround separate commands with **double quotes**:
+Remember to surround separate commands with the appropriate quotes:
 
 > **Note**
-> The use of double quotes instead of single quotes is important to maintain compatibility between different operating systems.
+> Depending on the OS, shell and command in question, you might have to use different quotes.
+> For example, double quotes are typically used for Windows CMD, whereas in POSIX environments as well as PowerShell, single quotes can be used if the interpretation of variables and special characters is to be prevented.
 
 ```bash
 concurrently "command1 arg" "command2 arg"
@@ -176,7 +177,6 @@ It has the following properties:
 - `error`: an RxJS observable to the command's error events (e.g. when it fails to spawn).
 - `timer`: an RxJS observable to the command's timing events (e.g. starting, stopping).
 - `messages`: an object with the following properties:
-
   - `incoming`: an RxJS observable for the IPC messages received from the underlying process.
   - `outgoing`: an RxJS observable for the IPC messages sent to the underlying process.
 
