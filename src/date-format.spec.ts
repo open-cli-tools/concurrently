@@ -12,10 +12,11 @@ type TokenTests = undefined | { input: string; expected: string }[];
  *
  * Each entry in `patternTests` makes the token longer, e.g.
  * ```
- * makeTests('era', 'G', [
- *   [/* test cases */], // G
- *   [/* test cases */], // GG
- *   [/* test cases */], // GGG
+ * makeTests('year', 'y', [
+ *     [{ expected: '2', input: withDate('0002-01-01') }], // y
+ *     [{ expected: '02', input: withDate('0002-01-01') }], // yy
+ *     // ...
+ * ]);
  * ```
  */
 const makeTests = (
