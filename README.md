@@ -61,7 +61,7 @@ The tool is written in Node.js, but you can use it to run **any** commands.
 Remember to surround separate commands with quotes:
 
 ```bash
-concurrently "command1 arg" "command2 arg"
+concurrently 'command1 arg' 'command2 arg'
 ```
 
 Otherwise **concurrently** would try to run 4 separate commands:
@@ -70,7 +70,7 @@ Otherwise **concurrently** would try to run 4 separate commands:
 In package.json, escape quotes:
 
 ```bash
-"start": "concurrently \"command1 arg\" \"command2 arg\""
+"start": "concurrently 'command1 arg' 'command2 arg'"
 ```
 
 You can always check concurrently's flag list by running `concurrently --help`.
@@ -88,7 +88,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
   with the shape `{ command, name, prefixColor, env, cwd, ipc }`.
 
 - `options` (optional): an object containing any of the below:
-  - `cwd`: the working directory to be used by all commands. Can be overriden per command.
+  - `cwd`: the working directory to be used by all commands. Can be overridden per command.
     Default: `process.cwd()`.
   - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
@@ -96,8 +96,8 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
   - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
     to read the input from. Should only be used in the rare instance you would like to stream anything other than `process.stdin`. Overrides `handleInput`.
   - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
-  - `killOthers`: an array of exitting conditions that will cause a process to kill others.
-    Can contain any of `success` or `failure`.
+  - `killOthersOn`: once the first command exits with one of these statuses, kill other commands.
+    Can be an array containing the strings `success` (status code zero) and/or `failure` (non-zero exit status).
   - `maxProcesses`: how many processes should run at once.
   - `outputStream`: a [`Writable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_writable_streams)
     to write logs to. Default: `process.stdout`.
@@ -109,14 +109,14 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
   - `raw`: whether raw mode should be used, meaning strictly process output will
-    be logged, without any prefixes, coloring or extra stuff. Can be overriden per command.
+    be logged, without any prefixes, coloring or extra stuff. Can be overridden per command.
   - `successCondition`: the condition to consider the run was successful.
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.
   - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
   - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
   - `timestampFormat`: a [Unicode format](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
-    to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.ZZZ`
+    to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.SSS`
   - `additionalArguments`: list of additional arguments passed that will get replaced in each command. If not defined, no argument replacing will happen.
 
 > **Returns:** an object in the shape `{ result, commands }`.
@@ -142,7 +142,7 @@ const { result } = concurrently(
   ],
   {
     prefix: 'name',
-    killOthers: ['failure', 'success'],
+    killOthersOn: ['failure', 'success'],
     restartTries: 3,
     cwd: path.resolve(__dirname, 'scripts'),
   },
@@ -172,8 +172,8 @@ It has the following properties:
 - `stderr`: an RxJS observable to the command's `stderr`.
 - `error`: an RxJS observable to the command's error events (e.g. when it fails to spawn).
 - `timer`: an RxJS observable to the command's timing events (e.g. starting, stopping).
+- `stateChange`: an RxJS observable for changes to the command's `state` property.
 - `messages`: an object with the following properties:
-
   - `incoming`: an RxJS observable for the IPC messages received from the underlying process.
   - `outgoing`: an RxJS observable for the IPC messages sent to the underlying process.
 

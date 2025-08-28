@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-import _ from 'lodash';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
+import { assertDeprecated } from '../src/assert';
 import * as defaults from '../src/defaults';
 import { concurrently } from '../src/index';
+import { castArray } from '../src/utils';
 import { readPackage } from './read-package';
 
 const version = String(readPackage().version);
@@ -119,7 +120,7 @@ const program = yargs(hideBin(process.argv))
         // Kill others
         'kill-others': {
             alias: 'k',
-            describe: 'Kill other processes if one exits or dies.',
+            describe: 'Kill other processes once the first exits.',
             type: 'boolean',
         },
         'kill-others-on-fail': {
@@ -132,6 +133,10 @@ const program = yargs(hideBin(process.argv))
                 'Signal to send to other processes if one exits or dies. (SIGTERM/SIGKILL, defaults to SIGTERM)',
             type: 'string',
             default: defaults.killSignal,
+        },
+        'kill-timeout': {
+            describe: 'How many milliseconds to wait before forcing process terminating.',
+            type: 'number',
         },
 
         // Prefix
@@ -214,16 +219,21 @@ const program = yargs(hideBin(process.argv))
     )
     .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
-    .group(['k', 'kill-others-on-fail', 'kill-signal'], 'Killing other processes')
+    .group(['k', 'kill-others-on-fail', 'kill-signal', 'kill-timeout'], 'Killing other processes')
     .group(['restart-tries', 'restart-after'], 'Restarting')
     .epilogue(epilogue);
 
 const args = program.parseSync();
+assertDeprecated(
+    args.nameSeparator === defaults.nameSeparator,
+    'name-separator',
+    'Use commas as name separators instead.',
+);
 
 // Get names of commands by the specified separator
 const names = (args.names || '').split(args.nameSeparator);
 
-const additionalArguments = _.castArray(args['--'] ?? []).map(String);
+const additionalArguments = castArray(args['--'] ?? []).map(String);
 const commands = args.passthroughArguments ? args._ : args._.concat(additionalArguments);
 
 if (!commands.length) {
@@ -239,12 +249,13 @@ concurrently(
     {
         handleInput: args.handleInput,
         defaultInputTarget: args.defaultInputTarget,
-        killOthers: args.killOthers
+        killOthersOn: args.killOthers
             ? ['success', 'failure']
             : args.killOthersOnFail
-            ? ['failure']
-            : [],
+              ? ['failure']
+              : [],
         killSignal: args.killSignal,
+        killTimeout: args.killTimeout,
         maxProcesses: args.maxProcesses,
         raw: args.raw,
         hide: args.hide.split(','),

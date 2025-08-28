@@ -5,16 +5,15 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-
 jobs:
   gh-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Create release
         env:
@@ -24,23 +23,20 @@ jobs:
   publish-npm:
     name: Publish to NPM
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org
-
-      - name: Setup pnpm
-        uses: ./.github/actions/setup-pnpm
-
-      - name: Install dependencies
-        run: pnpm install
+          node-registry: https://registry.npmjs.org
 
       - name: Publish to NPM
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
         run: pnpm publish --no-git-checks

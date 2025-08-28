@@ -25,9 +25,9 @@ For example, given the following `package.json` contents:
     "lint:js": "...",
     "lint:ts": "...",
     "lint:fix:js": "...",
-    "lint:fix:ts": "..."
+    "lint:fix:ts": "...",
     // ...
-  }
+  },
   // ...
 }
 ```
@@ -35,9 +35,9 @@ For example, given the following `package.json` contents:
 It's possible to run some of these with the following command line:
 
 ```bash
-$ concurrently "pnpm:lint:js"
+$ concurrently 'pnpm:lint:js'
 # Is equivalent to
-$ concurrently -n lint:js "pnpm run lint:js"
+$ concurrently -n lint:js 'pnpm run lint:js'
 ```
 
 Note that the command automatically receives a name equal to the script name.
@@ -46,17 +46,17 @@ If you have several scripts with similar name patterns, you can use the `*` wild
 The spawned commands will receive names set to whatever the `*` wildcard matched.
 
 ```bash
-$ concurrently "npm:lint:fix:*"
+$ concurrently 'npm:lint:fix:*'
 # is equivalent to
-$ concurrently -n js,ts "npm run lint:fix:js" "npm run lint:fix:ts"
+$ concurrently -n js,ts 'npm run lint:fix:js' 'npm run lint:fix:ts'
 ```
 
 If you specify a command name when using wildcards, it'll be a prefix of what the `*` wildcard matched:
 
 ```bash
-$ concurrently -n fix: "npm:lint:fix:*"
+$ concurrently -n fix: 'npm:lint:fix:*'
 # is equivalent to
-$ concurrently -n fix:js,fix:ts "npm run lint:fix:js" "npm run lint:fix:ts"
+$ concurrently -n fix:js,fix:ts 'npm run lint:fix:js' 'npm run lint:fix:ts'
 ```
 
 Filtering out commands matched by wildcard is also possible. Do this with by including `(!<some pattern>)` in the command line:
@@ -64,7 +64,7 @@ Filtering out commands matched by wildcard is also possible. Do this with by inc
 ```bash
 $ concurrently 'yarn:lint:*(!fix)'
 # is equivalent to
-$ concurrently -n js,ts "yarn run lint:js" "yarn run lint:ts"
+$ concurrently -n js,ts 'yarn run lint:js' 'yarn run lint:ts'
 ```
 
 > [!NOTE]

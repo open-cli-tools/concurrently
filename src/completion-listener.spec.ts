@@ -1,5 +1,6 @@
-import { getEventListeners, getMaxListeners } from 'events';
+import { getEventListeners } from 'events';
 import { TestScheduler } from 'rxjs/testing';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { CloseEvent } from './command';
 import { CompletionListener, SuccessCondition } from './completion-listener';
@@ -7,6 +8,7 @@ import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command';
 
 let commands: FakeCommand[];
 let scheduler: TestScheduler;
+
 beforeEach(() => {
     commands = [
         new FakeCommand('foo', 'echo', 0),
@@ -32,6 +34,11 @@ const emitFakeCloseEvent = (command: FakeCommand, event?: Partial<CloseEvent>) =
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe('listen', () => {
+    it('resolves when there are no commands', async () => {
+        const result = createController().listen([]);
+        await expect(result).resolves.toHaveLength(0);
+    });
+
     it('completes only when commands emit a close event, returns close event', async () => {
         const abortCtrl = new AbortController();
         const result = createController('all').listen(commands, abortCtrl.signal);
@@ -59,16 +66,15 @@ describe('listen', () => {
 
     it('does not leak memory when listening for abort signals', () => {
         const abortCtrl = new AbortController();
-        const maxListeners = getMaxListeners(abortCtrl.signal);
         createController().listen(
-            Array.from({ length: maxListeners + 1 }, () => new FakeCommand()),
+            Array.from({ length: 10 }, () => new FakeCommand()),
             abortCtrl.signal,
         );
         expect(getEventListeners(abortCtrl.signal, 'abort')).toHaveLength(1);
     });
 
     it('check for success once all commands have emitted at least a single close event', async () => {
-        const finallyCallback = jest.fn();
+        const finallyCallback = vi.fn();
         const result = createController().listen(commands).finally(finallyCallback);
 
         // Emitting multiple close events to mimic calling command `kill/start` APIs.
@@ -77,7 +83,7 @@ describe('listen', () => {
         emitFakeCloseEvent(commands[0]);
 
         scheduler.flush();
-        // A broken implementantion will have called finallyCallback only after flushing promises
+        // A broken implementation will have called finallyCallback only after flushing promises
         await flushPromises();
         expect(finallyCallback).not.toHaveBeenCalled();
 
@@ -104,7 +110,7 @@ describe('listen', () => {
     });
 
     it('waits for manually restarted events to close', async () => {
-        const finallyCallback = jest.fn();
+        const finallyCallback = vi.fn();
         const result = createController().listen(commands).finally(finallyCallback);
 
         emitFakeCloseEvent(commands[0]);
@@ -113,7 +119,7 @@ describe('listen', () => {
         emitFakeCloseEvent(commands[2]);
 
         scheduler.flush();
-        // A broken implementantion will have called finallyCallback only after flushing promises
+        // A broken implementation will have called finallyCallback only after flushing promises
         await flushPromises();
         expect(finallyCallback).not.toHaveBeenCalled();
 

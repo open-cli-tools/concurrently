@@ -1,6 +1,6 @@
-import _ from 'lodash';
 import { Readable } from 'stream';
 
+import { assertDeprecated } from './assert';
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command';
 import {
     concurrently as createConcurrently,
@@ -17,9 +17,11 @@ import { LogExit } from './flow-control/log-exit';
 import { LogOutput } from './flow-control/log-output';
 import { LogTimings } from './flow-control/log-timings';
 import { LoggerPadding } from './flow-control/logger-padding';
+import { OutputErrorHandler } from './flow-control/output-error-handler';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process';
 import { Teardown } from './flow-control/teardown';
 import { Logger } from './logger';
+import { castArray } from './utils';
 
 export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 'hide'> & {
     // Logger options
@@ -78,11 +80,25 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
 
     // Process killing options
     /**
-     * Under which condition(s) should other commands be killed when the first one exits.
-     *
+     * @deprecated Use `killOthersOn` instead.
      * @see KillOthers
      */
     killOthers?: ProcessCloseCondition | ProcessCloseCondition[];
+    /**
+     * Once the first command exits with one of these statuses, kill other commands.
+     * @see KillOthers
+     */
+    killOthersOn?: ProcessCloseCondition | ProcessCloseCondition[];
+
+    /**
+     * Signal to send to killed processes.
+     */
+    killSignal?: string;
+
+    /**
+     * How many milliseconds to wait before killing processes.
+     */
+    killTimeout?: number;
 
     // Timing options
     /**
@@ -114,10 +130,12 @@ export function concurrently(
     commands: ConcurrentlyCommandInput[],
     options: Partial<ConcurrentlyOptions> = {},
 ) {
+    assertDeprecated(options.killOthers === undefined, 'killOthers', 'Use killOthersOn instead.');
+
     // To avoid empty strings from hiding the output of commands that don't have a name,
     // keep in the list of commands to hide only strings with some length.
     // This might happen through the CLI when no `--hide` argument is specified, for example.
-    const hide = _.castArray(options.hide).filter((id) => id || id === 0);
+    const hide = castArray(options.hide).filter((id) => id || id === 0);
     const logger =
         options.logger ||
         new Logger({
@@ -133,6 +151,7 @@ export function concurrently(
     }
 
     const abortController = new AbortController();
+    const outputStream = options.outputStream || process.stdout;
 
     return createConcurrently(commands, {
         maxProcesses: options.maxProcesses,
@@ -141,7 +160,7 @@ export function concurrently(
         cwd: options.cwd,
         hide,
         logger,
-        outputStream: options.outputStream || process.stdout,
+        outputStream,
         group: options.group,
         abortSignal: abortController.signal,
         controllers: [
@@ -165,10 +184,12 @@ export function concurrently(
             }),
             new KillOthers({
                 logger,
-                conditions: options.killOthers || [],
+                conditions: options.killOthersOn || options.killOthers || [],
+                timeoutMs: options.killTimeout,
                 killSignal: options.killSignal,
                 abortController,
             }),
+            new OutputErrorHandler({ abortController, outputStream }),
             new LogTimings({
                 logger: options.timings ? logger : undefined,
                 timestampFormat: options.timestampFormat,

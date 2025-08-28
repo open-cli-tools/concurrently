@@ -147,6 +147,14 @@ export class Command implements CommandInfo {
     readonly stdout = new Rx.Subject<Buffer>();
     readonly stderr = new Rx.Subject<Buffer>();
     readonly timer = new Rx.Subject<TimerEvent>();
+
+    /**
+     * A stream of changes to the `#state` property.
+     *
+     * Note that the command never goes back to the `stopped` state, therefore it's not a value
+     * that's emitted by this stream.
+     */
+    readonly stateChange = new Rx.Subject<Exclude<CommandState, 'stopped'>>();
     readonly messages = {
         incoming: new Rx.Subject<MessageEvent>(),
         outgoing: new Rx.ReplaySubject<OutgoingMessageEvent>(),
@@ -186,7 +194,7 @@ export class Command implements CommandInfo {
      */
     start() {
         const child = this.spawn(this.command, this.spawnOpts);
-        this.state = 'started';
+        this.changeState('started');
         this.process = child;
         this.pid = child.pid;
         const startDate = new Date(Date.now());
@@ -199,7 +207,7 @@ export class Command implements CommandInfo {
             const endDate = new Date(Date.now());
             this.timer.next({ startDate, endDate });
             this.error.next(event);
-            this.state = 'errored';
+            this.changeState('errored');
         });
         Rx.fromEvent(child, 'close')
             .pipe(Rx.map((event) => event as [number | null, NodeJS.Signals | null]))
@@ -208,7 +216,7 @@ export class Command implements CommandInfo {
 
                 // Don't override error event
                 if (this.state !== 'errored') {
-                    this.state = 'exited';
+                    this.changeState('exited');
                 }
 
                 const endDate = new Date(Date.now());
@@ -226,17 +234,24 @@ export class Command implements CommandInfo {
                     },
                 });
             });
-        child.stdout &&
+        if (child.stdout) {
             pipeTo(
                 Rx.fromEvent(child.stdout, 'data').pipe(Rx.map((event) => event as Buffer)),
                 this.stdout,
             );
-        child.stderr &&
+        }
+        if (child.stderr) {
             pipeTo(
                 Rx.fromEvent(child.stderr, 'data').pipe(Rx.map((event) => event as Buffer)),
                 this.stderr,
             );
+        }
         this.stdin = child.stdin || undefined;
+    }
+
+    private changeState(state: Exclude<CommandState, 'stopped'>) {
+        this.state = state;
+        this.stateChange.next(state);
     }
 
     private maybeSetupIPC(child: ChildProcess) {
@@ -283,7 +298,11 @@ export class Command implements CommandInfo {
                 handle,
                 options,
                 onSent(error) {
-                    error ? reject(error) : resolve();
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve();
+                    }
                 },
             });
         });

@@ -3,13 +3,15 @@ import { spawn } from 'child_process';
 import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
 import { build } from 'esbuild';
 import fs from 'fs';
-import { escapeRegExp } from 'lodash';
 import os from 'os';
 import path from 'path';
 import * as readline from 'readline';
 import * as Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+
+import { escapeRegExp } from '../src/utils';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string) => {
@@ -183,7 +185,7 @@ describe('exiting conditions', () => {
         // Windows doesn't support sending signals like on POSIX platforms.
         // However, in a console, processes can be interrupted with CTRL+C (like a SIGINT).
         // This is what we simulate here with the help of a wrapper application.
-        const child = run('"node fixtures/read-echo.js"', isWindows ? true : false);
+        const child = run('"node fixtures/read-echo.js"', isWindows);
         // Wait for command to have started before sending SIGINT
         child.log.subscribe((line) => {
             if (/READING/.test(line)) {

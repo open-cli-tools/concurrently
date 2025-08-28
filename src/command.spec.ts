@@ -1,8 +1,9 @@
-import { autoUnsubscribe, subscribeSpyTo } from '@hirez_io/observer-spy';
+import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { SendHandle, SpawnOptions } from 'child_process';
 import { EventEmitter } from 'events';
 import * as Rx from 'rxjs';
 import { Readable, Writable } from 'stream';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import {
     ChildProcess,
@@ -16,16 +17,14 @@ import {
 type CommandValues = { error: unknown; close: CloseEvent; timer: unknown[] };
 
 let process: ChildProcess;
-let sendMessage: jest.Mock;
-let spawn: jest.Mocked<SpawnCommand>;
+let sendMessage: Mock;
+let spawn: Mock<SpawnCommand>;
 let killProcess: KillProcess;
 
 const IPC_FD = 3;
 
-autoUnsubscribe();
-
 beforeEach(() => {
-    sendMessage = jest.fn();
+    sendMessage = vi.fn();
     process = new (class extends EventEmitter {
         readonly pid = 1;
         send = sendMessage;
@@ -45,8 +44,8 @@ beforeEach(() => {
             },
         });
     })();
-    spawn = jest.fn().mockReturnValue(process);
-    killProcess = jest.fn();
+    spawn = vi.fn().mockReturnValue(process);
+    killProcess = vi.fn();
 });
 
 const createCommand = (overrides?: Partial<CommandInfo>, spawnOpts: SpawnOptions = {}) => {
@@ -108,18 +107,31 @@ describe('#start()', () => {
         expect(command.stdin).toBe(process.stdin);
     });
 
-    it('changes state to started', () => {
+    it('handles process with no stdin', () => {
+        process.stdin = null;
         const { command } = createCommand();
         command.start();
+
+        expect(command.stdin).toBe(undefined);
+    });
+
+    it('changes state to started', () => {
+        const { command } = createCommand();
+        const spy = subscribeSpyTo(command.stateChange);
+        command.start();
         expect(command.state).toBe('started');
+        expect(spy.getFirstValue()).toBe('started');
     });
 
     describe('on errors', () => {
         it('changes state to errored', () => {
             const { command } = createCommand();
             command.start();
+
+            const spy = subscribeSpyTo(command.stateChange);
             process.emit('error', 'foo');
             expect(command.state).toBe('errored');
+            expect(spy.getFirstValue()).toBe('errored');
         });
 
         it('shares to the error stream', async () => {
@@ -136,7 +148,7 @@ describe('#start()', () => {
             const { command, values } = createCommand();
             const startDate = new Date();
             const endDate = new Date(startDate.getTime() + 1000);
-            jest.spyOn(Date, 'now')
+            vi.spyOn(Date, 'now')
                 .mockReturnValueOnce(startDate.getTime())
                 .mockReturnValueOnce(endDate.getTime());
             command.start();
@@ -152,23 +164,29 @@ describe('#start()', () => {
         it('changes state to exited', () => {
             const { command } = createCommand();
             command.start();
+
+            const spy = subscribeSpyTo(command.stateChange);
             process.emit('close', 0, null);
             expect(command.state).toBe('exited');
+            expect(spy.getFirstValue()).toBe('exited');
         });
 
         it('does not change state if there was an error', () => {
             const { command } = createCommand();
             command.start();
             process.emit('error', 'foo');
+
+            const spy = subscribeSpyTo(command.stateChange);
             process.emit('close', 0, null);
             expect(command.state).toBe('errored');
+            expect(spy.getValuesLength()).toBe(0);
         });
 
         it('shares start and close timing events to the timing stream', async () => {
             const { command, values } = createCommand();
             const startDate = new Date();
             const endDate = new Date(startDate.getTime() + 1000);
-            jest.spyOn(Date, 'now')
+            vi.spyOn(Date, 'now')
                 .mockReturnValueOnce(startDate.getTime())
                 .mockReturnValueOnce(endDate.getTime());
             command.start();
@@ -202,10 +220,10 @@ describe('#start()', () => {
             const { command, values } = createCommand();
             const startDate = new Date();
             const endDate = new Date(startDate.getTime() + 1000);
-            jest.spyOn(Date, 'now')
+            vi.spyOn(Date, 'now')
                 .mockReturnValueOnce(startDate.getTime())
                 .mockReturnValueOnce(endDate.getTime());
-            jest.spyOn(global.process, 'hrtime')
+            vi.spyOn(global.process, 'hrtime')
                 .mockReturnValueOnce([0, 0])
                 .mockReturnValueOnce([1, 1e8]);
             command.start();
@@ -293,7 +311,7 @@ describe('#start()', () => {
                 send: undefined,
             });
 
-            const onSent = jest.fn();
+            const onSent = vi.fn();
             command.messages.outgoing.next({ message: {}, onSent });
             expect(onSent).toHaveBeenCalledWith(expect.any(Error));
         });
@@ -350,7 +368,7 @@ describe('#start()', () => {
             const { command } = createCommand({ ipc: IPC_FD });
             command.start();
 
-            const onSent = jest.fn();
+            const onSent = vi.fn();
             command.messages.outgoing.next({ message: {}, onSent });
             expect(onSent).not.toHaveBeenCalled();
 

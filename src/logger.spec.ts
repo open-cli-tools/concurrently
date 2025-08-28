@@ -1,5 +1,6 @@
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import chalk from 'chalk';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FakeCommand } from './fixtures/fake-command';
 import { Logger } from './logger';
@@ -11,7 +12,7 @@ beforeEach(() => {
 
 const createLogger = (...options: ConstructorParameters<typeof Logger>) => {
     const logger = new Logger(...options);
-    jest.spyOn(logger, 'log');
+    vi.spyOn(logger, 'log');
     const spy = subscribeSpyTo(logger.output);
     return { logger, spy };
 };
@@ -316,7 +317,7 @@ describe('#logTable()', () => {
         expect(logger.log).not.toHaveBeenCalled();
     });
 
-    it('does not log anything if array is empy', () => {
+    it('does not log anything if array is empty', () => {
         const { logger } = createLogger({});
         logger.logTable([]);
 

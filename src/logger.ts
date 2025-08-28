@@ -1,13 +1,19 @@
 import chalk, { Chalk } from 'chalk';
-import _ from 'lodash';
 import * as Rx from 'rxjs';
 
 import { Command, CommandIdentifier } from './command';
 import { DateFormatter } from './date-format';
 import * as defaults from './defaults';
+import { escapeRegExp } from './utils';
 
 const defaultChalk = chalk;
 const noColorChalk = new chalk.Instance({ level: 0 });
+
+function getChalkPath(chalk: Chalk, path: string): Chalk | undefined {
+    return path
+        .split('.')
+        .reduce((prev, key) => (prev as unknown as Record<string, Chalk>)[key], chalk);
+}
 
 export class Logger {
     private readonly hide: CommandIdentifier[];
@@ -95,9 +101,9 @@ export class Logger {
         const endLength = Math.floor(prefixLength / 2);
         const beginningLength = prefixLength - endLength;
 
-        const beginnning = text.slice(0, beginningLength);
+        const beginning = text.slice(0, beginningLength);
         const end = text.slice(text.length - endLength, text.length);
-        return beginnning + ellipsis + end;
+        return beginning + ellipsis + end;
     }
 
     private getPrefixesFor(command: Command): Record<string, string> {
@@ -125,14 +131,10 @@ export class Logger {
             return { type: 'default', value: prefixes[prefix] };
         }
 
-        const value = _.reduce(
-            prefixes,
-            (prev, val, key) => {
-                const keyRegex = new RegExp(_.escapeRegExp(`{${key}}`), 'g');
-                return prev.replace(keyRegex, String(val));
-            },
-            prefix,
-        );
+        const value = Object.entries(prefixes).reduce((prev, [key, val]) => {
+            const keyRegex = new RegExp(escapeRegExp(`{${key}}`), 'g');
+            return prev.replace(keyRegex, String(val));
+        }, prefix);
         return { type: 'template', value };
     }
 
@@ -153,11 +155,11 @@ export class Logger {
 
     colorText(command: Command, text: string) {
         let color: chalk.Chalk;
-        if (command.prefixColor && command.prefixColor.startsWith('#')) {
+        if (command.prefixColor?.startsWith('#')) {
             color = this.chalk.hex(command.prefixColor);
         } else {
-            const defaultColor = _.get(this.chalk, defaults.prefixColors, this.chalk.reset);
-            color = _.get(this.chalk, command.prefixColor ?? '', defaultColor);
+            const defaultColor = getChalkPath(this.chalk, defaults.prefixColors) as Chalk;
+            color = getChalkPath(this.chalk, command.prefixColor ?? '') ?? defaultColor;
         }
         return color(text);
     }

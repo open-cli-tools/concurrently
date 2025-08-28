@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { DateFormatter, FormatterOptions } from './date-format';
 
 const withTime = (time: string) => `2000-01-01T${time}`;
@@ -5,6 +7,18 @@ const withDate = (date: string) => `${date}T00:00:00`;
 
 type TokenTests = undefined | { input: string; expected: string }[];
 
+/**
+ * Generates a suite of tests for token `token`.
+ *
+ * Each entry in `patternTests` makes the token longer, e.g.
+ * ```
+ * makeTests('year', 'y', [
+ *     [{ expected: '2', input: withDate('0002-01-01') }], // y
+ *     [{ expected: '02', input: withDate('0002-01-01') }], // yy
+ *     // ...
+ * ]);
+ * ```
+ */
 const makeTests = (
     name: string,
     token: string,
@@ -27,7 +41,7 @@ const makeTests = (
                 ({ expected, input }) => {
                     const formatter = new DateFormatter(pattern, {
                         locale: 'en',
-                        calendar: 'gregoy',
+                        calendar: 'gregory',
                         ...options,
                     });
                     expect(formatter.format(new Date(input))).toBe(expected);
@@ -456,9 +470,14 @@ describe('tokens', () => {
     ]);
 
     describe('hour', () => {
-        makeTests('1-12 format', 'h', [
+        makeTests('1-12 format (1 PM)', 'h', [
             [{ expected: '1', input: withTime('13:00:00') }],
             [{ expected: '01', input: withTime('13:00:00') }],
+        ]);
+
+        makeTests('1-12 format (12 PM)', 'h', [
+            [{ expected: '12', input: withTime('00:00:00') }],
+            [{ expected: '12', input: withTime('00:00:00') }],
         ]);
 
         makeTests('0-23 format', 'H', [

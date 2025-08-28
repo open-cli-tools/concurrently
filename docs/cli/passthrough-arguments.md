@@ -11,8 +11,8 @@ For example, imagine you have in your `package.json` file scripts like this:
   "scripts": {
     "build:client": "tsc -p client",
     "build:server": "tsc -p server",
-    "build": "concurrently npm:build:client npm:build:server"
-  }
+    "build": "concurrently npm:build:client npm:build:server",
+  },
 }
 ```
 
@@ -37,8 +37,8 @@ a 1-indexed `{number}` placeholder to the command you want it to apply to:
   "scripts": {
     // ...
     "build": "concurrently -P 'npm:build:client -- {1}' npm:build:server --",
-    "typecheck": "npm run build -- --noEmit"
-  }
+    "typecheck": "npm run build -- --noEmit",
+  },
 }
 ```
 
@@ -55,8 +55,8 @@ to your commands. This can be done with the `{@}` placeholder.
   "scripts": {
     // ...
     "build": "concurrently -P 'npm:build:client -- {@}' 'npm:build:server -- {@}' --",
-    "typecheck": "npm run build -- --watch --noEmit"
-  }
+    "typecheck": "npm run build -- --watch --noEmit",
+  },
 }
 ```
 
@@ -72,8 +72,8 @@ which wraps the arguments in quotes.
   // ...
   "scripts": {
     // ...
-    "build": "concurrently -P 'npm:build:client -- --outDir {*}/client' 'npm:build:server -- --outDir {*}/server' -- $(date)"
-  }
+    "build": "concurrently -P 'npm:build:client -- --outDir {*}/client' 'npm:build:server -- --outDir {*}/server' -- $(date)",
+  },
 }
 ```
 

@@ -1,10 +1,11 @@
-import createMockInstance from 'jest-create-mock-instance';
+import { beforeEach, expect, it, MockedObject } from 'vitest';
 
+import { createMockInstance } from '../fixtures/create-mock-instance';
 import { FakeCommand } from '../fixtures/fake-command';
 import { Logger } from '../logger';
 import { LoggerPadding } from './logger-padding';
 
-let logger: jest.Mocked<Logger>;
+let logger: MockedObject<Logger>;
 let controller: LoggerPadding;
 let commands: FakeCommand[];
 

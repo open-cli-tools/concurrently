@@ -26,8 +26,8 @@ export class DateFormatter {
                 char === "'"
                     ? this.compileLiteral(pattern, i)
                     : DateFormatter.tokenRegex.test(char)
-                    ? this.compileToken(pattern, i)
-                    : this.compileOther(pattern, i);
+                      ? this.compileToken(pattern, i)
+                      : this.compileOther(pattern, i);
             this.parts.push(fn);
             i += length;
         }
@@ -257,6 +257,7 @@ let locale: Intl.Locale;
 function getLocale(options: FormatterOptions): Intl.Locale {
     if (!locale || locale.baseName !== options.locale) {
         locale = new Intl.Locale(
+            /* v8 ignore next - fallback value only for safety */
             options.locale || new Intl.DateTimeFormat().resolvedOptions().locale,
         );
     }
@@ -292,6 +293,7 @@ function makeTokenFn(
 
         const parts = formatter.formatToParts(date);
         const part = parts.find((p) => p.type === type);
+        /* v8 ignore next - fallback value '' only for safety */
         return part?.value ?? (fallback ? fallback(date, formatterOptions) : '');
     };
 }

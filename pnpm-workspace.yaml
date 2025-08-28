@@ -1,0 +1,7 @@
+packages:
+  - tests
+
+injectWorkspacePackages: false
+
+onlyBuiltDependencies:
+  - esbuild

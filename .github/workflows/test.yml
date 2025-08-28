@@ -42,25 +42,18 @@ jobs:
             version: macOS-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Setup pnpm
-        uses: ./.github/actions/setup-pnpm
+      - name: Install concurrently 🐶🥣
+        run: pnpm add --global concurrently
 
-      - name: Install dependencies
-        run: pnpm install && pnpm add --global concurrently
-
-      - name: Build & Unit Test
-        run: concurrently --prefix none --group "pnpm:build" "pnpm:test"
-
-      - name: Smoke Test
-        # Don't collect coverage here as it overrides the unit test's coverage
-        run: pnpm test:smoke --coverage=false
+      - name: Build & Test
+        run: concurrently --prefix none --group "pnpm:build" "pnpm:test --coverage" "pnpm:test:smoke"
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master

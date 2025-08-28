@@ -76,8 +76,8 @@ export const getSpawnOpts = ({
         stdio === 'normal'
             ? ['pipe', 'pipe', 'pipe']
             : stdio === 'raw'
-            ? ['inherit', 'inherit', 'inherit']
-            : ['pipe', 'ignore', 'ignore'];
+              ? ['inherit', 'inherit', 'inherit']
+              : ['pipe', 'ignore', 'ignore'];
 
     if (ipc != null) {
         // Avoid overriding the stdout/stderr/stdin
@@ -88,7 +88,7 @@ export const getSpawnOpts = ({
     return {
         cwd: cwd || process.cwd(),
         stdio: stdioValues,
-        ...(/^win/.test(process.platform) && { detached: false }),
+        ...(process.platform.startsWith('win') && { detached: false }),
         env: {
             ...(colorSupport ? { FORCE_COLOR: colorSupport.level.toString() } : {}),
             ...process.env,

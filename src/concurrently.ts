@@ -1,6 +1,6 @@
 import assert from 'assert';
-import _ from 'lodash';
-import { cpus } from 'os';
+import os from 'os';
+import { takeUntil } from 'rxjs';
 import { Writable } from 'stream';
 import treeKill from 'tree-kill';
 
@@ -24,6 +24,7 @@ import { Logger } from './logger';
 import { OutputWriter } from './output-writer';
 import { PrefixColorSelector } from './prefix-color-selector';
 import { getSpawnOpts, spawn } from './spawn';
+import { castArray } from './utils';
 
 const defaults: ConcurrentlyOptions = {
     spawn,
@@ -144,11 +145,6 @@ export type ConcurrentlyOptions = {
     kill: KillProcess;
 
     /**
-     * Signal to send to killed processes.
-     */
-    killSignal?: string;
-
-    /**
      * Specify variables which will spawn multiple commands.
      */
     matrices?: readonly string[][];
@@ -175,7 +171,7 @@ export function concurrently(
     assert.ok(Array.isArray(baseCommands), '[concurrently] commands should be an array');
     assert.notStrictEqual(baseCommands.length, 0, '[concurrently] no commands provided');
 
-    const options = _.defaults(baseOptions, defaults);
+    const options = { ...defaults, ...baseOptions };
 
     const prefixColorSelector = new PrefixColorSelector(options.prefixColors || []);
 
@@ -194,7 +190,7 @@ export function concurrently(
     }
 
     const hide = (options.hide || []).map(String);
-    let commands = _(baseCommands)
+    let commands = baseCommands
         .map(mapToCommandInfo)
         .flatMap((command) => parseCommand(command, commandParsers))
         .map((command, index) => {
@@ -207,22 +203,21 @@ export function concurrently(
                 },
                 getSpawnOpts({
                     ipc: command.ipc,
-                    stdio: hidden ? 'hidden' : command.raw ?? options.raw ? 'raw' : 'normal',
+                    stdio: hidden ? 'hidden' : (command.raw ?? options.raw) ? 'raw' : 'normal',
                     env: command.env,
                     cwd: command.cwd || options.cwd,
                 }),
                 options.spawn,
                 options.kill,
             );
-        })
-        .value();
+        });
 
     const handleResult = options.controllers.reduce(
         ({ commands: prevCommands, onFinishCallbacks }, controller) => {
             const { commands, onFinish } = controller.handle(prevCommands);
             return {
                 commands,
-                onFinishCallbacks: _.concat(onFinishCallbacks, onFinish ? [onFinish] : []),
+                onFinishCallbacks: onFinishCallbacks.concat(onFinish ? [onFinish] : []),
             };
         },
         { commands, onFinishCallbacks: [] } as {
@@ -238,14 +233,17 @@ export function concurrently(
             group: !!options.group,
             commands,
         });
-        options.logger.output.subscribe(({ command, text }) => outputWriter.write(command, text));
+        options.logger.output
+            // Stop trying to write after there's been an error.
+            .pipe(takeUntil(outputWriter.error))
+            .subscribe(({ command, text }) => outputWriter.write(command, text));
     }
 
     const commandsLeft = commands.slice();
     const maxProcesses = Math.max(
         1,
         (typeof options.maxProcesses === 'string' && options.maxProcesses.endsWith('%')
-            ? Math.round((cpus().length * Number(options.maxProcesses.slice(0, -1))) / 100)
+            ? Math.round((os.cpus().length * Number(options.maxProcesses.slice(0, -1))) / 100)
             : Number(options.maxProcesses)) || commandsLeft.length,
     );
     for (let i = 0; i < maxProcesses; i++) {
@@ -289,8 +287,8 @@ function mapToCommandInfo(command: ConcurrentlyCommandInput): CommandInfo {
 
 function parseCommand(command: CommandInfo, parsers: CommandParser[]) {
     return parsers.reduce(
-        (commands, parser) => _.flatMap(commands, (command) => parser.parse(command)),
-        _.castArray(command),
+        (commands, parser) => commands.flatMap((command) => parser.parse(command)),
+        castArray(command),
     );
 }
 

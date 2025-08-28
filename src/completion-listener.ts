@@ -78,7 +78,7 @@ export class CompletionListener {
                 (event) => targetCommandsEvents.includes(event) || event.exitCode === 0,
             );
         }
-        // Only the specified commands must exit succesfully
+        // Only the specified commands must exit successfully
         return (
             targetCommandsEvents.length > 0 &&
             targetCommandsEvents.every((event) => event.exitCode === 0)
@@ -93,6 +93,10 @@ export class CompletionListener {
      *          Commands that didn't spawn are filtered out.
      */
     listen(commands: Command[], abortSignal?: AbortSignal): Promise<CloseEvent[]> {
+        if (!commands.length) {
+            return Promise.resolve([]);
+        }
+
         const abort =
             abortSignal &&
             Rx.fromEvent(abortSignal, 'abort', { once: true }).pipe(
@@ -112,6 +116,7 @@ export class CompletionListener {
                   Rx.race(command.close, abort.pipe(filter(() => command.state === 'stopped')))
                 : command.close,
         );
+
         return Rx.lastValueFrom(
             Rx.combineLatest(closeStreams).pipe(
                 filter(() => commands.every((command) => command.state !== 'started')),

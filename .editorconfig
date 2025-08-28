@@ -13,4 +13,3 @@ indent_style = space
 [*.{mjs,js,ts}]
 indent_size = 4
 max_line_length = 100
-

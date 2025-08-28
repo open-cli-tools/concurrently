@@ -17,21 +17,27 @@ export class ExpandArguments implements CommandParser {
                 if (match.startsWith('\\')) {
                     return match.slice(1);
                 }
-                // Replace numeric placeholder if value exists in additional arguments.
-                if (
-                    !isNaN(placeholderTarget) &&
-                    placeholderTarget <= this.additionalArguments.length
-                ) {
-                    return quote([this.additionalArguments[placeholderTarget - 1]]);
+
+                if (this.additionalArguments.length > 0) {
+                    // Replace numeric placeholder if value exists in additional arguments.
+                    if (
+                        !isNaN(placeholderTarget) &&
+                        placeholderTarget <= this.additionalArguments.length
+                    ) {
+                        return quote([this.additionalArguments[placeholderTarget - 1]]);
+                    }
+
+                    // Replace all arguments placeholder.
+                    if (placeholderTarget === '@') {
+                        return quote(this.additionalArguments);
+                    }
+
+                    // Replace combined arguments placeholder.
+                    if (placeholderTarget === '*') {
+                        return quote([this.additionalArguments.join(' ')]);
+                    }
                 }
-                // Replace all arguments placeholder.
-                if (placeholderTarget === '@') {
-                    return quote(this.additionalArguments);
-                }
-                // Replace combined arguments placeholder.
-                if (placeholderTarget === '*') {
-                    return quote([this.additionalArguments.join(' ')]);
-                }
+
                 // Replace placeholder with empty string
                 // if value doesn't exist in additional arguments.
                 return '';

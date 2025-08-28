@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest';
+
 import { CommandInfo } from '../command';
 import { ExpandShortcut } from './expand-shortcut';
 

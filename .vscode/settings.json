@@ -1,6 +1,7 @@
 {
-  "jest.runMode": "watch",
-  "jest.jestCommandLine": "pnpm test --",
+  // For contributors with the Jest extension installed,
+  // it might incorrectly report errors in the suite
+  "jest.enable": false,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
@@ -9,6 +10,8 @@
   "[javascript, typescript]": {
     "editor.formatOnSave": false
   },
-  "editor.rulers": [100],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.rulers": [100]
 }

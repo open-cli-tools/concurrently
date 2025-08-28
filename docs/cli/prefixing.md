@@ -5,7 +5,7 @@
 concurrently will by default prefix each command's outputs with a zero-based index, wrapped in square brackets:
 
 ```bash
-$ concurrently "echo Hello there" "echo 'General Kenobi!'"
+$ concurrently 'echo Hello there' "echo 'General Kenobi!'"
 [0] Hello there
 [1] General Kenobi!
 [0] echo Hello there exited with code 0
@@ -15,7 +15,7 @@ $ concurrently "echo Hello there" "echo 'General Kenobi!'"
 If you've given the commands names, they are used instead:
 
 ```bash
-$ concurrently --names one,two "echo Hello there" "echo 'General Kenobi!'"
+$ concurrently --names one,two 'echo Hello there' "echo 'General Kenobi!'"
 [one] Hello there
 [two] General Kenobi!
 [one] echo Hello there exited with code 0
@@ -36,7 +36,7 @@ There are other prefix styles available too:
 Any of these can be used by setting the `--prefix`/`-p` flag. For example:
 
 ```bash
-$ concurrently --prefix pid "echo Hello there" "echo 'General Kenobi!'"
+$ concurrently --prefix pid 'echo Hello there' 'echo General Kenobi!'
 [2222] Hello there
 [2223] General Kenobi!
 [2222] echo Hello there exited with code 0
@@ -47,7 +47,7 @@ It's also possible to have a prefix based on a template. Any of the styles liste
 Doing so will also remove the square brackets:
 
 ```bash
-$ concurrently --prefix "{index}-{pid}" "echo Hello there" "echo 'General Kenobi!'"
+$ concurrently --prefix '{index}-{pid}' 'echo Hello there' 'echo General Kenobi!'
 0-2222 Hello there
 1-2223 General Kenobi!
 0-2222 echo Hello there exited with code 0
@@ -62,7 +62,7 @@ This can be changed by using the `--prefix-colors`/`-c` flag, which takes a comm
 The available values are color names (e.g. `green`, `magenta`, `gray`, etc), a hex value (such as `#23de43`), or `auto`, to automatically select a color.
 
 ```bash
-$ concurrently -c red,blue "echo Hello there" "echo 'General Kenobi!'"
+$ concurrently -c red,blue 'echo Hello there' 'echo General Kenobi!'
 ```
 
 <details>
@@ -82,7 +82,7 @@ $ concurrently -c red,blue "echo Hello there" "echo 'General Kenobi!'"
 Colors can take modifiers too. Several can be applied at once by prepending `.<modifier 1>.<modifier 2>` and so on.
 
 ```bash
-$ concurrently -c red,bold.blue.dim "echo Hello there" "echo 'General Kenobi!'"
+$ concurrently -c red,bold.blue.dim 'echo Hello there' 'echo General Kenobi!'
 ```
 
 <details>
@@ -98,10 +98,10 @@ $ concurrently -c red,bold.blue.dim "echo Hello there" "echo 'General Kenobi!'"
 - `underline`
 </details>
 
-A background color can be set in a similary fashion.
+A background color can be set in a similarly fashion.
 
 ```bash
-$ concurrently -c bgGray,red.bgBlack "echo Hello there" "echo 'General Kenobi!'"
+$ concurrently -c bgGray,red.bgBlack 'echo Hello there' 'echo General Kenobi!'
 ```
 
 <details>
@@ -124,7 +124,7 @@ When using the `command` prefix style, it's possible that it'll be too long.<br/
 It can be limited by setting the `--prefix-length`/`-l` flag:
 
 ```bash
-$ concurrently -p command -l 10 "echo Hello there" "echo 'General Kenobi!'"
+$ concurrently -p command -l 10 'echo Hello there' 'echo General Kenobi!'
 [echo..here] Hello there
 [echo..bi!'] General Kenobi!
 [echo..here] echo Hello there exited with code 0
@@ -135,7 +135,7 @@ It's also possible that some prefixes are too short, and you want all of them to
 This can be done by setting the `--pad-prefix` flag:
 
 ```bash
-$ concurrently -n foo,barbaz --pad-prefix "echo Hello there" "echo 'General Kenobi!'"
+$ concurrently -n foo,barbaz --pad-prefix 'echo Hello there' 'echo General Kenobi!'
 [foo   ] Hello there
 [foo   ] echo Hello there exited with code 0
 [barbaz] General Kenobi!
