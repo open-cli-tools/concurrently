@@ -7,6 +7,18 @@ const withDate = (date: string) => `${date}T00:00:00`;
 
 type TokenTests = undefined | { input: string; expected: string }[];
 
+/**
+ * Generates a suite of tests for token `token`.
+ *
+ * Each entry in `patternTests` makes the token longer, e.g.
+ * ```
+ * makeTests('year', 'y', [
+ *     [{ expected: '2', input: withDate('0002-01-01') }], // y
+ *     [{ expected: '02', input: withDate('0002-01-01') }], // yy
+ *     // ...
+ * ]);
+ * ```
+ */
 const makeTests = (
     name: string,
     token: string,
@@ -29,7 +41,7 @@ const makeTests = (
                 ({ expected, input }) => {
                     const formatter = new DateFormatter(pattern, {
                         locale: 'en',
-                        calendar: 'gregoy',
+                        calendar: 'gregory',
                         ...options,
                     });
                     expect(formatter.format(new Date(input))).toBe(expected);
