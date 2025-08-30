@@ -1,11 +1,11 @@
 import { beforeEach, expect, it } from 'vitest';
 
-import { CloseEvent } from '../command';
-import { DateFormatter } from '../date-format';
-import { createMockInstance } from '../fixtures/create-mock-instance';
-import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command';
-import { Logger } from '../logger';
-import { LogTimings } from './log-timings';
+import { CloseEvent } from '../command.js';
+import { DateFormatter } from '../date-format.js';
+import { createMockInstance } from '../fixtures/create-mock-instance.js';
+import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command.js';
+import { Logger } from '../logger.js';
+import { LogTimings } from './log-timings.js';
 
 // shown in timing order
 const startDate0 = new Date();

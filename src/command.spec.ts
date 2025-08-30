@@ -12,7 +12,7 @@ import {
     CommandInfo,
     KillProcess,
     SpawnCommand,
-} from './command';
+} from './command.js';
 
 type CommandValues = { error: unknown; close: CloseEvent; timer: unknown[] };
 

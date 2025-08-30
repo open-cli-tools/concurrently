@@ -1,7 +1,7 @@
 import * as Rx from 'rxjs';
 import { delay, filter, map, share, switchMap, take } from 'rxjs/operators';
 
-import { CloseEvent, Command } from './command';
+import { CloseEvent, Command } from './command.js';
 
 /**
  * Defines which command(s) in a list must exit successfully (with an exit code of `0`):

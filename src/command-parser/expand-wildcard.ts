@@ -1,9 +1,9 @@
 import fs from 'fs';
 
-import { CommandInfo } from '../command';
-import JSONC from '../jsonc';
-import { escapeRegExp } from '../utils';
-import { CommandParser } from './command-parser';
+import { CommandInfo } from '../command.js';
+import JSONC from '../jsonc.js';
+import { escapeRegExp } from '../utils.js';
+import { CommandParser } from './command-parser.js';
 
 // Matches a negative filter surrounded by '(!' and ')'.
 const OMISSION = /\(!([^)]+)\)/;

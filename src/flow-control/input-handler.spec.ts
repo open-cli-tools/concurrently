@@ -1,11 +1,11 @@
 import { PassThrough } from 'stream';
 import { beforeEach, expect, it } from 'vitest';
 
-import { Command } from '../command';
-import { createMockInstance } from '../fixtures/create-mock-instance';
-import { FakeCommand } from '../fixtures/fake-command';
-import { Logger } from '../logger';
-import { InputHandler } from './input-handler';
+import { Command } from '../command.js';
+import { createMockInstance } from '../fixtures/create-mock-instance.js';
+import { FakeCommand } from '../fixtures/fake-command.js';
+import { Logger } from '../logger.js';
+import { InputHandler } from './input-handler.js';
 
 let commands: Command[];
 let controller: InputHandler;
