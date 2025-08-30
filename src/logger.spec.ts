@@ -232,6 +232,21 @@ describe('#logCommandText()', () => {
         expect(logger.log).toHaveBeenCalledWith(chalk.hex(prefixColor)('[1]') + ' ', 'foo', cmd);
     });
 
+    it('logs prefix using prefixColor from command if prefixColor is a hex value with modifiers', () => {
+        const { logger } = createLogger({});
+        const prefixColor = '#32bd8a.inverse';
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor,
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            chalk.hex(prefixColor).inverse('[1]') + ' ',
+            'foo',
+            cmd,
+        );
+    });
+
     it('does nothing if command is hidden by name', () => {
         const { logger } = createLogger({ hide: ['abc'] });
         const cmd = new FakeCommand('abc');
