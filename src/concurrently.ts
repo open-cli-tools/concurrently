@@ -14,6 +14,7 @@ import {
 } from './command';
 import { CommandParser } from './command-parser/command-parser';
 import { ExpandArguments } from './command-parser/expand-arguments';
+import { ExpandMatrices } from './command-parser/expand-matrices';
 import { ExpandShortcut } from './command-parser/expand-shortcut';
 import { ExpandWildcard } from './command-parser/expand-wildcard';
 import { StripQuotes } from './command-parser/strip-quotes';
@@ -144,6 +145,11 @@ export type ConcurrentlyOptions = {
     kill: KillProcess;
 
     /**
+     * Specify variables which will spawn multiple commands.
+     */
+    matrices?: readonly string[][];
+
+    /**
      * List of additional arguments passed that will get replaced in each command.
      * If not defined, no argument replacing will happen.
      *
@@ -174,6 +180,10 @@ export function concurrently(
         new ExpandShortcut(),
         new ExpandWildcard(),
     ];
+
+    if (options.matrices?.length) {
+        commandParsers.push(new ExpandMatrices(options.matrices));
+    }
 
     if (options.additionalArguments) {
         commandParsers.push(new ExpandArguments(options.additionalArguments));
