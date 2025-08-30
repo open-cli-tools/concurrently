@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { DateFormatter, FormatterOptions } from './date-format';
 
@@ -211,6 +211,51 @@ describe('tokens', () => {
             ],
             { locale: 'de-DE' },
         );
+
+        describe(`when minimalDays is missing`, () => {
+            beforeAll(() => {
+                if (typeof Intl.Locale.prototype.getWeekInfo === 'function') {
+                    Intl.Locale.prototype.getWeekInfoOrig = Intl.Locale.prototype.getWeekInfo;
+                }
+
+                Intl.Locale.prototype.getWeekInfo = function () {
+                    const data =
+                        typeof Intl.Locale.prototype.getWeekInfoOrig === 'function'
+                            ? this.getWeekInfoOrig()
+                            : this.weekInfo;
+                    delete data.minimalDays;
+                    return data;
+                };
+            });
+
+            afterAll(() => {
+                if (Intl.Locale.prototype.getWeekInfoOrig) {
+                    Intl.Locale.prototype.getWeekInfo = Intl.Locale.prototype.getWeekInfoOrig;
+                    delete Intl.Locale.prototype.getWeekInfoOrig;
+                }
+            });
+
+            makeTests(
+                // Needs to be a different locale than in tests above to not use cached weekInfo
+                'with de-CH locale',
+                'Y',
+                [
+                    [
+                        { expected: '2022', input: withDate('2023-01-01') },
+                        { expected: '2023', input: withDate('2023-12-31') },
+                        { expected: '2024', input: withDate('2024-01-01') },
+                        { expected: '2025', input: withDate('2024-12-31') },
+                    ],
+                    [
+                        { expected: '22', input: withDate('2023-01-01') },
+                        { expected: '23', input: withDate('2023-12-31') },
+                        { expected: '24', input: withDate('2024-01-01') },
+                        { expected: '25', input: withDate('2024-12-31') },
+                    ],
+                ],
+                { locale: 'de-CH' },
+            );
+        });
     });
 
     makeTests('quarter', 'Q', [

@@ -265,6 +265,31 @@ function getLocale(options: FormatterOptions): Intl.Locale {
 }
 
 /**
+ * See https://github.com/moment/luxon/issues/1693
+ *
+ * @todo Replace once there's a suitable alternative implementation
+ */
+const fallbackWeekInfo = {
+    minimalDays: 4,
+};
+const weekInfoCache = new Map<string, Intl.WeekInfo>();
+function getWeekInfo(locale: Intl.Locale): Intl.WeekInfo {
+    let data = weekInfoCache.get(locale.baseName);
+    if (!data) {
+        // The specs now envisage a method for this,
+        // see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale/getWeekInfo
+        data = locale.getWeekInfo?.() ?? locale.weekInfo;
+        // The specs have dropped minimalDays,
+        // see https://github.com/tc39/proposal-intl-locale-info/issues/86
+        if (!data.minimalDays) {
+            data = { ...fallbackWeekInfo, ...data };
+        }
+        weekInfoCache.set(locale.baseName, data);
+    }
+    return data;
+}
+
+/**
  * Creates a token formatting function that returns the value of the chosen part type,
  * using the current locale's settings.
  *
@@ -300,7 +325,8 @@ function makeTokenFn(
 
 function startOfWeek(date: Date, options: FormatterOptions) {
     const locale = getLocale(options);
-    const firstDay = locale.weekInfo.firstDay === 7 ? 0 : locale.weekInfo.firstDay;
+    const weekInfo = getWeekInfo(locale);
+    const firstDay = weekInfo.firstDay === 7 ? 0 : weekInfo.firstDay;
     const day = date.getDay();
     const diff = (day < firstDay ? 7 : 0) + day - firstDay;
     date.setDate(date.getDate() - diff);
@@ -310,7 +336,7 @@ function startOfWeek(date: Date, options: FormatterOptions) {
 
 function getWeekYear(date: Date, options: FormatterOptions) {
     const locale = getLocale(options);
-    const minimalDays = locale.weekInfo.minimalDays;
+    const minimalDays = getWeekInfo(locale).minimalDays;
 
     const year = date.getFullYear();
 
@@ -332,7 +358,7 @@ function getWeek(date: Date, options: FormatterOptions) {
 
     const temp = startOfWeek(new Date(date), options);
 
-    const thisYear = new Date(getWeekYear(date, options), 0, locale.weekInfo.minimalDays);
+    const thisYear = new Date(getWeekYear(date, options), 0, getWeekInfo(locale).minimalDays);
     startOfWeek(thisYear, options);
 
     const diff = temp.getTime() - thisYear.getTime();

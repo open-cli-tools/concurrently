@@ -3,7 +3,7 @@
     "outDir": "./dist",
     "declaration": true,
     "target": "ES2022",
-    "lib": ["ES2023"],
+    "lib": ["es2024", "ESNext.Array", "ESNext.Collection", "ESNext.Iterator"],
     "module": "CommonJS",
     "moduleResolution": "node",
     "strict": true,
