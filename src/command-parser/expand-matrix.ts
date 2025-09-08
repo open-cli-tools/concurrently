@@ -44,14 +44,8 @@ export class ExpandMatrix implements CommandParser {
                     );
                 }
 
-                // Replace dimension name if value exists in additional arguments.
-                if (placeholderTarget in binding) {
-                    return quote([binding[placeholderTarget]]);
-                }
-
-                // Replace placeholder with empty string
-                // if value doesn't exist in additional arguments.
-                return '';
+                // Replace dimension name with binding value
+                return quote([binding[placeholderTarget]]);
             },
         );
 

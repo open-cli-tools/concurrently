@@ -183,7 +183,7 @@ export function concurrently(
         new ExpandWildcard(),
     ];
 
-    if (options.matrix?.length) {
+    if (options.matrix && Object.keys(options.matrix).length > 0) {
         commandParsers.push(new ExpandMatrix(options.matrix));
     }
 

@@ -284,8 +284,14 @@ concurrently(
                     );
                 }
 
-                const [name, values] = matrix.split(':', 1);
-                return [name, values.split(' ')];
+                const [name] = matrix.split(':', 1);
+                return [
+                    name,
+                    matrix
+                        .slice(name.length + 1)
+                        .trim()
+                        .split(/\s+/),
+                ];
             }) ?? [],
         ),
         additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
