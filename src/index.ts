@@ -121,9 +121,11 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
     additionalArguments?: string[];
 
     /**
-     * This command should be run multiple times, for each of the provided matrices.
+     * Every command will be run multiple times, for all combinations of the given arrays.
+     * Each dimension is a mapping of a dimension name to its possible values.
+     * Eg. `{ X: ['a', 'b'], Y: ['1', '2'] }` will run the commands 4 times.
      */
-    matrices?: readonly string[][];
+    matrices?: Record<string, string[]>;
 };
 
 export function concurrently(

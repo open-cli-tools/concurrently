@@ -10,12 +10,12 @@ const createCommandInfo = (command: string): CommandInfo => ({
 
 describe('ExpandMatrices', () => {
     it('should replace placeholders with matrix values', () => {
-        const matrices = [
-            ['a', 'b'],
-            ['1', '2'],
-        ];
+        const matrices = {
+            X: ['a', 'b'],
+            Y: ['1', '2'],
+        };
         const expandMatrices = new ExpandMatrices(matrices);
-        const commandInfo = createCommandInfo('echo {1} and {2}');
+        const commandInfo = createCommandInfo('echo {M:X} and {M:Y}');
 
         const result = expandMatrices.parse(commandInfo);
 
@@ -28,91 +28,103 @@ describe('ExpandMatrices', () => {
     });
 
     it('should handle escaped placeholders', () => {
-        const matrices = [['a', 'b']];
+        const matrices = { X: ['a', 'b'] };
         const expandMatrices = new ExpandMatrices(matrices);
-        const commandInfo = createCommandInfo('echo \\{1} and {1}');
+        const commandInfo = createCommandInfo('echo \\{M:X} and {M:X}');
 
         const result = expandMatrices.parse(commandInfo);
 
         expect(result).toEqual([
-            { command: 'echo {1} and a', name: '' },
-            { command: 'echo {1} and b', name: '' },
+            { command: 'echo {M:X} and a', name: '' },
+            { command: 'echo {M:X} and b', name: '' },
         ]);
     });
 
-    it('should replace placeholders with empty string if index is out of bounds', () => {
-        const matrices = [['a']];
+    it('throws SyntaxError if matrix name is invalid', () => {
+        const matrices = { X: ['a'] };
         const expandMatrices = new ExpandMatrices(matrices);
-        const commandInfo = createCommandInfo('echo {2}');
+        const commandInfo = createCommandInfo('echo {M:INVALID}');
 
-        const result = expandMatrices.parse(commandInfo);
-
-        expect(result).toEqual([{ command: 'echo ', name: '' }]);
+        expect(() => expandMatrices.parse(commandInfo)).toThrowError(
+            "[concurrently] Matrix placeholder '{M:INVALID}' does not match any defined matrix.",
+        );
     });
 });
 
 describe('combinations', () => {
     it('should return all possible combinations of the given dimensions', () => {
-        const dimensions = [
-            ['a', 'b'],
-            ['1', '2'],
-        ];
+        const dimensions = {
+            X: ['a', 'b'],
+            Y: ['1', '2'],
+        };
 
-        const result = combinations(dimensions);
+        const result = Array.from(combinations(dimensions));
 
         expect(result).toEqual([
-            ['a', '1'],
-            ['a', '2'],
-            ['b', '1'],
-            ['b', '2'],
+            { X: 'a', Y: '1' },
+            { X: 'a', Y: '2' },
+            { X: 'b', Y: '1' },
+            { X: 'b', Y: '2' },
         ]);
     });
 
     it('should handle single dimension', () => {
-        const dimensions = [['a', 'b']];
+        const dimensions = { X: ['a', 'b'] };
 
-        const result = combinations(dimensions);
+        const result = Array.from(combinations(dimensions));
+        const expected = [{ X: 'a' }, { X: 'b' }] as Record<string, string>[];
 
-        expect(result).toEqual([['a'], ['b']]);
+        expect(result).toEqual(expected);
     });
 
     it('should handle empty dimensions', () => {
-        const dimensions: string[][] = [];
+        const dimensions: Record<string, string[]> = {};
 
-        const result = combinations(dimensions);
+        const result = Array.from(combinations(dimensions));
 
-        expect(result).toEqual([[]]);
+        expect(result).toEqual([]);
     });
 
     it('should handle dimensions with empty arrays', () => {
-        const dimensions = [['a', 'b'], []];
+        const dimensions = { X: ['a', 'b'], Y: [] };
 
-        const result = combinations(dimensions);
+        const result = Array.from(combinations(dimensions));
 
         expect(result).toEqual([]);
     });
 
     it('should handle dimensions with multiple empty arrays', () => {
-        const dimensions = [[], []];
+        const dimensions = { X: [], Y: [] };
 
-        const result = combinations(dimensions);
-
-        expect(result).toEqual([]);
-    });
-
-    it('should handle dimensions with some empty arrays', () => {
-        const dimensions = [['a', 'b'], [], ['x', 'y']];
-
-        const result = combinations(dimensions);
+        const result = Array.from(combinations(dimensions));
 
         expect(result).toEqual([]);
     });
 
     it('should handle dimensions with all empty arrays', () => {
-        const dimensions = [[], [], []];
+        const dimensions = { X: [], Y: [], Z: [] };
 
-        const result = combinations(dimensions);
+        const result = Array.from(combinations(dimensions));
 
         expect(result).toEqual([]);
+    });
+
+    it('should handle uneven dimensions', () => {
+        const dimensions = {
+            A: ['x'],
+            B: ['1', '2', '3'],
+            C: ['foo', 'bar'],
+        };
+
+        const result = Array.from(combinations(dimensions));
+
+        expect(result).toEqual([
+            { A: 'x', B: '1', C: 'foo' },
+            { A: 'x', B: '1', C: 'bar' },
+            { A: 'x', B: '2', C: 'foo' },
+            { A: 'x', B: '2', C: 'bar' },
+            { A: 'x', B: '3', C: 'foo' },
+            { A: 'x', B: '3', C: 'bar' },
+        ]);
     });
 });
