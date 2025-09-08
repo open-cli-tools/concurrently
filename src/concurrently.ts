@@ -14,6 +14,7 @@ import {
 } from './command';
 import { CommandParser } from './command-parser/command-parser';
 import { ExpandArguments } from './command-parser/expand-arguments';
+import { ExpandMatrix } from './command-parser/expand-matrix';
 import { ExpandShortcut } from './command-parser/expand-shortcut';
 import { ExpandWildcard } from './command-parser/expand-wildcard';
 import { StripQuotes } from './command-parser/strip-quotes';
@@ -144,6 +145,13 @@ export type ConcurrentlyOptions = {
     kill: KillProcess;
 
     /**
+     * Every command will be run multiple times, for all combinations of the given arrays.
+     * Each dimension is a mapping of a dimension name to its possible values.
+     * Eg. `{ X: ['a', 'b'], Y: ['1', '2'] }` will run the commands 4 times.
+     */
+    matrix?: Record<string, string[]>;
+
+    /**
      * List of additional arguments passed that will get replaced in each command.
      * If not defined, no argument replacing will happen.
      *
@@ -174,6 +182,10 @@ export function concurrently(
         new ExpandShortcut(),
         new ExpandWildcard(),
     ];
+
+    if (options.matrix && Object.keys(options.matrix).length > 0) {
+        commandParsers.push(new ExpandMatrix(options.matrix));
+    }
 
     if (options.additionalArguments) {
         commandParsers.push(new ExpandArguments(options.additionalArguments));

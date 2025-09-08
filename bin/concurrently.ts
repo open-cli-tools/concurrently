@@ -94,6 +94,17 @@ const program = yargs(hideBin(process.argv))
             type: 'boolean',
             default: defaults.timings,
         },
+        matrix: {
+            describe:
+                'Run the commands multiple times, once for every combination of matrix variables. ' +
+                'Each --matrix defines a new variable, with format "name:val1 val2 ...". ' +
+                'You can reference the values in commands using the placeholder {M:name}.\n\n' +
+                'E.g. concurrently --matrix "os:windows linux" --matrix "env:dev staging" "echo {M:os}-{M:env}" ' +
+                'will run the command 4 times, once for each combination of os and env.',
+            alias: 'M',
+            type: 'string',
+            array: true,
+        },
         'passthrough-arguments': {
             alias: 'P',
             describe:
@@ -264,6 +275,25 @@ concurrently(
         timestampFormat: args.timestampFormat,
         timings: args.timings,
         teardown: args.teardown,
+        matrix: Object.fromEntries(
+            args.matrix?.map((matrix) => {
+                if (!matrix.includes(':')) {
+                    throw new SyntaxError(
+                        `Invalid matrix format '${matrix}'. ` +
+                            'Matrix must be in the format "name:val1 val2 ...".',
+                    );
+                }
+
+                const [name] = matrix.split(':', 1);
+                return [
+                    name,
+                    matrix
+                        .slice(name.length + 1)
+                        .trim()
+                        .split(/\s+/),
+                ];
+            }) ?? [],
+        ),
         additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
     },
 ).result.then(

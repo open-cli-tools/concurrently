@@ -119,6 +119,13 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
      * If not defined, no argument replacing will happen.
      */
     additionalArguments?: string[];
+
+    /**
+     * Every command will be run multiple times, for all combinations of the given arrays.
+     * Each dimension is a mapping of a dimension name to its possible values.
+     * Eg. `{ X: ['a', 'b'], Y: ['1', '2'] }` will run the commands 4 times.
+     */
+    matrix?: Record<string, string[]>;
 };
 
 export function concurrently(
@@ -192,6 +199,7 @@ export function concurrently(
             new Teardown({ logger, spawn: options.spawn, commands: options.teardown || [] }),
         ],
         prefixColors: options.prefixColors || [],
+        matrix: options.matrix,
         additionalArguments: options.additionalArguments,
     });
 }
