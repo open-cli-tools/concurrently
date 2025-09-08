@@ -4,22 +4,22 @@ import { CommandInfo } from '../command';
 import { CommandParser } from './command-parser';
 
 /**
- * Replace placeholders with new commands for each combination of matrices.
+ * Replace placeholders with new commands for each binding in the matrix expansion.
  */
-export class ExpandMatrices implements CommandParser {
+export class ExpandMatrix implements CommandParser {
     /**
-     * The dimensions of the matrix, as defined by a mapping of dimension names to their possible values.
+     * The matrix as defined by a mapping of dimension names to their possible values.
      */
-    private readonly matrices: Record<string, string[]>;
+    private readonly matrix: Record<string, string[]>;
 
     /**
      * All combinations of the matrix dimensions.
      */
     private readonly bindings: Record<string, string>[];
 
-    constructor(matrices: Record<string, string[]>) {
-        this.matrices = matrices;
-        this.bindings = Array.from(combinations(matrices));
+    constructor(matrix: Record<string, string[]>) {
+        this.matrix = matrix;
+        this.bindings = Array.from(combinations(matrix));
     }
 
     parse(commandInfo: CommandInfo) {
@@ -38,7 +38,7 @@ export class ExpandMatrices implements CommandParser {
                     return match.slice(1);
                 }
 
-                if (placeholderTarget && !(placeholderTarget in this.matrices)) {
+                if (placeholderTarget && !(placeholderTarget in this.matrix)) {
                     throw new Error(
                         `[concurrently] Matrix placeholder '{M:${placeholderTarget}}' does not match any defined matrix.`,
                     );

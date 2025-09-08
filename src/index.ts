@@ -125,7 +125,7 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
      * Each dimension is a mapping of a dimension name to its possible values.
      * Eg. `{ X: ['a', 'b'], Y: ['1', '2'] }` will run the commands 4 times.
      */
-    matrices?: Record<string, string[]>;
+    matrix?: Record<string, string[]>;
 };
 
 export function concurrently(
@@ -199,7 +199,7 @@ export function concurrently(
             new Teardown({ logger, spawn: options.spawn, commands: options.teardown || [] }),
         ],
         prefixColors: options.prefixColors || [],
-        matrices: options.matrices,
+        matrix: options.matrix,
         additionalArguments: options.additionalArguments,
     });
 }

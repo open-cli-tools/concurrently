@@ -275,7 +275,7 @@ concurrently(
         timestampFormat: args.timestampFormat,
         timings: args.timings,
         teardown: args.teardown,
-        matrices: Object.fromEntries(
+        matrix: Object.fromEntries(
             args.matrix?.map((matrix) => {
                 if (!matrix.includes(':')) {
                     throw new SyntaxError(

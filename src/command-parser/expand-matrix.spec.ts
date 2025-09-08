@@ -1,23 +1,23 @@
 import { describe, expect, it } from 'vitest';
 
 import { CommandInfo } from '../command';
-import { combinations, ExpandMatrices } from './expand-matrices';
+import { combinations, ExpandMatrix } from './expand-matrix';
 
 const createCommandInfo = (command: string): CommandInfo => ({
     command,
     name: '',
 });
 
-describe('ExpandMatrices', () => {
+describe('ExpandMatrix', () => {
     it('should replace placeholders with matrix values', () => {
-        const matrices = {
+        const matrix = {
             X: ['a', 'b'],
             Y: ['1', '2'],
         };
-        const expandMatrices = new ExpandMatrices(matrices);
+        const expandMatrix = new ExpandMatrix(matrix);
         const commandInfo = createCommandInfo('echo {M:X} and {M:Y}');
 
-        const result = expandMatrices.parse(commandInfo);
+        const result = expandMatrix.parse(commandInfo);
 
         expect(result).toEqual([
             { command: 'echo a and 1', name: '' },
@@ -28,11 +28,11 @@ describe('ExpandMatrices', () => {
     });
 
     it('should handle escaped placeholders', () => {
-        const matrices = { X: ['a', 'b'] };
-        const expandMatrices = new ExpandMatrices(matrices);
+        const matrix = { X: ['a', 'b'] };
+        const expandMatrix = new ExpandMatrix(matrix);
         const commandInfo = createCommandInfo('echo \\{M:X} and {M:X}');
 
-        const result = expandMatrices.parse(commandInfo);
+        const result = expandMatrix.parse(commandInfo);
 
         expect(result).toEqual([
             { command: 'echo {M:X} and a', name: '' },
@@ -41,11 +41,11 @@ describe('ExpandMatrices', () => {
     });
 
     it('throws SyntaxError if matrix name is invalid', () => {
-        const matrices = { X: ['a'] };
-        const expandMatrices = new ExpandMatrices(matrices);
+        const matrix = { X: ['a'] };
+        const expandMatrix = new ExpandMatrix(matrix);
         const commandInfo = createCommandInfo('echo {M:INVALID}');
 
-        expect(() => expandMatrices.parse(commandInfo)).toThrowError(
+        expect(() => expandMatrix.parse(commandInfo)).toThrowError(
             "[concurrently] Matrix placeholder '{M:INVALID}' does not match any defined matrix.",
         );
     });
