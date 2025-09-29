@@ -142,7 +142,7 @@ const { result } = concurrently(
   ],
   {
     prefix: 'name',
-    killOthers: ['failure', 'success'],
+    killOthersOn: ['failure', 'success'],
     restartTries: 3,
     cwd: path.resolve(__dirname, 'scripts'),
   },

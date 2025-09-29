@@ -156,7 +156,12 @@ export class Logger {
     colorText(command: Command, text: string) {
         let color: chalk.Chalk;
         if (command.prefixColor?.startsWith('#')) {
-            color = this.chalk.hex(command.prefixColor);
+            const [hexColor, ...modifiers] = command.prefixColor.split('.');
+            color = this.chalk.hex(hexColor);
+            const modifiedColor = getChalkPath(color, modifiers.join('.'));
+            if (modifiedColor) {
+                color = modifiedColor;
+            }
         } else {
             const defaultColor = getChalkPath(this.chalk, defaults.prefixColors) as Chalk;
             color = getChalkPath(this.chalk, command.prefixColor ?? '') ?? defaultColor;

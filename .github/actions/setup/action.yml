@@ -4,7 +4,6 @@ description: Setup the environment for the project
 inputs:
   node-version:
     description: Node.js version
-    default: '22'
     required: false
   node-registry:
     description: Node.js package registry to set up for auth
@@ -16,6 +15,7 @@ runs:
     - name: Install Node.js
       uses: actions/setup-node@v4
       with:
+        node-version-file: ${{ !inputs.node-version && '.node-version' || '' }}
         node-version: ${{ inputs.node-version }}
         registry-url: ${{ inputs.node-registry }}
 
