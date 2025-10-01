@@ -2,16 +2,17 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 /**
- * Reads the package.json file
+ * Read the package.json file of `concurrently`
  */
 export function readPackageJson(): Record<string, unknown> {
     const specifier = 'concurrently/package.json';
-    let url;
+    let path;
     try {
-        url = import.meta.resolve(specifier);
+        const url = import.meta.resolve(specifier);
+        path = fileURLToPath(url);
     } catch {
-        url = require.resolve(specifier);
+        path = require.resolve(specifier);
     }
-    const content = readFileSync(fileURLToPath(url), 'utf-8');
+    const content = readFileSync(path, 'utf-8');
     return JSON.parse(content);
 }
