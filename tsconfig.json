@@ -1,16 +1,13 @@
 {
   "compilerOptions": {
-    "outDir": "./dist",
+    "lib": ["es2023"],
+    "module": "node20",
+
+    "outDir": "dist",
     "declaration": true,
-    "target": "ES2022",
-    "lib": ["es2024", "ESNext.Array", "ESNext.Collection", "ESNext.Iterator"],
-    "module": "Node16",
-    "moduleResolution": "Node16",
+
     "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true
+    "skipLibCheck": true
   },
   "include": ["./bin", "./declarations", "./src"]
 }

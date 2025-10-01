@@ -18,7 +18,6 @@ export default defineConfig(
                 ...globals.node,
             },
             ecmaVersion: 2023,
-            sourceType: 'commonjs',
         },
     },
     eslint.configs.recommended,

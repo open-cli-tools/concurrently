@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
+    "module": "commonjs",
     "outDir": "dist",
-    "module": "CommonJS",
-    "moduleResolution": "Node",
     "skipLibCheck": true
   }
 }

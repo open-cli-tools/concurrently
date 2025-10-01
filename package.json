@@ -89,15 +89,13 @@
     "dist",
     "index.js",
     "index.d.ts",
-    "index.mjs",
-    "index.d.mts",
     "!**/fixtures",
     "!**/*.spec.js",
     "!**/*.spec.d.ts",
     "docs"
   ],
   "lint-staged": {
-    "*.?(m){js,ts}": "eslint --fix",
+    "*.{js,ts}": "eslint --fix",
     "*.{json,y?(a)ml,md}": "prettier --write"
   }
 }

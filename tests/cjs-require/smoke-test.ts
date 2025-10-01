@@ -5,14 +5,14 @@ import concurrently = require('concurrently');
 
 const { concurrently: concurrently2, createConcurrently } = concurrently;
 
-const result: concurrently.ConcurrentlyResult = concurrently.default(['ls'], {
+const result: concurrently.ConcurrentlyResult = concurrently.default(['echo test'], {
     raw: true,
 });
 
-const result2: concurrently.ConcurrentlyResult = concurrently2(['ls'], {
-    killOthers: ['failure'],
+const result2: concurrently.ConcurrentlyResult = concurrently2(['echo test'], {
+    killOthersOn: ['failure'],
 });
 
-const result3: concurrently.ConcurrentlyResult = createConcurrently(['ls'], {
+const result3: concurrently.ConcurrentlyResult = createConcurrently(['echo test'], {
     successCondition: 'all',
 });

@@ -1,24 +1,22 @@
-import { exec as originalExec } from 'child_process';
-import * as util from 'util';
-import { beforeAll, expect, it } from 'vitest';
+import { exec as originalExec } from 'node:child_process';
+import util from 'node:util';
+
+import { beforeAll, expect, test } from 'vitest';
 
 const exec = util.promisify(originalExec);
 
 beforeAll(async () => {
-    await exec('pnpm build', { cwd: `${__dirname}/..` });
-    await exec('pnpm install', { cwd: __dirname });
-}, 30000);
+    await exec('pnpm run build');
+});
 
-it.each(['cjs-import', 'cjs-require', 'esm'])(
-    '%s',
-    async (project) => {
-        // Use as separate execs as tsc outputs to stdout, instead of stderr, and so its text isn't shown
-        await exec(`tsc -p ${project}`, { cwd: __dirname }).catch((err) =>
-            Promise.reject(err.stdout),
-        );
-        await expect(
-            exec(`node ${project}/dist/smoke-test.js`, { cwd: __dirname }),
-        ).resolves.toBeDefined();
-    },
-    10000,
-);
+test('spawn binary', async () => {
+    await expect(exec('./dist/bin/concurrently.js "echo test"')).resolves.toBeDefined();
+});
+
+test.each(['cjs-import', 'cjs-require', 'esm'])('load library in %s context', async (project) => {
+    // Use as separate execs as tsc outputs to stdout, instead of stderr, and so its text isn't shown
+    await exec(`tsc -p ${project}`, { cwd: __dirname }).catch((err) => Promise.reject(err.stdout));
+    await expect(
+        exec(`node ${project}/dist/smoke-test.js`, { cwd: __dirname }),
+    ).resolves.toBeDefined();
+});
