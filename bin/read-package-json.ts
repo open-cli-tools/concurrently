@@ -1,4 +1,5 @@
-import fs from 'node:fs';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 /**
  * Reads the package.json file
@@ -11,6 +12,6 @@ export function readPackageJson(): Record<string, unknown> {
     } catch {
         url = require.resolve(specifier);
     }
-    const content = fs.readFileSync(url, 'utf-8');
+    const content = readFileSync(fileURLToPath(url), 'utf-8');
     return JSON.parse(content);
 }
