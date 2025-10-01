@@ -6,9 +6,9 @@ import { assertDeprecated } from '../src/assert.js';
 import * as defaults from '../src/defaults.js';
 import { concurrently } from '../src/index.js';
 import { castArray } from '../src/utils.js';
-import { readPackage } from './read-package.js';
+import { readPackageJson } from './read-package-json.js';
 
-const version = String(readPackage().version);
+const version = String(readPackageJson().version);
 const epilogue = `For documentation and more examples, visit:\nhttps://github.com/open-cli-tools/concurrently/tree/v${version}/docs`;
 
 // Clean-up arguments (yargs expects only the arguments after the program name)
