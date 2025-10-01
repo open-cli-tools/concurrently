@@ -7,7 +7,7 @@ const exec = util.promisify(originalExec);
 
 beforeAll(async () => {
     await exec('pnpm run build');
-});
+}, 20_000);
 
 test('spawn binary', async () => {
     await expect(exec('./dist/bin/concurrently.js "echo test"')).resolves.toBeDefined();
