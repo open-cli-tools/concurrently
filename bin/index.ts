@@ -4,10 +4,10 @@ import process from 'node:process';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
-import { assertDeprecated } from '../src/assert.js';
-import * as defaults from '../src/defaults.js';
-import { concurrently } from '../src/index.js';
-import { castArray } from '../src/utils.js';
+import { assertDeprecated } from '../lib/assert.js';
+import * as defaults from '../lib/defaults.js';
+import { concurrently } from '../lib/index.js';
+import { castArray } from '../lib/utils.js';
 import { readPackageJson } from './read-package-json.js';
 
 const version = String(readPackageJson().version);

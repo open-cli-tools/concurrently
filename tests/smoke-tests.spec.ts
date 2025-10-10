@@ -10,7 +10,7 @@ beforeAll(async () => {
 }, 20_000);
 
 it('spawns binary', async () => {
-    await expect(exec('pnpm exec dist/bin/concurrently.js "echo test"')).resolves.toBeDefined();
+    await expect(exec('node dist/bin/index.js "echo test"')).resolves.toBeDefined();
 });
 
 it.each(['cjs-import', 'cjs-require', 'esm'])('loads library in %s context', async (project) => {

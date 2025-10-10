@@ -20,14 +20,14 @@
     "sh"
   ],
   "exports": {
-    ".": "./index.js",
+    ".": "./dist/lib/index.js",
     "./package.json": "./package.json"
   },
-  "types": "index.d.ts",
+  "types": "./dist/lib/index.d.ts",
   "publishConfig": {
     "bin": {
-      "concurrently": "./dist/bin/concurrently.js",
-      "conc": "./dist/bin/concurrently.js"
+      "concurrently": "./dist/bin/index.js",
+      "conc": "./dist/bin/index.js"
     }
   },
   "files": [
@@ -35,16 +35,15 @@
     "!**/*.spec.js",
     "!**/__fixtures__",
     "dist",
-    "docs",
-    "index.d.ts",
-    "index.js"
+    "dist/tsconfig.tsbuildinfo",
+    "docs"
   ],
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "build": "tsc --build",
-    "postbuild": "chmod +x dist/bin/concurrently.js",
+    "postbuild": "chmod +x dist/bin/index.js",
     "typecheck": "tsc --noEmit",
     "format": "prettier --check '**/*.{json,y?(a)ml,md}'",
     "lint": "eslint",

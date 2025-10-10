@@ -201,6 +201,7 @@ export function concurrently(
 // so that 3rd-parties can use them however they want
 
 // Main
+export default concurrently;
 export { ConcurrentlyCommandInput, ConcurrentlyResult, createConcurrently, Logger };
 
 // Command specific

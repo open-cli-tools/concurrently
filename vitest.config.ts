@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
     test: {
         coverage: {
-            include: ['src/**/*.ts', '!src/index.ts'],
+            include: ['lib/**/*.ts', '!lib/index.ts'],
             // lcov is used for coveralls
             reporter: ['text', 'html', 'lcov'],
         },
@@ -12,7 +12,7 @@ export default defineConfig({
                 extends: true,
                 test: {
                     name: 'unit',
-                    include: ['{bin,src}/**/*.spec.ts'],
+                    include: ['{bin,lib}/**/*.spec.ts'],
                 },
             },
             {

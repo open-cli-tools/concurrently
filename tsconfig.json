@@ -9,5 +9,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["./bin", "./src"]
+  "include": ["./bin", "./lib"]
 }

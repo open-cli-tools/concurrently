@@ -12,7 +12,7 @@ import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-import { escapeRegExp } from '../src/utils.js';
+import { escapeRegExp } from '../lib/utils.js';
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string) => {
@@ -30,7 +30,7 @@ beforeAll(async () => {
     // Build 'concurrently' and store it in a temporary directory
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'concurrently-'));
     await build({
-        entryPoints: [path.join(__dirname, 'concurrently.ts')],
+        entryPoints: [path.join(__dirname, 'index.ts')],
         platform: 'node',
         bundle: true,
         // it doesn't seem like esbuild is able to change a CJS module to ESM, so target CJS instead.
