@@ -1,4 +1,5 @@
-import fs, { PathOrFileDescriptor } from 'fs';
+import fs, { PathOrFileDescriptor } from 'node:fs';
+
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { CommandInfo } from '../command.js';
@@ -23,7 +24,7 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-describe('ExpandWildcard#readDeno', () => {
+describe('#readDeno()', () => {
     it('can read deno.json', () => {
         const expectedDeno = {
             name: 'deno',
@@ -53,7 +54,7 @@ describe('ExpandWildcard#readDeno', () => {
         });
         vi.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
             if (path === 'deno.jsonc') {
-                return '/* comment */\n' + JSON.stringify(expectedDeno);
+                return `/* comment */\n${JSON.stringify(expectedDeno)}`;
             }
             return '';
         });
@@ -92,7 +93,7 @@ describe('ExpandWildcard#readDeno', () => {
     });
 });
 
-describe('ExpandWildcard#readPackage', () => {
+describe('#readPackage()', () => {
     it('can read package', () => {
         const expectedPackage = {
             name: 'concurrently',

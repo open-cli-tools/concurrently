@@ -1,5 +1,7 @@
-import assert from 'assert';
-import { ChildProcess, IOType, spawn as baseSpawn, SpawnOptions } from 'child_process';
+import assert from 'node:assert';
+import { ChildProcess, IOType, spawn as baseSpawn, SpawnOptions } from 'node:child_process';
+import nodeProcess from 'node:process';
+
 import supportsColor from 'supports-color';
 
 /**
@@ -11,7 +13,7 @@ export function spawn(
     options: SpawnOptions,
     // For testing
     spawn: (command: string, args: string[], options: SpawnOptions) => ChildProcess = baseSpawn,
-    process: Pick<NodeJS.Process, 'platform'> = global.process,
+    process: Pick<NodeJS.Process, 'platform'> = nodeProcess,
 ): ChildProcess {
     let file = '/bin/sh';
     let args = ['-c', command];
@@ -26,7 +28,7 @@ export function spawn(
 export const getSpawnOpts = ({
     colorSupport = supportsColor.stdout,
     cwd,
-    process = global.process,
+    process = nodeProcess,
     ipc,
     stdio = 'normal',
     env = {},

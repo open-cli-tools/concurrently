@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import { Chalk } from 'chalk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { PrefixColorSelector } from './prefix-color-selector.js';
@@ -7,11 +7,11 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-describe('#getNextColor', function () {
+describe('#getNextColor()', () => {
     const customTests: Record<
         string,
         {
-            acceptableConsoleColors?: Array<keyof typeof chalk>;
+            acceptableConsoleColors?: Array<keyof Chalk>;
             customColors?: string | string[];
             expectedColors: string[];
         }
@@ -170,7 +170,7 @@ describe('#getNextColor', function () {
     });
 });
 
-describe('PrefixColorSelector#ACCEPTABLE_CONSOLE_COLORS', () => {
+describe('#ACCEPTABLE_CONSOLE_COLORS', () => {
     it('has more than 1 auto color defined', () => {
         // (!) The current implementation is based on the assumption that 'ACCEPTABLE_CONSOLE_COLORS'
         //     always has more than one entry, which is what we enforce via this test

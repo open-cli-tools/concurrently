@@ -1,11 +1,13 @@
-import os from 'os';
-import { Writable } from 'stream';
+import type { CpuInfo } from 'node:os';
+import os from 'node:os';
+import { Writable } from 'node:stream';
+
 import { beforeEach, expect, it, Mock, MockedObject, vi } from 'vitest';
 
+import { createMockInstance } from './__fixtures__/create-mock-instance.js';
+import { createFakeProcess, FakeCommand } from './__fixtures__/fake-command.js';
 import { ChildProcess, KillProcess, SpawnCommand } from './command.js';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently.js';
-import { createMockInstance } from './fixtures/create-mock-instance.js';
-import { createFakeProcess, FakeCommand } from './fixtures/fake-command.js';
 import { FlowController } from './flow-control/flow-controller.js';
 import { Logger } from './logger.js';
 
@@ -69,7 +71,7 @@ it('log output is not passed to output stream after it has errored', () => {
     vi.spyOn(outputStream, 'write');
 
     create(['foo'], { logger, outputStream });
-    outputStream.emit('error', new Error());
+    outputStream.emit('error', new Error('test'));
     logger.log('foo', 'bar');
 
     expect(outputStream.write).not.toHaveBeenCalled();
@@ -99,7 +101,7 @@ it('spawns commands up to percent based limit at once', () => {
     // Mock architecture with 4 cores
     const cpusSpy = vi.spyOn(os, 'cpus');
     cpusSpy.mockReturnValue(
-        new Array(4).fill({
+        Array.from<CpuInfo>({ length: 4 }).fill({
             model: 'Intel',
             speed: 0,
             times: { user: 0, nice: 0, sys: 0, idle: 0, irq: 0 },

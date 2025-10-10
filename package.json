@@ -1,44 +1,16 @@
 {
   "name": "concurrently",
-  "version": "9.2.1",
-  "description": "Run commands concurrently",
-  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b",
-  "main": "index.js",
-  "types": "index.d.ts",
   "type": "module",
-  "bin": {
-    "concurrently": "./dist/bin/concurrently.js",
-    "conc": "./dist/bin/concurrently.js"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "exports": {
-    ".": {
-      "types": "./index.d.ts",
-      "default": "./index.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "scripts": {
-    "build": "tsc --build",
-    "postbuild": "chmod +x dist/bin/concurrently.js",
-    "clean": "tsc --build --clean",
-    "format": "prettier --check '**/*.{json,y?(a)ml,md}'",
-    "format:fix": "pnpm run format --write",
-    "lint": "eslint",
-    "lint:fix": "pnpm run lint --fix",
-    "prepublishOnly": "safe-publish-latest && pnpm run build",
-    "report-coverage": "cat coverage/lcov.info | coveralls",
-    "test": "vitest --project unit",
-    "test:smoke": "vitest run --project smoke",
-    "prepare": "husky"
-  },
+  "version": "9.2.1",
+  "packageManager": "pnpm@10.15.0+sha512.486ebc259d3e999a4e8691ce03b5cac4a71cbeca39372a9b762cb500cfdf0873e2cb16abe3d951b1ee2cf012503f027b98b6584e4df22524e0c7450d9ec7aa7b",
+  "description": "Run commands concurrently",
+  "author": "Kimmo Brunfeldt",
+  "license": "MIT",
+  "funding": "https://github.com/open-cli-tools/concurrently?sponsor=1",
   "repository": {
     "type": "git",
     "url": "https://github.com/open-cli-tools/concurrently.git"
   },
-  "funding": "https://github.com/open-cli-tools/concurrently?sponsor=1",
   "keywords": [
     "bash",
     "concurrent",
@@ -47,8 +19,40 @@
     "command",
     "sh"
   ],
-  "author": "Kimmo Brunfeldt",
-  "license": "MIT",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "types": "index.d.ts",
+  "publishConfig": {
+    "bin": {
+      "concurrently": "./dist/bin/concurrently.js",
+      "conc": "./dist/bin/concurrently.js"
+    }
+  },
+  "files": [
+    "!**/*.spec.d.ts",
+    "!**/*.spec.js",
+    "!**/__fixtures__",
+    "dist",
+    "docs",
+    "index.d.ts",
+    "index.js"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "postbuild": "chmod +x dist/bin/concurrently.js",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --check '**/*.{json,y?(a)ml,md}'",
+    "lint": "eslint",
+    "prepublishOnly": "safe-publish-latest && pnpm run build",
+    "test": "vitest --project unit",
+    "test:smoke": "vitest run --project smoke",
+    "prepare": "husky"
+  },
   "dependencies": {
     "chalk": "4.1.2",
     "rxjs": "7.8.2",
@@ -66,7 +70,6 @@
     "@types/yargs": "^17.0.33",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/eslint-plugin": "^1.3.4",
-    "coveralls-next": "^5.0.0",
     "ctrlc-wrapper": "^0.0.5",
     "esbuild": "~0.25.9",
     "eslint": "^9.34.0",
@@ -85,15 +88,6 @@
     "typescript-eslint": "^8.40.0",
     "vitest": "^3.2.4"
   },
-  "files": [
-    "dist",
-    "index.js",
-    "index.d.ts",
-    "!**/fixtures",
-    "!**/*.spec.js",
-    "!**/*.spec.d.ts",
-    "docs"
-  ],
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
     "*.{json,y?(a)ml,md}": "prettier --write"

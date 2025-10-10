@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createMockInstance } from '../fixtures/create-mock-instance.js';
-import { createFakeCloseEvent, createFakeProcess, FakeCommand } from '../fixtures/fake-command.js';
+import { createMockInstance } from '../__fixtures__/create-mock-instance.js';
+import {
+    createFakeCloseEvent,
+    createFakeProcess,
+    FakeCommand,
+} from '../__fixtures__/fake-command.js';
 import { Logger } from '../logger.js';
 import { KillOthers, ProcessCloseCondition } from './kill-others.js';
 

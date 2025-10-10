@@ -1,8 +1,10 @@
+import { Buffer } from 'node:buffer';
+import { SendHandle, SpawnOptions } from 'node:child_process';
+import { EventEmitter } from 'node:events';
+import { Readable, Writable } from 'node:stream';
+
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
-import { SendHandle, SpawnOptions } from 'child_process';
-import { EventEmitter } from 'events';
-import * as Rx from 'rxjs';
-import { Readable, Writable } from 'stream';
+import Rx from 'rxjs';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import {
@@ -14,7 +16,11 @@ import {
     SpawnCommand,
 } from './command.js';
 
-type CommandValues = { error: unknown; close: CloseEvent; timer: unknown[] };
+interface CommandValues {
+    error: unknown;
+    close: CloseEvent;
+    timer: unknown[];
+}
 
 let process: ChildProcess;
 let sendMessage: Mock;
@@ -223,7 +229,7 @@ describe('#start()', () => {
             vi.spyOn(Date, 'now')
                 .mockReturnValueOnce(startDate.getTime())
                 .mockReturnValueOnce(endDate.getTime());
-            vi.spyOn(global.process, 'hrtime')
+            vi.spyOn(globalThis.process, 'hrtime')
                 .mockReturnValueOnce([0, 0])
                 .mockReturnValueOnce([1, 1e8]);
             command.start();
@@ -375,7 +381,7 @@ describe('#start()', () => {
             sendMessage.mock.calls[0][3]();
             expect(onSent).toHaveBeenCalledWith(undefined);
 
-            const error = new Error();
+            const error = new Error('test');
             sendMessage.mock.calls[0][3](error);
             expect(onSent).toHaveBeenCalledWith(error);
         });

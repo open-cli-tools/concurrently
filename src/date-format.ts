@@ -1,95 +1,9 @@
-export type FormatterOptions = {
+export interface FormatterOptions {
     locale?: string;
     calendar?: string;
-};
+}
 
 type TokenFormatter = (date: Date, options: FormatterOptions) => string | number;
-
-/**
- * Unicode-compliant date/time formatter.
- *
- * @see https://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns
- */
-export class DateFormatter {
-    private static tokenRegex = /[A-Z]/i;
-
-    private readonly parts: TokenFormatter[] = [];
-
-    constructor(
-        pattern: string,
-        private readonly options: FormatterOptions = {},
-    ) {
-        let i = 0;
-        while (i < pattern.length) {
-            const char = pattern[i];
-            const { fn, length } =
-                char === "'"
-                    ? this.compileLiteral(pattern, i)
-                    : DateFormatter.tokenRegex.test(char)
-                      ? this.compileToken(pattern, i)
-                      : this.compileOther(pattern, i);
-            this.parts.push(fn);
-            i += length;
-        }
-    }
-
-    private compileLiteral(pattern: string, offset: number) {
-        let length = 1;
-        let value = '';
-        for (; length < pattern.length; length++) {
-            const i = offset + length;
-            const char = pattern[i];
-
-            if (char === "'") {
-                const nextChar = pattern[i + 1];
-                length++;
-
-                // if the next character is another single quote, it's been escaped.
-                // if not, then the literal has been closed
-                if (nextChar !== "'") {
-                    break;
-                }
-            }
-
-            value += char;
-        }
-
-        return { fn: () => value || "'", length };
-    }
-
-    private compileOther(pattern: string, offset: number) {
-        let value = '';
-        while (!DateFormatter.tokenRegex.test(pattern[offset]) && pattern[offset] !== "'") {
-            value += pattern[offset++];
-        }
-
-        return { fn: () => value, length: value.length };
-    }
-
-    private compileToken(pattern: string, offset: number) {
-        const type = pattern[offset];
-        const token = tokens.get(type);
-        if (!token) {
-            throw new SyntaxError(`Formatting token "${type}" is invalid`);
-        }
-
-        let length = 0;
-        while (pattern[offset + length] === type) {
-            length++;
-        }
-
-        const tokenFn = token[length - 1];
-        if (!tokenFn) {
-            throw new RangeError(`Formatting token "${type.repeat(length)}" is unsupported`);
-        }
-
-        return { fn: tokenFn, length };
-    }
-
-    format(date: Date): string {
-        return this.parts.reduce((output, part) => output + String(part(date, this.options)), '');
-    }
-}
 
 /**
  * A map of token to its implementations by length.
@@ -262,6 +176,92 @@ function getLocale(options: FormatterOptions): Intl.Locale {
         );
     }
     return locale;
+}
+
+/**
+ * Unicode-compliant date/time formatter.
+ *
+ * @see https://unicode.org/reports/tr35/tr35-dates.html#Date_Format_Patterns
+ */
+export class DateFormatter {
+    private static tokenRegex = /[A-Z]/i;
+
+    private readonly parts: TokenFormatter[] = [];
+
+    constructor(
+        pattern: string,
+        private readonly options: FormatterOptions = {},
+    ) {
+        let i = 0;
+        while (i < pattern.length) {
+            const char = pattern[i];
+            const { fn, length } =
+                char === "'"
+                    ? this.compileLiteral(pattern, i)
+                    : DateFormatter.tokenRegex.test(char)
+                      ? this.compileToken(pattern, i)
+                      : this.compileOther(pattern, i);
+            this.parts.push(fn);
+            i += length;
+        }
+    }
+
+    private compileLiteral(pattern: string, offset: number) {
+        let length = 1;
+        let value = '';
+        for (; length < pattern.length; length++) {
+            const i = offset + length;
+            const char = pattern[i];
+
+            if (char === "'") {
+                const nextChar = pattern[i + 1];
+                length++;
+
+                // if the next character is another single quote, it's been escaped.
+                // if not, then the literal has been closed
+                if (nextChar !== "'") {
+                    break;
+                }
+            }
+
+            value += char;
+        }
+
+        return { fn: () => value || "'", length };
+    }
+
+    private compileOther(pattern: string, offset: number) {
+        let value = '';
+        while (!DateFormatter.tokenRegex.test(pattern[offset]) && pattern[offset] !== "'") {
+            value += pattern[offset++];
+        }
+
+        return { fn: () => value, length: value.length };
+    }
+
+    private compileToken(pattern: string, offset: number) {
+        const type = pattern[offset];
+        const token = tokens.get(type);
+        if (!token) {
+            throw new SyntaxError(`Formatting token "${type}" is invalid`);
+        }
+
+        let length = 0;
+        while (pattern[offset + length] === type) {
+            length++;
+        }
+
+        const tokenFn = token[length - 1];
+        if (!tokenFn) {
+            throw new RangeError(`Formatting token "${type.repeat(length)}" is unsupported`);
+        }
+
+        return { fn: tokenFn, length };
+    }
+
+    format(date: Date): string {
+        return this.parts.reduce((output, part) => output + String(part(date, this.options)), '');
+    }
 }
 
 /**

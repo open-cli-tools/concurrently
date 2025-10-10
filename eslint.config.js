@@ -30,8 +30,15 @@ export default defineConfig(
             'no-console': 'error',
             'prefer-const': 'error',
             'prefer-object-spread': 'error',
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    varsIgnorePattern: '^_',
+                },
+            ],
         },
     },
+    { files: ['**/__fixtures__/**/*.{js,ts}'], rules: { 'no-console': 'off' } },
     {
         plugins: {
             'simple-import-sort': pluginSimpleImportSort,

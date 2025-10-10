@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 import { CommandInfo } from '../command.js';
 import JSONC from '../jsonc.js';
@@ -75,7 +75,7 @@ export class ExpandWildcard implements CommandParser {
         // - node --run <script> [args]
         // - deno task <script> [args]
         const [, command, scriptGlob, args] =
-            /((?:npm|yarn|pnpm|bun) (?:run)|node --run|deno task) (\S+)([^&]*)/.exec(
+            /((?:npm|yarn|pnpm|bun) run|node --run|deno task) (\S+)([^&]*)/.exec(
                 commandInfo.command,
             ) || [];
 
@@ -96,24 +96,26 @@ export class ExpandWildcard implements CommandParser {
         // has been specified and thus becomes the prefix (as described in the README).
         const prefix = commandInfo.name !== scriptGlob ? commandInfo.name : '';
 
-        return this.relevantScripts(command)
-            .map((script) => {
-                if (omission && RegExp(omission).test(script)) {
-                    return;
-                }
+        const commands: CommandInfo[] = [];
 
-                const result = wildcardRegex.exec(script);
-                const match = result?.[1];
-                if (match !== undefined) {
-                    return {
-                        ...commandInfo,
-                        command: `${command} ${script}${args}`,
-                        // Will use an empty command name if no prefix has been specified and
-                        // the wildcard match is empty, e.g. if `npm:watch-*` matches `npm run watch-`.
-                        name: prefix + match,
-                    };
-                }
-            })
-            .filter((commandInfo): commandInfo is CommandInfo => !!commandInfo);
+        for (const script of this.relevantScripts(command)) {
+            if (omission && new RegExp(omission).test(script)) {
+                continue;
+            }
+
+            const result = wildcardRegex.exec(script);
+            const match = result?.[1];
+            if (match !== undefined) {
+                commands.push({
+                    ...commandInfo,
+                    command: `${command} ${script}${args}`,
+                    // Will use an empty command name if no prefix has been specified and
+                    // the wildcard match is empty, e.g. if `npm:watch-*` matches `npm run watch-`.
+                    name: prefix + match,
+                });
+            }
+        }
+
+        return commands;
     }
 }

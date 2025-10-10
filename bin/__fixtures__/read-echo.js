@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import process from 'node:process';
 
 process.stdin.on('data', (chunk) => {
     const line = chunk.toString().trim();

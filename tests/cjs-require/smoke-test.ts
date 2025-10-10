@@ -1,18 +1,16 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 import concurrently = require('concurrently');
 
 const { concurrently: concurrently2, createConcurrently } = concurrently;
 
-const result: concurrently.ConcurrentlyResult = concurrently.default(['echo test'], {
+const _result: concurrently.ConcurrentlyResult = concurrently.default(['echo test'], {
     raw: true,
 });
 
-const result2: concurrently.ConcurrentlyResult = concurrently2(['echo test'], {
+const _result2: concurrently.ConcurrentlyResult = concurrently2(['echo test'], {
     killOthersOn: ['failure'],
 });
 
-const result3: concurrently.ConcurrentlyResult = createConcurrently(['echo test'], {
+const _result3: concurrently.ConcurrentlyResult = createConcurrently(['echo test'], {
     successCondition: 'all',
 });

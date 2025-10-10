@@ -1,10 +1,11 @@
-import { getEventListeners } from 'events';
+import { getEventListeners } from 'node:events';
+
 import { TestScheduler } from 'rxjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { createFakeCloseEvent, FakeCommand } from './__fixtures__/fake-command.js';
 import { CloseEvent } from './command.js';
 import { CompletionListener, SuccessCondition } from './completion-listener.js';
-import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command.js';
 
 let commands: FakeCommand[];
 let scheduler: TestScheduler;
@@ -132,7 +133,7 @@ describe('listen', () => {
     });
 });
 
-describe('Detect commands exit conditions', () => {
+describe('detect commands exit conditions', () => {
     describe('with default success condition set', () => {
         it('succeeds if all processes exited with code 0', () => {
             const result = createController().listen(commands);

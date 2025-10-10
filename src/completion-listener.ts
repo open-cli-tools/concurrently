@@ -1,4 +1,4 @@
-import * as Rx from 'rxjs';
+import Rx from 'rxjs';
 import { delay, filter, map, share, switchMap, take } from 'rxjs/operators';
 
 import { CloseEvent, Command } from './command.js';

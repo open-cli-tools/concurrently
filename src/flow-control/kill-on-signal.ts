@@ -1,4 +1,5 @@
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
+
 import { map } from 'rxjs/operators';
 
 import { Command } from '../command.js';

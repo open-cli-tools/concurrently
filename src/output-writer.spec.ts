@@ -1,9 +1,13 @@
-import { Writable } from 'stream';
+import { Writable } from 'node:stream';
+
 import { beforeEach, describe, expect, it, MockedObject } from 'vitest';
 
-import { createMockInstance } from './fixtures/create-mock-instance.js';
-import { createFakeCloseEvent, FakeCommand } from './fixtures/fake-command.js';
+import { createMockInstance } from './__fixtures__/create-mock-instance.js';
+import { createFakeCloseEvent, FakeCommand } from './__fixtures__/fake-command.js';
 import { OutputWriter } from './output-writer.js';
+
+let outputStream: MockedObject<Writable>;
+let commands: FakeCommand[];
 
 function createWriter(overrides?: { group: boolean }) {
     const options = {
@@ -20,8 +24,6 @@ function closeCommand(command: FakeCommand) {
     command.close.next(createFakeCloseEvent({ command, index: command.index }));
 }
 
-let outputStream: MockedObject<Writable>;
-let commands: FakeCommand[];
 beforeEach(() => {
     outputStream = createMockInstance(Writable);
     commands = [
@@ -32,14 +34,14 @@ beforeEach(() => {
 });
 
 it('throws if outputStream already is in errored state', () => {
-    Object.defineProperty(outputStream, 'errored', { value: new Error() });
+    Object.defineProperty(outputStream, 'errored', { value: new Error('test') });
     expect(() => createWriter()).toThrow(TypeError);
 });
 
 describe('#write()', () => {
     it('throws if outputStream has errored', () => {
         const writer = createWriter();
-        Object.defineProperty(outputStream, 'errored', { value: new Error() });
+        Object.defineProperty(outputStream, 'errored', { value: new Error('test') });
         expect(() => writer.write(commands[0], 'hello')).toThrow(TypeError);
     });
 

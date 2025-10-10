@@ -6,11 +6,11 @@ MIT license
 Copied due to the dependency not being compatible with CommonJS
 */
 
-import { describe, expect, it } from 'vitest';
+import { expect, it } from 'vitest';
 
 import JSONC from './jsonc.js';
 
-const Fixtures = {
+const fixtures = {
     errors: {
         comment: '// asd',
         empty: '',
@@ -57,30 +57,28 @@ const Fixtures = {
     },
 };
 
-describe('Tiny JSONC', () => {
-    it('supports strings with comments and trailing commas', () => {
-        const { input, output } = Fixtures.parse;
+it('supports strings with comments and trailing commas', () => {
+    const { input, output } = fixtures.parse;
 
-        expect(JSONC.parse(input)).toEqual(output);
-    });
+    expect(JSONC.parse(input)).toEqual(output);
+});
 
-    it('throws on invalid input', () => {
-        const { prefix, suffix } = Fixtures.errors;
+it('throws on invalid input', () => {
+    const { prefix, suffix } = fixtures.errors;
 
-        expect(() => JSONC.parse(prefix)).toThrow(SyntaxError);
-        expect(() => JSONC.parse(suffix)).toThrow(SyntaxError);
-    });
+    expect(() => JSONC.parse(prefix)).toThrow(SyntaxError);
+    expect(() => JSONC.parse(suffix)).toThrow(SyntaxError);
+});
 
-    it('throws on insufficient input', () => {
-        const { comment, empty } = Fixtures.errors;
+it('throws on insufficient input', () => {
+    const { comment, empty } = fixtures.errors;
 
-        expect(() => JSONC.parse(comment)).toThrow(SyntaxError);
-        expect(() => JSONC.parse(empty)).toThrow(SyntaxError);
-    });
+    expect(() => JSONC.parse(comment)).toThrow(SyntaxError);
+    expect(() => JSONC.parse(empty)).toThrow(SyntaxError);
+});
 
-    it('throws on multi-line strings', () => {
-        const { multiLineString } = Fixtures.errors;
+it('throws on multi-line strings', () => {
+    const { multiLineString } = fixtures.errors;
 
-        expect(() => JSONC.parse(multiLineString)).toThrow(SyntaxError);
-    });
+    expect(() => JSONC.parse(multiLineString)).toThrow(SyntaxError);
 });

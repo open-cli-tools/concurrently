@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import process from 'node:process';
+
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
@@ -72,7 +74,7 @@ const program = yargs(hideBin(process.argv))
             type: 'boolean',
         },
         // This one is provided for free. Chalk reads this itself and removes colors.
-        // https://www.npmjs.com/package/chalk#chalksupportscolor
+        // https://www.npmjs.com/package/chalk#supportscolor
         'no-color': {
             describe: 'Disables colors from logging',
             type: 'boolean',
@@ -145,7 +147,7 @@ const program = yargs(hideBin(process.argv))
         'prefix-colors': {
             alias: 'c',
             describe:
-                'Comma-separated list of chalk colors to use on prefixes. ' +
+                'Comma-separated list of Chalk colors to use on prefixes. ' +
                 'If there are more commands than colors, the last color will be repeated.\n' +
                 '- Available modifiers: reset, bold, dim, italic, underline, inverse, hidden, strikethrough\n' +
                 '- Available colors: black, red, green, yellow, blue, magenta, cyan, white, gray, \n' +

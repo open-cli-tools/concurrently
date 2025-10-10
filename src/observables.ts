@@ -1,4 +1,5 @@
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
+
 import { fromEvent, Observable, share } from 'rxjs';
 
 const sharedEvents = new WeakMap<EventEmitter, Map<string, Observable<unknown>>>();

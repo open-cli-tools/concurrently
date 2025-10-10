@@ -104,7 +104,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
   - `prefix`: the prefix type to use when logging processes output.
     Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
     Default: the name of the process, or its index if no name is set.
-  - `prefixColors`: a list of colors or a string as supported by [chalk](https://www.npmjs.com/package/chalk) and additional style `auto` for an automatically picked color.
+  - `prefixColors`: a list of colors or a string as supported by [Chalk](https://www.npmjs.com/package/chalk) and additional style `auto` for an automatically picked color.
     If concurrently would run more commands than there are colors, the last color is repeated, unless if the last color value is `auto` which means following colors are automatically picked to vary.
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
@@ -224,6 +224,6 @@ It contains the following properties:
   So _null_ means the process didn't terminate normally. This will make **concurrently**
   to return non-zero exit code too.
 
-- Does this work with the npm-replacements [yarn](https://github.com/yarnpkg/yarn), [pnpm](https://pnpm.js.org/), or [Bun](https://bun.sh/)?
+- Does this work with the npm-replacements [yarn](https://yarnpkg.com/), [pnpm](https://pnpm.io/), or [Bun](https://bun.sh/)?
 
   Yes! In all examples above, you may replace "`npm`" with "`yarn`", "`pnpm`", or "`bun`".

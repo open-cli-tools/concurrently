@@ -1,4 +1,4 @@
-import { Writable } from 'stream';
+import { Writable } from 'node:stream';
 
 import { Command } from '../command.js';
 import { fromSharedEvent } from '../observables.js';
@@ -22,7 +22,7 @@ export class OutputErrorHandler implements FlowController {
         this.outputStream = outputStream;
     }
 
-    handle(commands: Command[]): { commands: Command[]; onFinish(): void } {
+    handle(commands: Command[]): { commands: Command[]; onFinish: () => void } {
         const subscription = fromSharedEvent(this.outputStream, 'error').subscribe(() => {
             commands.forEach((command) => command.kill());
 

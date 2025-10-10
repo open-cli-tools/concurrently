@@ -1,5 +1,5 @@
 import chalk, { Chalk } from 'chalk';
-import * as Rx from 'rxjs';
+import Rx from 'rxjs';
 
 import { Command, CommandIdentifier } from './command.js';
 import { DateFormatter } from './date-format.js';
@@ -186,7 +186,7 @@ export class Logger {
         if (this.lastWrite?.command === command && this.lastWrite.char !== '\n') {
             prefix = '\n';
         }
-        this.logCommandText(prefix + this.chalk.reset(text) + '\n', command);
+        this.logCommandText(`${prefix}${this.chalk.reset(text)}\n`, command);
     }
 
     logCommandText(text: string, command: Command) {
@@ -208,7 +208,7 @@ export class Logger {
             return;
         }
 
-        this.log(this.chalk.reset('-->') + ' ', this.chalk.reset(text) + '\n');
+        this.log(`${this.chalk.reset('-->')} `, `${this.chalk.reset(text)}\n`);
     }
 
     /**

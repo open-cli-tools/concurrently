@@ -1,5 +1,6 @@
-import EventEmitter from 'events';
-import { PassThrough, Writable } from 'stream';
+import EventEmitter from 'node:events';
+import { PassThrough, Writable } from 'node:stream';
+
 import { vi } from 'vitest';
 
 import { ChildProcess, CloseEvent, Command, CommandInfo } from '../command.js';

@@ -2,9 +2,9 @@ import { ChildProcess } from 'node:child_process';
 
 import { afterEach, describe, expect, it, Mock, vi } from 'vitest';
 
+import { createMockInstance } from '../__fixtures__/create-mock-instance.js';
+import { createFakeProcess, FakeCommand } from '../__fixtures__/fake-command.js';
 import { SpawnCommand } from '../command.js';
-import { createMockInstance } from '../fixtures/create-mock-instance.js';
-import { createFakeProcess, FakeCommand } from '../fixtures/fake-command.js';
 import { Logger } from '../logger.js';
 import * as spawn from '../spawn.js';
 import { Teardown } from './teardown.js';
@@ -65,7 +65,7 @@ describe('onFinish callback', () => {
         const result = create([teardown]).handle(commands).onFinish();
         const error = 'fail';
         child.emit('error', error);
-        await expect(result).rejects.toBeUndefined();
+        await expect(result).rejects.toBe(error);
         expect(logger.logGlobalEvent).toHaveBeenLastCalledWith('fail');
     });
 
@@ -76,7 +76,7 @@ describe('onFinish callback', () => {
         const result = create([teardown]).handle(commands).onFinish();
         const error = new Error('fail');
         child.emit('error', error);
-        await expect(result).rejects.toBeUndefined();
+        await expect(result).rejects.toBe(error);
         expect(logger.logGlobalEvent).toHaveBeenLastCalledWith(
             expect.stringMatching(/Error: fail/),
         );
@@ -90,7 +90,7 @@ describe('onFinish callback', () => {
         const error = new Error('fail');
         delete error.stack;
         child.emit('error', error);
-        await expect(result).rejects.toBeUndefined();
+        await expect(result).rejects.toBe(error);
         expect(logger.logGlobalEvent).toHaveBeenLastCalledWith('Error: fail');
     });
 

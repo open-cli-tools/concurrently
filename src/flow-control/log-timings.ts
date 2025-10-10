@@ -1,5 +1,6 @@
-import * as assert from 'assert';
-import * as Rx from 'rxjs';
+import assert from 'node:assert';
+
+import Rx from 'rxjs';
 import { bufferCount, combineLatestWith, take } from 'rxjs/operators';
 
 import { CloseEvent, Command } from '../command.js';

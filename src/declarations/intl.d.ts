@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // TODO: Delete this file once Typescript has added these.
 declare namespace Intl {
     // https://github.com/tc39/ecma402/pull/351
     interface DateTimeFormatPartTypesRegistry {
-        yearName: any;
-        relatedYear: any;
+        yearName?: string;
+        relatedYear?: string;
     }
 
     /**
@@ -18,6 +17,6 @@ declare namespace Intl {
 
     interface Locale {
         readonly weekInfo: WeekInfo;
-        getWeekInfo?(): WeekInfo;
+        getWeekInfo?: () => WeekInfo;
     }
 }

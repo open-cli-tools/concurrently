@@ -1,7 +1,8 @@
-import { Writable } from 'stream';
+import { Writable } from 'node:stream';
+
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FakeCommand } from '../fixtures/fake-command.js';
+import { FakeCommand } from '../__fixtures__/fake-command.js';
 import { OutputErrorHandler } from './output-error-handler.js';
 
 let controller: OutputErrorHandler;
@@ -23,7 +24,7 @@ it('returns same commands', () => {
 describe('on output stream error', () => {
     beforeEach(() => {
         controller.handle(commands);
-        outputStream.emit('error', new Error());
+        outputStream.emit('error', new Error('test'));
     });
 
     it('kills every command', () => {
@@ -42,7 +43,7 @@ describe('on finish', () => {
         onFinish();
 
         outputStream.on('error', vi.fn());
-        outputStream.emit('error', new Error());
+        outputStream.emit('error', new Error('test'));
 
         expect(commands[0].kill).not.toHaveBeenCalled();
         expect(commands[1].kill).not.toHaveBeenCalled();

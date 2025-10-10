@@ -1,5 +1,6 @@
-import * as Rx from 'rxjs';
-import { Writable } from 'stream';
+import { Writable } from 'node:stream';
+
+import Rx from 'rxjs';
 
 import { Command } from './command.js';
 import { fromSharedEvent } from './observables.js';

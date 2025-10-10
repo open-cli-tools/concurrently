@@ -1,12 +1,13 @@
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import readline from 'node:readline';
+
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
-import { spawn } from 'child_process';
 import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
 import { build } from 'esbuild';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import * as readline from 'readline';
-import * as Rx from 'rxjs';
+import Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -20,7 +21,7 @@ const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string
         // Could theoretically be anything (e.g. 0) if process has SIGINT handler
         SIGINT: isWindows ? '(3221225786|0)' : '(SIGINT|130|0)',
     };
-    return new RegExp(escapeRegExp(prefix) + ' exited with code ' + (map[signal] ?? signal));
+    return new RegExp(`${escapeRegExp(prefix)} exited with code ${map[signal] ?? signal}`);
 };
 
 let tmpDir: string;
@@ -57,9 +58,6 @@ const run = (args: string, ctrlcWrapper?: boolean) => {
         cwd: __dirname,
         env: {
             ...process.env,
-            // When upgrading from jest 23 -> 24, colors started printing in the test output.
-            // They are forcibly disabled here.
-            FORCE_COLOR: '0',
         },
     });
 
@@ -155,30 +153,34 @@ describe('exiting conditions', () => {
     });
 
     it('is of success when --success=first and first command to exit succeeds', async () => {
-        const exit = await run('--success=first "echo foo" "node fixtures/sleep.js 0.5 && exit 1"')
-            .exit;
+        const exit = await run(
+            '--success=first "echo foo" "node __fixtures__/sleep.js 0.5 && exit 1"',
+        ).exit;
 
         expect(exit.code).toBe(0);
     });
 
     it('is of failure when --success=first and first command to exit fails', async () => {
-        const exit = await run('--success=first "exit 1" "node fixtures/sleep.js 0.5 && echo foo"')
-            .exit;
+        const exit = await run(
+            '--success=first "exit 1" "node __fixtures__/sleep.js 0.5 && echo foo"',
+        ).exit;
 
         expect(exit.code).toBeGreaterThan(0);
     });
 
     describe('is of success when --success=last and last command to exit succeeds', () => {
         it.each(['--success=last', '-s last'])('%s', async (arg) => {
-            const exit = await run(`${arg} "exit 1" "node fixtures/sleep.js 0.5 && echo foo"`).exit;
+            const exit = await run(`${arg} "exit 1" "node __fixtures__/sleep.js 0.5 && echo foo"`)
+                .exit;
 
             expect(exit.code).toBe(0);
         });
     });
 
     it('is of failure when --success=last and last command to exit fails', async () => {
-        const exit = await run('--success=last "echo foo" "node fixtures/sleep.js 0.5 && exit 1"')
-            .exit;
+        const exit = await run(
+            '--success=last "echo foo" "node __fixtures__/sleep.js 0.5 && exit 1"',
+        ).exit;
 
         expect(exit.code).toBeGreaterThan(0);
     });
@@ -187,7 +189,7 @@ describe('exiting conditions', () => {
         // Windows doesn't support sending signals like on POSIX platforms.
         // However, in a console, processes can be interrupted with CTRL+C (like a SIGINT).
         // This is what we simulate here with the help of a wrapper application.
-        const child = run('"node fixtures/read-echo.js"', isWindows);
+        const child = run('"node __fixtures__/read-echo.js"', isWindows);
         // Wait for command to have started before sending SIGINT
         child.log.subscribe((line) => {
             if (/READING/.test(line)) {
@@ -206,7 +208,7 @@ describe('exiting conditions', () => {
         expect(lines).toContainEqual(
             expect.stringMatching(
                 createKillMessage(
-                    '[0] node fixtures/read-echo.js',
+                    '[0] node __fixtures__/read-echo.js',
                     // TODO: Flappy value due to race condition, sometimes killed by concurrently (exit code 1),
                     //       sometimes terminated on its own (exit code 0).
                     //       Related issue: https://github.com/open-cli-tools/concurrently/issues/283
@@ -262,7 +264,7 @@ describe('--hide', () => {
 describe('--group', () => {
     it('groups output per process', async () => {
         const lines = await run(
-            '--group "echo foo && node fixtures/sleep.js 1 && echo bar" "echo baz"',
+            '--group "echo foo && node __fixtures__/sleep.js 1 && echo bar" "echo baz"',
         ).getLogLines();
 
         expect(lines.slice(0, 4)).toEqual([
@@ -336,7 +338,9 @@ describe('--restart-tries', () => {
 describe('--kill-others', () => {
     describe('kills on success', () => {
         it.each(['--kill-others', '-k'])('%s', async (arg) => {
-            const lines = await run(`${arg} "node fixtures/sleep.js 10" "exit 0"`).getLogLines();
+            const lines = await run(
+                `${arg} "node __fixtures__/sleep.js 10" "exit 0"`,
+            ).getLogLines();
 
             expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
             expect(lines).toContainEqual(
@@ -344,19 +348,23 @@ describe('--kill-others', () => {
             );
             expect(lines).toContainEqual(
                 expect.stringMatching(
-                    createKillMessage('[0] node fixtures/sleep.js 10', 'SIGTERM'),
+                    createKillMessage('[0] node __fixtures__/sleep.js 10', 'SIGTERM'),
                 ),
             );
         });
     });
 
     it('kills on failure', async () => {
-        const lines = await run('--kill-others "node fixtures/sleep.js 10" "exit 1"').getLogLines();
+        const lines = await run(
+            '--kill-others "node __fixtures__/sleep.js 10" "exit 1"',
+        ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.js 10', 'SIGTERM')),
+            expect.stringMatching(
+                createKillMessage('[0] node __fixtures__/sleep.js 10', 'SIGTERM'),
+            ),
         );
     });
 });
@@ -364,24 +372,26 @@ describe('--kill-others', () => {
 describe('--kill-others-on-fail', () => {
     it('does not kill on success', async () => {
         const lines = await run(
-            '--kill-others-on-fail "node fixtures/sleep.js 0.5" "exit 0"',
+            '--kill-others-on-fail "node __fixtures__/sleep.js 0.5" "exit 0"',
         ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 0 exited with code 0'));
         expect(lines).toContainEqual(
-            expect.stringContaining('[0] node fixtures/sleep.js 0.5 exited with code 0'),
+            expect.stringContaining('[0] node __fixtures__/sleep.js 0.5 exited with code 0'),
         );
     });
 
     it('kills on failure', async () => {
         const lines = await run(
-            '--kill-others-on-fail "node fixtures/sleep.js 10" "exit 1"',
+            '--kill-others-on-fail "node __fixtures__/sleep.js 10" "exit 1"',
         ).getLogLines();
 
         expect(lines).toContainEqual(expect.stringContaining('[1] exit 1 exited with code 1'));
         expect(lines).toContainEqual(expect.stringContaining('Sending SIGTERM to other processes'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/sleep.js 10', 'SIGTERM')),
+            expect.stringMatching(
+                createKillMessage('[0] node __fixtures__/sleep.js 10', 'SIGTERM'),
+            ),
         );
     });
 });
@@ -389,7 +399,7 @@ describe('--kill-others-on-fail', () => {
 describe('--handle-input', () => {
     describe('forwards input to first process by default', () => {
         it.each(['--handle-input', '-i'])('%s', async (arg) => {
-            const child = run(`${arg} "node fixtures/read-echo.js"`);
+            const child = run(`${arg} "node __fixtures__/read-echo.js"`);
             child.log.subscribe((line) => {
                 if (/READING/.test(line)) {
                     child.stdin.write('stop\n');
@@ -401,14 +411,14 @@ describe('--handle-input', () => {
             expect(exit.code).toBe(0);
             expect(lines).toContainEqual(expect.stringContaining('[0] stop'));
             expect(lines).toContainEqual(
-                expect.stringContaining('[0] node fixtures/read-echo.js exited with code 0'),
+                expect.stringContaining('[0] node __fixtures__/read-echo.js exited with code 0'),
             );
         });
     });
 
     it('forwards input to process --default-input-target', async () => {
         const child = run(
-            '-ki --default-input-target 1 "node fixtures/read-echo.js" "node fixtures/read-echo.js"',
+            '-ki --default-input-target 1 "node __fixtures__/read-echo.js" "node __fixtures__/read-echo.js"',
         );
         child.log.subscribe((line) => {
             if (/\[1\] READING/.test(line)) {
@@ -421,12 +431,14 @@ describe('--handle-input', () => {
         expect(exit.code).toBeGreaterThan(0);
         expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM')),
+            expect.stringMatching(
+                createKillMessage('[0] node __fixtures__/read-echo.js', 'SIGTERM'),
+            ),
         );
     });
 
     it('forwards input to specified process', async () => {
-        const child = run('-ki "node fixtures/read-echo.js" "node fixtures/read-echo.js"');
+        const child = run('-ki "node __fixtures__/read-echo.js" "node __fixtures__/read-echo.js"');
         child.log.subscribe((line) => {
             if (/\[1\] READING/.test(line)) {
                 child.stdin.write('1:stop\n');
@@ -438,7 +450,9 @@ describe('--handle-input', () => {
         expect(exit.code).toBeGreaterThan(0);
         expect(lines).toContainEqual(expect.stringContaining('[1] stop'));
         expect(lines).toContainEqual(
-            expect.stringMatching(createKillMessage('[0] node fixtures/read-echo.js', 'SIGTERM')),
+            expect.stringMatching(
+                createKillMessage('[0] node __fixtures__/read-echo.js', 'SIGTERM'),
+            ),
         );
     });
 });
@@ -466,24 +480,13 @@ describe('--teardown', () => {
 
 describe('--timings', () => {
     const defaultTimestampFormatRegex = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}.\d{3}/;
-    const processStartedMessageRegex = (index: number, command: string) => {
-        return new RegExp(
-            `^\\[${index}] ${command} started at ${defaultTimestampFormatRegex.source}$`,
-        );
-    };
-    const processStoppedMessageRegex = (index: number, command: string) => {
-        return new RegExp(
-            `^\\[${index}] ${command} stopped at ${defaultTimestampFormatRegex.source} after (\\d|,)+ms$`,
-        );
-    };
-
-    const tableTopBorderRegex = /┌[─┬]+┐/g;
-    const tableHeaderRowRegex = /(\W+(name|duration|exit code|killed|command)\W+){5}/g;
-    const tableBottomBorderRegex = /└[─┴]+┘/g;
+    const tableTopBorderRegex = /^--> ┌[─┬]+┐$/;
+    const tableHeaderRowRegex = /^--> │ name +│ duration +│ exit code +│ killed +│ command +│$/;
+    const tableBottomBorderRegex = /^--> └[─┴]+┘$/;
 
     const timingsTests = {
-        'shows timings on success': ['node fixtures/sleep.js 0.5', 'exit 0'],
-        'shows timings on failure': ['node fixtures/sleep.js 0.75', 'exit 1'],
+        'shows timings on success': ['node __fixtures__/sleep.js 0.5', 'exit 0'],
+        'shows timings on failure': ['node __fixtures__/sleep.js 0.75', 'exit 1'],
     };
     it.each(Object.entries(timingsTests))('%s', async (_, commands) => {
         const lines = await run(
@@ -494,10 +497,18 @@ describe('--timings', () => {
         commands.forEach((command, index) => {
             const escapedCommand = escapeRegExp(command);
             expect(lines).toContainEqual(
-                expect.stringMatching(processStartedMessageRegex(index, escapedCommand)),
+                expect.stringMatching(
+                    new RegExp(
+                        `^\\[${index}] ${escapedCommand} started at ${defaultTimestampFormatRegex.source}$`,
+                    ),
+                ),
             );
             expect(lines).toContainEqual(
-                expect.stringMatching(processStoppedMessageRegex(index, escapedCommand)),
+                expect.stringMatching(
+                    new RegExp(
+                        `^\\[${index}] ${escapedCommand} stopped at ${defaultTimestampFormatRegex.source} after (\\d|,)+ms$`,
+                    ),
+                ),
             );
         });
 

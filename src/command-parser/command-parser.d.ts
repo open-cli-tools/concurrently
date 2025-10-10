@@ -16,5 +16,5 @@ export interface CommandParser {
      * An example of this is when the command contains a wildcard and it must be expanded into all
      * viable options so that the consumer can decide which ones to run.
      */
-    parse(commandInfo: CommandInfo): CommandInfo | CommandInfo[];
+    parse: (commandInfo: CommandInfo) => CommandInfo | CommandInfo[];
 }

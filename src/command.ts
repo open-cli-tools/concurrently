@@ -1,11 +1,14 @@
+import { Buffer } from 'node:buffer';
 import {
     ChildProcess as BaseChildProcess,
     MessageOptions,
     SendHandle,
     SpawnOptions,
-} from 'child_process';
-import * as Rx from 'rxjs';
-import { EventEmitter, Writable } from 'stream';
+} from 'node:child_process';
+import process from 'node:process';
+import { EventEmitter, Writable } from 'node:stream';
+
+import Rx from 'rxjs';
 
 /**
  * Identifier for a command; if string, it's the command's name, if number, it's the index.
@@ -89,7 +92,7 @@ export interface MessageEvent {
 
 interface OutgoingMessageEvent extends MessageEvent {
     options?: MessageOptions;
-    onSent(error?: unknown): void;
+    onSent: (error?: unknown) => void;
 }
 
 /**

@@ -11,8 +11,8 @@ export class ExpandArguments implements CommandParser {
 
     parse(commandInfo: CommandInfo) {
         const command = commandInfo.command.replace(
-            /\\?\{([@*]|[1-9][0-9]*)\}/g,
-            (match, placeholderTarget) => {
+            /\\?\{([@*]|[1-9]\d*)\}/g,
+            (match, placeholderTarget: string) => {
                 // Don't replace the placeholder if it is escaped by a backslash.
                 if (match.startsWith('\\')) {
                     return match.slice(1);
@@ -20,11 +20,8 @@ export class ExpandArguments implements CommandParser {
 
                 if (this.additionalArguments.length > 0) {
                     // Replace numeric placeholder if value exists in additional arguments.
-                    if (
-                        !isNaN(placeholderTarget) &&
-                        placeholderTarget <= this.additionalArguments.length
-                    ) {
-                        return quote([this.additionalArguments[placeholderTarget - 1]]);
+                    if (+placeholderTarget <= this.additionalArguments.length) {
+                        return quote([this.additionalArguments[+placeholderTarget - 1]]);
                     }
 
                     // Replace all arguments placeholder.

@@ -1,4 +1,4 @@
-import * as Rx from 'rxjs';
+import Rx from 'rxjs';
 import { defaultIfEmpty, delayWhen, filter, map, skip, take, takeWhile } from 'rxjs/operators';
 
 import { Command } from '../command.js';
@@ -42,7 +42,7 @@ export class RestartProcess implements FlowController {
 
         const delayOperator = delayWhen((_, index) => {
             const { delay } = this;
-            const value = delay === 'exponential' ? Math.pow(2, index) * 1000 : delay;
+            const value = delay === 'exponential' ? 2 ** index * 1000 : delay;
             return Rx.timer(value, this.scheduler);
         });
 

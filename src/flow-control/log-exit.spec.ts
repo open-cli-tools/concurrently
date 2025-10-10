@@ -1,7 +1,7 @@
 import { beforeEach, expect, it } from 'vitest';
 
-import { createMockInstance } from '../fixtures/create-mock-instance.js';
-import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command.js';
+import { createMockInstance } from '../__fixtures__/create-mock-instance.js';
+import { createFakeCloseEvent, FakeCommand } from '../__fixtures__/fake-command.js';
 import { Logger } from '../logger.js';
 import { LogExit } from './log-exit.js';
 

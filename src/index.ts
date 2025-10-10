@@ -1,4 +1,5 @@
-import { Readable } from 'stream';
+import process from 'node:process';
+import { Readable } from 'node:stream';
 
 import { assertDeprecated } from './assert.js';
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command.js';
@@ -8,7 +9,7 @@ import {
     ConcurrentlyOptions as BaseConcurrentlyOptions,
     ConcurrentlyResult,
 } from './concurrently.js';
-import { FlowController } from './flow-control/flow-controller.js';
+import type { FlowController } from './flow-control/flow-controller.js';
 import { InputHandler } from './flow-control/input-handler.js';
 import { KillOnSignal } from './flow-control/kill-on-signal.js';
 import { KillOthers, ProcessCloseCondition } from './flow-control/kill-others.js';

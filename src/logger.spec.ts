@@ -2,11 +2,11 @@ import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import chalk from 'chalk';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { FakeCommand } from './fixtures/fake-command.js';
+import { FakeCommand } from './__fixtures__/fake-command.js';
 import { Logger } from './logger.js';
 
 beforeEach(() => {
-    // Force chalk to use colors, otherwise tests may pass when they were supposed to be failing.
+    // Force Chalk to use colors, otherwise tests may pass when they were supposed to be failing.
     chalk.level = 3;
 });
 
@@ -86,8 +86,8 @@ describe('#logGlobalEvent()', () => {
         logger.logGlobalEvent('foo');
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('foo') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('foo')}\n`,
         );
     });
 });
@@ -98,7 +98,7 @@ describe('#logCommandText()', () => {
         const cmd = new FakeCommand('bla');
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[bla]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[bla]')} `, 'foo', cmd);
     });
 
     it('logs with index if no prefixFormat is set, and command has no name', () => {
@@ -106,7 +106,7 @@ describe('#logCommandText()', () => {
         const cmd = new FakeCommand('', undefined, 2);
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[2]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[2]')} `, 'foo', cmd);
     });
 
     it('logs with prefixFormat set to pid', () => {
@@ -115,7 +115,7 @@ describe('#logCommandText()', () => {
         cmd.pid = 123;
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[123]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[123]')} `, 'foo', cmd);
     });
 
     it('logs with prefixFormat set to name', () => {
@@ -123,7 +123,7 @@ describe('#logCommandText()', () => {
         const cmd = new FakeCommand('bar');
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[bar]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[bar]')} `, 'foo', cmd);
     });
 
     it('logs with prefixFormat set to index', () => {
@@ -131,7 +131,7 @@ describe('#logCommandText()', () => {
         const cmd = new FakeCommand(undefined, undefined, 3);
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[3]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[3]')} `, 'foo', cmd);
     });
 
     it('logs with prefixFormat set to time (with timestampFormat)', () => {
@@ -140,7 +140,7 @@ describe('#logCommandText()', () => {
         logger.logCommandText('foo', cmd);
 
         const year = new Date().getFullYear();
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset(`[${year}]`) + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset(`[${year}]`)} `, 'foo', cmd);
     });
 
     it('logs with templated prefixFormat', () => {
@@ -148,7 +148,7 @@ describe('#logCommandText()', () => {
         const cmd = new FakeCommand('bar');
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('0-bar') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('0-bar')} `, 'foo', cmd);
     });
 
     it('does not strip spaces from beginning or end of prefixFormat', () => {
@@ -156,7 +156,7 @@ describe('#logCommandText()', () => {
         const cmd = new FakeCommand('bar');
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset(' 0-bar ') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset(' 0-bar ')} `, 'foo', cmd);
     });
 
     it('logs with no prefix', () => {
@@ -172,7 +172,7 @@ describe('#logCommandText()', () => {
         const cmd = new FakeCommand();
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[echo foo]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[echo foo]')} `, 'foo', cmd);
     });
 
     it('logs prefix using command line itself, capped at commandLength bytes', () => {
@@ -180,7 +180,7 @@ describe('#logCommandText()', () => {
         const cmd = new FakeCommand();
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[ec..oo]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[ec..oo]')} `, 'foo', cmd);
     });
 
     it('logs default prefixes with padding', () => {
@@ -189,7 +189,7 @@ describe('#logCommandText()', () => {
         logger.setPrefixLength(5);
         logger.logCommandText('bar', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[foo  ]') + ' ', 'bar', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[foo  ]')} `, 'bar', cmd);
     });
 
     it('logs templated prefixes with padding', () => {
@@ -198,7 +198,7 @@ describe('#logCommandText()', () => {
         logger.setPrefixLength(6);
         logger.logCommandText('bar', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('foo-0 ') + ' ', 'bar', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('foo-0 ')} `, 'bar', cmd);
     });
 
     it('logs prefix using prefixColor from command', () => {
@@ -208,7 +208,7 @@ describe('#logCommandText()', () => {
         });
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.blue('[1]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.blue('[1]')} `, 'foo', cmd);
     });
 
     it('logs prefix in gray dim if prefixColor from command does not exist', () => {
@@ -218,7 +218,7 @@ describe('#logCommandText()', () => {
         });
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.reset('[1]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[1]')} `, 'foo', cmd);
     });
 
     it('logs prefix using prefixColor from command if prefixColor is a hex value', () => {
@@ -229,7 +229,7 @@ describe('#logCommandText()', () => {
         });
         logger.logCommandText('foo', cmd);
 
-        expect(logger.log).toHaveBeenCalledWith(chalk.hex(prefixColor)('[1]') + ' ', 'foo', cmd);
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.hex(prefixColor)('[1]')} `, 'foo', cmd);
     });
 
     it('logs prefix using prefixColor from command if prefixColor is a hex value with modifiers', () => {
@@ -241,7 +241,7 @@ describe('#logCommandText()', () => {
         logger.logCommandText('foo', cmd);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.hex(prefixColor).inverse('[1]') + ' ',
+            `${chalk.hex(prefixColor).inverse('[1]')} `,
             'foo',
             cmd,
         );
@@ -294,8 +294,8 @@ describe('#logCommandEvent()', () => {
         logger.logCommandEvent('foo', cmd);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('[1]') + ' ',
-            chalk.reset('foo') + '\n',
+            `${chalk.reset('[1]')} `,
+            `${chalk.reset('foo')}\n`,
             cmd,
         );
     });
@@ -307,8 +307,8 @@ describe('#logCommandEvent()', () => {
         logger.logCommandEvent('event', cmd);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('[1]') + ' ',
-            '\n' + chalk.reset('event') + '\n',
+            `${chalk.reset('[1]')} `,
+            `\n${chalk.reset('event')}\n`,
             cmd,
         );
     });
@@ -351,8 +351,8 @@ describe('#logTable()', () => {
         logger.logTable([{ foo: 1, bar: 2 }]);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│ foo │ bar │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│ foo │ bar │')}\n`,
         );
     });
 
@@ -361,8 +361,8 @@ describe('#logTable()', () => {
         logger.logTable([{ a: 'foo', b: 'barbaz' }]);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│ a   │ b      │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│ a   │ b      │')}\n`,
         );
     });
 
@@ -371,12 +371,12 @@ describe('#logTable()', () => {
         logger.logTable([{ foo: 123 }, { foo: 456 }]);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│ 123 │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│ 123 │')}\n`,
         );
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│ 456 │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│ 456 │')}\n`,
         );
     });
 
@@ -385,12 +385,12 @@ describe('#logTable()', () => {
         logger.logTable([{ foo: 123 }, { foo: null }]);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│ 123 │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│ 123 │')}\n`,
         );
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│     │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│     │')}\n`,
         );
     });
 
@@ -399,8 +399,8 @@ describe('#logTable()', () => {
         logger.logTable([{ foo: 1 }, { foo: 123 }]);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│ 1   │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│ 1   │')}\n`,
         );
     });
 
@@ -409,16 +409,16 @@ describe('#logTable()', () => {
         logger.logTable([{ foo: 1 }, { bar: 2 }]);
 
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│ foo │ bar │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│ foo │ bar │')}\n`,
         );
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│ 1   │     │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│ 1   │     │')}\n`,
         );
         expect(logger.log).toHaveBeenCalledWith(
-            chalk.reset('-->') + ' ',
-            chalk.reset('│     │ 2   │') + '\n',
+            `${chalk.reset('-->')} `,
+            `${chalk.reset('│     │ 2   │')}\n`,
         );
     });
 });
@@ -433,8 +433,8 @@ describe('#toggleColors()', () => {
         logger.logGlobalEvent('baz');
 
         const texts = spy.getValues().map((value) => value.text);
-        expect(texts).toContain(chalk.red('[foo]') + ' ');
-        expect(texts).toContain(chalk.reset('-->') + ' ');
+        expect(texts).toContain(`${chalk.red('[foo]')} `);
+        expect(texts).toContain(`${chalk.reset('-->')} `);
     });
 
     it('uses no colors when off', () => {

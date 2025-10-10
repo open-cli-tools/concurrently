@@ -1,7 +1,7 @@
 import { beforeEach, expect, it } from 'vitest';
 
-import { createMockInstance } from '../fixtures/create-mock-instance.js';
-import { FakeCommand } from '../fixtures/fake-command.js';
+import { createMockInstance } from '../__fixtures__/create-mock-instance.js';
+import { FakeCommand } from '../__fixtures__/fake-command.js';
 import { Logger } from '../logger.js';
 import { LogError } from './log-error.js';
 
@@ -23,11 +23,11 @@ it('logs the error event of each command', () => {
     controller.handle(commands);
     commands[0].error.next('error from command 0');
 
-    const error1 = new Error('some error message');
+    const error1 = new Error('test');
     commands[1].error.next(error1);
 
     // Testing Error without stack
-    const error2 = new Error();
+    const error2 = new Error('test');
     error2.stack = '';
     commands[2].error.next(error2);
 

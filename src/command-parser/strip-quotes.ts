@@ -9,7 +9,7 @@ export class StripQuotes implements CommandParser {
         let { command } = commandInfo;
 
         // Removes the quotes surrounding a command.
-        if (/^"(.+?)"$/.test(command) || /^'(.+?)'$/.test(command)) {
+        if (/^".+?"$/.test(command) || /^'.+?'$/.test(command)) {
             command = command.slice(1, command.length - 1);
         }
 

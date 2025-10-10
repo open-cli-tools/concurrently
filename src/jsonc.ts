@@ -6,11 +6,9 @@ MIT license
 Copied due to the dependency not being compatible with CommonJS
 */
 
-/* HELPERS */
-const stringOrCommentRe = /("(?:\\?[^])*?")|(\/\/.*)|(\/\*[^]*?\*\/)/g;
-const stringOrTrailingCommaRe = /("(?:\\?[^])*?")|(,\s*)(?=]|})/g;
+const stringOrCommentRe = /("(?:\\?[\s\S])*?")|(\/\/.*)|(\/\*[\s\S]*?\*\/)/g;
+const stringOrTrailingCommaRe = /("(?:\\?[\s\S])*?")|(,\s*)(?=\]|\})/g;
 
-/* MAIN */
 const JSONC = {
     parse: (text: string) => {
         text = String(text); // To be extra safe
@@ -28,5 +26,4 @@ const JSONC = {
     stringify: JSON.stringify,
 };
 
-/* EXPORT */
 export default JSONC;

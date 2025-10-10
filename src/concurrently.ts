@@ -1,7 +1,8 @@
-import assert from 'assert';
-import os from 'os';
+import assert from 'node:assert';
+import os from 'node:os';
+import { Writable } from 'node:stream';
+
 import { takeUntil } from 'rxjs';
-import { Writable } from 'stream';
 import treeKill from 'tree-kill';
 
 import {
@@ -40,7 +41,7 @@ const defaults: ConcurrentlyOptions = {
  */
 export type ConcurrentlyCommandInput = string | ({ command: string } & Partial<CommandInfo>);
 
-export type ConcurrentlyResult = {
+export interface ConcurrentlyResult {
     /**
      * All commands created and ran by concurrently.
      */
@@ -54,9 +55,9 @@ export type ConcurrentlyResult = {
      * spawned; commands that didn't spawn are filtered out.
      */
     result: Promise<CloseEvent[]>;
-};
+}
 
-export type ConcurrentlyOptions = {
+export interface ConcurrentlyOptions {
     logger?: Logger;
 
     /**
@@ -70,7 +71,7 @@ export type ConcurrentlyOptions = {
     group?: boolean;
 
     /**
-     * A comma-separated list of chalk colors or a string for available styles listed below to use on prefixes.
+     * A comma-separated list of Chalk colors or a string for available styles listed below to use on prefixes.
      * If there are more commands than colors, the last color will be repeated.
      *
      * Available modifiers:
@@ -150,7 +151,7 @@ export type ConcurrentlyOptions = {
      * @see ExpandArguments
      */
     additionalArguments?: string[];
-};
+}
 
 /**
  * Core concurrently functionality -- spawns the given commands concurrently and

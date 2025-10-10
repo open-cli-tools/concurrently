@@ -1,4 +1,5 @@
-import EventEmitter from 'events';
+import EventEmitter from 'node:events';
+
 import { describe, expect, it } from 'vitest';
 
 import { fromSharedEvent } from './observables.js';

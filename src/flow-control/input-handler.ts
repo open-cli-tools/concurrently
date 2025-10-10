@@ -1,6 +1,7 @@
-import * as Rx from 'rxjs';
+import { Readable } from 'node:stream';
+
+import Rx from 'rxjs';
 import { map } from 'rxjs/operators';
-import { Readable } from 'stream';
 
 import { Command, CommandIdentifier } from '../command.js';
 import * as defaults from '../defaults.js';
@@ -57,12 +58,12 @@ export class InputHandler implements FlowController {
         Rx.fromEvent(inputStream, 'data')
             .pipe(map((data) => String(data)))
             .subscribe((data) => {
-                let command: Command | undefined, input: string;
-
                 const dataParts = data.split(/:(.+)/s);
                 let target = dataParts[0];
+                let command = commandsMap.get(target);
+                let input: string;
 
-                if (dataParts.length > 1 && (command = commandsMap.get(target))) {
+                if (dataParts.length > 1 && command) {
                     input = dataParts[1];
                 } else {
                     // If `target` does not match a registered command,

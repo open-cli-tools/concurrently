@@ -1,8 +1,8 @@
 import { VirtualTimeScheduler } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createMockInstance } from '../fixtures/create-mock-instance.js';
-import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command.js';
+import { createMockInstance } from '../__fixtures__/create-mock-instance.js';
+import { createFakeCloseEvent, FakeCommand } from '../__fixtures__/fake-command.js';
 import { Logger } from '../logger.js';
 import { RestartProcess } from './restart-process.js';
 
@@ -81,7 +81,7 @@ it('restarts processes that fail with an exponential back-off', () => {
         commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
         scheduler.flush();
 
-        time += Math.pow(2, i) * 1000;
+        time += 2 ** i * 1000;
         expect(scheduler.now()).toBe(time);
         expect(logger.logCommandEvent).toHaveBeenCalledTimes(i + 1);
         expect(commands[0].start).toHaveBeenCalledTimes(i + 1);

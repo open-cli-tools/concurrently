@@ -1,9 +1,9 @@
 import { beforeEach, expect, it } from 'vitest';
 
+import { createMockInstance } from '../__fixtures__/create-mock-instance.js';
+import { createFakeCloseEvent, FakeCommand } from '../__fixtures__/fake-command.js';
 import { CloseEvent } from '../command.js';
 import { DateFormatter } from '../date-format.js';
-import { createMockInstance } from '../fixtures/create-mock-instance.js';
-import { createFakeCloseEvent, FakeCommand } from '../fixtures/fake-command.js';
 import { Logger } from '../logger.js';
 import { LogTimings } from './log-timings.js';
 

@@ -1,7 +1,7 @@
 import { beforeEach, expect, it, MockedObject } from 'vitest';
 
-import { createMockInstance } from '../fixtures/create-mock-instance.js';
-import { FakeCommand } from '../fixtures/fake-command.js';
+import { createMockInstance } from '../__fixtures__/create-mock-instance.js';
+import { FakeCommand } from '../__fixtures__/fake-command.js';
 import { Logger } from '../logger.js';
 import { LoggerPadding } from './logger-padding.js';
 

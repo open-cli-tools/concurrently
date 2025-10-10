@@ -1,30 +1,39 @@
-name: Test
+name: CI
 
 on:
   push:
     branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - '**.ya?ml'
-      - '!pnpm-lock.yaml'
-      - '!.github/workflows/test.yml'
   pull_request:
     branches:
       - main
-    paths-ignore:
-      - '**.md'
-      - '**.ya?ml'
-      - '!pnpm-lock.yaml'
-      - '!.github/workflows/test.yml'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Format
+        run: pnpm run format
+
+      - name: Typecheck
+        run: pnpm run typecheck
+
   test:
-    name: Node.js ${{ matrix.node }} on ${{ matrix.os.name }}
+    name: Test (Node.js ${{ matrix.node }}, ${{ matrix.os.name }})
     runs-on: ${{ matrix.os.version }}
     strategy:
       fail-fast: false
@@ -49,11 +58,8 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install concurrently 🐶🥣
-        run: pnpm add --global concurrently
-
-      - name: Build & Test
-        run: concurrently --prefix none --group "pnpm:build" "pnpm:test --coverage" "pnpm:test:smoke"
+      - name: Test
+        run: pnpm exec vitest --coverage
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master

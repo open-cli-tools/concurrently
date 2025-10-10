@@ -1,9 +1,11 @@
-import { PassThrough } from 'stream';
+import { Buffer } from 'node:buffer';
+import { PassThrough } from 'node:stream';
+
 import { beforeEach, expect, it } from 'vitest';
 
+import { createMockInstance } from '../__fixtures__/create-mock-instance.js';
+import { FakeCommand } from '../__fixtures__/fake-command.js';
 import { Command } from '../command.js';
-import { createMockInstance } from '../fixtures/create-mock-instance.js';
-import { FakeCommand } from '../fixtures/fake-command.js';
 import { Logger } from '../logger.js';
 import { InputHandler } from './input-handler.js';
 

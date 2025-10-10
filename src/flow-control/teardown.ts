@@ -1,4 +1,4 @@
-import * as Rx from 'rxjs';
+import Rx from 'rxjs';
 
 import { Command, SpawnCommand } from '../command.js';
 import { Logger } from '../logger.js';
@@ -63,7 +63,7 @@ export class Teardown implements FlowController {
                     const errorText = String(error instanceof Error ? error.stack || error : error);
                     logger.logGlobalEvent(`Teardown command "${command}" errored:`);
                     logger.logGlobalEvent(errorText);
-                    return Promise.reject();
+                    return Promise.reject(error);
                 }
             }
         };
