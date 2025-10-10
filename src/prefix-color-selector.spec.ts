@@ -1,4 +1,4 @@
-import { Chalk } from 'chalk';
+import { ChalkInstance } from 'chalk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { PrefixColorSelector } from './prefix-color-selector.js';
@@ -11,7 +11,7 @@ describe('#getNextColor()', () => {
     const customTests: Record<
         string,
         {
-            acceptableConsoleColors?: Array<keyof Chalk>;
+            acceptableConsoleColors?: Array<keyof ChalkInstance>;
             customColors?: string | string[];
             expectedColors: string[];
         }

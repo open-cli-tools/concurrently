@@ -1,4 +1,4 @@
-import { Chalk } from 'chalk';
+import { ChalkInstance } from 'chalk';
 
 function getConsoleColorsWithoutCustomColors(customColors: string[]): string[] {
     return PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.filter(
@@ -68,7 +68,7 @@ export class PrefixColorSelector {
         // Colors picked randomly, can be amended if required
         return [
             // Prevent duplicates, in case the list becomes significantly large
-            ...new Set<keyof Chalk>([
+            ...new Set<keyof ChalkInstance>([
                 // Text colors
                 'cyan',
                 'yellow',

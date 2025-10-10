@@ -1,4 +1,4 @@
-import chalk, { Chalk } from 'chalk';
+import chalk, { Chalk, ChalkInstance } from 'chalk';
 import Rx from 'rxjs';
 
 import { Command, CommandIdentifier } from './command.js';
@@ -7,12 +7,12 @@ import * as defaults from './defaults.js';
 import { escapeRegExp } from './utils.js';
 
 const defaultChalk = chalk;
-const noColorChalk = new chalk.Instance({ level: 0 });
+const noColorChalk = new Chalk({ level: 0 });
 
-function getChalkPath(chalk: Chalk, path: string): Chalk | undefined {
+function getChalkPath(chalk: ChalkInstance, path: string): ChalkInstance | undefined {
     return path
         .split('.')
-        .reduce((prev, key) => (prev as unknown as Record<string, Chalk>)[key], chalk);
+        .reduce((prev, key) => (prev as unknown as Record<string, ChalkInstance>)[key], chalk);
 }
 
 export class Logger {
@@ -22,7 +22,7 @@ export class Logger {
     private readonly commandLength: number;
     private readonly dateFormatter: DateFormatter;
 
-    private chalk: Chalk = defaultChalk;
+    private chalk = defaultChalk;
 
     /**
      * How many characters should a prefix have.
@@ -154,7 +154,7 @@ export class Logger {
     }
 
     colorText(command: Command, text: string) {
-        let color: chalk.Chalk;
+        let color: ChalkInstance;
         if (command.prefixColor?.startsWith('#')) {
             const [hexColor, ...modifiers] = command.prefixColor.split('.');
             color = this.chalk.hex(hexColor);
@@ -163,7 +163,7 @@ export class Logger {
                 color = modifiedColor;
             }
         } else {
-            const defaultColor = getChalkPath(this.chalk, defaults.prefixColors) as Chalk;
+            const defaultColor = getChalkPath(this.chalk, defaults.prefixColors) as ChalkInstance;
             color = getChalkPath(this.chalk, command.prefixColor ?? '') ?? defaultColor;
         }
         return color(text);
