@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { ChildProcess, IOType, spawn as baseSpawn, SpawnOptions } from 'node:child_process';
 import nodeProcess from 'node:process';
 
-import supportsColor from 'supports-color';
+import supportsColor, { ColorSupport } from 'supports-color';
 
 /**
  * Spawns a command using `cmd.exe` on Windows, or `/bin/sh` elsewhere.
@@ -39,7 +39,7 @@ export const getSpawnOpts = ({
      *
      * Defaults to whatever the terminal's stdout support is.
      */
-    colorSupport?: Pick<supportsColor.supportsColor.Level, 'level'> | false;
+    colorSupport?: Pick<ColorSupport, 'level'> | false;
 
     /**
      * The NodeJS process.
