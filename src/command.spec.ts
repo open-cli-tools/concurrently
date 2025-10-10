@@ -100,8 +100,7 @@ describe('#start()', () => {
         const { command } = createCommand({}, { detached: true });
         command.start();
 
-        expect(spawn).toHaveBeenCalledTimes(1);
-        expect(spawn).toHaveBeenCalledWith(command.command, { detached: true });
+        expect(spawn).toHaveBeenCalledExactlyOnceWith(command.command, { detached: true });
     });
 
     it('sets stdin, process and PID', () => {
@@ -447,16 +446,14 @@ describe('#kill()', () => {
         createdCommand.command.start();
         createdCommand.command.kill();
 
-        expect(killProcess).toHaveBeenCalledTimes(1);
-        expect(killProcess).toHaveBeenCalledWith(createdCommand.command.pid, undefined);
+        expect(killProcess).toHaveBeenCalledExactlyOnceWith(createdCommand.command.pid, undefined);
     });
 
     it('kills process with some signal', () => {
         createdCommand.command.start();
         createdCommand.command.kill('SIGKILL');
 
-        expect(killProcess).toHaveBeenCalledTimes(1);
-        expect(killProcess).toHaveBeenCalledWith(createdCommand.command.pid, 'SIGKILL');
+        expect(killProcess).toHaveBeenCalledExactlyOnceWith(createdCommand.command.pid, 'SIGKILL');
     });
 
     it('does not try to kill inexistent process', () => {

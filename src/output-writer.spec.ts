@@ -49,8 +49,7 @@ describe('#write()', () => {
         it('writes instantly', () => {
             const writer = createWriter({ group: false });
             writer.write(commands[2], 'hello');
-            expect(outputStream.write).toHaveBeenCalledTimes(1);
-            expect(outputStream.write).toHaveBeenCalledWith('hello');
+            expect(outputStream.write).toHaveBeenCalledExactlyOnceWith('hello');
         });
     });
 
@@ -58,8 +57,7 @@ describe('#write()', () => {
         it('writes for null commands', () => {
             const writer = createWriter({ group: true });
             writer.write(undefined, 'hello');
-            expect(outputStream.write).toHaveBeenCalledTimes(1);
-            expect(outputStream.write).toHaveBeenCalledWith('hello');
+            expect(outputStream.write).toHaveBeenCalledExactlyOnceWith('hello');
         });
 
         it('does not write instantly for non-active command', () => {
@@ -72,8 +70,7 @@ describe('#write()', () => {
         it('write instantly for active command', () => {
             const writer = createWriter({ group: true });
             writer.write(commands[0], 'hello');
-            expect(outputStream.write).toHaveBeenCalledTimes(1);
-            expect(outputStream.write).toHaveBeenCalledWith('hello');
+            expect(outputStream.write).toHaveBeenCalledExactlyOnceWith('hello');
         });
 
         it('does not wait for write from next command to flush', () => {
@@ -108,8 +105,7 @@ describe('#write()', () => {
             closeCommand(commands[2]);
             expect(outputStream.write).toHaveBeenCalledTimes(0);
             closeCommand(commands[0]);
-            expect(outputStream.write).toHaveBeenCalledTimes(1);
-            expect(outputStream.write).toHaveBeenCalledWith('hello');
+            expect(outputStream.write).toHaveBeenCalledExactlyOnceWith('hello');
             expect(writer.activeCommandIndex).toBe(2);
         });
     });

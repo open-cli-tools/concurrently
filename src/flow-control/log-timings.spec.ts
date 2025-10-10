@@ -123,11 +123,9 @@ it('logs the sorted timings summary when all processes close successfully after 
 
     onFinish?.();
 
-    expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
-    expect(logger.logGlobalEvent).toHaveBeenCalledWith('Timings:');
-    expect(logger.logTable).toHaveBeenCalledTimes(1);
+    expect(logger.logGlobalEvent).toHaveBeenCalledExactlyOnceWith('Timings:');
     // sorted by duration
-    expect(logger.logTable).toHaveBeenCalledWith([
+    expect(logger.logTable).toHaveBeenCalledExactlyOnceWith([
         LogTimings.mapCloseEventToTimingInfo(command1ExitInfo),
         LogTimings.mapCloseEventToTimingInfo(command0ExitInfo),
     ]);

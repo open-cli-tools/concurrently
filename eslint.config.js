@@ -54,7 +54,14 @@ export default defineConfig(
     },
     {
         files: ['**/*.spec.ts'],
-        ...pluginVitest.configs.recommended,
+        plugins: {
+            vitest: pluginVitest,
+        },
+        rules: {
+            ...pluginVitest.configs.recommended.rules,
+            // Currently produces false positives, see https://github.com/vitest-dev/eslint-plugin-vitest/issues/775
+            'vitest/prefer-called-exactly-once-with': 'off',
+        },
     },
     pluginPrettierRecommended,
 );

@@ -45,8 +45,7 @@ it('restarts processes that fail immediately, if no delay was passed', () => {
     scheduler.flush();
 
     expect(scheduler.now()).toBe(0);
-    expect(logger.logCommandEvent).toHaveBeenCalledTimes(1);
-    expect(logger.logCommandEvent).toHaveBeenCalledWith(
+    expect(logger.logCommandEvent).toHaveBeenCalledExactlyOnceWith(
         `${commands[0].command} restarted`,
         commands[0],
     );
@@ -62,8 +61,7 @@ it('restarts processes that fail after delay ms has passed', () => {
     scheduler.flush();
 
     expect(scheduler.now()).toBe(100);
-    expect(logger.logCommandEvent).toHaveBeenCalledTimes(1);
-    expect(logger.logCommandEvent).toHaveBeenCalledWith(
+    expect(logger.logCommandEvent).toHaveBeenCalledExactlyOnceWith(
         `${commands[0].command} restarted`,
         commands[0],
     );
@@ -125,8 +123,7 @@ it('restarts processes until they succeed', () => {
 
     scheduler.flush();
 
-    expect(logger.logCommandEvent).toHaveBeenCalledTimes(1);
-    expect(logger.logCommandEvent).toHaveBeenCalledWith(
+    expect(logger.logCommandEvent).toHaveBeenCalledExactlyOnceWith(
         `${commands[0].command} restarted`,
         commands[0],
     );

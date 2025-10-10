@@ -65,8 +65,9 @@ describe.each(['success', 'failure'] as const)('on %s', (condition) => {
         assignProcess(commands[1]);
         commands[0].close.next(createFakeCloseEvent({ exitCode }));
 
-        expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
-        expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGTERM to other processes..');
+        expect(logger.logGlobalEvent).toHaveBeenCalledExactlyOnceWith(
+            'Sending SIGTERM to other processes..',
+        );
         expect(commands[0].kill).not.toHaveBeenCalled();
         expect(commands[1].kill).toHaveBeenCalledWith(undefined);
     });
@@ -76,8 +77,9 @@ describe.each(['success', 'failure'] as const)('on %s', (condition) => {
         assignProcess(commands[1]);
         commands[0].close.next(createFakeCloseEvent({ exitCode }));
 
-        expect(logger.logGlobalEvent).toHaveBeenCalledTimes(1);
-        expect(logger.logGlobalEvent).toHaveBeenCalledWith('Sending SIGKILL to other processes..');
+        expect(logger.logGlobalEvent).toHaveBeenCalledExactlyOnceWith(
+            'Sending SIGKILL to other processes..',
+        );
         expect(commands[0].kill).not.toHaveBeenCalled();
         expect(commands[1].kill).toHaveBeenCalledWith('SIGKILL');
     });

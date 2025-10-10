@@ -48,8 +48,7 @@ it('forwards input stream to default target ID', () => {
 
     inputStream.write('something');
 
-    expect(commands[0].stdin?.write).toHaveBeenCalledTimes(1);
-    expect(commands[0].stdin?.write).toHaveBeenCalledWith('something');
+    expect(commands[0].stdin?.write).toHaveBeenCalledExactlyOnceWith('something');
     expect(commands[1].stdin?.write).not.toHaveBeenCalled();
 });
 
@@ -90,8 +89,7 @@ it('does not forward input stream when input contains colon in a different forma
     inputStream.emit('data', Buffer.from('{:ruby_key=>:my_val}'));
     inputStream.emit('data', Buffer.from('js_obj = {key: "my_val"}'));
 
-    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(1);
-    expect(commands[1].stdin?.write).toHaveBeenCalledWith('Ruby1::Const::Syntax');
+    expect(commands[1].stdin?.write).toHaveBeenCalledExactlyOnceWith('Ruby1::Const::Syntax');
     expect(commands[0].stdin?.write).toHaveBeenCalledTimes(6);
     expect(commands[0].stdin?.write).toHaveBeenCalledWith('Ruby0::Const::Syntax');
     expect(commands[0].stdin?.write).toHaveBeenCalledWith('ruby_symbol_arg :my_symbol');
@@ -107,8 +105,7 @@ it('forwards input stream to target name specified in input', () => {
     inputStream.write('bar:something');
 
     expect(commands[0].stdin?.write).not.toHaveBeenCalled();
-    expect(commands[1].stdin?.write).toHaveBeenCalledTimes(1);
-    expect(commands[1].stdin?.write).toHaveBeenCalledWith('something');
+    expect(commands[1].stdin?.write).toHaveBeenCalledExactlyOnceWith('something');
 });
 
 it('logs error if command has no stdin open', () => {
@@ -128,8 +125,7 @@ it('fallback to default input stream if command is not found', () => {
 
     inputStream.write('foobar:something');
 
-    expect(commands[0].stdin?.write).toHaveBeenCalledTimes(1);
-    expect(commands[0].stdin?.write).toHaveBeenCalledWith('foobar:something');
+    expect(commands[0].stdin?.write).toHaveBeenCalledExactlyOnceWith('foobar:something');
     expect(commands[1].stdin?.write).not.toHaveBeenCalled();
     expect(logger.logGlobalEvent).not.toHaveBeenCalled();
 });
