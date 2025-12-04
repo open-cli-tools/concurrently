@@ -67,11 +67,16 @@ concurrently 'command1 arg' 'command2 arg'
 Otherwise **concurrently** would try to run 4 separate commands:
 `command1`, `arg`, `command2`, `arg`.
 
-In package.json, escape quotes:
-
-```bash
-"start": "concurrently 'command1 arg' 'command2 arg'"
-```
+> [!IMPORTANT]
+> Windows only supports double quotes:
+> ```bash
+> concurrently "command1 arg" "command2 arg"
+> ```
+>
+> Remember to escape the double quotes in your package.json when using Windows:
+> ```json
+> "start": "concurrently \"command1 arg\" \"command2 arg\""
+> ```
 
 You can always check concurrently's flag list by running `concurrently --help`.
 For the version, run `concurrently --version`.
