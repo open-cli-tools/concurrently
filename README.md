@@ -69,11 +69,13 @@ Otherwise **concurrently** would try to run 4 separate commands:
 
 > [!IMPORTANT]
 > Windows only supports double quotes:
+> 
 > ```bash
 > concurrently "command1 arg" "command2 arg"
 > ```
 >
 > Remember to escape the double quotes in your package.json when using Windows:
+> 
 > ```json
 > "start": "concurrently \"command1 arg\" \"command2 arg\""
 > ```
