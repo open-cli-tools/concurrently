@@ -9,13 +9,90 @@ import { escapeRegExp } from './utils.js';
 const defaultChalk = chalk;
 const noColorChalk = new Chalk({ level: 0 });
 
-function getChalkPath(chalk: ChalkInstance, path: string): ChalkInstance | undefined {
-    return path
-        .split('.')
-        .reduce(
-            (prev, key) => prev && (prev as unknown as Record<string, ChalkInstance>)[key],
-            chalk,
-        );
+/**
+ * Parses a color string into segments, preserving function calls as single tokens.
+ * e.g., "black.bgHex(#533AFD).dim" → ["black", "bgHex(#533AFD)", "dim"]
+ */
+function parseColorSegments(colorString: string): string[] {
+    const segments: string[] = [];
+    let current = '';
+    let parenDepth = 0;
+
+    for (const char of colorString) {
+        if (char === '(') parenDepth++;
+        if (char === ')') parenDepth--;
+        if (char === '.' && parenDepth === 0) {
+            if (current) segments.push(current);
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    if (current) segments.push(current);
+    return segments;
+}
+
+const HEX_PATTERN = /^#[0-9A-Fa-f]{3,6}$/;
+
+/**
+ * Applies a single color segment to a chalk instance.
+ * Handles: function calls (hex, bgHex, rgb, bgRgb, ansi256, bgAnsi256, etc.),
+ * shorthands (#HEX, bg#HEX), and named colors/modifiers.
+ */
+function applySegment(color: ChalkInstance, segment: string): ChalkInstance | undefined {
+    // Function call: name(args) - handles chalk color functions
+    const fnMatch = segment.match(/^(\w+)\((.+)\)$/);
+    if (fnMatch) {
+        const [, fnName, argsStr] = fnMatch;
+        const args = argsStr.split(',').map((a) => {
+            const t = a.trim();
+            return /^\d+$/.test(t) ? parseInt(t, 10) : t;
+        });
+
+        // Explicit function calls for known chalk color functions
+        switch (fnName) {
+            case 'rgb':
+                return color.rgb(args[0] as number, args[1] as number, args[2] as number);
+            case 'bgRgb':
+                return color.bgRgb(args[0] as number, args[1] as number, args[2] as number);
+            case 'hex':
+                if (!HEX_PATTERN.test(args[0] as string)) return undefined;
+                return color.hex(args[0] as string);
+            case 'bgHex':
+                if (!HEX_PATTERN.test(args[0] as string)) return undefined;
+                return color.bgHex(args[0] as string);
+            case 'ansi256':
+                return color.ansi256(args[0] as number);
+            case 'bgAnsi256':
+                return color.bgAnsi256(args[0] as number);
+            default:
+                return undefined;
+        }
+    }
+
+    // Shorthands
+    if (segment.startsWith('bg#')) return color.bgHex(segment.slice(2));
+    if (segment.startsWith('#')) return color.hex(segment);
+
+    // Property: black, bold, dim, etc.
+    return (color as unknown as Record<string, ChalkInstance>)[segment] ?? undefined;
+}
+
+/**
+ * Applies a color string to chalk, supporting chained colors and modifiers.
+ * Returns undefined if any segment is invalid (triggers fallback to default).
+ */
+function applyColor(chalkInstance: ChalkInstance, colorString: string): ChalkInstance | undefined {
+    const segments = parseColorSegments(colorString);
+    if (segments.length === 0) return undefined;
+
+    let color: ChalkInstance = chalkInstance;
+    for (const segment of segments) {
+        const next = applySegment(color, segment);
+        if (!next) return undefined;
+        color = next;
+    }
+    return color;
 }
 
 export class Logger {
@@ -157,18 +234,9 @@ export class Logger {
     }
 
     colorText(command: Command, text: string) {
-        let color: ChalkInstance;
-        if (command.prefixColor?.startsWith('#')) {
-            const [hexColor, ...modifiers] = command.prefixColor.split('.');
-            color = this.chalk.hex(hexColor);
-            const modifiedColor = getChalkPath(color, modifiers.join('.'));
-            if (modifiedColor) {
-                color = modifiedColor;
-            }
-        } else {
-            const defaultColor = getChalkPath(this.chalk, defaults.prefixColors) as ChalkInstance;
-            color = getChalkPath(this.chalk, command.prefixColor ?? '') ?? defaultColor;
-        }
+        const prefixColor = command.prefixColor ?? '';
+        const defaultColor = applyColor(this.chalk, defaults.prefixColors) as ChalkInstance;
+        const color = applyColor(this.chalk, prefixColor) ?? defaultColor;
         return color(text);
     }
 

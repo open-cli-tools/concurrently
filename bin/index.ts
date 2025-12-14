@@ -10,6 +10,28 @@ import { concurrently } from '../lib/index.js';
 import { castArray } from '../lib/utils.js';
 import { readPackageJson } from './read-package-json.js';
 
+/**
+ * Splits a color arguments string on commas, but preserves commas inside parentheses.
+ * e.g., "red,rgb(255,255,0),blue" → ["red", "rgb(255,255,0)", "blue"]
+ */
+function splitColorArgs(input: string): string[] {
+    const colors: string[] = [];
+    let current = '';
+    let parenDepth = 0;
+    for (const char of input) {
+        if (char === '(') parenDepth++;
+        if (char === ')') parenDepth--;
+        if (char === ',' && parenDepth === 0) {
+            if (current.trim()) colors.push(current.trim());
+            current = '';
+        } else {
+            current += char;
+        }
+    }
+    if (current.trim()) colors.push(current.trim());
+    return colors;
+}
+
 const version = String(readPackageJson().version);
 const epilogue = `For documentation and more examples, visit:\nhttps://github.com/open-cli-tools/concurrently/tree/v${version}/docs`;
 
@@ -256,7 +278,7 @@ concurrently(
         hide: args.hide.split(','),
         group: args.group,
         prefix: args.prefix,
-        prefixColors: args.prefixColors.split(','),
+        prefixColors: splitColorArgs(args.prefixColors),
         prefixLength: args.prefixLength,
         padPrefix: args.padPrefix,
         restartDelay:

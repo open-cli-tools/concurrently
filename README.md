@@ -112,6 +112,8 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
     Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
     Default: the name of the process, or its index if no name is set.
   - `prefixColors`: a list of colors or a string as supported by [Chalk](https://www.npmjs.com/package/chalk) and additional style `auto` for an automatically picked color.
+    Supports all Chalk color functions: `#RRGGBB`, `bg#RRGGBB`, `hex()`, `bgHex()`, `rgb()`, `bgRgb()`, `ansi256()`, `bgAnsi256()`.
+    Functions and modifiers can be chained (e.g., `rgb(255,136,0).bold`, `black.bgHex(#00FF00).dim`).
     If concurrently would run more commands than there are colors, the last color is repeated, unless if the last color value is `auto` which means following colors are automatically picked to vary.
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
