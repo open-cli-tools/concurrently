@@ -114,6 +114,31 @@ it('restart processes forever, if tries is negative', () => {
     expect(controller.tries).toBe(Infinity);
 });
 
+it('stops restarting processes when abort signal is triggered', () => {
+    const abortController = new AbortController();
+    controller = new RestartProcess({
+        logger,
+        scheduler,
+        delay: 100,
+        tries: 5,
+        abortSignal: abortController.signal,
+    });
+    controller.handle(commands);
+
+    // First failure should trigger a restart
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+    scheduler.flush();
+    expect(commands[0].start).toHaveBeenCalledTimes(1);
+
+    // Abort signal is triggered (e.g., by killOthers)
+    abortController.abort();
+
+    // Subsequent failures should NOT trigger restarts
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+    scheduler.flush();
+    expect(commands[0].start).toHaveBeenCalledTimes(1); // Still 1, no new restart
+});
+
 it('restarts processes until they succeed', () => {
     controller.handle(commands);
 
