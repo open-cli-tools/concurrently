@@ -1,7 +1,7 @@
-import chalk, { Chalk, ChalkInstance } from 'chalk';
+import chalk, { Chalk, type ChalkInstance } from 'chalk';
 import Rx from 'rxjs';
 
-import { Command, CommandIdentifier } from './command.js';
+import type { Command, CommandIdentifier } from './command.js';
 import { DateFormatter } from './date-format.js';
 import * as defaults from './defaults.js';
 import { escapeRegExp } from './utils.js';
@@ -216,7 +216,7 @@ export class Logger {
      *
      * Each row is a single input item, and they are presented in the input order.
      */
-    logTable(tableContents: Record<string, unknown>[]) {
+    logTable(tableContents: Record<string, string | number | boolean | null>[]) {
         // For now, can only print array tables with some content.
         if (this.raw || !Array.isArray(tableContents) || !tableContents.length) {
             return;
@@ -290,7 +290,10 @@ export class Logger {
             this.emit(command, prefix);
         }
 
-        const textToWrite = text.replaceAll('\n', (lf, i) => lf + (text[i + 1] ? prefix : ''));
+        const textToWrite = text.replaceAll(
+            '\n',
+            (lf, i: number) => lf + (text[i + 1] ? prefix : ''),
+        );
         this.emit(command, textToWrite);
     }
 

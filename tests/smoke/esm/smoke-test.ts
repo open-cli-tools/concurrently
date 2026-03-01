@@ -1,5 +1,8 @@
-import type { ConcurrentlyResult } from 'concurrently';
-import concurrently, { concurrently as concurrently2, createConcurrently } from 'concurrently';
+import concurrently, {
+    concurrently as concurrently2,
+    type ConcurrentlyResult,
+    createConcurrently,
+} from 'concurrently';
 
 const _result: ConcurrentlyResult = concurrently(['echo test'], {
     raw: true,

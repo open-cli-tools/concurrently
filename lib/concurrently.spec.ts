@@ -1,5 +1,4 @@
-import type { CpuInfo } from 'node:os';
-import os from 'node:os';
+import os, { type CpuInfo } from 'node:os';
 import { Writable } from 'node:stream';
 
 import { beforeEach, expect, it, Mock, MockedObject, vi } from 'vitest';

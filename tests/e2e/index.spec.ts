@@ -1,18 +1,15 @@
 import { spawn } from 'node:child_process';
-import fs from 'node:fs';
-import os from 'node:os';
-import path from 'node:path';
 import readline from 'node:readline';
 
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
-import { build } from 'esbuild';
 import Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-import { escapeRegExp } from '../lib/utils.js';
+import { escapeRegExp } from '../../lib/utils.js';
+import { version } from '../../package.json' with { type: 'json' };
 
 const isWindows = process.platform === 'win32';
 const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string) => {
@@ -24,37 +21,13 @@ const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string
     return new RegExp(`${escapeRegExp(prefix)} exited with code ${map[signal] ?? signal}`);
 };
 
-let tmpDir: string;
-
-beforeAll(async () => {
-    // Build 'concurrently' and store it in a temporary directory
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'concurrently-'));
-    await build({
-        entryPoints: [path.join(__dirname, 'index.ts')],
-        platform: 'node',
-        bundle: true,
-        // it doesn't seem like esbuild is able to change a CJS module to ESM, so target CJS instead.
-        // https://github.com/evanw/esbuild/issues/1921
-        format: 'cjs',
-        outfile: path.join(tmpDir, 'concurrently.cjs'),
-    });
-    fs.copyFileSync(path.join(__dirname, '..', 'package.json'), path.join(tmpDir, 'package.json'));
-}, 8000);
-
-afterAll(() => {
-    // Remove the temporary directory where 'concurrently' was stored
-    if (tmpDir) {
-        fs.rmSync(tmpDir, { recursive: true });
-    }
-});
-
 /**
  * Creates a child process running 'concurrently' with the given args.
  * Returns observables for its combined stdout + stderr output, close events, pid, and stdin stream.
  */
 const run = (args: string, ctrlcWrapper?: boolean) => {
     const spawnFn = ctrlcWrapper ? spawnWithWrapper : spawn;
-    const child = spawnFn('node', [path.join(tmpDir, 'concurrently.cjs'), ...stringArgv(args)], {
+    const child = spawnFn('node', ['../../dist/bin.js', ...stringArgv(args)], {
         cwd: __dirname,
         env: {
             ...process.env,
@@ -126,9 +99,6 @@ it('prints help when no arguments are passed', async () => {
 });
 
 describe('has version command', () => {
-    const pkg = fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf-8');
-    const { version } = JSON.parse(pkg);
-
     it.each(['--version', '-V', '-v'])('%s', async (arg) => {
         const child = run(arg);
         const log = await child.getLogLines();

@@ -15,12 +15,12 @@ const JSONC = {
 
         try {
             // Fast path for valid JSON
-            return JSON.parse(text);
+            return JSON.parse(text) as unknown;
         } catch {
             // Slow path for JSONC and invalid inputs
             return JSON.parse(
                 text.replace(stringOrCommentRe, '$1').replace(stringOrTrailingCommaRe, '$1'),
-            );
+            ) as unknown;
         }
     },
     stringify: JSON.stringify,

@@ -1,9 +1,9 @@
 import Rx from 'rxjs';
 
-import { Command, SpawnCommand } from '../command.js';
-import { Logger } from '../logger.js';
+import type { Command, SpawnCommand } from '../command.js';
+import type { Logger } from '../logger.js';
 import { getSpawnOpts, spawn as baseSpawn } from '../spawn.js';
-import { FlowController } from './flow-controller.js';
+import type { FlowController } from './flow-controller.js';
 
 export class Teardown implements FlowController {
     private readonly logger: Logger;

@@ -1,6 +1,6 @@
-import { Command } from '../command.js';
-import { Logger } from '../logger.js';
-import { FlowController } from './flow-controller.js';
+import type { Command } from '../command.js';
+import type { Logger } from '../logger.js';
+import type { FlowController } from './flow-controller.js';
 
 /**
  * Logs the exit code/signal of commands.

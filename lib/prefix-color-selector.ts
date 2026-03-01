@@ -1,4 +1,4 @@
-import { ChalkInstance } from 'chalk';
+import type { ChalkInstance } from 'chalk';
 
 function getConsoleColorsWithoutCustomColors(customColors: string[]): string[] {
     return PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.filter(

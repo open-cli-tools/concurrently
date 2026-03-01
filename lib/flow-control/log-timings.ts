@@ -3,11 +3,11 @@ import assert from 'node:assert';
 import Rx from 'rxjs';
 import { bufferCount, combineLatestWith, take } from 'rxjs/operators';
 
-import { CloseEvent, Command } from '../command.js';
+import type { CloseEvent, Command } from '../command.js';
 import { DateFormatter } from '../date-format.js';
 import * as defaults from '../defaults.js';
-import { Logger } from '../logger.js';
-import { FlowController } from './flow-controller.js';
+import type { Logger } from '../logger.js';
+import type { FlowController } from './flow-controller.js';
 
 type TimingInfo = {
     name: string;
@@ -21,12 +21,10 @@ type TimingInfo = {
  * Logs timing information about commands as they start/stop and then a summary when all commands finish.
  */
 export class LogTimings implements FlowController {
-    static mapCloseEventToTimingInfo({
-        command,
-        timings,
-        killed,
-        exitCode,
-    }: CloseEvent): TimingInfo {
+    static mapCloseEventToTimingInfo(
+        this: void,
+        { command, timings, killed, exitCode }: CloseEvent,
+    ): TimingInfo {
         const readableDurationMs = (
             timings.endDate.getTime() - timings.startDate.getTime()
         ).toLocaleString();

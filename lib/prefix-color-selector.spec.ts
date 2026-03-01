@@ -1,4 +1,4 @@
-import { ChalkInstance } from 'chalk';
+import { type ChalkInstance } from 'chalk';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { PrefixColorSelector } from './prefix-color-selector.js';

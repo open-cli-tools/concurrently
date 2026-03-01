@@ -1,9 +1,9 @@
 import { filter, map } from 'rxjs/operators';
 
 import { Command } from '../command.js';
-import { Logger } from '../logger.js';
+import type { Logger } from '../logger.js';
 import { castArray } from '../utils.js';
-import { FlowController } from './flow-controller.js';
+import type { FlowController } from './flow-controller.js';
 
 export type ProcessCloseCondition = 'failure' | 'success';
 

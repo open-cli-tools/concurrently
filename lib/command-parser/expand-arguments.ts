@@ -1,7 +1,7 @@
 import { quote } from 'shell-quote';
 
-import { CommandInfo } from '../command.js';
-import { CommandParser } from './command-parser.js';
+import type { CommandInfo } from '../command.js';
+import type { CommandParser } from './command-parser.js';
 
 /**
  * Replace placeholders with additional arguments.

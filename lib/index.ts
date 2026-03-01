@@ -1,25 +1,25 @@
 import process from 'node:process';
-import { Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
 
 import { assertDeprecated } from './assert.js';
-import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command.js';
+import { type CloseEvent, Command, type CommandIdentifier, type TimerEvent } from './command.js';
 import {
     concurrently as createConcurrently,
-    ConcurrentlyCommandInput,
-    ConcurrentlyOptions as BaseConcurrentlyOptions,
-    ConcurrentlyResult,
+    type ConcurrentlyCommandInput,
+    type ConcurrentlyOptions as BaseConcurrentlyOptions,
+    type ConcurrentlyResult,
 } from './concurrently.js';
 import type { FlowController } from './flow-control/flow-controller.js';
 import { InputHandler } from './flow-control/input-handler.js';
 import { KillOnSignal } from './flow-control/kill-on-signal.js';
-import { KillOthers, ProcessCloseCondition } from './flow-control/kill-others.js';
+import { KillOthers, type ProcessCloseCondition } from './flow-control/kill-others.js';
 import { LogError } from './flow-control/log-error.js';
 import { LogExit } from './flow-control/log-exit.js';
 import { LogOutput } from './flow-control/log-output.js';
 import { LogTimings } from './flow-control/log-timings.js';
 import { LoggerPadding } from './flow-control/logger-padding.js';
 import { OutputErrorHandler } from './flow-control/output-error-handler.js';
-import { RestartDelay, RestartProcess } from './flow-control/restart-process.js';
+import { type RestartDelay, RestartProcess } from './flow-control/restart-process.js';
 import { Teardown } from './flow-control/teardown.js';
 import { Logger } from './logger.js';
 import { castArray } from './utils.js';
@@ -202,14 +202,14 @@ export function concurrently(
 
 // Main
 export default concurrently;
-export { ConcurrentlyCommandInput, ConcurrentlyResult, createConcurrently, Logger };
+export { type ConcurrentlyCommandInput, type ConcurrentlyResult, createConcurrently, Logger };
 
 // Command specific
-export { CloseEvent, Command, CommandIdentifier, TimerEvent };
+export { type CloseEvent, Command, type CommandIdentifier, type TimerEvent };
 
 // Flow controllers
 export {
-    FlowController,
+    type FlowController,
     InputHandler,
     KillOnSignal,
     KillOthers,

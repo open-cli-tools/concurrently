@@ -1,4 +1,4 @@
-import { Command } from '../command.js';
+import type { Command } from '../command.js';
 
 /**
  * Interface for a class that controls and/or watches the behavior of commands.

@@ -1,26 +1,26 @@
 import assert from 'node:assert';
 import os from 'node:os';
-import { Writable } from 'node:stream';
+import type { Writable } from 'node:stream';
 
 import { takeUntil } from 'rxjs';
 import treeKill from 'tree-kill';
 
 import {
-    CloseEvent,
+    type CloseEvent,
     Command,
-    CommandIdentifier,
-    CommandInfo,
-    KillProcess,
-    SpawnCommand,
+    type CommandIdentifier,
+    type CommandInfo,
+    type KillProcess,
+    type SpawnCommand,
 } from './command.js';
-import { CommandParser } from './command-parser/command-parser.js';
+import type { CommandParser } from './command-parser/command-parser.js';
 import { ExpandArguments } from './command-parser/expand-arguments.js';
 import { ExpandShortcut } from './command-parser/expand-shortcut.js';
 import { ExpandWildcard } from './command-parser/expand-wildcard.js';
 import { StripQuotes } from './command-parser/strip-quotes.js';
-import { CompletionListener, SuccessCondition } from './completion-listener.js';
-import { FlowController } from './flow-control/flow-controller.js';
-import { Logger } from './logger.js';
+import { CompletionListener, type SuccessCondition } from './completion-listener.js';
+import type { FlowController } from './flow-control/flow-controller.js';
+import type { Logger } from './logger.js';
 import { OutputWriter } from './output-writer.js';
 import { PrefixColorSelector } from './prefix-color-selector.js';
 import { getSpawnOpts, spawn } from './spawn.js';
@@ -243,6 +243,7 @@ export function concurrently(
 
     const result = new CompletionListener({ successCondition: options.successCondition })
         .listen(commands, options.abortSignal)
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises, @typescript-eslint/await-thenable
         .finally(() => Promise.all(handleResult.onFinishCallbacks.map((onFinish) => onFinish())));
 
     return {

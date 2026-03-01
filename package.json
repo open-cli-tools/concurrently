@@ -20,35 +20,33 @@
     "sh"
   ],
   "exports": {
-    ".": "./dist/lib/index.js",
+    ".": "./dist/lib.js",
     "./package.json": "./package.json"
   },
-  "types": "./dist/lib/index.d.ts",
+  "types": "./dist/lib.d.ts",
   "publishConfig": {
     "bin": {
-      "concurrently": "./dist/bin/index.js",
-      "conc": "./dist/bin/index.js"
+      "concurrently": "./dist/bin.js",
+      "conc": "./dist/bin.js"
     }
   },
   "files": [
-    "!**/*.spec.d.ts",
-    "!**/*.spec.js",
-    "!**/__fixtures__",
     "dist",
-    "dist/tsconfig.tsbuildinfo",
     "docs"
   ],
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "build": "tsc --build",
-    "postbuild": "chmod +x dist/bin/index.js",
+    "build": "pnpm run '/^bundle|typecheck$/'",
+    "bundle": "tsdown",
     "typecheck": "tsc --noEmit",
     "format": "prettier --check '**/*.{json,y?(a)ml,md}'",
     "lint": "eslint",
     "prepublishOnly": "safe-publish-latest && pnpm run build",
     "test": "vitest --project unit",
+    "test:all": "vitest run",
+    "test:e2e": "vitest run --project e2e",
     "test:smoke": "vitest run --project smoke",
     "prepare": "husky"
   },
@@ -69,7 +67,6 @@
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/eslint-plugin": "^1.3.16",
     "ctrlc-wrapper": "^0.0.5",
-    "esbuild": "~0.25.10",
     "eslint": "^9.37.0",
     "eslint-config-flat-gitignore": "^2.1.0",
     "eslint-config-prettier": "^10.1.8",
@@ -82,6 +79,7 @@
     "prettier": "^3.6.2",
     "safe-publish-latest": "^2.0.0",
     "string-argv": "^0.3.2",
+    "tsdown": "^0.15.6",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.0",
     "vitest": "^3.2.4"

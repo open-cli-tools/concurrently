@@ -21,7 +21,19 @@ export default defineConfig(
         },
     },
     eslint.configs.recommended,
-    tseslint.configs.recommended,
+    tseslint.configs.recommendedTypeChecked,
+    {
+        languageOptions: {
+            parserOptions: {
+                projectService: true,
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+    },
+    {
+        files: ['**/*.js', '**/*.spec.ts', '**/__fixtures__/**/*', 'tests/**/*'],
+        extends: [tseslint.configs.disableTypeChecked],
+    },
     {
         rules: {
             curly: 'error',
@@ -36,6 +48,19 @@ export default defineConfig(
                     varsIgnorePattern: '^_',
                 },
             ],
+            '@typescript-eslint/prefer-promise-reject-errors': 'off',
+        },
+    },
+    {
+        files: ['**/*.ts'],
+        ignores: ['**/*.spec.ts', '**/__fixtures__/**/*', 'tests/**/*'],
+        rules: {
+            '@typescript-eslint/consistent-type-imports': 'error',
+            '@typescript-eslint/no-import-type-side-effects': 'error',
+            '@typescript-eslint/consistent-type-exports': [
+                'error',
+                { fixMixedExportsWithInlineTypeSpecifier: true },
+            ],
         },
     },
     { files: ['**/__fixtures__/**/*.{js,ts}'], rules: { 'no-console': 'off' } },
@@ -49,7 +74,7 @@ export default defineConfig(
             'simple-import-sort/exports': 'error',
             'import/first': 'error',
             'import/newline-after-import': 'error',
-            'import/no-duplicates': 'error',
+            'import/no-duplicates': ['error', { 'prefer-inline': true }],
         },
     },
     {

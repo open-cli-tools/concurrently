@@ -1,8 +1,8 @@
-import { Writable } from 'node:stream';
+import type { Writable } from 'node:stream';
 
-import { Command } from '../command.js';
+import type { Command } from '../command.js';
 import { fromSharedEvent } from '../observables.js';
-import { FlowController } from './flow-controller.js';
+import type { FlowController } from './flow-controller.js';
 
 /**
  * Kills processes and aborts further command spawning on output stream error (namely, SIGPIPE).

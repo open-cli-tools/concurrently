@@ -1,5 +1,5 @@
-import { CommandInfo } from '../command.js';
-import { CommandParser } from './command-parser.js';
+import type { CommandInfo } from '../command.js';
+import type { CommandParser } from './command-parser.js';
 
 /**
  * Expands shortcuts according to the following table:

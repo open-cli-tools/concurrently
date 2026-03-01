@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { castArray, escapeRegExp } from './utils.js';
+import { castArray, escapeRegExp, isObject } from './utils.js';
 
 describe('#escapeRegExp()', () => {
     it('escapes all RegExp chars', () => {
@@ -36,4 +36,21 @@ describe('#castArray()', () => {
             expect(result).toStrictEqual([value]);
         });
     });
+});
+
+describe('#isObject()', () => {
+    it.each([{}, { test: 1 }])('returns true if input is an object', (input) => {
+        const result = isObject(input);
+
+        expect(result).toEqual(true);
+    });
+
+    it.each([null, [], undefined, 'string', 1, () => ({})])(
+        'returns false if input is not an object',
+        (input) => {
+            const result = isObject(input);
+
+            expect(result).toEqual(false);
+        },
+    );
 });

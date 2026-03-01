@@ -1,8 +1,13 @@
 import assert from 'node:assert';
-import { ChildProcess, IOType, spawn as baseSpawn, SpawnOptions } from 'node:child_process';
+import {
+    type ChildProcess,
+    type IOType,
+    spawn as baseSpawn,
+    type SpawnOptions,
+} from 'node:child_process';
 import nodeProcess from 'node:process';
 
-import supportsColor, { ColorSupport } from 'supports-color';
+import supportsColor, { type ColorSupport } from 'supports-color';
 
 /**
  * Spawns a command using `cmd.exe` on Windows, or `/bin/sh` elsewhere.

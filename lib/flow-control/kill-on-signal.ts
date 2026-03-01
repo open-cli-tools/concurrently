@@ -1,9 +1,9 @@
-import EventEmitter from 'node:events';
+import type EventEmitter from 'node:events';
 
 import { map } from 'rxjs/operators';
 
-import { Command } from '../command.js';
-import { FlowController } from './flow-controller.js';
+import type { Command } from '../command.js';
+import type { FlowController } from './flow-controller.js';
 
 const SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
 

@@ -1,9 +1,9 @@
 import fs from 'node:fs';
 
-import { CommandInfo } from '../command.js';
+import type { CommandInfo } from '../command.js';
 import JSONC from '../jsonc.js';
-import { escapeRegExp } from '../utils.js';
-import { CommandParser } from './command-parser.js';
+import { escapeRegExp, isObject } from '../utils.js';
+import type { CommandParser } from './command-parser.js';
 
 // Matches a negative filter surrounded by '(!' and ')'.
 const OMISSION = /\(!([^)]+)\)/;
@@ -14,7 +14,7 @@ const OMISSION = /\(!([^)]+)\)/;
  * configuration files of the current directory.
  */
 export class ExpandWildcard implements CommandParser {
-    static readDeno() {
+    static readDeno(this: void): unknown {
         try {
             let json: string = '{}';
 
@@ -30,7 +30,7 @@ export class ExpandWildcard implements CommandParser {
         }
     }
 
-    static readPackage() {
+    static readPackage(this: void): unknown {
         try {
             const json = fs.readFileSync('package.json', { encoding: 'utf-8' });
             return JSON.parse(json);
@@ -49,18 +49,23 @@ export class ExpandWildcard implements CommandParser {
 
     private relevantScripts(command: string): string[] {
         if (!this.packageScripts) {
-            this.packageScripts = Object.keys(this.readPackage().scripts || {});
+            const content = this.readPackage();
+            const scripts =
+                isObject(content) && isObject(content.scripts) ? Object.keys(content.scripts) : [];
+
+            this.packageScripts = scripts;
         }
 
         if (command === 'deno task') {
             if (!this.denoTasks) {
+                const content = this.readDeno();
+                const tasks =
+                    isObject(content) && isObject(content.tasks) ? Object.keys(content.tasks) : [];
+
                 // If Deno tries to run a task that doesn't exist,
                 // it can fall back to running a script with the same name.
                 // Therefore, the actual list of tasks is the union of the tasks and scripts.
-                this.denoTasks = [
-                    ...Object.keys(this.readDeno().tasks || {}),
-                    ...this.packageScripts,
-                ];
+                this.denoTasks = [...tasks, ...this.packageScripts];
             }
 
             return this.denoTasks;

@@ -1,12 +1,12 @@
-import { Buffer } from 'node:buffer';
-import {
+import type { Buffer } from 'node:buffer';
+import type {
     ChildProcess as BaseChildProcess,
     MessageOptions,
     SendHandle,
     SpawnOptions,
 } from 'node:child_process';
 import process from 'node:process';
-import { EventEmitter, Writable } from 'node:stream';
+import type { EventEmitter, Writable } from 'node:stream';
 
 import Rx from 'rxjs';
 

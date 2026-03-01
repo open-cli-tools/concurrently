@@ -1,13 +1,10 @@
 {
   "compilerOptions": {
     "lib": ["es2023"],
-    "module": "node20",
-
-    "outDir": "dist",
-    "declaration": true,
-
+    "module": "preserve",
+    "target": "es2023",
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["./bin", "./lib"]
+  "exclude": ["dist", "**/smoke-test.ts"]
 }
