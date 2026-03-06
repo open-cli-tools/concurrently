@@ -63,33 +63,19 @@ export class PrefixColorSelector {
         this.colorGenerator = createColorGenerator(normalizedColors);
     }
 
-    /** A list of colors that are readable in a terminal. */
+    /**
+     * Colors used by `auto` selection and default cycling.
+     *
+     * Matches turborepo's palette: cyan, magenta, green, yellow, blue.
+     * These are visually distinct on both dark and light terminal backgrounds
+     * without carrying semantic meaning (unlike red → errors) or blending
+     * into the default text color (unlike white/grey).
+     *
+     * This list does NOT restrict manually specified colors — any valid Chalk
+     * color name, hex value, or modifier can be passed via `--prefix-colors`.
+     */
     public static get ACCEPTABLE_CONSOLE_COLORS() {
-        // Colors picked randomly, can be amended if required
-        return [
-            // Prevent duplicates, in case the list becomes significantly large
-            ...new Set<keyof ChalkInstance>([
-                // Text colors
-                'cyan',
-                'yellow',
-                'greenBright',
-                'blueBright',
-                'magentaBright',
-                'white',
-                'grey',
-                'red',
-
-                // Background colors
-                'bgCyan',
-                'bgYellow',
-                'bgGreenBright',
-                'bgBlueBright',
-                'bgMagenta',
-                'bgWhiteBright',
-                'bgGrey',
-                'bgRed',
-            ]),
-        ];
+        return [...new Set<keyof ChalkInstance>(['cyan', 'magenta', 'green', 'yellow', 'blue'])];
     }
 
     /**

@@ -56,10 +56,10 @@ $ concurrently --prefix '{index}-{pid}' 'echo Hello there' 'echo General Kenobi!
 
 ## Prefix Colors
 
-By default, there are no colors applied to concurrently prefixes, and they just use whatever the terminal's defaults are.
+By default, concurrently automatically assigns colors to each command's prefix, cycling through `cyan`, `magenta`, `green`, `yellow`, and `blue` (the same palette and order used by turborepo).
 
 This can be changed by using the `--prefix-colors`/`-c` flag, which takes a comma-separated list of colors to use.<br/>
-The available values are color names (e.g. `green`, `magenta`, `gray`, etc), a hex value (such as `#23de43`), or `auto`, to automatically select a color.
+The available values are color names (e.g. `green`, `magenta`, `gray`, etc), a hex value (such as `#23de43`), `auto` to automatically select a color, or `reset` to disable coloring.
 
 ```bash
 $ concurrently -c red,blue 'echo Hello there' 'echo General Kenobi!'

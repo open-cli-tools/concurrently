@@ -166,7 +166,8 @@ export class Logger {
                 color = modifiedColor;
             }
         } else {
-            const defaultColor = getChalkPath(this.chalk, defaults.prefixColors) as ChalkInstance;
+            const defaultColor =
+                getChalkPath(this.chalk, defaults.prefixColors) ?? this.chalk.reset;
             color = getChalkPath(this.chalk, command.prefixColor ?? '') ?? defaultColor;
         }
         return color(text);

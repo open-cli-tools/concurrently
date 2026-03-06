@@ -181,7 +181,7 @@ describe('#ACCEPTABLE_CONSOLE_COLORS', () => {
         expect(PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.length).toBeGreaterThan(1);
     });
 
-    it('uses the same color order as turborepo', () => {
+    it('uses the same colors and order as turborepo', () => {
         expect(PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS).toEqual([
             'cyan',
             'magenta',
