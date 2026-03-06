@@ -180,4 +180,14 @@ describe('#ACCEPTABLE_CONSOLE_COLORS', () => {
         //     always has more than one entry, which is what we enforce via this test
         expect(PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.length).toBeGreaterThan(1);
     });
+
+    it('uses the same color order as turborepo', () => {
+        expect(PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS).toEqual([
+            'cyan',
+            'magenta',
+            'green',
+            'yellow',
+            'blue',
+        ]);
+    });
 });
