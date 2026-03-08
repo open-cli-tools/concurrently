@@ -66,10 +66,10 @@ export class PrefixColorSelector {
     /**
      * Colors used by `auto` selection and default cycling.
      *
-     * Matches turborepo's palette: cyan, magenta, green, yellow, blue.
-     * These are visually distinct on both dark and light terminal backgrounds
-     * without carrying semantic meaning (unlike red → errors) or blending
-     * into the default text color (unlike white/grey).
+     * Each color is chosen to be visually distinct on both dark and light
+     * terminal backgrounds, without carrying semantic meaning (e.g. red
+     * implies errors) or blending into default text (e.g. white/grey).
+     * Background colors are excluded to keep output lightweight.
      *
      * This list does NOT restrict manually specified colors — any valid Chalk
      * color name, hex value, or modifier can be passed via `--prefix-colors`.
