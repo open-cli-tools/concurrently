@@ -2,51 +2,51 @@ import { expect, it } from 'vitest';
 
 import { normalizeCliCommand } from './normalize-cli-command.js';
 
-it('CLIラッパーとして付いた外側のクォートを外す', () => {
+it('strips outer CLI wrapper double quotes', () => {
     expect(normalizeCliCommand('"echo foo"')).toBe('echo foo');
 });
 
-it('CLIラッパーとして付いた外側のシングルクォートを外す', () => {
+it('strips outer CLI wrapper single quotes', () => {
     expect(normalizeCliCommand("'echo foo'")).toBe('echo foo');
 });
 
-it('単一トークン全体を包むクォートは外す', () => {
+it('strips quotes around a single wrapped token', () => {
     expect(normalizeCliCommand('"echo"')).toBe('echo');
     expect(normalizeCliCommand("'echo'")).toBe('echo');
 });
 
-it('正しいシェルコマンド内のクォートは保持する', () => {
+it('preserves quotes in well-formed shell commands', () => {
     expect(normalizeCliCommand('"/usr/local/bin/mytool" --flag "some value"')).toBe(
         '"/usr/local/bin/mytool" --flag "some value"',
     );
 });
 
-it('複数のクォートセットを含む正しいシェルコマンドは保持する', () => {
+it('preserves well-formed shell commands with multiple quote sets', () => {
     expect(
         normalizeCliCommand('"/usr/local/bin/mytool" --flag "some value" --other "last arg"'),
     ).toBe('"/usr/local/bin/mytool" --flag "some value" --other "last arg"');
 });
 
-it('正しいシェルコマンド内のシングルクォートは保持する', () => {
+it('preserves single quotes in well-formed shell commands', () => {
     expect(normalizeCliCommand("'printf' '%s %s' foo bar")).toBe("'printf' '%s %s' foo bar");
 });
 
-it('クォートされていない入力はそのまま返す', () => {
+it('returns unquoted input unchanged', () => {
     expect(normalizeCliCommand('echo foo')).toBe('echo foo');
 });
 
-it('空文字はそのまま返す', () => {
+it('returns an empty string unchanged', () => {
     expect(normalizeCliCommand('')).toBe('');
 });
 
-it('判定が曖昧な入力はそのままにする', () => {
+it('leaves ambiguous input unchanged', () => {
     expect(normalizeCliCommand('"echo foo')).toBe('"echo foo');
 });
 
-it('閉じていないシングルクォートを含む入力はそのままにする', () => {
+it('leaves input with an unclosed single quote unchanged', () => {
     expect(normalizeCliCommand("echo foo'")).toBe("echo foo'");
 });
 
-it('開始と終了のクォート種類が一致しない入力はそのままにする', () => {
+it('leaves input with mismatched quote types unchanged', () => {
     expect(normalizeCliCommand('"echo foo\'')).toBe('"echo foo\'');
 });

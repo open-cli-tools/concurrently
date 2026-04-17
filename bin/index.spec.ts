@@ -146,7 +146,7 @@ describe('exiting conditions', () => {
         expect(exit.code).toBe(0);
     });
 
-    it('CLIラッパーとして付いた外側のクォートを外して実行する', async () => {
+    it('strips outer CLI wrapper quotes before running a command', async () => {
         const child = run('"echo foo"');
         const lines = await child.getLogLines();
         const exit = await child.exit;

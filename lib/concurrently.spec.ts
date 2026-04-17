@@ -136,7 +136,7 @@ it('does not spawn further commands on abort signal aborted', () => {
     expect(spawn).toHaveBeenCalledTimes(1);
 });
 
-it('ライブラリAPIでは正しいシェルコマンド内のクォートを保持する', () => {
+it('preserves quotes in well-formed shell commands in the library API', () => {
     create(['"/usr/local/bin/mytool" --flag "some value"']);
 
     controllers.forEach((controller) => {
@@ -149,7 +149,7 @@ it('ライブラリAPIでは正しいシェルコマンド内のクォートを�
     });
 });
 
-it('ライブラリAPIでは複数のクォートセットを含むコマンドをそのまま渡す', () => {
+it('passes commands with multiple quote sets through unchanged in the library API', () => {
     create(['"/usr/local/bin/mytool" --flag "some value" --other "last arg"']);
 
     controllers.forEach((controller) => {
