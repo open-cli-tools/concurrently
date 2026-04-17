@@ -4,33 +4,10 @@ import Rx from 'rxjs';
 import { Command, CommandIdentifier } from './command.js';
 import { DateFormatter } from './date-format.js';
 import * as defaults from './defaults.js';
-import { escapeRegExp } from './utils.js';
+import { escapeRegExp, splitOutsideParens } from './utils.js';
 
 const defaultChalk = chalk;
 const noColorChalk = new Chalk({ level: 0 });
-
-/**
- * Parses a color string into segments, preserving function calls as single tokens.
- * e.g., "black.bgHex(#533AFD).dim" → ["black", "bgHex(#533AFD)", "dim"]
- */
-function parseColorSegments(colorString: string): string[] {
-    const segments: string[] = [];
-    let current = '';
-    let parenDepth = 0;
-
-    for (const char of colorString) {
-        if (char === '(') parenDepth++;
-        if (char === ')') parenDepth--;
-        if (char === '.' && parenDepth === 0) {
-            if (current) segments.push(current);
-            current = '';
-        } else {
-            current += char;
-        }
-    }
-    if (current) segments.push(current);
-    return segments;
-}
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{3,6}$/;
 
@@ -83,7 +60,7 @@ function applySegment(color: ChalkInstance, segment: string): ChalkInstance | un
  * Returns undefined if any segment is invalid (triggers fallback to default).
  */
 function applyColor(chalkInstance: ChalkInstance, colorString: string): ChalkInstance | undefined {
-    const segments = parseColorSegments(colorString);
+    const segments = splitOutsideParens(colorString, '.');
     if (segments.length === 0) return undefined;
 
     let color: ChalkInstance = chalkInstance;
