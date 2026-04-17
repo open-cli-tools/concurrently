@@ -1,7 +1,18 @@
 export function normalizeCliCommand(command: string): string {
-    if (/^".+?"$/.test(command) || /^'.+?'$/.test(command)) {
-        return command.slice(1, command.length - 1);
+    if (command.length < 2) {
+        return command;
     }
 
-    return command;
+    const quote = command[0];
+    const last = command[command.length - 1];
+    if ((quote !== '"' && quote !== "'") || last !== quote) {
+        return command;
+    }
+
+    const inner = command.slice(1, -1);
+    if (inner.includes(quote)) {
+        return command;
+    }
+
+    return inner;
 }
