@@ -136,13 +136,28 @@ it('does not spawn further commands on abort signal aborted', () => {
     expect(spawn).toHaveBeenCalledTimes(1);
 });
 
-it('runs controllers with the commands', () => {
-    create(['echo', '"echo wrapped"']);
+it('ライブラリAPIでは正しいシェルコマンド内のクォートを保持する', () => {
+    create(['"/usr/local/bin/mytool" --flag "some value"']);
 
     controllers.forEach((controller) => {
         expect(controller.handle).toHaveBeenCalledWith([
-            expect.objectContaining({ command: 'echo', index: 0 }),
-            expect.objectContaining({ command: 'echo wrapped', index: 1 }),
+            expect.objectContaining({
+                command: '"/usr/local/bin/mytool" --flag "some value"',
+                index: 0,
+            }),
+        ]);
+    });
+});
+
+it('ライブラリAPIでは複数のクォートセットを含むコマンドをそのまま渡す', () => {
+    create(['"/usr/local/bin/mytool" --flag "some value" --other "last arg"']);
+
+    controllers.forEach((controller) => {
+        expect(controller.handle).toHaveBeenCalledWith([
+            expect.objectContaining({
+                command: '"/usr/local/bin/mytool" --flag "some value" --other "last arg"',
+                index: 0,
+            }),
         ]);
     });
 });

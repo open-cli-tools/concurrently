@@ -42,3 +42,11 @@ it('空文字はそのまま返す', () => {
 it('判定が曖昧な入力はそのままにする', () => {
     expect(normalizeCliCommand('"echo foo')).toBe('"echo foo');
 });
+
+it('閉じていないシングルクォートを含む入力はそのままにする', () => {
+    expect(normalizeCliCommand("echo foo'")).toBe("echo foo'");
+});
+
+it('開始と終了のクォート種類が一致しない入力はそのままにする', () => {
+    expect(normalizeCliCommand('"echo foo\'')).toBe('"echo foo\'');
+});

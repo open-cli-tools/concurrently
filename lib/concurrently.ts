@@ -17,7 +17,6 @@ import { CommandParser } from './command-parser/command-parser.js';
 import { ExpandArguments } from './command-parser/expand-arguments.js';
 import { ExpandShortcut } from './command-parser/expand-shortcut.js';
 import { ExpandWildcard } from './command-parser/expand-wildcard.js';
-import { StripQuotes } from './command-parser/strip-quotes.js';
 import { CompletionListener, SuccessCondition } from './completion-listener.js';
 import { FlowController } from './flow-control/flow-controller.js';
 import { Logger } from './logger.js';
@@ -170,11 +169,7 @@ export function concurrently(
 
     const prefixColorSelector = new PrefixColorSelector(options.prefixColors || []);
 
-    const commandParsers: CommandParser[] = [
-        new StripQuotes(),
-        new ExpandShortcut(),
-        new ExpandWildcard(),
-    ];
+    const commandParsers: CommandParser[] = [new ExpandShortcut(), new ExpandWildcard()];
 
     if (options.additionalArguments) {
         commandParsers.push(new ExpandArguments(options.additionalArguments));
