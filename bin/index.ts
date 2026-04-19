@@ -225,6 +225,15 @@ assertDeprecated(
     'Use commas as name separators instead.',
 );
 
+let interruptedBySigint = false;
+if (process.platform !== 'win32') {
+    // On POSIX, exit with SIGINT after children finish so shell callers don't treat Ctrl+C as
+    // a successful run.
+    process.once('SIGINT', () => {
+        interruptedBySigint = true;
+    });
+}
+
 // Get names of commands by the specified separator
 const names = (args.names || '').split(args.nameSeparator);
 
@@ -269,6 +278,6 @@ concurrently(
         additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
     },
 ).result.then(
-    () => process.exit(0),
-    () => process.exit(1),
+    () => (interruptedBySigint ? process.kill(process.pid, 'SIGINT') : process.exit(0)),
+    () => (interruptedBySigint ? process.kill(process.pid, 'SIGINT') : process.exit(1)),
 );
