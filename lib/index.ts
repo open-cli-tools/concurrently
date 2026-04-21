@@ -1,7 +1,7 @@
 import process from 'node:process';
 import { Readable } from 'node:stream';
 
-import { assertDeprecated } from './assert.js';
+import { assertDeprecated, assertNotRuntime } from './assert.js';
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command.js';
 import {
     concurrently as createConcurrently,
@@ -127,6 +127,14 @@ export function concurrently(
     options: Partial<ConcurrentlyOptions> = {},
 ) {
     assertDeprecated(options.killOthers === undefined, 'killOthers', 'Use killOthersOn instead.');
+    assertNotRuntime(
+        // When run via /snap/bin/node, process.execPath maps to the actual snap path, but it also sets
+        // several SNAP_* env variables. If the snap is run directly via e.g. /snap/node/current/bin/node,
+        // the issues don't happen and no env variables are set.
+        !String(process.env.SNAP).startsWith('/snap'),
+        'Snap',
+        'Snap confinement can interfere with spawning child processes. See issue #584',
+    );
 
     // To avoid empty strings from hiding the output of commands that don't have a name,
     // keep in the list of commands to hide only strings with some length.

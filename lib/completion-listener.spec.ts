@@ -255,7 +255,7 @@ describe('detect commands exit conditions', () => {
             return expect(result).rejects.toEqual(expect.anything());
         });
 
-        it(`fails if some commands ${nameOrIndex} exit with non-0 code`, () => {
+        it(`succeeds if command ${nameOrIndex} exits with code 0 even when others fail`, () => {
             const result = createController(condition).listen(commands);
 
             emitFakeCloseEvent(commands[0], { exitCode: 1 });
