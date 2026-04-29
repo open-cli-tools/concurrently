@@ -118,6 +118,34 @@ $ concurrently -c bgGray,red.bgBlack 'echo Hello there' 'echo General Kenobi!'
 - `bgYellow`
 </details>
 
+### Advanced Color Functions
+
+concurrently supports all [Chalk color functions](https://github.com/chalk/chalk#256-and-truecolor-color-support):
+
+| Function         | Description                 |
+| ---------------- | --------------------------- |
+| `#RRGGBB`        | Foreground hex (shorthand)  |
+| `bg#RRGGBB`      | Background hex (shorthand)  |
+| `hex(#RRGGBB)`   | Foreground hex              |
+| `bgHex(#RRGGBB)` | Background hex              |
+| `rgb(R,G,B)`     | Foreground RGB (0-255)      |
+| `bgRgb(R,G,B)`   | Background RGB (0-255)      |
+| `ansi256(N)`     | Foreground ANSI 256 (0-255) |
+| `bgAnsi256(N)`   | Background ANSI 256 (0-255) |
+
+All functions can be chained with colors and modifiers:
+
+```bash
+# Hex colors
+$ concurrently -c 'bg#FF0000.bold,black.bgHex(#00FF00).dim' 'echo Red bg' 'echo Green bg'
+
+# RGB colors
+$ concurrently -c 'rgb(255,136,0).bold,black.bgRgb(100,100,255)' 'echo Orange' 'echo Blue bg'
+
+# ANSI 256 colors
+$ concurrently -c 'ansi256(199),ansi256(50).bgAnsi256(17)' 'echo Pink' 'echo Cyan on blue'
+```
+
 ## Prefix Length
 
 When using the `command` prefix style, it's possible that it'll be too long.<br/>

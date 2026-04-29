@@ -3,7 +3,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/open-cli-tools/concurrently?label=Release)](https://github.com/open-cli-tools/concurrently/releases)
 [![License](https://img.shields.io/github/license/open-cli-tools/concurrently?label=License)](https://github.com/open-cli-tools/concurrently/blob/main/LICENSE)
 [![Weekly Downloads on NPM](https://img.shields.io/npm/dw/concurrently?label=Downloads&logo=npm)](https://www.npmjs.com/package/concurrently)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/open-cli-tools/concurrently/test.yml?label=CI&logo=github)](https://github.com/open-cli-tools/concurrently/actions/workflows/test.yml)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/open-cli-tools/concurrently/ci.yml?label=CI&logo=github)](https://github.com/open-cli-tools/concurrently/actions/workflows/ci.yml)
 [![Coverage Status](https://img.shields.io/coveralls/github/open-cli-tools/concurrently/main?label=Coverage&logo=coveralls)](https://coveralls.io/github/open-cli-tools/concurrently?branch=main)
 
 Run multiple commands concurrently.
@@ -112,6 +112,8 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
     Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
     Default: the name of the process, or its index if no name is set.
   - `prefixColors`: a list of colors or a string as supported by [Chalk](https://www.npmjs.com/package/chalk) and additional style `auto` for an automatically picked color.
+    Supports all Chalk color functions: `#RRGGBB`, `bg#RRGGBB`, `hex()`, `bgHex()`, `rgb()`, `bgRgb()`, `ansi256()`, `bgAnsi256()`.
+    Functions and modifiers can be chained (e.g., `rgb(255,136,0).bold`, `black.bgHex(#00FF00).dim`).
     If concurrently would run more commands than there are colors, the last color is repeated, unless if the last color value is `auto` which means following colors are automatically picked to vary.
     Prefix colors specified per-command take precedence over this list.
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`

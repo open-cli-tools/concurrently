@@ -257,6 +257,208 @@ describe('#logCommandText()', () => {
         );
     });
 
+    it('logs prefix using prefixColor from command if prefixColor is a bg hex value (short form)', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'bg#32bd8a',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.bgHex('#32bd8a')('[1]')} `, 'foo', cmd);
+    });
+
+    it('logs prefix using prefixColor from command if prefixColor is a bg hex value with modifiers (short form)', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'bg#32bd8a.bold',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            `${chalk.bgHex('#32bd8a').bold('[1]')} `,
+            'foo',
+            cmd,
+        );
+    });
+
+    it('handles 3-digit hex codes for bg hex (short form)', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'bg#f00',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.bgHex('#f00')('[1]')} `, 'foo', cmd);
+    });
+
+    it('logs prefix using prefixColor from command if prefixColor is a bgHex() value (explicit form)', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'bgHex(#ff5500)',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.bgHex('#ff5500')('[1]')} `, 'foo', cmd);
+    });
+
+    it('logs prefix using prefixColor from command if prefixColor is a bgHex() value with modifiers (explicit form)', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'bgHex(#ff5500).dim',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            `${chalk.bgHex('#ff5500').dim('[1]')} `,
+            'foo',
+            cmd,
+        );
+    });
+
+    it('handles 3-digit hex codes for bgHex() (explicit form)', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'bgHex(#0f0)',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.bgHex('#0f0')('[1]')} `, 'foo', cmd);
+    });
+
+    it('falls back to default color for malformed bgHex() syntax', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'bgHex(invalid)',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[1]')} `, 'foo', cmd);
+    });
+
+    it('logs prefix with chained fgColor.bgHex().modifier pattern', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'black.bgHex(#533AFD).dim',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            `${chalk.black.bgHex('#533AFD').dim('[1]')} `,
+            'foo',
+            cmd,
+        );
+    });
+
+    it('logs prefix with chained fgColor.bg#HEXCODE.modifier pattern', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'black.bg#FF0000.bold',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            `${chalk.black.bgHex('#FF0000').bold('[1]')} `,
+            'foo',
+            cmd,
+        );
+    });
+
+    it('logs prefix with chained #HEXCODE.bgNamed.modifier pattern', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: '#FF0000.bgBlue.dim',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            `${chalk.hex('#FF0000').bgBlue.dim('[1]')} `,
+            'foo',
+            cmd,
+        );
+    });
+
+    it('logs prefix using rgb() color function', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'rgb(255,136,0).bold',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            `${chalk.rgb(255, 136, 0).bold('[1]')} `,
+            'foo',
+            cmd,
+        );
+    });
+
+    it('logs prefix using bgRgb() color function', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'black.bgRgb(100,100,255)',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            `${chalk.black.bgRgb(100, 100, 255)('[1]')} `,
+            'foo',
+            cmd,
+        );
+    });
+
+    it('logs prefix using ansi256() color function', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'ansi256(199)',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.ansi256(199)('[1]')} `, 'foo', cmd);
+    });
+
+    it('logs prefix using bgAnsi256() color function', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'ansi256(199).bgAnsi256(50)',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            `${chalk.ansi256(199).bgAnsi256(50)('[1]')} `,
+            'foo',
+            cmd,
+        );
+    });
+
+    it('logs prefix using hex() explicit function', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'hex(#ff5500)',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.hex('#ff5500')('[1]')} `, 'foo', cmd);
+    });
+
+    it('falls back to default color for malformed hex() syntax', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'hex(invalid)',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[1]')} `, 'foo', cmd);
+    });
+
+    it('falls back to default color for unknown function name', () => {
+        const { logger } = createLogger({});
+        const cmd = new FakeCommand('', undefined, 1, {
+            prefixColor: 'unknownFunc(123)',
+        });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('[1]')} `, 'foo', cmd);
+    });
+
     it('does nothing if command is hidden by name', () => {
         const { logger } = createLogger({ hide: ['abc'] });
         const cmd = new FakeCommand('abc');

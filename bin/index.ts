@@ -7,7 +7,7 @@ import { hideBin } from 'yargs/helpers';
 import { assertDeprecated } from '../lib/assert.js';
 import * as defaults from '../lib/defaults.js';
 import { concurrently } from '../lib/index.js';
-import { castArray } from '../lib/utils.js';
+import { castArray, splitOutsideParens } from '../lib/utils.js';
 import { readPackageJson } from './read-package-json.js';
 
 const version = String(readPackageJson().version);
@@ -256,7 +256,7 @@ concurrently(
         hide: args.hide.split(','),
         group: args.group,
         prefix: args.prefix,
-        prefixColors: args.prefixColors.split(','),
+        prefixColors: splitOutsideParens(args.prefixColors, ','),
         prefixLength: args.prefixLength,
         padPrefix: args.padPrefix,
         restartDelay:
