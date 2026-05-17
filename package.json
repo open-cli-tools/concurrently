@@ -47,6 +47,8 @@
     "lint": "eslint",
     "prepublishOnly": "safe-publish-latest && pnpm run build",
     "test": "vitest --project unit",
+    "test:all": "vitest run",
+    "test:e2e": "vitest run --project e2e",
     "test:smoke": "vitest run --project smoke",
     "prepare": "husky"
   },

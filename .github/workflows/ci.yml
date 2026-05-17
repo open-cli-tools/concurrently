@@ -59,7 +59,7 @@ jobs:
           node-version: ${{ matrix.node }}
 
       - name: Test
-        run: pnpm exec vitest --coverage
+        run: pnpm test:all --coverage
 
       - name: Submit coverage
         uses: coverallsapp/github-action@master
