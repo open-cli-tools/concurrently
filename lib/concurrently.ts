@@ -23,11 +23,11 @@ import { FlowController } from './flow-control/flow-controller.js';
 import { Logger } from './logger.js';
 import { OutputWriter } from './output-writer.js';
 import { PrefixColorSelector } from './prefix-color-selector.js';
-import { getSpawnOpts, spawn } from './spawn.js';
+import { createSpawn, getSpawnOpts } from './spawn.js';
 import { castArray } from './utils.js';
 
 const defaults: ConcurrentlyOptions = {
-    spawn,
+    spawn: createSpawn(),
     kill: treeKill,
     raw: false,
     controllers: [],

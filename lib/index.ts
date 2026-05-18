@@ -22,9 +22,13 @@ import { OutputErrorHandler } from './flow-control/output-error-handler.js';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process.js';
 import { Teardown } from './flow-control/teardown.js';
 import { Logger } from './logger.js';
+import { createSpawn } from './spawn.js';
 import { castArray } from './utils.js';
 
-export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 'hide'> & {
+export type ConcurrentlyOptions = Omit<
+    BaseConcurrentlyOptions,
+    'abortSignal' | 'hide' | 'spawn'
+> & {
     // Logger options
     /**
      * Which command(s) should have their output hidden.
@@ -120,6 +124,13 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
      * If not defined, no argument replacing will happen.
      */
     additionalArguments?: string[];
+
+    /**
+     * Shell executable used to run command strings.
+     * When unset, uses the `npm_config_script_shell` env variable if present. Otherwise, falls back
+     * to `cmd.exe` on Windows, and `/bin/sh` elsewhere.
+     */
+    shell?: string;
 };
 
 export function concurrently(
@@ -157,11 +168,13 @@ export function concurrently(
     const abortController = new AbortController();
     const outputStream = options.outputStream || process.stdout;
 
+    const spawn = createSpawn(options.shell);
     return createConcurrently(commands, {
         maxProcesses: options.maxProcesses,
         raw: options.raw,
         successCondition: options.successCondition,
         cwd: options.cwd,
+        spawn,
         hide,
         logger,
         outputStream,
@@ -198,7 +211,7 @@ export function concurrently(
                 logger: options.timings ? logger : undefined,
                 timestampFormat: options.timestampFormat,
             }),
-            new Teardown({ logger, spawn: options.spawn, commands: options.teardown || [] }),
+            new Teardown({ logger, spawn, commands: options.teardown || [] }),
         ],
         prefixColors: options.prefixColors || [],
         additionalArguments: options.additionalArguments,
