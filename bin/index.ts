@@ -96,6 +96,11 @@ const program = yargs(hideBin(process.argv))
             type: 'boolean',
             default: defaults.timings,
         },
+        shell: {
+            describe:
+                'Shell to run commands with. Defaults to cmd.exe on Windows and /bin/sh elsewhere.',
+            type: 'string',
+        },
         'passthrough-arguments': {
             alias: 'P',
             describe:
@@ -209,7 +214,20 @@ const program = yargs(hideBin(process.argv))
         },
     })
     .group(
-        ['m', 'n', 'name-separator', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'P', 'teardown'],
+        [
+            'm',
+            'n',
+            'name-separator',
+            's',
+            'r',
+            'no-color',
+            'hide',
+            'g',
+            'timings',
+            'shell',
+            'P',
+            'teardown',
+        ],
         'General',
     )
     .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
@@ -265,6 +283,7 @@ concurrently(
         successCondition: args.success,
         timestampFormat: args.timestampFormat,
         timings: args.timings,
+        shell: args.shell,
         teardown: args.teardown,
         additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
     },
