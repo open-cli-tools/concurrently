@@ -1,8 +1,12 @@
 import assert from 'node:assert';
 import { ChildProcess, IOType, spawn as baseSpawn, SpawnOptions } from 'node:child_process';
+import path from 'node:path';
 import nodeProcess from 'node:process';
 
 import supportsColor, { ColorSupport } from 'supports-color';
+
+import { SpawnCommand } from './command.js';
+import { UnreachableError } from './utils.js';
 
 /**
  * Spawns a command using `cmd.exe` on Windows, or `/bin/sh` elsewhere.
@@ -23,6 +27,106 @@ export function spawn(
         options.windowsVerbatimArguments = true;
     }
     return spawn(file, args, options);
+}
+
+/**
+ * Creates a spawn function that uses the given shell executable.
+ *
+ * The shell is resolved in the following priority order:
+ * 1. explicit shell option
+ * 2. `npm_config_script_shell` env variable
+ * 3. platform default (`cmd.exe` on Windows, `/bin/sh` elsewhere)
+ *
+ * @see https://docs.npmjs.com/cli/v6/using-npm/config#script-shell
+ */
+export function createSpawn(
+    shell?: string,
+    // For testing
+    spawn: (command: string, args: string[], options: SpawnOptions) => ChildProcess = baseSpawn,
+    process: Pick<NodeJS.Process, 'platform' | 'env'> = nodeProcess,
+): SpawnCommand {
+    const resolved = resolveShell(shell, process);
+    return (command, spawnOpts) => {
+        const { file, args, shellOptions } = getShellSpawnArgs(resolved, command);
+        return spawn(file, args, { ...spawnOpts, ...shellOptions });
+    };
+}
+
+const NPM_SCRIPT_SHELL_ENV = 'npm_config_script_shell';
+
+/**
+ * Resolves which shell executable to use when spawning commands.
+ * @see {@link createSpawn()}
+ */
+function resolveShell(
+    shell?: string,
+    process: Pick<NodeJS.Process, 'platform' | 'env'> = nodeProcess,
+): string {
+    if (shell) {
+        return shell;
+    }
+
+    const npmScriptShell = process.env[NPM_SCRIPT_SHELL_ENV];
+    if (npmScriptShell) {
+        return npmScriptShell;
+    }
+
+    return process.platform === 'win32' ? 'cmd.exe' : '/bin/sh';
+}
+
+/**
+ * Builds spawn file/args for the given shell and command string.
+ */
+function getShellSpawnArgs(
+    shellPath: string,
+    command: string,
+): {
+    file: string;
+    args: string[];
+    shellOptions?: Pick<SpawnOptions, 'windowsVerbatimArguments'>;
+} {
+    const kind = detectShellKind(shellPath);
+    switch (kind) {
+        case 'cmd':
+            return {
+                file: shellPath,
+                args: ['/s', '/c', `"${command}"`],
+                shellOptions: { windowsVerbatimArguments: true },
+            };
+        case 'powershell':
+            return {
+                file: shellPath,
+                args: ['-NoProfile', '-Command', command],
+            };
+        case 'posix':
+            return {
+                file: shellPath,
+                args: ['-c', command],
+            };
+        default:
+            throw new UnreachableError(kind);
+    }
+}
+
+export type ShellKind = 'cmd' | 'posix' | 'powershell';
+
+/**
+ * Detects which argument style to use when spawning the given shell executable.
+ */
+function detectShellKind(shellPath: string): ShellKind {
+    const normalized = shellPath.replace(/\\/g, '/');
+    const base = path
+        .basename(normalized)
+        .toLowerCase()
+        .replace(/\.exe$/i, '');
+
+    if (base === 'cmd') {
+        return 'cmd';
+    }
+    if (base === 'powershell' || base === 'pwsh') {
+        return 'powershell';
+    }
+    return 'posix';
 }
 
 export const getSpawnOpts = ({
