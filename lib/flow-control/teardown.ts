@@ -2,7 +2,7 @@ import Rx from 'rxjs';
 
 import { Command, SpawnCommand } from '../command.js';
 import { Logger } from '../logger.js';
-import { getSpawnOpts, spawn as baseSpawn } from '../spawn.js';
+import { getSpawnOpts } from '../spawn.js';
 import { FlowController } from './flow-controller.js';
 
 export class Teardown implements FlowController {
@@ -18,13 +18,12 @@ export class Teardown implements FlowController {
         logger: Logger;
         /**
          * Which function to use to spawn commands.
-         * Defaults to the same used by the rest of concurrently.
          */
-        spawn?: SpawnCommand;
+        spawn: SpawnCommand;
         commands: readonly string[];
     }) {
         this.logger = logger;
-        this.spawn = spawn || baseSpawn;
+        this.spawn = spawn;
         this.teardown = commands;
     }
 
