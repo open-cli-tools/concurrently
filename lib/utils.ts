@@ -41,3 +41,12 @@ export function splitOutsideParens(input: string, delimiter: string): string[] {
     if (trimmed) segments.push(trimmed);
     return segments;
 }
+
+/**
+ * Error thrown when a condition is reached that should be impossible.
+ */
+export class UnreachableError extends Error {
+    constructor(value: never) {
+        super(`Unreachable condition: ${value}`);
+    }
+}

@@ -97,6 +97,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
 - `options` (optional): an object containing any of the below:
   - `cwd`: the working directory to be used by all commands. Can be overridden per command.
     Default: `process.cwd()`.
+  - `shell`: shell executable used to run command strings. When unset, uses `npm_config_script_shell` if present (for example when run via `npm run`), otherwise `cmd.exe` on Windows or `/bin/sh` elsewhere. See [shell resolution](./docs/shell-resolution.md).
   - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
   - `handleInput`: when `true`, reads input from `process.stdin`.

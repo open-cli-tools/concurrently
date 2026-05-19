@@ -218,7 +218,7 @@ export class Logger {
 
     colorText(command: Command, text: string) {
         const prefixColor = command.prefixColor ?? '';
-        const defaultColor = applyColor(this.chalk, defaults.prefixColors) as ChalkInstance;
+        const defaultColor = applyColor(this.chalk, defaults.prefixColors) ?? this.chalk.reset;
         const color = applyColor(this.chalk, prefixColor) ?? defaultColor;
 
         // Segment the text around `{color}` / `{/color}` markers and only apply `color`

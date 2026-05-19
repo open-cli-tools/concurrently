@@ -58,6 +58,9 @@ const run = (args: string, ctrlcWrapper?: boolean) => {
         cwd: __dirname,
         env: {
             ...process.env,
+            // VS Code extension might allow colors, but this breaks assertions.
+            // Force colors to be disabled to avoid that.
+            FORCE_COLOR: '0',
         },
     });
 

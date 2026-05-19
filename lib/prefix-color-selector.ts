@@ -63,33 +63,19 @@ export class PrefixColorSelector {
         this.colorGenerator = createColorGenerator(normalizedColors);
     }
 
-    /** A list of colors that are readable in a terminal. */
+    /**
+     * Colors used by `auto` selection and default cycling.
+     *
+     * Each color is chosen to be visually distinct on both dark and light
+     * terminal backgrounds, without carrying semantic meaning (e.g. red
+     * implies errors) or blending into default text (e.g. white/grey).
+     * Background colors are excluded to keep output lightweight.
+     *
+     * This list does NOT restrict manually specified colors — any valid Chalk
+     * color name, hex value, or modifier can be passed via `--prefix-colors`.
+     */
     public static get ACCEPTABLE_CONSOLE_COLORS() {
-        // Colors picked randomly, can be amended if required
-        return [
-            // Prevent duplicates, in case the list becomes significantly large
-            ...new Set<keyof ChalkInstance>([
-                // Text colors
-                'cyan',
-                'yellow',
-                'greenBright',
-                'blueBright',
-                'magentaBright',
-                'white',
-                'grey',
-                'red',
-
-                // Background colors
-                'bgCyan',
-                'bgYellow',
-                'bgGreenBright',
-                'bgBlueBright',
-                'bgMagenta',
-                'bgWhiteBright',
-                'bgGrey',
-                'bgRed',
-            ]),
-        ];
+        return [...new Set<keyof ChalkInstance>(['cyan', 'magenta', 'green', 'yellow', 'blue'])];
     }
 
     /**
