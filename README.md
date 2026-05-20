@@ -101,13 +101,13 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
   - `defaultInputTarget`: the default input target when reading from `inputStream`.
     Default: `0`.
   - `handleInput`: when `true`, reads input from `process.stdin`.
-  - `inputStream`: a [`Readable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_readable_streams)
+  - `inputStream`: a [`Readable` stream](https://nodejs.org/docs/latest/api/stream.html#readable-streams)
     to read the input from. Should only be used in the rare instance you would like to stream anything other than `process.stdin`. Overrides `handleInput`.
   - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
   - `killOthersOn`: once the first command exits with one of these statuses, kill other commands.
     Can be an array containing the strings `success` (status code zero) and/or `failure` (non-zero exit status).
   - `maxProcesses`: how many processes should run at once.
-  - `outputStream`: a [`Writable` stream](https://nodejs.org/dist/latest-v10.x/docs/api/stream.html#stream_writable_streams)
+  - `outputStream`: a [`Writable` stream](https://nodejs.org/docs/latest/api/stream.html#writable-streams)
     to write logs to. Default: `process.stdout`.
   - `prefix`: the prefix type to use when logging processes output.
     Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
@@ -223,16 +223,16 @@ It contains the following properties:
 
 ## FAQ
 
-- Process exited with code _null_?
+- Process exited with code `null`?
 
-  From [Node child_process documentation](http://nodejs.org/api/child_process.html#child_process_event_exit), `exit` event:
+  From [Node child_process documentation](https://nodejs.org/docs/latest/api/child_process.html#event-exit), `exit` event:
 
   > This event is emitted after the child process ends. If the process
   > terminated normally, code is the final exit code of the process,
   > otherwise null. If the process terminated due to receipt of a signal,
   > signal is the string name of the signal, otherwise null.
 
-  So _null_ means the process didn't terminate normally. This will make **concurrently**
+  So `null` means the process didn't terminate normally. This will make **concurrently**
   to return non-zero exit code too.
 
 - Does this work with the npm-replacements [yarn](https://yarnpkg.com/), [pnpm](https://pnpm.io/), or [Bun](https://bun.sh/)?
