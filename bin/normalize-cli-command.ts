@@ -4,7 +4,7 @@ export function normalizeCliCommand(command: string): string {
     }
 
     const quote = command[0];
-    const last = command[command.length - 1];
+    const last = command.at(-1);
     if ((quote !== '"' && quote !== "'") || last !== quote) {
         return command;
     }
