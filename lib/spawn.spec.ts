@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { getSpawnOpts, spawn } from './spawn.js';
+import { createSpawn, getSpawnOpts, ShellKind } from './spawn.js';
+import { UnreachableError } from './utils.js';
 
 const baseProcess = {
     platform: 'win32' as const,
@@ -8,19 +9,70 @@ const baseProcess = {
     env: {},
 };
 
-describe('spawn()', () => {
-    it('spawns the given command', async () => {
-        const fakeSpawn = vi.fn();
-        spawn('echo banana', {}, fakeSpawn, baseProcess);
-        expect(fakeSpawn).toHaveBeenCalled();
-        expect(fakeSpawn.mock.calls[0][1].join(' ')).toContain('echo banana');
+describe('createSpawn()', () => {
+    const command = 'echo banana';
+    const makeShellArgs = (kind: ShellKind) => {
+        switch (kind) {
+            case 'cmd':
+                return ['/s', '/c', `"${command}"`];
+            case 'posix':
+                return ['-c', command];
+            case 'powershell':
+                return ['-NoProfile', '-Command', command];
+            default:
+                throw new UnreachableError(kind);
+        }
+    };
+
+    describe('when shell is not provided', () => {
+        it('uses npm_config_script_shell when set', () => {
+            const fakeSpawn = vi.fn();
+            const spawn = createSpawn(undefined, fakeSpawn, {
+                ...baseProcess,
+                env: { npm_config_script_shell: 'C:\\Git\\bin\\bash.exe' },
+            });
+            spawn(command, {});
+            expect(fakeSpawn).toHaveBeenCalledWith('C:\\Git\\bin\\bash.exe', ['-c', command], {});
+        });
+
+        it('creates spawn function that uses cmd.exe on Windows', () => {
+            const fakeSpawn = vi.fn();
+            const spawn = createSpawn(undefined, fakeSpawn, { ...baseProcess, platform: 'win32' });
+            spawn(command, {});
+            expect(fakeSpawn).toHaveBeenCalledWith('cmd.exe', ['/s', '/c', `"${command}"`], {
+                windowsVerbatimArguments: true,
+            });
+        });
+
+        it('creates spawn function that uses /bin/sh on non-Windows platforms', () => {
+            const fakeSpawn = vi.fn();
+            const spawn = createSpawn(undefined, fakeSpawn, { ...baseProcess, platform: 'linux' });
+            spawn(command, {});
+            expect(fakeSpawn).toHaveBeenCalledWith(
+                '/bin/sh',
+                ['-c', command],
+                expect.objectContaining({}),
+            );
+        });
     });
 
-    it('returns spawned process', async () => {
-        const childProcess = {};
-        const fakeSpawn = vi.fn().mockReturnValue(childProcess);
-        const child = spawn('echo banana', {}, fakeSpawn, baseProcess);
-        expect(child).toBe(childProcess);
+    describe.each([
+        { style: 'cmd', file: 'cmd.exe' },
+        { style: 'posix', file: 'C:\\bash.exe' },
+        { style: 'powershell', file: 'pwsh' },
+        { style: 'posix', file: '/bin/sh' },
+        { style: 'posix', file: '/bin/zsh' },
+    ] as const)('when shell is set to $file', ({ style, file }) => {
+        it(`creates spawn function that uses ${file} as shell with ${style} style arguments`, () => {
+            const fakeSpawn = vi.fn();
+            const spawn = createSpawn(file, fakeSpawn, baseProcess);
+            spawn(command, {});
+            expect(fakeSpawn).toHaveBeenCalledWith(
+                file,
+                makeShellArgs(style),
+                expect.objectContaining({}),
+            );
+        });
     });
 });
 

@@ -1,5 +1,11 @@
 # Concurrently Documentation
 
+## General
+
+These articles apply when using either concurrently's CLI or API:
+
+- [Shell Resolution](./shell-resolution.md)
+
 ## CLI
 
 These articles cover using concurrently through CLI:

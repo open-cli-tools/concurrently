@@ -476,6 +476,79 @@ describe('#logCommandText()', () => {
     });
 });
 
+describe('#logCommandText() with color markers', () => {
+    it('colors only the text inside {color}...{/color} within a template prefix', () => {
+        const { logger } = createLogger({ prefixFormat: '[{color}{name}{/color}]' });
+
+        const cmd = new FakeCommand('bar', undefined, 1, { prefixColor: 'blue' });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`[${chalk.blue('bar')}] `, 'foo', cmd);
+    });
+
+    it('supports multiple {color}...{/color} pairs in one template', () => {
+        const { logger } = createLogger({
+            prefixFormat: '{color}[{/color}{name}{color}]{/color}',
+        });
+
+        const cmd = new FakeCommand('bar', undefined, 1, { prefixColor: 'blue' });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(
+            `${chalk.blue('[')}bar${chalk.blue(']')} `,
+            'foo',
+            cmd,
+        );
+    });
+
+    it('auto-closes an unclosed {color} so the tail stays colored', () => {
+        const { logger } = createLogger({ prefixFormat: '[{color}{name}]' });
+
+        const cmd = new FakeCommand('bar', undefined, 1, { prefixColor: 'blue' });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`[${chalk.blue('bar]')} `, 'foo', cmd);
+    });
+
+    it('auto-opens a bare {/color} so the head stays colored', () => {
+        const { logger } = createLogger({ prefixFormat: '{name}{/color}]' });
+
+        const cmd = new FakeCommand('bar', undefined, 1, { prefixColor: 'blue' });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.blue('bar')}] `, 'foo', cmd);
+    });
+
+    it('templates without markers stay fully colored (backward compat)', () => {
+        const { logger } = createLogger({ prefixFormat: '{name}-{index}' });
+
+        const cmd = new FakeCommand('bar', undefined, 1, { prefixColor: 'blue' });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.blue('bar-1')} `, 'foo', cmd);
+    });
+
+    it('pads templated prefix based on visible length, ignoring marker tokens', () => {
+        const { logger } = createLogger({ prefixFormat: '{color}{name}{/color}' });
+
+        const cmd = new FakeCommand('foo', undefined, 0, { prefixColor: 'blue' });
+        logger.setPrefixLength(6);
+        logger.logCommandText('bar', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.blue('foo')}    `, 'bar', cmd);
+    });
+
+    it('strips markers and emits no ANSI escapes when colors are globally off', () => {
+        const { logger } = createLogger({ prefixFormat: '[{color}{name}{/color}]' });
+
+        logger.toggleColors(false);
+        const cmd = new FakeCommand('bar', undefined, 1, { prefixColor: 'blue' });
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith('[bar] ', 'foo', cmd);
+    });
+});
+
 describe('#logCommandEvent()', () => {
     it('does nothing if in raw mode', () => {
         const { logger } = createLogger({ raw: true });

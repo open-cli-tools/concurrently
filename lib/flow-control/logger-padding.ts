@@ -1,6 +1,10 @@
 import { Command } from '../command.js';
-import { Logger } from '../logger.js';
+import { COLOR_MARKER_RE, Logger } from '../logger.js';
 import { FlowController } from './flow-controller.js';
+
+function visibleLength(value: string | undefined): number {
+    return value ? value.replace(COLOR_MARKER_RE, '').length : 0;
+}
 
 export class LoggerPadding implements FlowController {
     private readonly logger: Logger;
@@ -14,7 +18,7 @@ export class LoggerPadding implements FlowController {
         // Compute the prefix length now, which works for all styles but those with a PID.
         let length = commands.reduce((length, command) => {
             const content = this.logger.getPrefixContent(command);
-            return Math.max(length, content?.value.length || 0);
+            return Math.max(length, visibleLength(content?.value));
         }, 0);
         this.logger.setPrefixLength(length);
 
@@ -25,7 +29,7 @@ export class LoggerPadding implements FlowController {
             command.timer.subscribe((event) => {
                 if (!event.endDate) {
                     const content = this.logger.getPrefixContent(command);
-                    length = Math.max(length, content?.value.length || 0);
+                    length = Math.max(length, visibleLength(content?.value));
                     this.logger.setPrefixLength(length);
                 }
             }),

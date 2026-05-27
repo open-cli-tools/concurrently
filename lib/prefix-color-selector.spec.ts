@@ -180,4 +180,14 @@ describe('#ACCEPTABLE_CONSOLE_COLORS', () => {
         //     always has more than one entry, which is what we enforce via this test
         expect(PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS.length).toBeGreaterThan(1);
     });
+
+    it('only includes colors that are visually distinct, semantically neutral, and lightweight', () => {
+        expect(PrefixColorSelector.ACCEPTABLE_CONSOLE_COLORS).toEqual([
+            'cyan',
+            'magenta',
+            'green',
+            'yellow',
+            'blue',
+        ]);
+    });
 });

@@ -11,6 +11,10 @@ const noColorChalk = new Chalk({ level: 0 });
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{3,6}$/;
 
+const COLOR_OPEN = '{color}';
+const COLOR_CLOSE = '{/color}';
+export const COLOR_MARKER_RE = /\{\/?color\}/g;
+
 /**
  * Applies a single color segment to a chalk instance.
  * Handles: function calls (hex, bgHex, rgb, bgRgb, ansi256, bgAnsi256, etc.),
@@ -201,9 +205,11 @@ export class Logger {
             return '';
         }
 
+        const visibleLength = content.value.replace(COLOR_MARKER_RE, '').length;
+        const padding = ' '.repeat(Math.max(0, this.prefixLength - visibleLength));
         return content.type === 'template'
-            ? content.value.padEnd(this.prefixLength, ' ')
-            : `[${content.value.padEnd(this.prefixLength, ' ')}]`;
+            ? content.value + padding
+            : `[${content.value}${padding}]`;
     }
 
     setPrefixLength(length: number) {
@@ -212,9 +218,36 @@ export class Logger {
 
     colorText(command: Command, text: string) {
         const prefixColor = command.prefixColor ?? '';
-        const defaultColor = applyColor(this.chalk, defaults.prefixColors) as ChalkInstance;
+        const defaultColor = applyColor(this.chalk, defaults.prefixColors) ?? this.chalk.reset;
         const color = applyColor(this.chalk, prefixColor) ?? defaultColor;
-        return color(text);
+
+        // Segment the text around `{color}` / `{/color}` markers and only apply `color`
+        // inside opened regions. If either marker is missing, it's implicitly added to
+        // the start or end respectively — so a marker-free input stays fully colored,
+        // preserving backward compatibility.
+        let normalized = text;
+        if (!normalized.includes(COLOR_OPEN)) normalized = COLOR_OPEN + normalized;
+        if (!normalized.includes(COLOR_CLOSE)) normalized = normalized + COLOR_CLOSE;
+
+        let output = '';
+        let rest = normalized;
+        let inColorRegion = false;
+        while (rest.length > 0) {
+            const marker = inColorRegion ? COLOR_CLOSE : COLOR_OPEN;
+            const idx = rest.indexOf(marker);
+            if (idx === -1) {
+                // Tail after the last closing marker: normalization guarantees a
+                // `{/color}` exists, so once opened a region always finds its close —
+                // reaching here implies `inColorRegion` is false and the tail is plain.
+                output += rest;
+                break;
+            }
+            const segment = rest.slice(0, idx);
+            output += inColorRegion ? color(segment) : segment;
+            rest = rest.slice(idx + marker.length);
+            inColorRegion = !inColorRegion;
+        }
+        return output;
     }
 
     /**

@@ -1,7 +1,7 @@
 import process from 'node:process';
 import { Readable } from 'node:stream';
 
-import { assertDeprecated, assertNotRuntime } from './assert.js';
+import { assertNotRuntime } from './assert.js';
 import { CloseEvent, Command, CommandIdentifier, TimerEvent } from './command.js';
 import {
     concurrently as createConcurrently,
@@ -22,9 +22,13 @@ import { OutputErrorHandler } from './flow-control/output-error-handler.js';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process.js';
 import { Teardown } from './flow-control/teardown.js';
 import { Logger } from './logger.js';
+import { createSpawn } from './spawn.js';
 import { castArray } from './utils.js';
 
-export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 'hide'> & {
+export type ConcurrentlyOptions = Omit<
+    BaseConcurrentlyOptions,
+    'abortSignal' | 'hide' | 'spawn'
+> & {
     // Logger options
     /**
      * Which command(s) should have their output hidden.
@@ -81,11 +85,6 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
 
     // Process killing options
     /**
-     * @deprecated Use `killOthersOn` instead.
-     * @see KillOthers
-     */
-    killOthers?: ProcessCloseCondition | ProcessCloseCondition[];
-    /**
      * Once the first command exits with one of these statuses, kill other commands.
      * @see KillOthers
      */
@@ -120,13 +119,19 @@ export type ConcurrentlyOptions = Omit<BaseConcurrentlyOptions, 'abortSignal' | 
      * If not defined, no argument replacing will happen.
      */
     additionalArguments?: string[];
+
+    /**
+     * Shell executable used to run command strings.
+     * When unset, uses the `npm_config_script_shell` env variable if present. Otherwise, falls back
+     * to `cmd.exe` on Windows, and `/bin/sh` elsewhere.
+     */
+    shell?: string;
 };
 
 export function concurrently(
     commands: ConcurrentlyCommandInput[],
     options: Partial<ConcurrentlyOptions> = {},
 ) {
-    assertDeprecated(options.killOthers === undefined, 'killOthers', 'Use killOthersOn instead.');
     assertNotRuntime(
         // When run via /snap/bin/node, process.execPath maps to the actual snap path, but it also sets
         // several SNAP_* env variables. If the snap is run directly via e.g. /snap/node/current/bin/node,
@@ -157,11 +162,13 @@ export function concurrently(
     const abortController = new AbortController();
     const outputStream = options.outputStream || process.stdout;
 
+    const spawn = createSpawn(options.shell);
     return createConcurrently(commands, {
         maxProcesses: options.maxProcesses,
         raw: options.raw,
         successCondition: options.successCondition,
         cwd: options.cwd,
+        spawn,
         hide,
         logger,
         outputStream,
@@ -188,7 +195,7 @@ export function concurrently(
             }),
             new KillOthers({
                 logger,
-                conditions: options.killOthersOn || options.killOthers || [],
+                conditions: options.killOthersOn || [],
                 timeoutMs: options.killTimeout,
                 killSignal: options.killSignal,
                 abortController,
@@ -198,7 +205,7 @@ export function concurrently(
                 logger: options.timings ? logger : undefined,
                 timestampFormat: options.timestampFormat,
             }),
-            new Teardown({ logger, spawn: options.spawn, commands: options.teardown || [] }),
+            new Teardown({ logger, spawn, commands: options.teardown || [] }),
         ],
         prefixColors: options.prefixColors || [],
         additionalArguments: options.additionalArguments,

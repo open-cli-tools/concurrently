@@ -56,10 +56,10 @@ $ concurrently --prefix '{index}-{pid}' 'echo Hello there' 'echo General Kenobi!
 
 ## Prefix Colors
 
-By default, there are no colors applied to concurrently prefixes, and they just use whatever the terminal's defaults are.
+By default, concurrently automatically assigns colors to each command's prefix, cycling through `cyan`, `magenta`, `green`, `yellow`, and `blue` (the same palette and order used by turborepo).
 
 This can be changed by using the `--prefix-colors`/`-c` flag, which takes a comma-separated list of colors to use.<br/>
-The available values are color names (e.g. `green`, `magenta`, `gray`, etc), a hex value (such as `#23de43`), or `auto`, to automatically select a color.
+The available values are color names (e.g. `green`, `magenta`, `gray`, etc), a hex value (such as `#23de43`), `auto` to automatically select a color, or `reset` to disable coloring.
 
 ```bash
 $ concurrently -c red,blue 'echo Hello there' 'echo General Kenobi!'
@@ -145,6 +145,18 @@ $ concurrently -c 'rgb(255,136,0).bold,black.bgRgb(100,100,255)' 'echo Orange' '
 # ANSI 256 colors
 $ concurrently -c 'ansi256(199),ansi256(50).bgAnsi256(17)' 'echo Pink' 'echo Cyan on blue'
 ```
+
+### Scoping the Color to Part of a Template
+
+By default, the entire prefix is colored. When using a template, you can restrict coloring to a specific region by wrapping it with the `{color}` and `{/color}` markers — anything outside the markers is rendered without color.
+
+```bash
+$ concurrently -c red,blue --prefix '[{color}{name}{/color}] {pid}' --names one,two 'echo Hello there' 'echo General Kenobi!'
+```
+
+In the example above, only `one` and `two` are colored — the surrounding brackets and the PID stay in the terminal's default color.
+
+If only one of the markers is present, the missing side is implicit: an `{color}` without a matching `{/color}` colors everything from the opener to the end of the prefix, and a `{/color}` without a preceding `{color}` colors everything from the start of the prefix up to the closer. A template with neither marker is colored in full, matching the previous behavior.
 
 ## Prefix Length
 

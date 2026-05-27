@@ -22,11 +22,6 @@ export const maxProcesses = 0;
 export const hide = '';
 
 /**
- * The character to split <names> on.
- */
-export const nameSeparator = ',';
-
-/**
  * Which prefix style to use when logging processes output.
  */
 export const prefix = '';
@@ -35,7 +30,7 @@ export const prefix = '';
  * Default prefix color.
  * @see https://www.npmjs.com/package/chalk
  */
-export const prefixColors = 'reset';
+export const prefixColors = 'auto';
 
 /**
  * How many bytes we'll show on the command prefix.

@@ -42,6 +42,15 @@ it('sets prefix length to the longest prefix of all commands', () => {
     expect(logger.setPrefixLength).toHaveBeenCalledWith(6);
 });
 
+it('ignores color markers when measuring prefix length', () => {
+    logger.getPrefixContent
+        .mockReturnValueOnce({ type: 'template', value: '{color}foo{/color}' })
+        .mockReturnValueOnce({ type: 'template', value: '{color}abcd{/color}' });
+
+    controller.handle(commands);
+    expect(logger.setPrefixLength).toHaveBeenCalledWith(4);
+});
+
 it('does not shorten the prefix length', () => {
     logger.getPrefixContent
         .mockReturnValueOnce({ type: 'default', value: '100' })
