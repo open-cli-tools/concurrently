@@ -56,7 +56,7 @@
     "shell-quote": "1.8.4",
     "supports-color": "10.2.2",
     "tree-kill": "1.2.2",
-    "yargs": "17.7.2"
+    "yargs": "18.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -67,7 +67,6 @@
     "@vitest/coverage-v8": "^4.1.6",
     "@vitest/eslint-plugin": "^1.6.17",
     "ctrlc-wrapper": "^0.0.5",
-    "esbuild": "~0.28.0",
     "eslint": "^10.4.0",
     "eslint-config-flat-gitignore": "^2.3.0",
     "eslint-config-prettier": "^10.1.8",
