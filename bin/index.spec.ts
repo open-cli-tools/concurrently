@@ -1,16 +1,14 @@
-import { spawn } from 'node:child_process';
+import { execSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import readline from 'node:readline';
 
 import { subscribeSpyTo } from '@hirez_io/observer-spy';
 import { sendCtrlC, spawnWithWrapper } from 'ctrlc-wrapper';
-import { build } from 'esbuild';
 import Rx from 'rxjs';
 import { map } from 'rxjs/operators';
 import stringArgv from 'string-argv';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import { escapeRegExp } from '../lib/utils.js';
 
@@ -24,29 +22,12 @@ const createKillMessage = (prefix: string, signal: 'SIGTERM' | 'SIGINT' | string
     return new RegExp(`${escapeRegExp(prefix)} exited with code ${map[signal] ?? signal}`);
 };
 
-let tmpDir: string;
+const concurrentlyBin = path.join(__dirname, '..', 'dist', 'bin', 'index.js');
 
-beforeAll(async () => {
-    // Build 'concurrently' and store it in a temporary directory
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'concurrently-'));
-    await build({
-        entryPoints: [path.join(__dirname, 'index.ts')],
-        platform: 'node',
-        bundle: true,
-        // it doesn't seem like esbuild is able to change a CJS module to ESM, so target CJS instead.
-        // https://github.com/evanw/esbuild/issues/1921
-        format: 'cjs',
-        outfile: path.join(tmpDir, 'concurrently.cjs'),
-    });
-    fs.copyFileSync(path.join(__dirname, '..', 'package.json'), path.join(tmpDir, 'package.json'));
-}, 8000);
-
-afterAll(() => {
-    // Remove the temporary directory where 'concurrently' was stored
-    if (tmpDir) {
-        fs.rmSync(tmpDir, { recursive: true });
-    }
-});
+// Build once, then spawn the real CLI without a shell (see open-cli-tools/concurrently#346).
+beforeAll(() => {
+    execSync('pnpm run build', { cwd: path.join(__dirname, '..'), stdio: 'pipe' });
+}, 20_000);
 
 /**
  * Creates a child process running 'concurrently' with the given args.
@@ -54,7 +35,7 @@ afterAll(() => {
  */
 const run = (args: string, ctrlcWrapper?: boolean) => {
     const spawnFn = ctrlcWrapper ? spawnWithWrapper : spawn;
-    const child = spawnFn('node', [path.join(tmpDir, 'concurrently.cjs'), ...stringArgv(args)], {
+    const child = spawnFn('node', [concurrentlyBin, ...stringArgv(args)], {
         cwd: __dirname,
         env: {
             ...process.env,
