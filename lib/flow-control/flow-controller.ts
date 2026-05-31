@@ -1,4 +1,4 @@
-import { Command } from '../command.js';
+import type { Command } from '../command.js';
 
 /**
  * Interface for a class that controls and/or watches the behavior of commands.
@@ -7,5 +7,5 @@ import { Command } from '../command.js';
  * actually finish.
  */
 export interface FlowController {
-    handle: (commands: Command[]) => { commands: Command[]; onFinish?: () => void | Promise<void> };
+    handle(commands: Command[]): { commands: Command[]; onFinish?: () => void | Promise<void> };
 }
