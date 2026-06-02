@@ -38,6 +38,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           node-registry: https://registry.npmjs.org
+          node-version: 24
 
       - name: Publish to NPM
         env:
