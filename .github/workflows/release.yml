@@ -46,4 +46,4 @@ jobs:
       - name: Publish to NPM
         env:
           NPM_CONFIG_PROVENANCE: true
-        run: pnpm publish --no-git-checks --tag=${{ case(env.latest, 'latest', 'backport') }}
+        run: pnpm publish --no-git-checks --tag=${{ case(env.latest == 'true', 'latest', 'backport') }}
