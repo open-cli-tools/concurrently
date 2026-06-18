@@ -9,6 +9,9 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  latest: ${{ github.event.ref == 'refs/heads/main' }}
+
 jobs:
   gh-release:
     name: Create GitHub Release
@@ -22,7 +25,7 @@ jobs:
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "$GITHUB_REF_NAME" --generate-notes
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes --latest=${{ env.latest }}
 
   publish-npm:
     name: Publish to NPM
@@ -43,4 +46,4 @@ jobs:
       - name: Publish to NPM
         env:
           NPM_CONFIG_PROVENANCE: true
-        run: pnpm publish --no-git-checks
+        run: pnpm publish --no-git-checks --tag=${{ case(env.latest, 'latest', 'backport') }}
