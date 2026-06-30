@@ -61,7 +61,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@hirez_io/observer-spy": "^2.2.0",
-    "@types/node": "^20.19.41",
+    "@types/node": "^22.20.0",
     "@types/yargs": "^17.0.35",
     "@vitest/coverage-v8": "^4.1.6",
     "@vitest/eslint-plugin": "^1.6.17",
