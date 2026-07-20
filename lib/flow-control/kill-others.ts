@@ -87,6 +87,6 @@ export class KillOthers implements FlowController {
                 );
                 killableCommands.forEach((command) => command.kill('SIGKILL'));
             }
-        }, this.timeoutMs);
+        }, this.timeoutMs).unref();
     }
 }
