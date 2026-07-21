@@ -133,3 +133,19 @@ it('force kills misbehaving processes after a timeout', () => {
     expect(commands[1].kill).toHaveBeenCalledWith('SIGKILL');
     expect(commands[2].kill).toHaveBeenCalledTimes(1);
 });
+
+it('does not keep the event loop alive while waiting to force kill', () => {
+    const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
+
+    createWithConditions(['failure'], { timeoutMs: 60_000 }).handle(commands);
+    assignProcess(commands[1]);
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+
+    const timeout = setTimeoutSpy.mock.results.at(-1)?.value as NodeJS.Timeout;
+    try {
+        expect(timeout.hasRef()).toBe(false);
+    } finally {
+        clearTimeout(timeout);
+        setTimeoutSpy.mockRestore();
+    }
+});
