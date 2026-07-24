@@ -9,12 +9,26 @@ permissions:
   id-token: write
   contents: read
 
-env:
-  latest: ${{ github.event.ref == 'refs/heads/main' }}
-
 jobs:
+  meta:
+    name: Release metadata
+    runs-on: ubuntu-latest
+    outputs:
+      latest: ${{ steps.detect.outputs.latest }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: detect
+        run: |
+          if git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "latest=false" >> "$GITHUB_OUTPUT"
+          fi
   gh-release:
     name: Create GitHub Release
+    needs: meta
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,10 +39,11 @@ jobs:
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release create "$GITHUB_REF_NAME" --generate-notes --latest=${{ env.latest }}
+        run: gh release create "$GITHUB_REF_NAME" --generate-notes --latest=${{ needs.meta.outputs.latest }}
 
   publish-npm:
     name: Publish to NPM
+    needs: meta
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -46,4 +61,4 @@ jobs:
       - name: Publish to NPM
         env:
           NPM_CONFIG_PROVENANCE: true
-        run: pnpm publish --no-git-checks --tag=${{ case(env.latest == 'true', 'latest', 'backport') }}
+        run: pnpm publish --no-git-checks --tag=${{ case(needs.meta.outputs.latest == 'true', 'latest', 'backport') }}
