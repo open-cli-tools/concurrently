@@ -351,3 +351,35 @@ describe(`with a 'deno task' prefix`, () => {
         expect(readPackage).toHaveBeenCalledTimes(1);
     });
 });
+
+describe('surrounding command line', () => {
+    beforeEach(() => {
+        readPackage.mockReturnValue({ scripts: { 'build:app': '', 'build:lib': '' } });
+    });
+
+    it('keeps a command chained after the wildcard', () => {
+        expect(parser.parse(createCommandInfo('npm run build:* && echo done'))).toEqual([
+            { name: 'app', command: 'npm run build:app && echo done' },
+            { name: 'lib', command: 'npm run build:lib && echo done' },
+        ]);
+    });
+
+    it('keeps an & inside a quoted argument', () => {
+        expect(parser.parse(createCommandInfo('npm run build:* -- --grep "a & b"'))).toEqual([
+            { name: 'app', command: 'npm run build:app -- --grep "a & b"' },
+            { name: 'lib', command: 'npm run build:lib -- --grep "a & b"' },
+        ]);
+    });
+
+    it('keeps a command chained before the wildcard', () => {
+        expect(parser.parse(createCommandInfo('cd app && npm run build:*'))).toEqual([
+            { name: 'app', command: 'cd app && npm run build:app' },
+            { name: 'lib', command: 'cd app && npm run build:lib' },
+        ]);
+    });
+
+    it('does not expand a runner named inside a quoted argument', () => {
+        const commandInfo = createCommandInfo('echo "npm run build:*"');
+        expect(parser.parse(commandInfo)).toEqual(commandInfo);
+    });
+});

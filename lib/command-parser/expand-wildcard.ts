@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 
+import { parse as parseShell } from 'unbash';
+
 import { CommandInfo } from '../command.js';
 import JSONC from '../jsonc.js';
 import { escapeRegExp } from '../utils.js';
@@ -7,6 +9,49 @@ import { CommandParser } from './command-parser.js';
 
 // Matches a negative filter surrounded by '(!' and ')'.
 const OMISSION = /\(!([^)]+)\)/;
+
+// The subcommand that makes each runner take a script name.
+const RUN_SUBCOMMANDS: Record<string, string> = {
+    npm: 'run',
+    yarn: 'run',
+    pnpm: 'run',
+    bun: 'run',
+    node: '--run',
+    deno: 'task',
+};
+
+type Word = { value: string; pos: number; end: number };
+type Runner = { command: string; glob: Word };
+
+/**
+ * Finds the first '<runner> <subcommand> <script>' invocation in a parsed command.
+ *
+ * Reading this from the syntax tree rather than the raw text means anything else
+ * in the command line keeps its exact source text, and a runner named inside a
+ * quoted argument is not mistaken for one.
+ */
+function findRunner(node: unknown): Runner | undefined {
+    if (!node || typeof node !== 'object') {
+        return undefined;
+    }
+
+    const candidate = node as { type?: string; name?: Word; suffix?: Word[] };
+    if (candidate.type === 'Command') {
+        const name = candidate.name?.value;
+        const [subcommand, glob] = candidate.suffix ?? [];
+        if (name && glob && subcommand?.value === RUN_SUBCOMMANDS[name]) {
+            return { command: `${name} ${subcommand.value}`, glob };
+        }
+    }
+
+    for (const value of Object.values(candidate)) {
+        const found = findRunner(value);
+        if (found) {
+            return found;
+        }
+    }
+    return undefined;
+}
 
 /**
  * Finds wildcards in 'npm/yarn/pnpm/bun run', 'node --run' and 'deno task'
@@ -74,16 +119,13 @@ export class ExpandWildcard implements CommandParser {
         // - <npm|yarn|pnpm|bun> run <script> [args]
         // - node --run <script> [args]
         // - deno task <script> [args]
-        const [, command, scriptGlob, args] =
-            /((?:npm|yarn|pnpm|bun) run|node --run|deno task) (\S+)([^&]*)/.exec(
-                commandInfo.command,
-            ) || [];
+        const runner = findRunner(parseShell(commandInfo.command));
+        const scriptGlob = runner?.glob.value ?? '';
+        const wildcardPosition = scriptGlob.indexOf('*');
 
-        const wildcardPosition = (scriptGlob || '').indexOf('*');
-
-        // If the regex didn't match an npm script, or it has no wildcard,
+        // If no runner invocation was found, or its script has no wildcard,
         // then we have nothing to do here
-        if (wildcardPosition === -1) {
+        if (!runner || wildcardPosition === -1) {
             return commandInfo;
         }
 
@@ -98,7 +140,7 @@ export class ExpandWildcard implements CommandParser {
 
         const commands: CommandInfo[] = [];
 
-        for (const script of this.relevantScripts(command)) {
+        for (const script of this.relevantScripts(runner.command)) {
             if (omission && new RegExp(omission).test(script)) {
                 continue;
             }
@@ -108,7 +150,12 @@ export class ExpandWildcard implements CommandParser {
             if (match !== undefined) {
                 commands.push({
                     ...commandInfo,
-                    command: `${command} ${script}${args}`,
+                    // Substitute the script in place so the rest of the command
+                    // line, including anything chained after it, is preserved.
+                    command:
+                        commandInfo.command.slice(0, runner.glob.pos) +
+                        script +
+                        commandInfo.command.slice(runner.glob.end),
                     // Will use an empty command name if no prefix has been specified and
                     // the wildcard match is empty, e.g. if `npm:watch-*` matches `npm run watch-`.
                     name: prefix + match,
