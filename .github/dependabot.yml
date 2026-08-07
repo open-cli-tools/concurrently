@@ -7,7 +7,7 @@ updates:
     groups:
       all-dependencies:
         patterns:
-          - "*"
+          - '*'
 
   - package-ecosystem: npm
     directory: /tests/cjs-require
@@ -16,7 +16,7 @@ updates:
     groups:
       all-dependencies:
         patterns:
-          - "*"
+          - '*'
 
   - package-ecosystem: npm
     directory: /tests/cjs-import
@@ -25,7 +25,7 @@ updates:
     groups:
       all-dependencies:
         patterns:
-          - "*"
+          - '*'
 
   - package-ecosystem: npm
     directory: /tests
@@ -34,7 +34,7 @@ updates:
     groups:
       all-dependencies:
         patterns:
-          - "*"
+          - '*'
 
   - package-ecosystem: npm
     directory: /
@@ -43,7 +43,7 @@ updates:
     groups:
       all-dependencies:
         patterns:
-          - "*"
+          - '*'
 
   - package-ecosystem: github-actions
     directory: /
@@ -52,4 +52,4 @@ updates:
     groups:
       all-dependencies:
         patterns:
-          - "*"
+          - '*'
