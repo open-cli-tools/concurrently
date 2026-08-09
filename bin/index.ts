@@ -7,6 +7,7 @@ import { hideBin } from 'yargs/helpers';
 import * as defaults from '../lib/defaults.js';
 import { concurrently } from '../lib/index.js';
 import { castArray, splitOutsideParens } from '../lib/utils.js';
+import { ensureUtf8Codepage } from './console-codepage.js';
 import { normalizeCliCommand } from './normalize-cli-command.js';
 import { readPackageJson } from './read-package-json.js';
 
@@ -229,40 +230,54 @@ if (!commands.length) {
     process.exit();
 }
 
-concurrently(
-    commands.map((command, index) => ({
-        command: normalizeCliCommand(String(command)),
-        name: names[index],
-    })),
-    {
-        handleInput: args.handleInput,
-        defaultInputTarget: args.defaultInputTarget,
-        killOthersOn: args.killOthers
-            ? ['success', 'failure']
-            : args.killOthersOnFail
-              ? ['failure']
-              : [],
-        killSignal: args.killSignal,
-        killTimeout: args.killTimeout,
-        maxProcesses: args.maxProcesses,
-        raw: args.raw,
-        hide: args.hide.split(','),
-        group: args.group,
-        prefix: args.prefix,
-        prefixColors: splitOutsideParens(args.prefixColors, ','),
-        prefixLength: args.prefixLength,
-        padPrefix: args.padPrefix,
-        restartDelay:
-            args.restartAfter === 'exponential' ? 'exponential' : Number(args.restartAfter),
-        restartTries: args.restartTries,
-        successCondition: args.success,
-        timestampFormat: args.timestampFormat,
-        timings: args.timings,
-        shell: args.shell,
-        teardown: args.teardown,
-        additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
-    },
-).result.then(
-    () => process.exit(0),
-    () => process.exit(1),
-);
+// Piped output on Windows uses the console's active codepage, which may not be UTF-8 -- see
+// open-cli-tools/concurrently#302. Raw mode inherits the real console directly instead of piping
+// through concurrently, so it isn't affected and doesn't need this.
+const restoreCodepage = args.raw ? () => {} : ensureUtf8Codepage();
+const exitProcess = (code: number) => {
+    restoreCodepage();
+    process.exit(code);
+};
+
+try {
+    concurrently(
+        commands.map((command, index) => ({
+            command: normalizeCliCommand(String(command)),
+            name: names[index],
+        })),
+        {
+            handleInput: args.handleInput,
+            defaultInputTarget: args.defaultInputTarget,
+            killOthersOn: args.killOthers
+                ? ['success', 'failure']
+                : args.killOthersOnFail
+                  ? ['failure']
+                  : [],
+            killSignal: args.killSignal,
+            killTimeout: args.killTimeout,
+            maxProcesses: args.maxProcesses,
+            raw: args.raw,
+            hide: args.hide.split(','),
+            group: args.group,
+            prefix: args.prefix,
+            prefixColors: splitOutsideParens(args.prefixColors, ','),
+            prefixLength: args.prefixLength,
+            padPrefix: args.padPrefix,
+            restartDelay:
+                args.restartAfter === 'exponential' ? 'exponential' : Number(args.restartAfter),
+            restartTries: args.restartTries,
+            successCondition: args.success,
+            timestampFormat: args.timestampFormat,
+            timings: args.timings,
+            shell: args.shell,
+            teardown: args.teardown,
+            additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
+        },
+    ).result.then(
+        () => exitProcess(0),
+        () => exitProcess(1),
+    );
+} catch (error) {
+    restoreCodepage();
+    throw error;
+}
