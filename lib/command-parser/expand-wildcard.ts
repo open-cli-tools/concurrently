@@ -32,8 +32,15 @@ export class ExpandWildcard implements CommandParser {
 
     static readPackage() {
         try {
-            const json = fs.readFileSync('package.json', { encoding: 'utf-8' });
-            return JSON.parse(json);
+            let json: string = '{}';
+
+            if (fs.existsSync('package.json')) {
+                json = fs.readFileSync('package.json', { encoding: 'utf-8' });
+            } else if (fs.existsSync('package.json5')) {
+                json = fs.readFileSync('package.json5', { encoding: 'utf-8' });
+            }
+
+            return JSONC.parse(json);
         } catch {
             return {};
         }
