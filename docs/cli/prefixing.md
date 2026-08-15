@@ -77,6 +77,7 @@ $ concurrently -c red,blue 'echo Hello there' 'echo General Kenobi!'
 - `red`
 - `white`
 - `yellow`
+
 </details>
 
 Colors can take modifiers too. Several can be applied at once by appending `.<modifier 1>.<modifier 2>` and so on.
@@ -96,6 +97,7 @@ $ concurrently -c '#23de43.inverse,bold.blue.dim' 'echo Hello there' 'echo Gener
 - `italic`
 - `strikethrough`
 - `underline`
+
 </details>
 
 A background color can be set in a similarly fashion.
@@ -116,6 +118,7 @@ $ concurrently -c bgGray,red.bgBlack 'echo Hello there' 'echo General Kenobi!'
 - `bgRed`
 - `bgWhite`
 - `bgYellow`
+
 </details>
 
 ### Advanced Color Functions
