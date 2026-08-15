@@ -13,11 +13,7 @@ import { CloseEvent, Command } from './command.js';
  * - `!command-{name|index}`: all commands but the ones with the specified names or index.
  */
 export type SuccessCondition =
-    | 'first'
-    | 'last'
-    | 'all'
-    | `command-${string | number}`
-    | `!command-${string | number}`;
+    'first' | 'last' | 'all' | `command-${string | number}` | `!command-${string | number}`;
 
 /**
  * Provides logic to determine whether lists of commands ran successfully.
