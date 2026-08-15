@@ -99,6 +99,9 @@ describe('#readPackage()', () => {
             name: 'concurrently',
             version: '6.4.0',
         };
+        vi.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
+            return path === 'package.json';
+        });
         vi.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
             if (path === 'package.json') {
                 return JSON.stringify(expectedPackage);
@@ -117,6 +120,47 @@ describe('#readPackage()', () => {
 
         expect(() => ExpandWildcard.readPackage()).not.toThrow();
         expect(ExpandWildcard.readPackage()).toEqual({});
+    });
+
+    it('can read package.json5', () => {
+        const expectedPackage = {
+            name: 'concurrently',
+            version: '6.4.0',
+            scripts: {
+                'test:unit': '',
+            },
+        };
+        vi.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
+            return path === 'package.json5';
+        });
+        vi.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
+            if (path === 'package.json5') {
+                return `/* comment */\n${JSON.stringify(expectedPackage)}`;
+            }
+            return '';
+        });
+
+        const actualReadPackage = ExpandWildcard.readPackage();
+        expect(actualReadPackage).toEqual(expectedPackage);
+    });
+
+    it('prefers package.json over package.json5', () => {
+        const expectedPackage = {
+            name: 'from-json',
+            version: '1.0.0',
+        };
+        vi.spyOn(fs, 'existsSync').mockImplementation((path: PathOrFileDescriptor) => {
+            return path === 'package.json' || path === 'package.json5';
+        });
+        vi.spyOn(fs, 'readFileSync').mockImplementation((path: PathOrFileDescriptor) => {
+            if (path === 'package.json') {
+                return JSON.stringify(expectedPackage);
+            }
+            return '';
+        });
+
+        const actualReadPackage = ExpandWildcard.readPackage();
+        expect(actualReadPackage).toEqual(expectedPackage);
     });
 });
 
