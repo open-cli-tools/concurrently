@@ -103,7 +103,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
   - `handleInput`: when `true`, reads input from `process.stdin`.
   - `inputStream`: a [`Readable` stream](https://nodejs.org/docs/latest/api/stream.html#readable-streams)
     to read the input from. Should only be used in the rare instance you would like to stream anything other than `process.stdin`. Overrides `handleInput`.
-  - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/kimmobrunfeldt/concurrently/issues/252)).
+  - `pauseInputStreamOnFinish`: by default, pauses the input stream (`process.stdin` when `handleInput` is enabled, or `inputStream` if provided) when all of the processes have finished. If you need to read from the input stream after `concurrently` has finished, set this to `false`. ([#252](https://github.com/open-cli-tools/concurrently/issues/252)).
   - `killOthersOn`: once the first command exits with one of these statuses, kill other commands.
     Can be an array containing the strings `success` (status code zero) and/or `failure` (non-zero exit status).
   - `maxProcesses`: how many processes should run at once.
