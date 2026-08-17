@@ -139,7 +139,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
 Example:
 
 ```js
-const concurrently = require('concurrently');
+const { concurrently } = require('concurrently');
 const { result } = concurrently(
   [
     'npm:watch-*',
