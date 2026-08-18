@@ -139,7 +139,9 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
 Example:
 
 ```js
-const concurrently = require('concurrently');
+import path from 'node:path';
+import { concurrently } from 'concurrently';
+
 const { result } = concurrently(
   [
     'npm:watch-*',
@@ -148,14 +150,14 @@ const { result } = concurrently(
     {
       command: 'watch',
       name: 'watch',
-      cwd: path.resolve(__dirname, 'scripts/watchers'),
+      cwd: path.resolve(import.meta.dirname, 'scripts/watchers'),
     },
   ],
   {
     prefix: 'name',
     killOthersOn: ['failure', 'success'],
     restartTries: 3,
-    cwd: path.resolve(__dirname, 'scripts'),
+    cwd: path.resolve(import.meta.dirname, 'scripts'),
   },
 );
 result.then(success, failure);
