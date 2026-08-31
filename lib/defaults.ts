@@ -22,6 +22,11 @@ export const maxProcesses = 0;
 export const hide = '';
 
 /**
+ * Whether lines containing no characters should be removed from process output.
+ */
+export const hideEmptyLines = false;
+
+/**
  * Which prefix style to use when logging processes output.
  */
 export const prefix = '';

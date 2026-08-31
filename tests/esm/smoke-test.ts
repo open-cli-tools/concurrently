@@ -6,6 +6,7 @@ const _result: ConcurrentlyResult = concurrently(['echo test'], {
 });
 
 const _result2: ConcurrentlyResult = concurrently2(['echo test'], {
+    hideEmptyLines: true,
     killOthersOn: ['failure'],
 });
 

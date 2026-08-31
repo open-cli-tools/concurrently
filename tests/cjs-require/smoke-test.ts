@@ -8,6 +8,7 @@ const _result: concurrently.ConcurrentlyResult = concurrently.default(['echo tes
 });
 
 const _result2: concurrently.ConcurrentlyResult = concurrently2(['echo test'], {
+    hideEmptyLines: true,
     killOthersOn: ['failure'],
 });
 

@@ -254,6 +254,44 @@ describe('--hide', () => {
     });
 });
 
+describe('--hide-empty-lines', () => {
+    it('hides empty lines while preserving whitespace-only lines', async () => {
+        const lines = await run(
+            '--hide-empty-lines --prefix none "node __fixtures__/empty-lines.js"',
+        ).getLogLines();
+
+        expect(lines).not.toContain('');
+        expect(lines).toContain(' ');
+        expect(lines).toContain('first');
+        expect(lines).toContain('last');
+    });
+
+    it('preserves prefixed empty lines when disabled', async () => {
+        const lines = await run('"node __fixtures__/empty-lines.js"').getLogLines();
+
+        expect(lines).toContain('[0] ');
+    });
+
+    it('works with grouped output', async () => {
+        const lines = await run(
+            '--hide-empty-lines --group --prefix none "node __fixtures__/empty-lines.js" "echo other"',
+        ).getLogLines();
+
+        expect(lines).not.toContain('');
+        expect(lines).toContain('first');
+        expect(lines).toContain('last');
+        expect(lines).toContain('other');
+    });
+
+    it('does not filter inherited raw output', async () => {
+        const lines = await run(
+            '--hide-empty-lines --raw "node __fixtures__/empty-lines.js"',
+        ).getLogLines();
+
+        expect(lines).toContain('');
+    });
+});
+
 describe('--group', () => {
     it('groups output per process', async () => {
         const lines = await run(
