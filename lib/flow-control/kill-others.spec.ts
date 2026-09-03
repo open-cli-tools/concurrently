@@ -134,6 +134,22 @@ it('force kills misbehaving processes after a timeout', () => {
     expect(commands[2].kill).toHaveBeenCalledTimes(1);
 });
 
+it('does not report a force kill when all processes exit before the timeout', () => {
+    vi.useFakeTimers();
+
+    createWithConditions(['failure'], { timeoutMs: 500 }).handle(commands);
+    assignProcess(commands[1]);
+    commands[1].kill = vi.fn(() => unassignProcess(commands[1]));
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+
+    vi.advanceTimersByTime(500);
+
+    expect(commands[1].kill).toHaveBeenCalledExactlyOnceWith(undefined);
+    expect(logger.logGlobalEvent).toHaveBeenCalledExactlyOnceWith(
+        'Sending SIGTERM to other processes..',
+    );
+});
+
 it('does not keep the event loop alive while waiting to force kill', () => {
     const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
 

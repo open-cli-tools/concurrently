@@ -81,7 +81,7 @@ export class KillOthers implements FlowController {
 
         setTimeout(() => {
             const killableCommands = commands.filter((command) => Command.canKill(command));
-            if (killableCommands) {
+            if (killableCommands.length) {
                 this.logger.logGlobalEvent(
                     `Sending SIGKILL to ${killableCommands.length} processes..`,
                 );
