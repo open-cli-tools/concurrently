@@ -192,6 +192,7 @@ export function concurrently(
                 logger,
                 delay: options.restartDelay,
                 tries: options.restartTries,
+                abortSignal: abortController.signal,
             }),
             new KillOthers({
                 logger,
