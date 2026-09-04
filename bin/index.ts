@@ -230,13 +230,29 @@ if (!commands.length) {
     process.exit();
 }
 
+// Windows has no POSIX signals, so there's nothing to re-raise there.
+let interruptedBySigint = false;
+if (process.platform !== 'win32') {
+    // `once` so this listener detaches itself. KillOnSignal detaches its own SIGINT listener in its
+    // `onFinish`, which `concurrently()` awaits before resolving, so nothing swallows the re-raise.
+    process.once('SIGINT', () => {
+        interruptedBySigint = true;
+    });
+}
+
 // Piped output on Windows uses the console's active codepage, which may not be UTF-8 -- see
 // open-cli-tools/concurrently#302. Raw mode inherits the real console directly instead of piping
 // through concurrently, so it isn't affected and doesn't need this.
 const restoreCodepage = args.raw ? () => {} : ensureUtf8Codepage();
 const exitProcess = (code: number) => {
     restoreCodepage();
-    process.exit(code);
+    if (interruptedBySigint) {
+        // Exiting normally is indistinguishable from a run that was never interrupted. Dying by
+        // the signal is what makes shells report 130 -- see open-cli-tools/concurrently#470.
+        process.kill(process.pid, 'SIGINT');
+    } else {
+        process.exit(code);
+    }
 };
 
 try {
