@@ -12,6 +12,20 @@ $ concurrently --hide 0 'echo Hello there' 'echo General Kenobi!'
 [1] echo 'General Kenobi!' exited with code 0
 ```
 
+## Empty lines
+
+Empty lines can be removed from process output with the `--hide-empty-lines` flag:
+
+```bash
+$ concurrently --hide-empty-lines 'npm run watch:styles' 'npm run watch:scripts'
+```
+
+Only lines containing no characters are removed; lines containing spaces or tabs are preserved.
+The option is disabled by default and can be combined with `--group`.
+
+`--hide-empty-lines` does not affect raw output. With `--raw`, process stdio is inherited and
+bypasses concurrently's output handling.
+
 ## Grouping
 
 It might be useful at times to make sure that the commands outputs are grouped together, while running them in parallel.<br/>
