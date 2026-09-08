@@ -32,6 +32,7 @@ describe('createSpawn()', () => {
                 env: { npm_config_script_shell: 'C:\\Git\\bin\\bash.exe' },
             });
             spawn(command, {});
+            expect(spawn.shell).toBe('C:\\Git\\bin\\bash.exe');
             expect(fakeSpawn).toHaveBeenCalledWith('C:\\Git\\bin\\bash.exe', ['-c', command], {});
         });
 
@@ -39,6 +40,7 @@ describe('createSpawn()', () => {
             const fakeSpawn = vi.fn();
             const spawn = createSpawn(undefined, fakeSpawn, { ...baseProcess, platform: 'win32' });
             spawn(command, {});
+            expect(spawn.shell).toBe('cmd.exe');
             expect(fakeSpawn).toHaveBeenCalledWith('cmd.exe', ['/s', '/c', `"${command}"`], {
                 windowsVerbatimArguments: true,
             });
@@ -48,6 +50,7 @@ describe('createSpawn()', () => {
             const fakeSpawn = vi.fn();
             const spawn = createSpawn(undefined, fakeSpawn, { ...baseProcess, platform: 'linux' });
             spawn(command, {});
+            expect(spawn.shell).toBe('/bin/sh');
             expect(fakeSpawn).toHaveBeenCalledWith(
                 '/bin/sh',
                 ['-c', command],
@@ -74,6 +77,19 @@ describe('createSpawn()', () => {
             );
         });
     });
+});
+
+it('retains the resolved shell when npm configuration changes', () => {
+    const command = 'echo banana';
+    const fakeSpawn = vi.fn();
+    const process = { ...baseProcess, env: { npm_config_script_shell: 'pwsh' } };
+    const spawn = createSpawn('/bin/bash', fakeSpawn, process);
+    process.env.npm_config_script_shell = 'cmd.exe';
+
+    spawn(command, {});
+
+    expect(spawn.shell).toBe('/bin/bash');
+    expect(fakeSpawn).toHaveBeenCalledWith('/bin/bash', ['-c', command], {});
 });
 
 describe('getSpawnOpts()', () => {

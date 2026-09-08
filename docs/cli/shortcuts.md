@@ -67,6 +67,12 @@ $ concurrently 'yarn:lint:*(!fix)'
 $ concurrently -n js,ts 'yarn run lint:js' 'yarn run lint:ts'
 ```
 
+With `bash`, `sh`, `dash`, or `ash`, quote the pattern in the full command when combining omission filters with chained commands:
+
+```bash
+$ concurrently --shell sh 'npm run "lint:*(!fix)" && echo done'
+```
+
 > [!NOTE]
 > If you use this syntax with double quotes (`"`), bash and other shells might fail
 > parsing it. You'll need to escape the `!`, or use single quote (`'`) instead.<br/>

@@ -7,6 +7,7 @@ import { beforeEach, expect, it, Mock, MockedObject, vi } from 'vitest';
 import { createMockInstance } from './__fixtures__/create-mock-instance.js';
 import { createFakeProcess, FakeCommand } from './__fixtures__/fake-command.js';
 import { ChildProcess, KillProcess, SpawnCommand } from './command.js';
+import { ExpandWildcard } from './command-parser/expand-wildcard.js';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently.js';
 import { FlowController } from './flow-control/flow-controller.js';
 import { Logger } from './logger.js';
@@ -52,6 +53,25 @@ it('spawns all commands', () => {
     expect(spawn).toHaveBeenCalledTimes(2);
     expect(spawn).toHaveBeenCalledWith('echo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({}));
+});
+
+it.each([
+    { shell: '/bin/sh', expected: "npm run 'build:app' && echo done" },
+    { shell: 'C:\\Git\\bin\\bash.exe', expected: "npm run 'build:app' && echo done" },
+    { shell: 'cmd.exe', expected: 'npm run build:app ' },
+    { shell: '/usr/local/bin/pwsh', expected: 'npm run build:app ' },
+    { shell: undefined, expected: 'npm run build:app ' },
+])('uses the execution shell for wildcard expansion: $shell', ({ shell, expected }) => {
+    const readPackage = vi.spyOn(ExpandWildcard, 'readPackage').mockReturnValue({
+        scripts: { 'build:app': '' },
+    });
+    Object.assign(spawn, { shell });
+
+    const { commands } = create(['npm run build:* && echo done']);
+    readPackage.mockRestore();
+
+    expect(commands.map((command) => command.command)).toEqual([expected]);
+    expect(spawn).toHaveBeenCalledWith(expected, expect.anything());
 });
 
 it('log output is passed to output stream if logger is specified in options', () => {

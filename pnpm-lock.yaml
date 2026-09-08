@@ -24,8 +24,8 @@ importers:
         specifier: 1.2.2
         version: 1.2.2
       unbash:
-        specifier: 4.0.4
-        version: 4.0.4
+        specifier: 4.0.11
+        version: 4.0.11
       yargs:
         specifier: 18.0.0
         version: 18.0.0
@@ -1250,8 +1250,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  unbash@4.0.4:
-    resolution: {integrity: sha512-60m9IVGbavD6jholbxt0jVBXZkEB/HsMZq7Tyaghseve2/Sf0zQRAIfWsD34sde+DKP2tBxJS2wP88ZM0D1FhA==}
+  unbash@4.0.11:
+    resolution: {integrity: sha512-FoSOKV7NEofQSkAefMVHam4ZPKYMxjAydxiV72UFEDNV/YofxjGfiZ2A9pZjdL/lRJzTjcu4PABo1JYJX8N5iQ==}
     engines: {node: '>=14'}
 
   undici-types@6.21.0:
@@ -2417,7 +2417,7 @@ snapshots:
 
   typescript@5.9.3: {}
 
-  unbash@4.0.4: {}
+  unbash@4.0.11: {}
 
   undici-types@6.21.0: {}
 
