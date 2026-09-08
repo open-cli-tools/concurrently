@@ -56,6 +56,7 @@
     "shell-quote": "1.9.0",
     "supports-color": "10.2.2",
     "tree-kill": "1.2.2",
+    "unbash": "4.0.11",
     "yargs": "18.0.0"
   },
   "devDependencies": {
