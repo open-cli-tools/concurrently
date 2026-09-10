@@ -1,5 +1,4 @@
 import fs from 'node:fs';
-import path from 'node:path';
 
 import { type Node, parse as parseShell, type Script, type Word } from 'unbash';
 
@@ -26,9 +25,7 @@ type WildcardCommand = {
     replace: (script: string) => string;
 };
 
-function findRunner(
-    node: Node | Script,
-): { command: string; glob: Word; isCommand: boolean } | undefined {
+function findRunner(node: Node | Script): { command: string; glob: Word } | undefined {
     switch (node.type) {
         case 'Command': {
             const words = [node.name, ...node.suffix];
@@ -45,7 +42,6 @@ function findRunner(
                     return {
                         command: `${name} ${subcommand.value}`,
                         glob,
-                        isCommand: index === 0,
                     };
                 }
             }
@@ -68,42 +64,33 @@ function findRunner(
     }
 }
 
-function parseLegacy(commandLine: string): WildcardCommand | undefined {
-    const match = /((?:npm|yarn|pnpm|bun) run|node --run|deno task) (\S+)([^&]*)/.exec(commandLine);
-    if (!match) {
-        return undefined;
-    }
-    const [, command, scriptGlob, args] = match;
-    return { command, scriptGlob, replace: (script) => `${command} ${script}${args}` };
-}
-
 function quoteScript(script: string): string {
     if (script.includes('\0')) {
         throw new TypeError('Arguments cannot contain NUL');
     }
-    return "'" + script.split("'").join("'\\''") + "'";
+    return /^[\p{L}\p{N}_:./+-]+$/u.test(script)
+        ? script
+        : "'" + script.split("'").join("'\\''") + "'";
 }
 
-function parseBash(commandLine: string): WildcardCommand | undefined {
+function parseCommand(commandLine: string): WildcardCommand | undefined {
     const parsed = parseShell(commandLine);
-    if (parsed.errors?.length) {
-        // Concurrently's omission syntax can be invalid Bash.
-        return parseLegacy(commandLine);
-    }
     const runner = findRunner(parsed);
     if (!runner) {
         return undefined;
     }
-    if (!runner.isCommand) {
-        // Separate runner words can belong to wrappers such as cross-env or npx.
-        return parseLegacy(commandLine);
-    }
     const { command, glob } = runner;
+    if (parsed.errors?.some((error) => error.pos >= glob.pos && error.pos < glob.end)) {
+        return undefined;
+    }
+    // A suffix omission can sit outside the Bash word, e.g. test:*-unit(!slow).
+    const omission = OMISSION.exec(commandLine.slice(glob.end));
+    const end = omission?.index === 0 ? glob.end + omission[0].length : glob.end;
     return {
         command,
-        scriptGlob: glob.value,
+        scriptGlob: glob.value + commandLine.slice(glob.end, end),
         replace: (script) =>
-            commandLine.slice(0, glob.pos) + quoteScript(script) + commandLine.slice(glob.end),
+            commandLine.slice(0, glob.pos) + quoteScript(script) + commandLine.slice(end),
     };
 }
 
@@ -140,18 +127,11 @@ export class ExpandWildcard implements CommandParser {
 
     private packageScripts?: string[];
     private denoTasks?: string[];
-    private readonly bashSyntax: boolean;
 
     constructor(
         private readonly readDeno = ExpandWildcard.readDeno,
         private readonly readPackage = ExpandWildcard.readPackage,
-        shell?: string,
-    ) {
-        const shellName = path.posix.basename(shell?.replaceAll('\\', '/') ?? '').toLowerCase();
-        this.bashSyntax = ['bash', 'sh', 'dash', 'ash'].some(
-            (name) => shellName === name || shellName === `${name}.exe`,
-        );
-    }
+    ) {}
 
     private relevantScripts(command: string): string[] {
         if (!this.packageScripts) {
@@ -176,9 +156,7 @@ export class ExpandWildcard implements CommandParser {
     }
 
     parse(commandInfo: CommandInfo) {
-        const wildcard = this.bashSyntax
-            ? parseBash(commandInfo.command)
-            : parseLegacy(commandInfo.command);
+        const wildcard = parseCommand(commandInfo.command);
         if (!wildcard) {
             return commandInfo;
         }

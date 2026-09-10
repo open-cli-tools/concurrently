@@ -23,13 +23,12 @@ export function createSpawn(
     // For testing
     spawn: (command: string, args: string[], options: SpawnOptions) => ChildProcess = baseSpawn,
     process: Pick<NodeJS.Process, 'platform' | 'env'> = nodeProcess,
-): SpawnCommand & { readonly shell: string } {
+): SpawnCommand {
     const resolved = resolveShell(shell, process);
-    const spawnCommand: SpawnCommand = (command, spawnOpts) => {
+    return (command, spawnOpts) => {
         const { file, args, shellOptions } = getShellSpawnArgs(resolved, command);
         return spawn(file, args, { ...spawnOpts, ...shellOptions });
     };
-    return Object.assign(spawnCommand, { shell: resolved });
 }
 
 const NPM_SCRIPT_SHELL_ENV = 'npm_config_script_shell';

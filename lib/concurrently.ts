@@ -169,14 +169,7 @@ export function concurrently(
 
     const prefixColorSelector = new PrefixColorSelector(options.prefixColors || []);
 
-    const shell =
-        'shell' in options.spawn && typeof options.spawn.shell === 'string'
-            ? options.spawn.shell
-            : undefined;
-    const commandParsers: CommandParser[] = [
-        new ExpandShortcut(),
-        new ExpandWildcard(undefined, undefined, shell),
-    ];
+    const commandParsers: CommandParser[] = [new ExpandShortcut(), new ExpandWildcard()];
 
     if (options.additionalArguments) {
         commandParsers.push(new ExpandArguments(options.additionalArguments));

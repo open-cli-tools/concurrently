@@ -67,10 +67,10 @@ $ concurrently 'yarn:lint:*(!fix)'
 $ concurrently -n js,ts 'yarn run lint:js' 'yarn run lint:ts'
 ```
 
-With `bash`, `sh`, `dash`, or `ash`, quote the pattern in the full command when combining omission filters with chained commands:
+Wildcard expansion replaces the script pattern and preserves surrounding commands and arguments. The full command runs once per matching script:
 
 ```bash
-$ concurrently --shell sh 'npm run "lint:*(!fix)" && echo done'
+$ concurrently 'npm run lint:*(!fix) && echo done'
 ```
 
 > [!NOTE]

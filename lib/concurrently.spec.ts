@@ -55,23 +55,15 @@ it('spawns all commands', () => {
     expect(spawn).toHaveBeenCalledWith('kill', expect.objectContaining({}));
 });
 
-it.each([
-    { shell: '/bin/sh', expected: "npm run 'build:app' && echo done" },
-    { shell: 'C:\\Git\\bin\\bash.exe', expected: "npm run 'build:app' && echo done" },
-    { shell: 'cmd.exe', expected: 'npm run build:app ' },
-    { shell: '/usr/local/bin/pwsh', expected: 'npm run build:app ' },
-    { shell: undefined, expected: 'npm run build:app ' },
-])('uses the execution shell for wildcard expansion: $shell', ({ shell, expected }) => {
+it('preserves wildcard command tails with a custom spawn', () => {
     const readPackage = vi.spyOn(ExpandWildcard, 'readPackage').mockReturnValue({
         scripts: { 'build:app': '' },
     });
-    Object.assign(spawn, { shell });
-
     const { commands } = create(['npm run build:* && echo done']);
     readPackage.mockRestore();
 
-    expect(commands.map((command) => command.command)).toEqual([expected]);
-    expect(spawn).toHaveBeenCalledWith(expected, expect.anything());
+    expect(commands.map((command) => command.command)).toEqual(['npm run build:app && echo done']);
+    expect(spawn).toHaveBeenCalledWith('npm run build:app && echo done', expect.anything());
 });
 
 it('log output is passed to output stream if logger is specified in options', () => {
