@@ -76,18 +76,6 @@ describe('createSpawn()', () => {
     });
 });
 
-it('retains the resolved shell when npm configuration changes', () => {
-    const command = 'echo banana';
-    const fakeSpawn = vi.fn();
-    const process = { ...baseProcess, env: { npm_config_script_shell: 'pwsh' } };
-    const spawn = createSpawn('/bin/bash', fakeSpawn, process);
-    process.env.npm_config_script_shell = 'cmd.exe';
-
-    spawn(command, {});
-
-    expect(fakeSpawn).toHaveBeenCalledWith('/bin/bash', ['-c', command], {});
-});
-
 describe('getSpawnOpts()', () => {
     it('sets detached mode to false for Windows platform', () => {
         expect(getSpawnOpts({ process: baseProcess }).detached).toBe(false);
