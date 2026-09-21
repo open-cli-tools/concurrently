@@ -74,21 +74,35 @@ function quoteScript(script: string): string {
 }
 
 function parseCommand(commandLine: string): WildcardCommand | undefined {
-    const parsed = parseShell(commandLine);
-    const runner = findRunner(parsed);
+    let parsed = parseShell(commandLine);
+    let runner = findRunner(parsed);
     if (!runner) {
         return undefined;
+    }
+    const omission = OMISSION.exec(commandLine.slice(runner.glob.end));
+    let addedQuoteLength = 0;
+    if (omission?.index === 0) {
+        // Quote concurrently's omission syntax so the parser includes any following word suffix.
+        const quotedOmission = quoteScript(omission[0]);
+        parsed = parseShell(
+            commandLine.slice(0, runner.glob.end) +
+                quotedOmission +
+                commandLine.slice(runner.glob.end + omission[0].length),
+        );
+        runner = findRunner(parsed);
+        if (!runner) {
+            return undefined;
+        }
+        addedQuoteLength = quotedOmission.length - omission[0].length;
     }
     const { command, glob } = runner;
     if (parsed.errors?.some((error) => error.pos >= glob.pos && error.pos < glob.end)) {
         return undefined;
     }
-    // A suffix omission can sit outside the Bash word, e.g. test:*-unit(!slow).
-    const omission = OMISSION.exec(commandLine.slice(glob.end));
-    const end = omission?.index === 0 ? glob.end + omission[0].length : glob.end;
+    const end = glob.end - addedQuoteLength;
     return {
         command,
-        scriptGlob: glob.value + commandLine.slice(glob.end, end),
+        scriptGlob: glob.value,
         replace: (script) =>
             commandLine.slice(0, glob.pos) + quoteScript(script) + commandLine.slice(end),
     };

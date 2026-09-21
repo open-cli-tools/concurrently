@@ -89,6 +89,62 @@ describe('parser-based wildcard expansion', () => {
     );
 
     it.each([
+        'test:*-unit(!slow|integration)-watch',
+        'test:*(!slow|integration)-unit-watch',
+        '"test:*-unit(!slow|integration)-watch"',
+        'test:*-unit(!slow|integration)"-watch"',
+        'test:*-unit(!slow|integration)\\-watch',
+    ])('includes the complete suffix in omission pattern %s', (pattern) => {
+        const parser = createParser({
+            'test:fast-unit-watch': '',
+            'test:slow-unit-watch': '',
+            'test:integration-unit-watch': '',
+        });
+        expect(
+            parser.parse({ command: `cd app && npm run ${pattern} && echo done`, name: '' }),
+        ).toEqual([
+            { name: 'fast', command: 'cd app && npm run test:fast-unit-watch && echo done' },
+        ]);
+    });
+
+    it('preserves omission regex escapes before a suffix', () => {
+        const parser = createParser({
+            'test:slow.case-unit-watch': '',
+            'test:slowXcase-unit-watch': '',
+        });
+        expect(
+            parser.parse({ command: 'npm run test:*-unit(!slow\\.case)-watch', name: '' }),
+        ).toEqual([{ name: 'slowXcase', command: 'npm run test:slowXcase-unit-watch' }]);
+    });
+
+    it('preserves source offsets when an omission contains an apostrophe', () => {
+        const parser = createParser({
+            'test:fast-unit-watch': '',
+            "test:slow'case-unit-watch": '',
+        });
+        expect(
+            parser.parse({ command: "npm run test:*-unit(!slow'case)-watch&&echo done", name: '' }),
+        ).toEqual([{ name: 'fast', command: 'npm run test:fast-unit-watch&&echo done' }]);
+    });
+
+    it.each(['&&echo done', '|cat', '>output', ';echo done', ' --flag'])(
+        'preserves text immediately after an omission suffix: %s',
+        (tail) => {
+            expect(
+                createParser({ 'test:fast-unit-watch': '' }).parse({
+                    command: `npm run test:*-unit(!slow)-watch${tail}`,
+                    name: 'test:*-unit(!slow)-watch',
+                }),
+            ).toEqual([{ name: 'fast', command: `npm run test:fast-unit-watch${tail}` }]);
+        },
+    );
+
+    it('does not repair an unterminated suffix after an omission', () => {
+        const input = { command: 'npm run test:*-unit(!slow)-"watch', name: '' };
+        expect(createParser({ 'test:fast-unit': '' }).parse(input)).toBe(input);
+    });
+
+    it.each([
         'build() { npm run build:*; }',
         'echo $(npm run build:*)',
         'echo `npm run build:*`',

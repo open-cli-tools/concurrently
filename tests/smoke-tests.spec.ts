@@ -17,7 +17,10 @@ it('spawns binary', async () => {
     await expect(exec('node dist/bin/index.js "echo test"')).resolves.toBeDefined();
 });
 
-it.each([['npm run build:*', ['APP']]])('runs scripts matching %s', async (command, expected) => {
+it.each([
+    ['npm run build:*', ['APP']],
+    ['npm run test:*-unit(!slow)-watch && echo DONE', ['FAST', 'DONE']],
+])('runs scripts matching %s', async (command, expected) => {
     const cwd = await mkdtemp(path.join(os.tmpdir(), 'concurrently-wildcard-'));
     try {
         await writeFile(
@@ -25,6 +28,8 @@ it.each([['npm run build:*', ['APP']]])('runs scripts matching %s', async (comma
             JSON.stringify({
                 scripts: {
                     'build:app@dev': 'echo APP',
+                    'test:fast-unit-watch': 'echo FAST',
+                    'test:slow-unit-watch': 'echo SLOW',
                 },
             }),
         );
