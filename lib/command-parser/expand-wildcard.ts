@@ -68,7 +68,7 @@ function quoteScript(script: string): string {
     if (script.includes('\0')) {
         throw new TypeError('Arguments cannot contain NUL');
     }
-    return /^[\p{L}\p{N}_:./+-]+$/u.test(script)
+    return /^[\p{L}\p{N}_:./+-][\p{L}\p{N}_:@./+-]*$/u.test(script)
         ? script
         : "'" + script.split("'").join("'\\''") + "'";
 }

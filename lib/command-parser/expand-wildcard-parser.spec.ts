@@ -51,6 +51,18 @@ describe('parser-based wildcard expansion', () => {
         ).toThrow(new TypeError('Arguments cannot contain NUL'));
     });
 
+    it('leaves an interior @ in a matched script name unquoted', () => {
+        expect(
+            createParser({ 'build:app@dev': '' }).parse({ command: 'npm run build:*', name: '' }),
+        ).toEqual([{ name: 'app@dev', command: 'npm run build:app@dev' }]);
+    });
+
+    it('keeps a leading @ in a matched script name quoted', () => {
+        expect(createParser({ '@lint': '' }).parse({ command: 'npm run *', name: '' })).toEqual([
+            { name: '@lint', command: "npm run '@lint'" },
+        ]);
+    });
+
     it.each([
         'test:*-unit(!slow|integration)',
         'test:*(!slow|integration)-unit',
