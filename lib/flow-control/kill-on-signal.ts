@@ -14,22 +14,31 @@ const SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
 export class KillOnSignal implements FlowController {
     private readonly process: EventEmitter;
     private readonly abortController?: AbortController;
+    private readonly onSignal?: (signal: NodeJS.Signals) => void;
 
     constructor({
         process,
         abortController,
+        onSignal,
     }: {
         process: EventEmitter;
         abortController?: AbortController;
+        /**
+         * Called whenever a signal is caught, before commands are killed.
+         * Useful for letting other parts of the app know a shutdown is in progress.
+         */
+        onSignal?: (signal: NodeJS.Signals) => void;
     }) {
         this.process = process;
         this.abortController = abortController;
+        this.onSignal = onSignal;
     }
 
     handle(commands: Command[]) {
         let caughtSignal: NodeJS.Signals;
         const signalListener = (signal: NodeJS.Signals) => {
             caughtSignal = signal;
+            this.onSignal?.(signal);
             this.abortController?.abort();
             commands.forEach((command) => command.kill(signal));
         };
