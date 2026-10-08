@@ -26,6 +26,15 @@ it('argument placeholder is replaced and quoted properly', () => {
     expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: "echo 'foo bar'" });
 });
 
+it('argument placeholder with single quote and exclamation mark is quoted properly', () => {
+    const parser = new ExpandArguments(["it's great!"]);
+    const commandInfo = createCommandInfo('echo {1}');
+    expect(parser.parse(commandInfo)).toEqual({
+        ...commandInfo,
+        command: `echo 'it'"'"'s great!'`,
+    });
+});
+
 it('multiple single argument placeholders are replaced', () => {
     const parser = new ExpandArguments(['foo', 'bar']);
     const commandInfo = createCommandInfo('echo {2} {1}');
