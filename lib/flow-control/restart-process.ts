@@ -1,5 +1,15 @@
 import Rx from 'rxjs';
-import { defaultIfEmpty, delayWhen, filter, map, skip, take, takeWhile } from 'rxjs/operators';
+import {
+    defaultIfEmpty,
+    delayWhen,
+    filter,
+    map,
+    share,
+    skip,
+    take,
+    takeUntil,
+    takeWhile,
+} from 'rxjs/operators';
 
 import { Command } from '../command.js';
 import * as defaults from '../defaults.js';
@@ -15,6 +25,7 @@ export class RestartProcess implements FlowController {
     private readonly logger: Logger;
     private readonly scheduler?: Rx.SchedulerLike;
     private readonly delay: RestartDelay;
+    private readonly abortSignal?: AbortSignal;
     readonly tries: number;
 
     constructor({
@@ -22,23 +33,36 @@ export class RestartProcess implements FlowController {
         tries,
         logger,
         scheduler,
+        abortSignal,
     }: {
         delay?: RestartDelay;
         tries?: number;
         logger: Logger;
         scheduler?: Rx.SchedulerLike;
+        /**
+         * When this signal is aborted, no more restarts will be attempted.
+         * This is useful to prevent restarts after `killOthers` has been triggered.
+         */
+        abortSignal?: AbortSignal;
     }) {
         this.logger = logger;
         this.delay = delay ?? 0;
         this.tries = tries != null ? +tries : defaults.restartTries;
         this.tries = this.tries < 0 ? Infinity : this.tries;
         this.scheduler = scheduler;
+        this.abortSignal = abortSignal;
     }
 
     handle(commands: Command[]) {
         if (this.tries === 0) {
             return { commands };
         }
+
+        // When abort signal is triggered, stop all restart attempts.
+        // This prevents restarts after `killOthers` has been triggered (#496).
+        const abort$ = this.abortSignal
+            ? Rx.fromEvent(this.abortSignal, 'abort', { once: true }).pipe(share())
+            : Rx.NEVER;
 
         const delayOperator = delayWhen((_, index) => {
             const { delay } = this;
@@ -51,6 +75,7 @@ export class RestartProcess implements FlowController {
                 command.close.pipe(
                     take(this.tries),
                     takeWhile(({ exitCode }) => exitCode !== 0),
+                    takeUntil(abort$),
                 ),
             )
             .forEach((failure, index) =>
