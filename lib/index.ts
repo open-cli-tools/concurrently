@@ -162,6 +162,15 @@ export function concurrently(
     const abortController = new AbortController();
     const outputStream = options.outputStream || process.stdout;
 
+    // Tracks whether the user initiated a shutdown with a signal (e.g. Ctrl-C).
+    // While shutting down, per-command exit logs are noise — and when the shell
+    // reclaims the terminal before teardown finishes, those late lines can land
+    // on the fresh prompt. See https://github.com/open-cli-tools/concurrently/issues/255
+    let signalCaught: NodeJS.Signals | undefined;
+    const onSignal = (signal: NodeJS.Signals) => {
+        signalCaught = signal;
+    };
+
     const spawn = createSpawn(options.shell);
     return createConcurrently(commands, {
         maxProcesses: options.maxProcesses,
@@ -179,7 +188,7 @@ export function concurrently(
             ...(options.padPrefix ? [new LoggerPadding({ logger })] : []),
             new LogError({ logger }),
             new LogOutput({ logger }),
-            new LogExit({ logger }),
+            new LogExit({ logger, isShuttingDown: () => signalCaught != null }),
             new InputHandler({
                 logger,
                 defaultInputTarget: options.defaultInputTarget,
@@ -187,7 +196,7 @@ export function concurrently(
                     options.inputStream || (options.handleInput ? process.stdin : undefined),
                 pauseInputStreamOnFinish: options.pauseInputStreamOnFinish,
             }),
-            new KillOnSignal({ process, abortController }),
+            new KillOnSignal({ process, abortController, onSignal }),
             new RestartProcess({
                 logger,
                 delay: options.restartDelay,

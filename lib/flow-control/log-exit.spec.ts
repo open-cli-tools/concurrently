@@ -35,3 +35,22 @@ it('logs the close event of each command', () => {
         commands[1],
     );
 });
+
+it('does not log close events while shutting down', () => {
+    const shuttingDownController = new LogExit({ logger, isShuttingDown: () => true });
+    shuttingDownController.handle(commands);
+
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
+    commands[1].close.next(createFakeCloseEvent({ exitCode: 'SIGINT' }));
+
+    expect(logger.logCommandEvent).not.toHaveBeenCalled();
+});
+
+it('logs close events when not shutting down', () => {
+    const shuttingDownController = new LogExit({ logger, isShuttingDown: () => false });
+    shuttingDownController.handle(commands);
+
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 0 }));
+
+    expect(logger.logCommandEvent).toHaveBeenCalledTimes(1);
+});
