@@ -1,4 +1,4 @@
-import { Readable } from 'node:stream';
+import { Readable, Writable } from 'node:stream';
 
 import Rx from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -22,6 +22,7 @@ export class InputHandler implements FlowController {
     private readonly defaultInputTarget: CommandIdentifier;
     private readonly inputStream?: Readable;
     private readonly pauseInputStreamOnFinish: boolean;
+    private readonly handledStdins = new WeakSet<Writable>();
 
     constructor({
         defaultInputTarget,
@@ -74,7 +75,7 @@ export class InputHandler implements FlowController {
                 }
 
                 if (command?.stdin) {
-                    command.stdin.write(input);
+                    this.write(command, command.stdin, input);
                 } else {
                     this.logger.logGlobalEvent(
                         `Unable to find command "${target}", or it has no stdin open\n`,
@@ -91,5 +92,22 @@ export class InputHandler implements FlowController {
                 }
             },
         };
+    }
+
+    /**
+     * Writes input to a command's stdin.
+     * A command that has closed its stdin, or is exiting, makes the write fail with EPIPE;
+     * that is logged, rather than left as an unhandled error that crashes concurrently.
+     */
+    private write(command: Command, stdin: Writable, input: string) {
+        if (!this.handledStdins.has(stdin)) {
+            this.handledStdins.add(stdin);
+            stdin.on('error', (error) => {
+                this.logger.logGlobalEvent(
+                    `Unable to send input to command "${command.name || command.index}": ${error.message}\n`,
+                );
+            });
+        }
+        stdin.write(input);
     }
 }
