@@ -1,5 +1,5 @@
 import { Buffer } from 'node:buffer';
-import { PassThrough } from 'node:stream';
+import { PassThrough, Writable } from 'node:stream';
 
 import { beforeEach, expect, it } from 'vitest';
 
@@ -152,4 +152,21 @@ it('does not pause input stream when pauseInputStreamOnFinish is set to false', 
     expect(onFinish).toBeDefined();
     onFinish?.();
     expect(inputStream.readableFlowing).toBe(true);
+});
+
+it('logs a failed write instead of crashing when the command has closed its stdin', async () => {
+    const epipe = Object.assign(new Error('write EPIPE'), { code: 'EPIPE' });
+    commands[0].stdin = new Writable({
+        write(_chunk, _encoding, callback) {
+            callback(epipe);
+        },
+    });
+    controller.handle(commands);
+
+    inputStream.write('something');
+    await new Promise((resolve) => setImmediate(resolve));
+
+    expect(logger.logGlobalEvent).toHaveBeenCalledWith(
+        'Unable to send input to command "foo": write EPIPE\n',
+    );
 });
