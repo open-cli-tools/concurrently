@@ -36,6 +36,11 @@ export type ConcurrentlyOptions = Omit<
     hide?: CommandIdentifier | CommandIdentifier[];
 
     /**
+     * Whether empty and whitespace-only lines in the output of commands should be hidden.
+     */
+    hideEmptyLines?: boolean;
+
+    /**
      * The prefix format to use when logging a command's output.
      * Defaults to the command's index.
      */
@@ -178,7 +183,7 @@ export function concurrently(
             // LoggerPadding needs to run before any other controllers that might output something
             ...(options.padPrefix ? [new LoggerPadding({ logger })] : []),
             new LogError({ logger }),
-            new LogOutput({ logger }),
+            new LogOutput({ logger, hideEmptyLines: options.hideEmptyLines }),
             new LogExit({ logger }),
             new InputHandler({
                 logger,

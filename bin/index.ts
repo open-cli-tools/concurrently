@@ -81,6 +81,10 @@ const program = yargs(hideBin(process.argv))
             default: defaults.hide,
             type: 'string',
         },
+        'hide-empty-lines': {
+            describe: 'Hide empty and whitespace-only lines from the output of processes.',
+            type: 'boolean',
+        },
         group: {
             alias: 'g',
             describe: 'Order the output as if the commands were run sequentially.',
@@ -209,7 +213,20 @@ const program = yargs(hideBin(process.argv))
         },
     })
     .group(
-        ['m', 'n', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'shell', 'P', 'teardown'],
+        [
+            'm',
+            'n',
+            's',
+            'r',
+            'no-color',
+            'hide',
+            'hide-empty-lines',
+            'g',
+            'timings',
+            'shell',
+            'P',
+            'teardown',
+        ],
         'General',
     )
     .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
@@ -258,6 +275,7 @@ try {
             maxProcesses: args.maxProcesses,
             raw: args.raw,
             hide: args.hide.split(','),
+            hideEmptyLines: args.hideEmptyLines,
             group: args.group,
             prefix: args.prefix,
             prefixColors: splitOutsideParens(args.prefixColors, ','),
