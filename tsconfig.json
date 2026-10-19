@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "lib": ["es2023"],
+    "types": ["node"],
     "module": "node20",
 
     "outDir": "dist",
