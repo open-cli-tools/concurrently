@@ -198,7 +198,10 @@ describe('exiting conditions', () => {
         const exit = await child.exit;
 
         expect(exit.code).toBe(0);
-        expect(lines).toContainEqual(
+        // After a user-initiated shutdown, the per-command exit log is suppressed:
+        // those late lines can otherwise land on the shell prompt after the
+        // terminal is reclaimed. See https://github.com/open-cli-tools/concurrently/issues/255
+        expect(lines).not.toContainEqual(
             expect.stringMatching(
                 createKillMessage(
                     '[0] node __fixtures__/read-echo.js',
