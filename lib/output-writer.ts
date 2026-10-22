@@ -43,8 +43,7 @@ export class OutputWriter {
                 for (let i = command.index + 1; i < commands.length; i++) {
                     this.activeCommandIndex = i;
                     this.flushBuffer(i);
-                    // TODO: Should errored commands also flush buffer?
-                    if (commands[i].state !== 'exited') {
+                    if (commands[i].state !== 'exited' && commands[i].state !== 'errored') {
                         break;
                     }
                 }
