@@ -108,5 +108,23 @@ describe('#write()', () => {
             expect(outputStream.write).toHaveBeenCalledExactlyOnceWith('hello');
             expect(writer.activeCommandIndex).toBe(2);
         });
+
+        it('flushes later commands after a buffered command failed to spawn', () => {
+            const writer = createWriter({ group: true });
+            writer.write(commands[1], 'spawn error');
+            writer.write(commands[2], 'later output');
+            commands[1].state = 'errored';
+            commands[1].close.next(
+                createFakeCloseEvent({ command: commands[1], index: 1, exitCode: -1 }),
+            );
+            closeCommand(commands[2]);
+
+            expect(outputStream.write).not.toHaveBeenCalled();
+            closeCommand(commands[0]);
+
+            expect(outputStream.write.mock.calls).toEqual([['spawn error'], ['later output']]);
+            expect(writer.buffers).toEqual([[], [], []]);
+            expect(writer.activeCommandIndex).toBe(2);
+        });
     });
 });
