@@ -390,7 +390,8 @@ it('argument placeholders are properly replaced when additional arguments are pa
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('echo foo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo foo bar', expect.objectContaining({}));
-    expect(spawn).toHaveBeenCalledWith("echo 'foo bar'", expect.objectContaining({}));
+    const combinedCommand = process.platform === 'win32' ? 'echo "foo bar"' : "echo 'foo bar'";
+    expect(spawn).toHaveBeenCalledWith(combinedCommand, expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
 });
 
