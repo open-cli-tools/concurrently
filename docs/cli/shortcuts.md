@@ -67,6 +67,12 @@ $ concurrently 'yarn:lint:*(!fix)'
 $ concurrently -n js,ts 'yarn run lint:js' 'yarn run lint:ts'
 ```
 
+Wildcard expansion replaces the script pattern and preserves surrounding commands and arguments. The full command runs once per matching script:
+
+```bash
+$ concurrently 'npm run lint:*(!fix) && echo done'
+```
+
 > [!NOTE]
 > If you use this syntax with double quotes (`"`), bash and other shells might fail
 > parsing it. You'll need to escape the `!`, or use single quote (`'`) instead.<br/>
