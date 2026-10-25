@@ -1,4 +1,5 @@
 import { ChildProcess } from 'node:child_process';
+import EventEmitter from 'node:events';
 
 import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
@@ -120,5 +121,38 @@ describe('onFinish callback', () => {
 
         expect(spawn).toHaveBeenCalledTimes(1);
         expect(spawn).toHaveBeenLastCalledWith('foo', expect.anything());
+    });
+});
+
+describe('signals during teardown', () => {
+    it('forwards a signal to the running teardown command and runs no more', async () => {
+        const fakeProcess = new EventEmitter();
+        const kill = vi.fn();
+        const child = createFakeProcess(1);
+        spawn.mockReturnValue(child);
+
+        const { onFinish } = new Teardown({
+            spawn,
+            logger,
+            commands: [teardown, 'echo after'],
+            process: fakeProcess,
+            kill,
+        }).handle(commands);
+
+        // Listening from the start keeps a signal from killing concurrently, and leaving the
+        // command behind, between the commands' handlers going and teardown starting.
+        expect(fakeProcess.listenerCount('SIGTERM')).toBe(1);
+        fakeProcess.emit('SIGTERM', 'SIGTERM');
+        expect(kill).not.toHaveBeenCalled();
+
+        const result = onFinish();
+        fakeProcess.emit('SIGTERM', 'SIGTERM');
+        expect(kill).toHaveBeenCalledWith(1, 'SIGTERM');
+        expect(spawn).toHaveBeenCalledTimes(1);
+
+        child.emit('close', null, 'SIGTERM');
+        await expect(result).resolves.toBeUndefined();
+        expect(spawn).toHaveBeenCalledTimes(1);
+        expect(fakeProcess.listenerCount('SIGTERM')).toBe(0);
     });
 });
