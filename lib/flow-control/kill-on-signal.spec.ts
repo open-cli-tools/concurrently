@@ -72,6 +72,15 @@ describe.each(['SIGINT', 'SIGTERM', 'SIGHUP'])('on %s', (signal) => {
         expect(abortController.signal.aborted).toBe(true);
     });
 
+    it('calls onSignal callback when provided', () => {
+        const onSignal = vi.fn();
+        const controllerWithCallback = new KillOnSignal({ process, abortController, onSignal });
+        controllerWithCallback.handle(commands);
+        process.emit(signal, signal);
+
+        expect(onSignal).toHaveBeenCalledWith(signal);
+    });
+
     it('removes event listener on finish', () => {
         const { onFinish } = controller.handle(commands);
         onFinish();
