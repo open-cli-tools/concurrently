@@ -319,6 +319,18 @@ describe('--restart-tries', () => {
     });
 });
 
+describe('--total-restart-tries', () => {
+    it('caps the restarts that all commands share', async () => {
+        const lines = await run('--restart-tries 2 --total-restart-tries 1 "exit 1"').getLogLines();
+
+        expect(lines).toEqual([
+            expect.stringContaining('[0] exit 1 exited with code 1'),
+            expect.stringContaining('[0] exit 1 restarted'),
+            expect.stringContaining('[0] exit 1 exited with code 1'),
+        ]);
+    });
+});
+
 describe('--kill-others', () => {
     describe('kills on success', () => {
         it.each(['--kill-others', '-k'])('%s', async (arg) => {

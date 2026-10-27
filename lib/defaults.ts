@@ -45,6 +45,11 @@ export const raw = false;
 export const restartTries = 0;
 
 /**
+ * Number of attempts of restarting processes, shared by all of them. Negative means no limit.
+ */
+export const totalRestartTries = -1;
+
+/**
  * How many milliseconds concurrently should wait before restarting a process.
  */
 export const restartDelay = 0;

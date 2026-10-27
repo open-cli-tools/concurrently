@@ -191,6 +191,13 @@ const program = yargs(hideBin(process.argv))
             default: defaults.restartDelay,
             type: 'string',
         },
+        'total-restart-tries': {
+            describe:
+                'How many restarts all processes may share, on top of --restart-tries.\n' +
+                'Negative numbers mean no limit.',
+            default: defaults.totalRestartTries,
+            type: 'number',
+        },
 
         // Input
         'handle-input': {
@@ -215,7 +222,7 @@ const program = yargs(hideBin(process.argv))
     .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
     .group(['i', 'default-input-target'], 'Input handling')
     .group(['k', 'kill-others-on-fail', 'kill-signal', 'kill-timeout'], 'Killing other processes')
-    .group(['restart-tries', 'restart-after'], 'Restarting')
+    .group(['restart-tries', 'restart-after', 'total-restart-tries'], 'Restarting')
     .epilogue(epilogue);
 
 const args = program.parseSync();
@@ -266,6 +273,7 @@ try {
             restartDelay:
                 args.restartAfter === 'exponential' ? 'exponential' : Number(args.restartAfter),
             restartTries: args.restartTries,
+            totalRestartTries: args.totalRestartTries,
             successCondition: args.success,
             timestampFormat: args.timestampFormat,
             timings: args.timings,
