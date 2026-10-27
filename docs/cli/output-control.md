@@ -12,6 +12,17 @@ $ concurrently --hide 0 'echo Hello there' 'echo General Kenobi!'
 [1] echo 'General Kenobi!' exited with code 0
 ```
 
+## Preventing Clearing
+
+Some commands clear the terminal, for example when restarting in watch mode, which also wipes the output of every other command.<br/>
+The escape sequences used to clear the terminal can be removed from the output of all commands by using the `--prevent-clear` flag.
+
+```bash
+$ concurrently --prevent-clear 'tsc --watch' 'node --watch server.js'
+```
+
+This flag has no effect in raw mode, as concurrently doesn't process the output of commands in that mode.
+
 ## Grouping
 
 It might be useful at times to make sure that the commands outputs are grouped together, while running them in parallel.<br/>

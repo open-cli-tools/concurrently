@@ -81,6 +81,12 @@ const program = yargs(hideBin(process.argv))
             default: defaults.hide,
             type: 'string',
         },
+        'prevent-clear': {
+            describe:
+                'Remove escape sequences that clear the terminal from the output of processes, ' +
+                'so that one process clearing the screen does not hide the output of the others.',
+            type: 'boolean',
+        },
         group: {
             alias: 'g',
             describe: 'Order the output as if the commands were run sequentially.',
@@ -209,7 +215,20 @@ const program = yargs(hideBin(process.argv))
         },
     })
     .group(
-        ['m', 'n', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'shell', 'P', 'teardown'],
+        [
+            'm',
+            'n',
+            's',
+            'r',
+            'no-color',
+            'hide',
+            'prevent-clear',
+            'g',
+            'timings',
+            'shell',
+            'P',
+            'teardown',
+        ],
         'General',
     )
     .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
@@ -258,6 +277,7 @@ try {
             maxProcesses: args.maxProcesses,
             raw: args.raw,
             hide: args.hide.split(','),
+            preventClear: args.preventClear,
             group: args.group,
             prefix: args.prefix,
             prefixColors: splitOutsideParens(args.prefixColors, ','),
