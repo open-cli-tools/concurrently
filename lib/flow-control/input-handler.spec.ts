@@ -130,6 +130,16 @@ it('fallback to default input stream if command is not found', () => {
     expect(logger.logGlobalEvent).not.toHaveBeenCalled();
 });
 
+it('forwards input starting with a colon to the default target when commands have no name', () => {
+    commands = [new FakeCommand('', 'echo foo', 0), new FakeCommand('', 'echo bar', 1)];
+    controller.handle(commands);
+
+    inputStream.write(':observer.start()\n');
+
+    expect(commands[0].stdin?.write).toHaveBeenCalledExactlyOnceWith(':observer.start()\n');
+    expect(commands[1].stdin?.write).not.toHaveBeenCalled();
+});
+
 it('pauses input stream when finished', () => {
     expect(inputStream.readableFlowing).toBeNull();
 

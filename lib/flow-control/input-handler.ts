@@ -53,7 +53,9 @@ export class InputHandler implements FlowController {
         const commandsMap = new Map<string, Command>();
         for (const command of commands) {
             commandsMap.set(command.index.toString(), command);
-            commandsMap.set(command.name, command);
+            if (command.name) {
+                commandsMap.set(command.name, command);
+            }
         }
 
         Rx.fromEvent(inputStream, 'data')
