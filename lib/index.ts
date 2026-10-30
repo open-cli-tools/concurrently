@@ -22,7 +22,7 @@ import { OutputErrorHandler } from './flow-control/output-error-handler.js';
 import { RestartDelay, RestartProcess } from './flow-control/restart-process.js';
 import { Teardown } from './flow-control/teardown.js';
 import { Logger } from './logger.js';
-import { createSpawn } from './spawn.js';
+import { createSpawn, detectShellKind, resolveShell } from './spawn.js';
 import { castArray } from './utils.js';
 
 export type ConcurrentlyOptions = Omit<
@@ -161,7 +161,7 @@ export function concurrently(
 
     const abortController = new AbortController();
     const outputStream = options.outputStream || process.stdout;
-
+    const shellKind = detectShellKind(resolveShell(options.shell));
     const spawn = createSpawn(options.shell);
     return createConcurrently(commands, {
         maxProcesses: options.maxProcesses,
@@ -209,6 +209,7 @@ export function concurrently(
         ],
         prefixColors: options.prefixColors || [],
         additionalArguments: options.additionalArguments,
+        shellKind,
     });
 }
 

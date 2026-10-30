@@ -37,7 +37,7 @@ const NPM_SCRIPT_SHELL_ENV = 'npm_config_script_shell';
  * Resolves which shell executable to use when spawning commands.
  * @see {@link createSpawn()}
  */
-function resolveShell(
+export function resolveShell(
     shell?: string,
     process: Pick<NodeJS.Process, 'platform' | 'env'> = nodeProcess,
 ): string {
@@ -92,7 +92,7 @@ export type ShellKind = 'cmd' | 'posix' | 'powershell';
 /**
  * Detects which argument style to use when spawning the given shell executable.
  */
-function detectShellKind(shellPath: string): ShellKind {
+export function detectShellKind(shellPath: string): ShellKind {
     const normalized = shellPath.replace(/\\/g, '/');
     const base = path
         .basename(normalized)
@@ -107,6 +107,13 @@ function detectShellKind(shellPath: string): ShellKind {
     }
     return 'posix';
 }
+
+export function getDefaultShellKind(): ShellKind {
+    return process.platform === 'win32' ? 'cmd' : 'posix';
+}
+
+export const isWinShellKind = (shellKind: ShellKind) =>
+    shellKind === 'cmd' || shellKind === 'powershell';
 
 export const getSpawnOpts = ({
     colorSupport = supportsColor.stdout,

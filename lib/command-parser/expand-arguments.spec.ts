@@ -1,7 +1,10 @@
 import { expect, it } from 'vitest';
 
 import { CommandInfo } from '../command.js';
+import { getDefaultShellKind, isWinShellKind } from '../spawn.js';
 import { ExpandArguments } from './expand-arguments.js';
+
+const isWinShell = isWinShellKind(getDefaultShellKind());
 
 const createCommandInfo = (command: string): CommandInfo => ({
     command,
@@ -23,7 +26,10 @@ it('single argument placeholder is replaced', () => {
 it('argument placeholder is replaced and quoted properly', () => {
     const parser = new ExpandArguments(['foo bar']);
     const commandInfo = createCommandInfo('echo {1}');
-    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: "echo 'foo bar'" });
+    expect(parser.parse(commandInfo)).toEqual({
+        ...commandInfo,
+        command: isWinShell ? 'echo "foo bar"' : "echo 'foo bar'",
+    });
 });
 
 it('argument placeholder with single quote and exclamation mark is quoted properly', () => {
@@ -31,7 +37,7 @@ it('argument placeholder with single quote and exclamation mark is quoted proper
     const commandInfo = createCommandInfo('echo {1}');
     expect(parser.parse(commandInfo)).toEqual({
         ...commandInfo,
-        command: `echo 'it'"'"'s great!'`,
+        command: isWinShell ? 'echo "it\'s great!"' : `echo 'it'"'"'s great!'`,
     });
 });
 
@@ -68,7 +74,10 @@ it('all arguments placeholder is replaced', () => {
 it('combined arguments placeholder is replaced', () => {
     const parser = new ExpandArguments(['foo', 'bar']);
     const commandInfo = createCommandInfo('echo {*}');
-    expect(parser.parse(commandInfo)).toEqual({ ...commandInfo, command: "echo 'foo bar'" });
+    expect(parser.parse(commandInfo)).toEqual({
+        ...commandInfo,
+        command: isWinShell ? 'echo "foo bar"' : "echo 'foo bar'",
+    });
 });
 
 it('escaped argument placeholders are not replaced', () => {
