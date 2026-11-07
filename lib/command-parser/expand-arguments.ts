@@ -1,13 +1,19 @@
-import { quote } from 'shell-quote';
-
 import { CommandInfo } from '../command.js';
+import { getDefaultShellKind, ShellKind } from '../spawn.js';
 import { CommandParser } from './command-parser.js';
+import { createShellQuote } from './shell-quote.js';
 
 /**
  * Replace placeholders with additional arguments.
  */
 export class ExpandArguments implements CommandParser {
-    constructor(private readonly additionalArguments: string[]) {}
+    private readonly shellKind: ShellKind;
+    constructor(
+        private readonly additionalArguments: string[],
+        shellKind?: ShellKind,
+    ) {
+        this.shellKind = shellKind || getDefaultShellKind();
+    }
 
     parse(commandInfo: CommandInfo) {
         const command = commandInfo.command.replace(
@@ -19,6 +25,7 @@ export class ExpandArguments implements CommandParser {
                 }
 
                 if (this.additionalArguments.length > 0) {
+                    const quote = createShellQuote(this.shellKind);
                     // Replace numeric placeholder if value exists in additional arguments.
                     if (+placeholderTarget <= this.additionalArguments.length) {
                         return quote([this.additionalArguments[+placeholderTarget - 1]]);

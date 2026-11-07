@@ -10,6 +10,7 @@ import { ChildProcess, KillProcess, SpawnCommand } from './command.js';
 import { concurrently, ConcurrentlyCommandInput, ConcurrentlyOptions } from './concurrently.js';
 import { FlowController } from './flow-control/flow-controller.js';
 import { Logger } from './logger.js';
+import { getDefaultShellKind, isWinShellKind } from './spawn.js';
 
 let spawn: SpawnCommand;
 let kill: KillProcess;
@@ -390,7 +391,10 @@ it('argument placeholders are properly replaced when additional arguments are pa
     expect(spawn).toHaveBeenCalledTimes(4);
     expect(spawn).toHaveBeenCalledWith('echo foo', expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo foo bar', expect.objectContaining({}));
-    expect(spawn).toHaveBeenCalledWith("echo 'foo bar'", expect.objectContaining({}));
+    const combinedCommand = isWinShellKind(getDefaultShellKind())
+        ? 'echo "foo bar"'
+        : "echo 'foo bar'";
+    expect(spawn).toHaveBeenCalledWith(combinedCommand, expect.objectContaining({}));
     expect(spawn).toHaveBeenCalledWith('echo {@}', expect.objectContaining({}));
 });
 

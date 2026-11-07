@@ -22,7 +22,7 @@ import { FlowController } from './flow-control/flow-controller.js';
 import { Logger } from './logger.js';
 import { OutputWriter } from './output-writer.js';
 import { PrefixColorSelector } from './prefix-color-selector.js';
-import { createSpawn, getSpawnOpts } from './spawn.js';
+import { createSpawn, getDefaultShellKind, getSpawnOpts, ShellKind } from './spawn.js';
 import { castArray } from './utils.js';
 
 const defaults: ConcurrentlyOptions = {
@@ -31,6 +31,7 @@ const defaults: ConcurrentlyOptions = {
     raw: false,
     controllers: [],
     cwd: undefined,
+    shellKind: getDefaultShellKind(),
 };
 
 /**
@@ -150,6 +151,11 @@ export interface ConcurrentlyOptions {
      * @see ExpandArguments
      */
     additionalArguments?: string[];
+
+    /**
+     * The type of shell to use for spawning commands
+     */
+    shellKind: ShellKind;
 }
 
 /**
@@ -172,7 +178,7 @@ export function concurrently(
     const commandParsers: CommandParser[] = [new ExpandShortcut(), new ExpandWildcard()];
 
     if (options.additionalArguments) {
-        commandParsers.push(new ExpandArguments(options.additionalArguments));
+        commandParsers.push(new ExpandArguments(options.additionalArguments, options.shellKind));
     }
 
     const hide = (options.hide || []).map(String);
