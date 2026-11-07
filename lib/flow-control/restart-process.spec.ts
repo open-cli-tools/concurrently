@@ -1,3 +1,5 @@
+import { EventEmitter } from 'node:events';
+
 import { VirtualTimeScheduler } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -170,4 +172,73 @@ describe('returned commands', () => {
             expect(newCommand.stderr).toBe(commands[i].stderr);
         });
     });
+});
+
+describe.each(['SIGINT', 'SIGTERM', 'SIGHUP'])('after %s', (signal) => {
+    let process: EventEmitter;
+    beforeEach(() => {
+        process = new EventEmitter();
+        controller = new RestartProcess({ logger, scheduler, delay: 100, tries: 2, process });
+    });
+
+    it('does not restart a command that fails', () => {
+        controller.handle(commands);
+
+        process.emit(signal, signal);
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        scheduler.flush();
+
+        expect(commands[0].start).not.toHaveBeenCalled();
+        expect(logger.logCommandEvent).not.toHaveBeenCalled();
+    });
+
+    it('does not restart a command that failed before the signal', () => {
+        controller.handle(commands);
+
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        process.emit(signal, signal);
+        scheduler.flush();
+
+        expect(commands[0].start).not.toHaveBeenCalled();
+        expect(logger.logCommandEvent).not.toHaveBeenCalled();
+    });
+
+    it('lets the close event of a command that fails through', () => {
+        const { commands: newCommands } = controller.handle(commands);
+        const callback = vi.fn();
+        newCommands[0].close.subscribe(callback);
+
+        process.emit(signal, signal);
+        const closeEvent = createFakeCloseEvent({ exitCode: 1 });
+        commands[0].close.next(closeEvent);
+        scheduler.flush();
+
+        expect(callback).toHaveBeenCalledExactlyOnceWith(closeEvent);
+    });
+
+    it('lets the close event of a command that failed before the signal through', () => {
+        const { commands: newCommands } = controller.handle(commands);
+        const callback = vi.fn();
+        newCommands[0].close.subscribe(callback);
+
+        const closeEvent = createFakeCloseEvent({ exitCode: 1 });
+        commands[0].close.next(closeEvent);
+        expect(callback).not.toHaveBeenCalled();
+
+        // No flush: concurrently shouldn't have to sit out the rest of the delay to exit.
+        process.emit(signal, signal);
+
+        expect(callback).toHaveBeenCalledExactlyOnceWith(closeEvent);
+    });
+});
+
+it('stops listening for signals when finished', () => {
+    const process = new EventEmitter();
+    controller = new RestartProcess({ logger, scheduler, tries: 1, process });
+
+    const { onFinish } = controller.handle(commands);
+    expect(process.listenerCount('SIGTERM')).toBe(1);
+
+    onFinish?.();
+    expect(process.listenerCount('SIGTERM')).toBe(0);
 });
