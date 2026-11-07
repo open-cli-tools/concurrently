@@ -254,6 +254,23 @@ describe('--hide', () => {
     });
 });
 
+describe('--hide-empty-lines', () => {
+    const command = 'node __fixtures__/empty-lines.js';
+
+    it('shows empty lines by default', async () => {
+        const lines = await run(`"${command}"`).getLogLines();
+
+        expect(lines.slice(0, 4)).toEqual(['[0] foo', '[0] ', '[0]   ', '[0] bar']);
+    });
+
+    it('hides empty and whitespace-only lines', async () => {
+        const lines = await run(`--hide-empty-lines "${command}"`).getLogLines();
+
+        expect(lines.slice(0, 2)).toEqual(['[0] foo', '[0] bar']);
+        expect(lines[2]).toMatch(/exited with code 0/);
+    });
+});
+
 describe('--group', () => {
     it('groups output per process', async () => {
         const lines = await run(

@@ -12,6 +12,18 @@ $ concurrently --hide 0 'echo Hello there' 'echo General Kenobi!'
 [1] echo 'General Kenobi!' exited with code 0
 ```
 
+## Hiding Empty Lines
+
+Some commands print empty lines, which concurrently logs as lines with nothing but a prefix.<br/>
+These lines, and lines with only whitespace in them, can be hidden by using the `--hide-empty-lines` flag.
+
+```bash
+$ concurrently --hide-empty-lines 'echo Hello there && echo && echo General Kenobi!'
+[0] Hello there
+[0] General Kenobi!
+[0] echo Hello there && echo && echo General Kenobi! exited with code 0
+```
+
 ## Grouping
 
 It might be useful at times to make sure that the commands outputs are grouped together, while running them in parallel.<br/>
