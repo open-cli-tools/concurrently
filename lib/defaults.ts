@@ -22,6 +22,12 @@ export const maxProcesses = 0;
 export const hide = '';
 
 /**
+ * Indices and names of commands whose output should be logged.
+ * When empty, all commands are shown (subject to `hide`).
+ */
+export const show = '';
+
+/**
  * Which prefix style to use when logging processes output.
  */
 export const prefix = '';

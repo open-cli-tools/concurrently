@@ -254,6 +254,48 @@ describe('--hide', () => {
     });
 });
 
+describe('--show', () => {
+    it('shows the output of a process by its index', async () => {
+        const lines = await run('--show 1 "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).not.toContainEqual(expect.stringContaining('foo'));
+        expect(lines).toContainEqual(expect.stringContaining('bar'));
+    });
+
+    it('shows the output of a process by its name', async () => {
+        const lines = await run('-n foo,bar --show foo "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).not.toContainEqual(expect.stringContaining('bar'));
+    });
+
+    it('shows the output of a process by its index in raw mode', async () => {
+        const lines = await run('--show 0 --raw "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toHaveLength(1);
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).not.toContainEqual(expect.stringContaining('bar'));
+    });
+
+    it('shows the output of a process by its name in raw mode', async () => {
+        const lines = await run('-n foo,bar --show bar --raw "echo foo" "echo bar"').getLogLines();
+
+        expect(lines).toHaveLength(1);
+        expect(lines).toContainEqual(expect.stringContaining('bar'));
+        expect(lines).not.toContainEqual(expect.stringContaining('foo'));
+    });
+
+    it('applies --hide on top of --show', async () => {
+        const lines = await run(
+            '-n foo,bar,baz --show foo,bar --hide bar "echo foo" "echo bar" "echo baz"',
+        ).getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('foo'));
+        expect(lines).not.toContainEqual(expect.stringContaining('bar'));
+        expect(lines).not.toContainEqual(expect.stringContaining('baz'));
+    });
+});
+
 describe('--group', () => {
     it('groups output per process', async () => {
         const lines = await run(

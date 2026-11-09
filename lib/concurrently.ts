@@ -23,7 +23,7 @@ import { Logger } from './logger.js';
 import { OutputWriter } from './output-writer.js';
 import { PrefixColorSelector } from './prefix-color-selector.js';
 import { createSpawn, getSpawnOpts } from './spawn.js';
-import { castArray } from './utils.js';
+import { castArray, shouldHideCommand } from './utils.js';
 
 const defaults: ConcurrentlyOptions = {
     spawn: createSpawn(),
@@ -110,6 +110,12 @@ export interface ConcurrentlyOptions {
     hide?: CommandIdentifier[];
 
     /**
+     * Which commands should have their output shown.
+     * When set and non-empty, only these commands are shown (unless also listed in `hide`).
+     */
+    show?: CommandIdentifier[];
+
+    /**
      * The current working directory of commands which didn't specify one.
      * Defaults to `process.cwd()`.
      */
@@ -176,11 +182,12 @@ export function concurrently(
     }
 
     const hide = (options.hide || []).map(String);
+    const show = (options.show || []).map(String);
     let commands = baseCommands
         .map(mapToCommandInfo)
         .flatMap((command) => parseCommand(command, commandParsers))
         .map((command, index) => {
-            const hidden = hide.includes(command.name) || hide.includes(String(index));
+            const hidden = shouldHideCommand({ name: command.name, index }, hide, show);
             return new Command(
                 {
                     index,

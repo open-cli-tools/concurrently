@@ -474,6 +474,30 @@ describe('#logCommandText()', () => {
 
         expect(logger.log).not.toHaveBeenCalled();
     });
+
+    it('does nothing if command is outside the show list', () => {
+        const { logger } = createLogger({ show: ['keep'] });
+        const cmd = new FakeCommand('drop');
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('logs when command is in the show list', () => {
+        const { logger } = createLogger({ show: ['keep'] });
+        const cmd = new FakeCommand('keep', undefined, 1);
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalled();
+    });
+
+    it('does nothing if command is shown but also hidden', () => {
+        const { logger } = createLogger({ show: ['abc'], hide: ['abc'] });
+        const cmd = new FakeCommand('abc');
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).not.toHaveBeenCalled();
+    });
 });
 
 describe('#logCommandText() with color markers', () => {

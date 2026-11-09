@@ -353,9 +353,50 @@ it('uses hide from options for each command', () => {
     );
 });
 
+it('uses show from options for each command', () => {
+    create([{ command: 'echo' }, 'kill'], {
+        show: [0],
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            stdio: ['pipe', 'pipe', 'pipe'],
+        }),
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            stdio: ['pipe', 'ignore', 'ignore'],
+        }),
+    );
+});
+
 it('hides output for commands even if raw option is on', () => {
     create([{ command: 'echo' }, 'kill'], {
         hide: [1],
+        raw: true,
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            stdio: ['inherit', 'inherit', 'inherit'],
+        }),
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            stdio: ['pipe', 'ignore', 'ignore'],
+        }),
+    );
+});
+
+it('shows only selected commands even if raw option is on', () => {
+    create([{ command: 'echo' }, 'kill'], {
+        show: [0],
         raw: true,
     });
 

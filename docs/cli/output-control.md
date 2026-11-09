@@ -12,6 +12,18 @@ $ concurrently --hide 0 'echo Hello there' 'echo General Kenobi!'
 [1] echo 'General Kenobi!' exited with code 0
 ```
 
+## Showing
+
+When many commands run, it can be easier to name the ones you want to see instead of listing every other index in `--hide`. Use `--show` to whitelist output by name or index. Every command still runs; only the output is filtered.
+
+```bash
+$ concurrently --show 1 'echo Hello there' 'echo General Kenobi!'
+[1] General Kenobi!
+[1] echo 'General Kenobi!' exited with code 0
+```
+
+If both `--show` and `--hide` are set, a command is shown only when it is listed in `--show` and not listed in `--hide`.
+
 ## Grouping
 
 It might be useful at times to make sure that the commands outputs are grouped together, while running them in parallel.<br/>

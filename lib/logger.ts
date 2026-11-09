@@ -4,7 +4,7 @@ import Rx from 'rxjs';
 import { Command, CommandIdentifier } from './command.js';
 import { DateFormatter } from './date-format.js';
 import * as defaults from './defaults.js';
-import { escapeRegExp, splitOutsideParens } from './utils.js';
+import { escapeRegExp, shouldHideCommand, splitOutsideParens } from './utils.js';
 
 const defaultChalk = chalk;
 const noColorChalk = new Chalk({ level: 0 });
@@ -78,6 +78,7 @@ function applyColor(chalkInstance: ChalkInstance, colorString: string): ChalkIns
 
 export class Logger {
     private readonly hide: CommandIdentifier[];
+    private readonly show: CommandIdentifier[];
     private readonly raw: boolean;
     private readonly prefixFormat?: string;
     private readonly commandLength: number;
@@ -105,6 +106,7 @@ export class Logger {
 
     constructor({
         hide,
+        show,
         prefixFormat,
         commandLength,
         raw = false,
@@ -114,6 +116,12 @@ export class Logger {
          * Which commands should have their output hidden.
          */
         hide?: CommandIdentifier[];
+
+        /**
+         * Which commands should have their output shown.
+         * When set and non-empty, only these commands are shown (unless also listed in `hide`).
+         */
+        show?: CommandIdentifier[];
 
         /**
          * Whether output should be formatted to include prefixes and whether "event" logs will be
@@ -139,6 +147,7 @@ export class Logger {
         timestampFormat?: string;
     }) {
         this.hide = (hide || []).map(String);
+        this.show = (show || []).map(String);
         this.raw = raw;
         this.prefixFormat = prefixFormat;
         this.commandLength = commandLength || defaults.prefixLength;
@@ -271,7 +280,7 @@ export class Logger {
     }
 
     logCommandText(text: string, command: Command) {
-        if (this.hide.includes(String(command.index)) || this.hide.includes(command.name)) {
+        if (shouldHideCommand(command, this.hide, this.show)) {
             return;
         }
 

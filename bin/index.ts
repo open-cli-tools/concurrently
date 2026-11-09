@@ -81,6 +81,15 @@ const program = yargs(hideBin(process.argv))
             default: defaults.hide,
             type: 'string',
         },
+        show: {
+            describe:
+                'Comma-separated list of processes to show the output of.\n' +
+                'The processes can be identified by their name or index.\n' +
+                'When set, only these processes are shown; others still run.\n' +
+                'Combined with --hide, a process is shown only if it is in --show and not in --hide.',
+            default: defaults.show,
+            type: 'string',
+        },
         group: {
             alias: 'g',
             describe: 'Order the output as if the commands were run sequentially.',
@@ -209,7 +218,7 @@ const program = yargs(hideBin(process.argv))
         },
     })
     .group(
-        ['m', 'n', 's', 'r', 'no-color', 'hide', 'g', 'timings', 'shell', 'P', 'teardown'],
+        ['m', 'n', 's', 'r', 'no-color', 'hide', 'show', 'g', 'timings', 'shell', 'P', 'teardown'],
         'General',
     )
     .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
@@ -258,6 +267,7 @@ try {
             maxProcesses: args.maxProcesses,
             raw: args.raw,
             hide: args.hide.split(','),
+            show: args.show.split(','),
             group: args.group,
             prefix: args.prefix,
             prefixColors: splitOutsideParens(args.prefixColors, ','),
