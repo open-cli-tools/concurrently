@@ -222,6 +222,24 @@ describe('does not log any extra output', () => {
     });
 });
 
+describe('--prevent-clear', () => {
+    const command = 'node __fixtures__/clear-screen.js';
+
+    it('keeps clear sequences in the output by default', async () => {
+        const lines = await run(`"${command}"`).getLogLines();
+
+        expect(lines.join('\n')).toContain('\x1B[2J');
+        expect(lines.join('\n')).toContain('\x1Bc');
+    });
+
+    it('removes clear sequences from the output', async () => {
+        const lines = await run(`--prevent-clear "${command}"`).getLogLines();
+
+        expect(lines.slice(0, 2)).toEqual(['[0] foo', '[0] bar']);
+        expect(lines.join('\n')).not.toContain('\x1B');
+    });
+});
+
 describe('--hide', () => {
     it('hides the output of a process by its index', async () => {
         const lines = await run('--hide 1 "echo foo" "echo bar"').getLogLines();

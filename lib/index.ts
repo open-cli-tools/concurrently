@@ -57,6 +57,13 @@ export type ConcurrentlyOptions = Omit<
     raw?: boolean;
 
     /**
+     * Whether escape sequences that clear the terminal should be removed from the output of commands,
+     * so that a command clearing the screen doesn't hide the output of the other commands.
+     * Has no effect when `raw` is set, as the output is then not processed.
+     */
+    preventClear?: boolean;
+
+    /**
      * Date format used when logging date/time.
      * @see https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
      */
@@ -178,7 +185,7 @@ export function concurrently(
             // LoggerPadding needs to run before any other controllers that might output something
             ...(options.padPrefix ? [new LoggerPadding({ logger })] : []),
             new LogError({ logger }),
-            new LogOutput({ logger }),
+            new LogOutput({ logger, preventClear: options.preventClear }),
             new LogExit({ logger }),
             new InputHandler({
                 logger,

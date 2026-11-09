@@ -121,6 +121,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
   - `prefixLength`: how many characters to show when prefixing with `command`. Default: `10`
   - `raw`: whether raw mode should be used, meaning strictly process output will
     be logged, without any prefixes, coloring or extra stuff. Can be overridden per command.
+  - `preventClear`: whether escape sequences that clear the terminal should be removed from the output of commands. Has no effect in raw mode. Default: `false`.
   - `successCondition`: the condition to consider the run was successful.
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.
