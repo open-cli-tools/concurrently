@@ -92,6 +92,16 @@ export class Logger {
     private prefixLength = 0;
 
     /**
+     * Whether the process is shutting down, e.g. because the user sent a signal
+     * such as Ctrl-C. While shutting down, event logs are silenced: commands are
+     * expected to exit, so logging about it is noise — and those late lines can
+     * land on the shell prompt once the terminal is reclaimed.
+     *
+     * @see https://github.com/open-cli-tools/concurrently/issues/255
+     */
+    private shuttingDown = false;
+
+    /**
      * Last character emitted, and from which command.
      * If `undefined`, then nothing has been logged yet.
      */
@@ -150,6 +160,21 @@ export class Logger {
      */
     toggleColors(on: boolean) {
         this.chalk = on ? defaultChalk : noColorChalk;
+    }
+
+    /**
+     * Whether the process is shutting down.
+     * @see {@link Logger.shuttingDown}
+     */
+    get isShuttingDown() {
+        return this.shuttingDown;
+    }
+
+    /**
+     * Marks the process as shutting down, silencing further event logs.
+     */
+    setShuttingDown() {
+        this.shuttingDown = true;
     }
 
     private shortenText(text: string) {
@@ -253,10 +278,10 @@ export class Logger {
     /**
      * Logs an event for a command (e.g. start, stop).
      *
-     * If raw mode is on, then nothing is logged.
+     * If raw mode is on, or the process is shutting down, then nothing is logged.
      */
     logCommandEvent(text: string, command: Command) {
-        if (this.raw) {
+        if (this.raw || this.shuttingDown) {
             return;
         }
 
@@ -282,10 +307,10 @@ export class Logger {
     /**
      * Logs a global event (e.g. sending signals to processes).
      *
-     * If raw mode is on, then nothing is logged.
+     * If raw mode is on, or the process is shutting down, then nothing is logged.
      */
     logGlobalEvent(text: string) {
-        if (this.raw) {
+        if (this.raw || this.shuttingDown) {
             return;
         }
 
@@ -299,7 +324,12 @@ export class Logger {
      */
     logTable(tableContents: Record<string, unknown>[]) {
         // For now, can only print array tables with some content.
-        if (this.raw || !Array.isArray(tableContents) || !tableContents.length) {
+        if (
+            this.raw ||
+            this.shuttingDown ||
+            !Array.isArray(tableContents) ||
+            !tableContents.length
+        ) {
             return;
         }
 

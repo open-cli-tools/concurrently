@@ -3,6 +3,7 @@ import EventEmitter from 'node:events';
 import { map } from 'rxjs/operators';
 
 import { Command } from '../command.js';
+import { Logger } from '../logger.js';
 import { FlowController } from './flow-controller.js';
 
 const SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
@@ -14,31 +15,32 @@ const SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
 export class KillOnSignal implements FlowController {
     private readonly process: EventEmitter;
     private readonly abortController?: AbortController;
-    private readonly onSignal?: (signal: NodeJS.Signals) => void;
+    private readonly logger?: Logger;
 
     constructor({
         process,
         abortController,
-        onSignal,
+        logger,
     }: {
         process: EventEmitter;
         abortController?: AbortController;
         /**
-         * Called whenever a signal is caught, before commands are killed.
-         * Useful for letting other parts of the app know a shutdown is in progress.
+         * When provided, the logger is marked as shutting down whenever a signal
+         * is caught, before commands are killed, so that no further event logs
+         * are emitted while the commands exit.
          */
-        onSignal?: (signal: NodeJS.Signals) => void;
+        logger?: Logger;
     }) {
         this.process = process;
         this.abortController = abortController;
-        this.onSignal = onSignal;
+        this.logger = logger;
     }
 
     handle(commands: Command[]) {
         let caughtSignal: NodeJS.Signals;
         const signalListener = (signal: NodeJS.Signals) => {
             caughtSignal = signal;
-            this.onSignal?.(signal);
+            this.logger?.setShuttingDown();
             this.abortController?.abort();
             commands.forEach((command) => command.kill(signal));
         };

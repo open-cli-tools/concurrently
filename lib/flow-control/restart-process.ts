@@ -71,7 +71,9 @@ export class RestartProcess implements FlowController {
                     ),
                 ).subscribe((restart) => {
                     const command = commands[index];
-                    if (restart) {
+                    // While shutting down (e.g. after a signal), commands that were
+                    // killed must not be restarted, whatever signal was used.
+                    if (restart && !this.logger.isShuttingDown) {
                         this.logger.logCommandEvent(`${command.command} restarted`, command);
                         command.start();
                     }
@@ -82,8 +84,12 @@ export class RestartProcess implements FlowController {
             commands: commands.map((command) => {
                 const closeStream = command.close.pipe(
                     filter(({ exitCode }, emission) => {
-                        // We let all success codes pass, and failures only after restarting won't happen again
-                        return exitCode === 0 || emission >= this.tries;
+                        // We let all success codes pass, and failures only after restarting won't happen again.
+                        // While shutting down, no restart will happen, so failures pass too:
+                        // other controllers still need to see the command close for the run to finish.
+                        return (
+                            exitCode === 0 || emission >= this.tries || this.logger.isShuttingDown
+                        );
                     }),
                 );
 

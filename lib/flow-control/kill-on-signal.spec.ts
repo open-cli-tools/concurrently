@@ -2,8 +2,10 @@ import { EventEmitter } from 'node:events';
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { createMockInstance } from '../__fixtures__/create-mock-instance.js';
 import { createFakeCloseEvent, FakeCommand } from '../__fixtures__/fake-command.js';
 import { Command } from '../command.js';
+import { Logger } from '../logger.js';
 import { KillOnSignal } from './kill-on-signal.js';
 
 let commands: Command[];
@@ -72,13 +74,13 @@ describe.each(['SIGINT', 'SIGTERM', 'SIGHUP'])('on %s', (signal) => {
         expect(abortController.signal.aborted).toBe(true);
     });
 
-    it('calls onSignal callback when provided', () => {
-        const onSignal = vi.fn();
-        const controllerWithCallback = new KillOnSignal({ process, abortController, onSignal });
-        controllerWithCallback.handle(commands);
+    it('marks the logger as shutting down when one is provided', () => {
+        const logger = createMockInstance(Logger);
+        const controllerWithLogger = new KillOnSignal({ process, abortController, logger });
+        controllerWithLogger.handle(commands);
         process.emit(signal, signal);
 
-        expect(onSignal).toHaveBeenCalledWith(signal);
+        expect(logger.setShuttingDown).toHaveBeenCalledTimes(1);
     });
 
     it('removes event listener on finish', () => {

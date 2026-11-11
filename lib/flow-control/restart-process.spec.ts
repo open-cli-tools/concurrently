@@ -69,6 +69,41 @@ it('restarts processes that fail after delay ms has passed', () => {
     expect(commands[1].start).not.toHaveBeenCalled();
 });
 
+it('does not restart processes that fail while shutting down', () => {
+    const shuttingDownLogger = new Logger({});
+    shuttingDownLogger.setShuttingDown();
+    controller = new RestartProcess({
+        logger: shuttingDownLogger,
+        scheduler,
+        delay: 100,
+        tries: 2,
+    });
+    controller.handle(commands);
+
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 'SIGTERM' }));
+    scheduler.flush();
+
+    expect(commands[0].start).not.toHaveBeenCalled();
+});
+
+it('lets close events of processes killed while shutting down pass through', () => {
+    const shuttingDownLogger = new Logger({});
+    shuttingDownLogger.setShuttingDown();
+    controller = new RestartProcess({
+        logger: shuttingDownLogger,
+        scheduler,
+        delay: 100,
+        tries: 2,
+    });
+    const { commands: newCommands } = controller.handle(commands);
+
+    const callback = vi.fn();
+    newCommands[0].close.subscribe(callback);
+    commands[0].close.next(createFakeCloseEvent({ exitCode: 'SIGTERM' }));
+
+    expect(callback).toHaveBeenCalledWith(expect.objectContaining({ exitCode: 'SIGTERM' }));
+});
+
 it('restarts processes that fail with an exponential back-off', () => {
     const tries = 4;
     controller = new RestartProcess({ logger, scheduler, tries, delay: 'exponential' });
