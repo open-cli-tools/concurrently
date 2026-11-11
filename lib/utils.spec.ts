@@ -89,7 +89,7 @@ describe('#shouldHideCommand()', () => {
         expect(shouldHideCommand({ name: 'bar', index: 1 }, [], ['bar'])).toBe(false);
     });
 
-    it('requires show membership and absence from hide when both are set', () => {
+    it('shows command only when absent from hide list', () => {
         expect(shouldHideCommand({ name: 'foo', index: 0 }, [1], [0, 1])).toBe(false);
         expect(shouldHideCommand({ name: 'bar', index: 1 }, [1], [0, 1])).toBe(true);
         expect(shouldHideCommand({ name: 'baz', index: 2 }, [1], [0, 1])).toBe(true);
