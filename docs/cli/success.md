@@ -6,6 +6,10 @@ It determines whether the next step runs, or if the script stops with a failure.
 You can control concurrently's exit code using the `--success` flag.  
 This tells it **which command(s)** must succeed (exit with code `0`) for concurrently to return success overall.
 
+> [!NOTE]
+> `--success` doesn't apply when concurrently itself is interrupted with `Ctrl+C`.
+> On POSIX platforms it then dies from `SIGINT`, which shells report as exit status `130`.
+
 There are several possible values:
 
 ## `all`

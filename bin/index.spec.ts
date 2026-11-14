@@ -178,7 +178,7 @@ describe('exiting conditions', () => {
         expect(exit.code).toBeGreaterThan(0);
     });
 
-    it('is of success when a SIGINT is sent', async () => {
+    it('dies from SIGINT on POSIX when interrupted', async () => {
         // Windows doesn't support sending signals like on POSIX platforms.
         // However, in a console, processes can be interrupted with CTRL+C (like a SIGINT).
         // This is what we simulate here with the help of a wrapper application.
@@ -197,7 +197,9 @@ describe('exiting conditions', () => {
         const lines = await child.getLogLines();
         const exit = await child.exit;
 
-        expect(exit.code).toBe(0);
+        expect(exit).toMatchObject(
+            isWindows ? { code: 0, signal: null } : { code: null, signal: 'SIGINT' },
+        );
         expect(lines).toContainEqual(
             expect.stringMatching(
                 createKillMessage(
