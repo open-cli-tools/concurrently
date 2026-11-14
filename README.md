@@ -125,6 +125,7 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
     If `first`, only the first process to exit will make up the success of the run; if `last`, the last process that exits will determine whether the run succeeds.
     Anything else means all processes should exit successfully.
   - `restartTries`: how many attempts to restart a process that dies will be made. Default: `0`.
+  - `totalRestartTries`: how many restarts all processes may share, on top of `restartTries` for each of them. Negative means no limit. Default: `-1`.
   - `restartDelay`: how many milliseconds to wait between process restarts. Default: `0`.
   - `timestampFormat`: a [Unicode format](https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table)
     to use when prefixing with `time`. Default: `yyyy-MM-dd HH:mm:ss.SSS`
