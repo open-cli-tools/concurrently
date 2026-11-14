@@ -27,13 +27,19 @@ import { castArray } from './utils.js';
 
 export type ConcurrentlyOptions = Omit<
     BaseConcurrentlyOptions,
-    'abortSignal' | 'hide' | 'spawn'
+    'abortSignal' | 'hide' | 'show' | 'spawn'
 > & {
     // Logger options
     /**
      * Which command(s) should have their output hidden.
      */
     hide?: CommandIdentifier | CommandIdentifier[];
+
+    /**
+     * Which command(s) should have their output shown.
+     * When set and non-empty, only these commands are shown (unless also listed in `hide`).
+     */
+    show?: CommandIdentifier | CommandIdentifier[];
 
     /**
      * The prefix format to use when logging a command's output.
@@ -144,11 +150,14 @@ export function concurrently(
     // To avoid empty strings from hiding the output of commands that don't have a name,
     // keep in the list of commands to hide only strings with some length.
     // This might happen through the CLI when no `--hide` argument is specified, for example.
+    // Same filter applies to `--show`.
     const hide = castArray(options.hide).filter((id) => id || id === 0);
+    const show = castArray(options.show).filter((id) => id || id === 0);
     const logger =
         options.logger ||
         new Logger({
             hide,
+            show,
             prefixFormat: options.prefix,
             commandLength: options.prefixLength,
             raw: options.raw,
@@ -170,6 +179,7 @@ export function concurrently(
         cwd: options.cwd,
         spawn,
         hide,
+        show,
         logger,
         outputStream,
         group: options.group,

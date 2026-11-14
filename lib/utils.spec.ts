@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { castArray, escapeRegExp, splitOutsideParens } from './utils.js';
+import { castArray, escapeRegExp, shouldHideCommand, splitOutsideParens } from './utils.js';
 
 describe('#escapeRegExp()', () => {
     it('escapes all RegExp chars', () => {
@@ -69,5 +69,29 @@ describe('#splitOutsideParens()', () => {
 
     it('returns an empty array for an empty input', () => {
         expect(splitOutsideParens('', ',')).toEqual([]);
+    });
+});
+
+describe('#shouldHideCommand()', () => {
+    it('shows every command when hide and show are empty', () => {
+        expect(shouldHideCommand({ name: 'foo', index: 0 })).toBe(false);
+    });
+
+    it('hides by index or name', () => {
+        expect(shouldHideCommand({ name: 'foo', index: 1 }, [1])).toBe(true);
+        expect(shouldHideCommand({ name: 'bar', index: 0 }, ['bar'])).toBe(true);
+        expect(shouldHideCommand({ name: 'foo', index: 0 }, [1])).toBe(false);
+    });
+
+    it('shows only selected commands when show is set', () => {
+        expect(shouldHideCommand({ name: 'foo', index: 0 }, [], [0])).toBe(false);
+        expect(shouldHideCommand({ name: 'bar', index: 1 }, [], [0])).toBe(true);
+        expect(shouldHideCommand({ name: 'bar', index: 1 }, [], ['bar'])).toBe(false);
+    });
+
+    it('shows command only when absent from hide list', () => {
+        expect(shouldHideCommand({ name: 'foo', index: 0 }, [1], [0, 1])).toBe(false);
+        expect(shouldHideCommand({ name: 'bar', index: 1 }, [1], [0, 1])).toBe(true);
+        expect(shouldHideCommand({ name: 'baz', index: 2 }, [1], [0, 1])).toBe(true);
     });
 });
