@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import process from 'node:process';
 
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
+import yargs from 'burgee/yargs';
+import { hideBin } from 'burgee/yargs/helpers';
 
 import * as defaults from '../lib/defaults.js';
 import { concurrently } from '../lib/index.js';
