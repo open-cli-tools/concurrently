@@ -759,3 +759,43 @@ describe('#toggleColors()', () => {
         expect(texts).toContain('--> ');
     });
 });
+
+describe('shutting down', () => {
+    it('is not shutting down by default', () => {
+        const { logger } = createLogger({});
+        expect(logger.isShuttingDown).toBe(false);
+    });
+
+    it('does not log command events once shutting down', () => {
+        const { logger } = createLogger({});
+        logger.setShuttingDown();
+
+        expect(logger.isShuttingDown).toBe(true);
+        logger.logCommandEvent('foo', new FakeCommand());
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does not log global events once shutting down', () => {
+        const { logger } = createLogger({});
+        logger.setShuttingDown();
+
+        logger.logGlobalEvent('foo');
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('does not log tables once shutting down', () => {
+        const { logger } = createLogger({});
+        logger.setShuttingDown();
+
+        logger.logTable([{ foo: 1 }]);
+        expect(logger.log).not.toHaveBeenCalled();
+    });
+
+    it('still logs command output once shutting down', () => {
+        const { logger } = createLogger({});
+        logger.setShuttingDown();
+
+        logger.logCommandText('foo', new FakeCommand());
+        expect(logger.log).toHaveBeenCalled();
+    });
+});
