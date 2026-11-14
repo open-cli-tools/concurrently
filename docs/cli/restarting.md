@@ -36,3 +36,5 @@ $ concurrently -p time --restart-tries 3 --restart-after exponential 'exit 1'
 [2024-09-01 23:49:08.158] exit 1 restarted
 [2024-09-01 23:49:08.174] exit 1 exited with code 1
 ```
+
+Commands are not restarted once concurrently receives a `SIGINT`, `SIGTERM` or `SIGHUP`, including a restart that was still waiting for its delay.
