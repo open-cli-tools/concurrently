@@ -95,7 +95,11 @@ export class CompletionListener {
 
         const abort =
             abortSignal &&
-            Rx.fromEvent(abortSignal, 'abort', { once: true }).pipe(
+            Rx.merge(
+                Rx.fromEvent(abortSignal, 'abort', { once: true }),
+                // Keep the event stream open while replaying cancellation for late subscribers.
+                Rx.defer(() => (abortSignal.aborted ? Rx.of(undefined) : Rx.EMPTY)),
+            ).pipe(
                 // The abort signal must happen before commands are killed, otherwise new commands
                 // might spawn. Because of this, it's not be possible to capture the close events
                 // without an immediate delay

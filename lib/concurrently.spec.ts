@@ -126,6 +126,42 @@ it('spawns commands up to percent based limit at once', () => {
     expect(spawn).toHaveBeenCalledWith('qux', expect.objectContaining({}));
 });
 
+it('finishes without spawning commands for an already-aborted signal', async () => {
+    const abortController = new AbortController();
+    abortController.abort();
+    const { result, commands } = create(['foo', 'bar'], {
+        abortSignal: abortController.signal,
+    });
+
+    expect(spawn).not.toHaveBeenCalled();
+    expect(commands.every((command) => command.state === 'stopped')).toBe(true);
+    await expect(result).resolves.toEqual([]);
+    onFinishHooks.forEach((hook) => expect(hook).toHaveBeenCalledTimes(1));
+});
+
+it('waits for a command when spawning it aborts the remaining commands', async () => {
+    const abortController = new AbortController();
+    vi.mocked(spawn).mockImplementationOnce(() => {
+        abortController.abort();
+        const process = createFakeProcess(0);
+        processes.push(process);
+        return process;
+    });
+    const { result } = create(['foo', 'bar'], { abortSignal: abortController.signal });
+    const settled = vi.fn();
+    void result.then(settled, settled);
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(spawn).toHaveBeenCalledTimes(1);
+    expect(settled).not.toHaveBeenCalled();
+    onFinishHooks.forEach((hook) => expect(hook).not.toHaveBeenCalled());
+
+    processes[0].emit('close', 0, null);
+
+    await expect(result).resolves.toEqual([expect.objectContaining({ index: 0, exitCode: 0 })]);
+    onFinishHooks.forEach((hook) => expect(hook).toHaveBeenCalledTimes(1));
+});
+
 it('does not spawn further commands on abort signal aborted', () => {
     const abortController = new AbortController();
     create(['foo', 'bar'], { maxProcesses: 1, abortSignal: abortController.signal });
