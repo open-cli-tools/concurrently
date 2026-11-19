@@ -14,6 +14,7 @@ export class Teardown implements FlowController {
     private readonly logger: Logger;
     private readonly spawn: SpawnCommand;
     private readonly teardown: readonly string[];
+    private readonly env?: Record<string, unknown>;
     private readonly process: EventEmitter;
     private readonly kill: KillProcess;
 
@@ -21,6 +22,7 @@ export class Teardown implements FlowController {
         logger,
         spawn,
         commands,
+        env,
         process = globalThis.process,
         kill = treeKill,
     }: {
@@ -30,6 +32,10 @@ export class Teardown implements FlowController {
          */
         spawn: SpawnCommand;
         commands: readonly string[];
+        /**
+         * Environment variables to set for the teardown commands.
+         */
+        env?: Record<string, unknown>;
         /**
          * The process whose signals go to a running teardown command.
          */
@@ -42,12 +48,13 @@ export class Teardown implements FlowController {
         this.logger = logger;
         this.spawn = spawn;
         this.teardown = commands;
+        this.env = env;
         this.process = process;
         this.kill = kill;
     }
 
     handle(commands: Command[]): { commands: Command[]; onFinish: () => Promise<void> } {
-        const { logger, teardown, spawn, process, kill } = this;
+        const { logger, teardown, env, spawn, process, kill } = this;
         if (!teardown.length) {
             return { commands, onFinish: async () => {} };
         }
@@ -80,7 +87,7 @@ export class Teardown implements FlowController {
                     }
                     logger.logGlobalEvent(`Running teardown command "${command}"`);
 
-                    child = spawn(command, getSpawnOpts({ stdio: 'raw' }));
+                    child = spawn(command, getSpawnOpts({ stdio: 'raw', env }));
                     const error = Rx.fromEvent(child, 'error');
                     const close = Rx.fromEvent(child, 'close');
 

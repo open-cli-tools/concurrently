@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { castArray, escapeRegExp, shouldHideCommand, splitOutsideParens } from './utils.js';
+import {
+    castArray,
+    escapeRegExp,
+    parseEnvVars,
+    shouldHideCommand,
+    splitOutsideParens,
+} from './utils.js';
 
 describe('#escapeRegExp()', () => {
     it('escapes all RegExp chars', () => {
@@ -93,5 +99,33 @@ describe('#shouldHideCommand()', () => {
         expect(shouldHideCommand({ name: 'foo', index: 0 }, [1], [0, 1])).toBe(false);
         expect(shouldHideCommand({ name: 'bar', index: 1 }, [1], [0, 1])).toBe(true);
         expect(shouldHideCommand({ name: 'baz', index: 2 }, [1], [0, 1])).toBe(true);
+    });
+});
+
+describe('#parseEnvVars()', () => {
+    it('returns an empty object for an empty list', () => {
+        expect(parseEnvVars([])).toEqual({});
+    });
+
+    it('parses KEY=VALUE pairs', () => {
+        expect(parseEnvVars(['FOO=bar', 'BAZ=qux'])).toEqual({ FOO: 'bar', BAZ: 'qux' });
+    });
+
+    it('splits only on the first equals sign', () => {
+        expect(parseEnvVars(['URL=http://localhost?a=b'])).toEqual({
+            URL: 'http://localhost?a=b',
+        });
+    });
+
+    it('allows empty values', () => {
+        expect(parseEnvVars(['FOO='])).toEqual({ FOO: '' });
+    });
+
+    it('lets the last value of a repeated key win', () => {
+        expect(parseEnvVars(['FOO=one', 'FOO=two'])).toEqual({ FOO: 'two' });
+    });
+
+    it.each(['FOO', '=bar', ''])('throws on invalid entry "%s"', (entry) => {
+        expect(() => parseEnvVars([entry])).toThrow(/expected KEY=VALUE/);
     });
 });

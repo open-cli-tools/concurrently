@@ -74,6 +74,25 @@ export function splitOutsideParens(input: string, delimiter: string): string[] {
 }
 
 /**
+ * Parses a list of `KEY=VALUE` strings into an object of environment variables.
+ * Only the first `=` separates the key from the value, and later keys override earlier ones.
+ *
+ * Example:
+ *   parseEnvVars(['FOO=bar', 'URL=http://localhost?a=b']) → { FOO: 'bar', URL: 'http://localhost?a=b' }
+ */
+export function parseEnvVars(vars: readonly string[]): Record<string, string> {
+    const env: Record<string, string> = {};
+    for (const entry of vars) {
+        const separatorIndex = entry.indexOf('=');
+        if (separatorIndex <= 0) {
+            throw new Error(`Invalid environment variable "${entry}", expected KEY=VALUE`);
+        }
+        env[entry.slice(0, separatorIndex)] = entry.slice(separatorIndex + 1);
+    }
+    return env;
+}
+
+/**
  * Error thrown when a condition is reached that should be impossible.
  */
 export class UnreachableError extends Error {

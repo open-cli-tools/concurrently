@@ -559,3 +559,46 @@ describe('--passthrough-arguments', () => {
         expect(lines).toContainEqual(expect.stringContaining('[1] echo exited with code 0'));
     });
 });
+
+describe('--env', () => {
+    it('passes environment variables to every command', async () => {
+        const lines = await run(
+            '--env FOO=bar "node -p process.env.FOO" "node -p process.env.FOO"',
+        ).getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('[0] bar'));
+        expect(lines).toContainEqual(expect.stringContaining('[1] bar'));
+    });
+
+    it('can be specified multiple times', async () => {
+        const lines = await run(
+            '--env FOO=foo --env BAR=bar "node -p process.env.FOO+process.env.BAR"',
+        ).getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('[0] foobar'));
+    });
+
+    it('keeps equals signs in the value', async () => {
+        const lines = await run('--env FOO=a=b "node -p process.env.FOO"').getLogLines();
+
+        expect(lines).toContainEqual(expect.stringContaining('[0] a=b'));
+    });
+
+    it('passes environment variables to teardown commands', async () => {
+        const lines = await run(
+            '--env FOO=bar --teardown "node -p process.env.FOO" "echo hey"',
+        ).getLogLines();
+
+        expect(lines).toContain('bar');
+    });
+
+    it('fails when a variable is not in KEY=VALUE format', async () => {
+        const child = run('--env FOO "echo foo"');
+        const lines = await child.getLogLines();
+        const exit = await child.exit;
+
+        expect(exit.code).toBe(1);
+        expect(lines).toContainEqual(expect.stringContaining('expected KEY=VALUE'));
+        expect(lines).not.toContainEqual(expect.stringContaining('[0] foo'));
+    });
+});
