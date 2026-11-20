@@ -139,8 +139,10 @@ it('finishes without spawning commands for an already-aborted signal', async () 
     onFinishHooks.forEach((hook) => expect(hook).toHaveBeenCalledTimes(1));
 });
 
-it('waits for a command when spawning it aborts the remaining commands', async () => {
+it('waits for the started command when a custom spawn aborts the batch', async () => {
     const abortController = new AbortController();
+    // A custom spawn can cancel further starts before concurrently() installs
+    // its completion listener. The process it returns must still finish.
     vi.mocked(spawn).mockImplementationOnce(() => {
         abortController.abort();
         const process = createFakeProcess(0);
