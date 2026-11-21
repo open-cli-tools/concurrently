@@ -359,6 +359,20 @@ describe('--restart-tries', () => {
             expect.stringContaining('[0] exit 1 exited with code 1'),
         ]);
     });
+
+    // Windows doesn't support sending signals like on POSIX platforms.
+    it.skipIf(isWindows)('does not restart commands after a signal', async () => {
+        const child = run('--restart-tries 1 "node __fixtures__/read-echo.js"');
+        // Wait for command to have started before sending SIGTERM
+        child.log.subscribe((line) => {
+            if (/READING/.test(line)) {
+                process.kill(Number(child.pid), 'SIGTERM');
+            }
+        });
+        const lines = await child.getLogLines();
+
+        expect(lines).not.toContainEqual(expect.stringContaining('restarted'));
+    });
 });
 
 describe('--kill-others', () => {

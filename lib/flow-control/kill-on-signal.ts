@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators';
 import { Command } from '../command.js';
 import { FlowController } from './flow-controller.js';
 
-const SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
+export const SIGNALS = ['SIGINT', 'SIGTERM', 'SIGHUP'] as const;
 
 /**
  * Watches the main concurrently process for signals and sends the same signal down to each spawned
