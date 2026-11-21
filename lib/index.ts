@@ -197,7 +197,7 @@ export function concurrently(
                     options.inputStream || (options.handleInput ? process.stdin : undefined),
                 pauseInputStreamOnFinish: options.pauseInputStreamOnFinish,
             }),
-            new KillOnSignal({ process, abortController }),
+            new KillOnSignal({ process, abortController, logger }),
             new RestartProcess({
                 logger,
                 delay: options.restartDelay,
