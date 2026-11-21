@@ -16,7 +16,7 @@ jobs:
     outputs:
       latest: ${{ steps.detect.outputs.latest }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - id: detect
@@ -34,7 +34,7 @@ jobs:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Create release
         env:
@@ -50,7 +50,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Setup
         uses: ./.github/actions/setup
