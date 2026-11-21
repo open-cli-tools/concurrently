@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 
+import { type Node, parse as parseShell, type Script, type Word } from 'unbash';
+
 import { CommandInfo } from '../command.js';
 import JSONC from '../jsonc.js';
 import { escapeRegExp } from '../utils.js';
@@ -7,6 +9,104 @@ import { CommandParser } from './command-parser.js';
 
 // Matches a negative filter surrounded by '(!' and ')'.
 const OMISSION = /\(!([^)]+)\)/;
+
+const RUN_SUBCOMMANDS: Record<string, string> = {
+    npm: 'run',
+    yarn: 'run',
+    pnpm: 'run',
+    bun: 'run',
+    node: '--run',
+    deno: 'task',
+};
+
+type WildcardCommand = {
+    command: string;
+    scriptGlob: string;
+    replace: (script: string) => string;
+};
+
+function findRunner(node: Node | Script): { command: string; glob: Word } | undefined {
+    switch (node.type) {
+        case 'Command': {
+            const words = [node.name, ...node.suffix];
+            for (let index = 0; index + 2 < words.length; index++) {
+                const name = words[index]?.value;
+                const subcommand = words[index + 1];
+                const glob = words[index + 2];
+                if (
+                    name &&
+                    glob &&
+                    subcommand?.value === RUN_SUBCOMMANDS[name] &&
+                    glob.value.includes('*')
+                ) {
+                    return {
+                        command: `${name} ${subcommand.value}`,
+                        glob,
+                    };
+                }
+            }
+            return undefined;
+        }
+        case 'Statement':
+            return findRunner(node.command);
+        case 'Script':
+        case 'Pipeline':
+        case 'AndOr':
+            for (const command of node.commands) {
+                const runner = findRunner(command);
+                if (runner) {
+                    return runner;
+                }
+            }
+            return undefined;
+        default:
+            return undefined;
+    }
+}
+
+function quoteScript(script: string): string {
+    if (script.includes('\0')) {
+        throw new TypeError('Arguments cannot contain NUL');
+    }
+    return /^[\p{L}\p{N}_:./+-][\p{L}\p{N}_:@./+-]*$/u.test(script)
+        ? script
+        : "'" + script.split("'").join("'\\''") + "'";
+}
+
+function parseCommand(commandLine: string): WildcardCommand | undefined {
+    let parsed = parseShell(commandLine);
+    let runner = findRunner(parsed);
+    if (!runner) {
+        return undefined;
+    }
+    const omission = OMISSION.exec(commandLine.slice(runner.glob.end));
+    let addedQuoteLength = 0;
+    if (omission?.index === 0) {
+        // Quote concurrently's omission syntax so the parser includes any following word suffix.
+        const quotedOmission = quoteScript(omission[0]);
+        parsed = parseShell(
+            commandLine.slice(0, runner.glob.end) +
+                quotedOmission +
+                commandLine.slice(runner.glob.end + omission[0].length),
+        );
+        runner = findRunner(parsed);
+        if (!runner) {
+            return undefined;
+        }
+        addedQuoteLength = quotedOmission.length - omission[0].length;
+    }
+    const { command, glob } = runner;
+    if (parsed.errors?.some((error) => error.pos >= glob.pos && error.pos < glob.end)) {
+        return undefined;
+    }
+    const end = glob.end - addedQuoteLength;
+    return {
+        command,
+        scriptGlob: glob.value,
+        replace: (script) =>
+            commandLine.slice(0, glob.pos) + quoteScript(script) + commandLine.slice(end),
+    };
+}
 
 /**
  * Finds wildcards in 'npm/yarn/pnpm/bun run', 'node --run' and 'deno task'
@@ -77,19 +177,12 @@ export class ExpandWildcard implements CommandParser {
     }
 
     parse(commandInfo: CommandInfo) {
-        // We expect one of the following patterns:
-        // - <npm|yarn|pnpm|bun> run <script> [args]
-        // - node --run <script> [args]
-        // - deno task <script> [args]
-        const [, command, scriptGlob, args] =
-            /((?:npm|yarn|pnpm|bun) run|node --run|deno task) (\S+)([^&]*)/.exec(
-                commandInfo.command,
-            ) || [];
-
-        const wildcardPosition = (scriptGlob || '').indexOf('*');
-
-        // If the regex didn't match an npm script, or it has no wildcard,
-        // then we have nothing to do here
+        const wildcard = parseCommand(commandInfo.command);
+        if (!wildcard) {
+            return commandInfo;
+        }
+        const { command, scriptGlob, replace } = wildcard;
+        const wildcardPosition = scriptGlob.indexOf('*');
         if (wildcardPosition === -1) {
             return commandInfo;
         }
@@ -115,7 +208,7 @@ export class ExpandWildcard implements CommandParser {
             if (match !== undefined) {
                 commands.push({
                     ...commandInfo,
-                    command: `${command} ${script}${args}`,
+                    command: replace(script),
                     // Will use an empty command name if no prefix has been specified and
                     // the wildcard match is empty, e.g. if `npm:watch-*` matches `npm run watch-`.
                     name: prefix + match,
