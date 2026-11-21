@@ -51,10 +51,10 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "chalk": "5.6.2",
+    "chalk": "6.0.1",
     "rxjs": "7.8.2",
     "shell-quote": "1.12.0",
-    "supports-color": "10.2.2",
+    "supports-color": "11.0.0",
     "tree-kill": "1.2.2",
     "yargs": "18.0.0"
   },
