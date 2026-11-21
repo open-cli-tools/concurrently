@@ -95,10 +95,16 @@ export class CompletionListener {
 
         const abort =
             abortSignal &&
-            Rx.fromEvent(abortSignal, 'abort', { once: true }).pipe(
+            Rx.merge(
+                // Keep the stream open so a filtered abort does not complete a started command's race.
+                Rx.fromEvent(abortSignal, 'abort', { once: true }),
+                // AbortSignal does not replay events that happened before listen().
+                Rx.defer(() => (abortSignal.aborted ? Rx.of(undefined) : Rx.EMPTY)),
+            ).pipe(
                 // The abort signal must happen before commands are killed, otherwise new commands
                 // might spawn. Because of this, it's not be possible to capture the close events
                 // without an immediate delay
+                // Also let every command subscribe before delivering the initial aborted state.
                 delay(0, this.scheduler),
                 map(() => undefined),
                 // #502 - node might warn of too many active listeners on this object if it isn't shared,

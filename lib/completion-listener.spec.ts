@@ -65,6 +65,36 @@ describe('listen', () => {
         await expect(result).resolves.toHaveLength(0);
     });
 
+    it('completes for commands stopped before an already-aborted signal is observed', async () => {
+        const abortCtrl = new AbortController();
+        abortCtrl.abort();
+        const result = createController('first').listen(commands, abortCtrl.signal);
+
+        scheduler.flush();
+
+        await expect(result).resolves.toEqual([]);
+        expect(getEventListeners(abortCtrl.signal, 'abort')).toHaveLength(0);
+    });
+
+    it('still waits for a started command after an already-aborted signal', async () => {
+        const abortCtrl = new AbortController();
+        abortCtrl.abort();
+        commands[0].state = 'started';
+        const result = createController('all').listen(commands, abortCtrl.signal);
+        const settled = vi.fn();
+        void result.then(settled, settled);
+
+        scheduler.flush();
+        await flushPromises();
+        expect(settled).not.toHaveBeenCalled();
+
+        const event = emitFakeCloseEvent(commands[0], { exitCode: 1 });
+        scheduler.flush();
+
+        await expect(result).rejects.toEqual([event]);
+        expect(getEventListeners(abortCtrl.signal, 'abort')).toHaveLength(0);
+    });
+
     it('does not leak memory when listening for abort signals', () => {
         const abortCtrl = new AbortController();
         createController().listen(
