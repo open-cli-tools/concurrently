@@ -130,6 +130,48 @@ it('restarts processes until they succeed', () => {
     expect(commands[0].start).toHaveBeenCalledTimes(1);
 });
 
+describe('total tries', () => {
+    it('are shared by all commands', () => {
+        controller = new RestartProcess({ logger, scheduler, delay: 100, tries: 2, totalTries: 3 });
+        controller.handle(commands);
+
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[1].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[1].close.next(createFakeCloseEvent({ exitCode: 1 }));
+
+        scheduler.flush();
+
+        expect(commands[0].start).toHaveBeenCalledTimes(2);
+        expect(commands[1].start).toHaveBeenCalledTimes(1);
+    });
+
+    it('stop the restarts of a command torn down after the budget was spent', () => {
+        controller = new RestartProcess({ logger, scheduler, delay: 100, tries: 2, totalTries: 2 });
+        controller.handle(commands);
+
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[1].close.next(createFakeCloseEvent({ exitCode: 'SIGTERM', killed: true }));
+
+        scheduler.flush();
+
+        expect(commands[0].start).toHaveBeenCalledTimes(2);
+        expect(commands[1].start).not.toHaveBeenCalled();
+    });
+
+    it('are unlimited when negative', () => {
+        controller = new RestartProcess({ logger, scheduler, tries: 2, totalTries: -1 });
+        expect(controller.totalTries).toBe(Infinity);
+    });
+
+    it('disable restarts altogether when zero', () => {
+        controller = new RestartProcess({ logger, scheduler, tries: 2, totalTries: 0 });
+        expect(controller.handle(commands)).toMatchObject({ commands });
+    });
+});
+
 describe('returned commands', () => {
     it('are the same if 0 tries are to be attempted', () => {
         controller = new RestartProcess({ logger, scheduler });
@@ -159,6 +201,21 @@ describe('returned commands', () => {
 
         // 1 failure from commands[0], 1 success from commands[1]
         expect(callback).toHaveBeenCalledTimes(2);
+    });
+
+    it('pass the failure that the shared budget refused to restart', () => {
+        controller = new RestartProcess({ logger, scheduler, delay: 100, tries: 2, totalTries: 1 });
+        const { commands: newCommands } = controller.handle(commands);
+
+        const callback = vi.fn();
+        newCommands[0].close.subscribe(callback);
+
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+        commands[0].close.next(createFakeCloseEvent({ exitCode: 1 }));
+
+        scheduler.flush();
+
+        expect(callback).toHaveBeenCalledTimes(1);
     });
 
     it('keep non-close streams from original commands', () => {
