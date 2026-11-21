@@ -71,6 +71,8 @@ describe('literals', () => {
         ['foo bar', "'foo bar'"],
         ["foo ' bar", "'foo '' bar'"],
         ["foo bar'?", "'foo bar'''?"],
+        ['foo bar', "'foo bar"],
+        ['foo bar', "'foo' 'bar"],
     ])('returns "%s" for pattern "%s"', (expected, pattern) => {
         const formatter = new DateFormatter(pattern);
         expect(formatter.format(new Date())).toBe(expected);
