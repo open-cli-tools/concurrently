@@ -51,17 +51,17 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "chalk": "5.6.2",
+    "chalk": "6.0.1",
     "rxjs": "7.8.2",
     "shell-quote": "1.12.0",
-    "supports-color": "10.2.2",
+    "supports-color": "11.0.0",
     "tree-kill": "1.2.2",
-    "yargs": "18.0.0"
+    "yargs": "18.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@hirez_io/observer-spy": "^2.2.0",
-    "@types/node": "^22.20.5",
+    "@types/node": "^26.6.6",
     "@types/yargs": "^17.0.35",
     "@vitest/coverage-v8": "^5.0.5",
     "@vitest/eslint-plugin": "^1.6.27",
@@ -78,7 +78,7 @@
     "prettier": "^3.9.10",
     "safe-publish-latest": "^2.0.0",
     "string-argv": "^0.4.0",
-    "typescript": "~5.9.3",
+    "typescript": "~7.0.2",
     "typescript-eslint": "^8.71.2",
     "vitest": "^5.0.5"
   },
