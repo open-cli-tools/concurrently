@@ -108,7 +108,9 @@ Check out documentation and other usage examples in the [`docs` directory](./doc
     Can be an array containing the strings `success` (status code zero) and/or `failure` (non-zero exit status).
   - `maxProcesses`: how many processes should run at once.
   - `outputStream`: a [`Writable` stream](https://nodejs.org/docs/latest/api/stream.html#writable-streams)
-    to write logs to. Default: `process.stdout`.
+    to write combined log text to. Default: `process.stdout`. For command metadata, see
+    [Routing logs by command](#routing-logs-by-command).
+  - `logger`: a `Logger` instance to use instead of the default logger.
   - `prefix`: the prefix type to use when logging processes output.
     Possible values: `index`, `pid`, `time`, `command`, `name`, `none`, or a template (eg `[{time} process: {pid}]`).
     Default: the name of the process, or its index if no name is set.
@@ -162,6 +164,46 @@ const { result } = concurrently(
 );
 result.then(success, failure);
 ```
+
+### Routing logs by command
+
+`outputStream` receives formatted text, not the command that produced it. To route
+the text by command without parsing prefixes, subscribe to a `Logger`'s `output`
+observable before starting the commands. Each event has `{ command, text }`;
+`command` is `undefined` for global events.
+
+```js
+import { Writable } from 'node:stream';
+import { concurrently, Logger } from 'concurrently';
+
+const logger = new Logger({ prefixFormat: 'none' });
+const logs = new Map();
+const subscription = logger.output.subscribe(({ command, text }) => {
+  const key = command?.index ?? 'global';
+  logs.set(key, (logs.get(key) ?? '') + text);
+});
+
+// Discard the combined stream because we're collecting the same logs separately.
+const outputStream = new Writable({
+  write(_chunk, _encoding, callback) {
+    callback();
+  },
+});
+
+try {
+  const { result } = concurrently(['echo ready', 'echo ready'], {
+    logger,
+    outputStream,
+  });
+  await result;
+} finally {
+  subscription.unsubscribe();
+}
+```
+
+Here, `logs.get(0)` and `logs.get(1)` hold the formatted output of the two commands
+even though their text is identical. For direct, unformatted output, subscribe
+to `Command.stdout` or `Command.stderr` instead.
 
 ### `Command`
 
