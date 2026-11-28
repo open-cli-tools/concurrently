@@ -78,7 +78,7 @@
     "prettier": "^3.10.1",
     "safe-publish-latest": "^2.0.0",
     "string-argv": "^0.4.0",
-    "typescript": "~5.9.3",
+    "typescript": "~6.0.3",
     "typescript-eslint": "^8.73.0",
     "vitest": "^5.1.1"
   },
