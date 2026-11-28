@@ -63,7 +63,7 @@
     "@hirez_io/observer-spy": "^2.2.0",
     "@types/node": "^22.20.5",
     "@types/yargs": "^17.0.35",
-    "@vitest/coverage-v8": "^5.0.5",
+    "@vitest/coverage-v8": "^5.1.1",
     "@vitest/eslint-plugin": "^1.6.27",
     "ctrlc-wrapper": "^0.0.5",
     "eslint": "^10.15.0",
@@ -80,7 +80,7 @@
     "string-argv": "^0.4.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.71.2",
-    "vitest": "^5.0.5"
+    "vitest": "^5.1.1"
   },
   "lint-staged": {
     "*.{js,ts}": "eslint --fix",
