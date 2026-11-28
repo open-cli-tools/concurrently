@@ -209,7 +209,7 @@ export class DateFormatter {
     private compileLiteral(pattern: string, offset: number) {
         let length = 1;
         let value = '';
-        for (; length < pattern.length; length++) {
+        for (; offset + length < pattern.length; length++) {
             const i = offset + length;
             const char = pattern[i];
 
