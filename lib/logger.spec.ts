@@ -151,6 +151,26 @@ describe('#logCommandText()', () => {
         expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('0-bar')} `, 'foo', cmd);
     });
 
+    it.each(['echo $$', "grep $'foo' bar", 'echo $&', 'echo {time}'])(
+        'logs with templated prefixFormat using command line %j as is',
+        (commandLine) => {
+            const { logger } = createLogger({ prefixFormat: '<{command}>', commandLength: 20 });
+            const cmd = new FakeCommand('bar', commandLine);
+            logger.logCommandText('foo', cmd);
+
+            const prefix = chalk.reset(`<${commandLine}>`);
+            expect(logger.log).toHaveBeenCalledWith(`${prefix} `, 'foo', cmd);
+        },
+    );
+
+    it('keeps unknown placeholders in templated prefixFormat', () => {
+        const { logger } = createLogger({ prefixFormat: '{index}-{foo}' });
+        const cmd = new FakeCommand('bar');
+        logger.logCommandText('foo', cmd);
+
+        expect(logger.log).toHaveBeenCalledWith(`${chalk.reset('0-{foo}')} `, 'foo', cmd);
+    });
+
     it('does not strip spaces from beginning or end of prefixFormat', () => {
         const { logger } = createLogger({ prefixFormat: ' {index}-{name} ' });
         const cmd = new FakeCommand('bar');

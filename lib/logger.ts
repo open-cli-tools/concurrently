@@ -4,7 +4,7 @@ import Rx from 'rxjs';
 import { Command, CommandIdentifier } from './command.js';
 import { DateFormatter } from './date-format.js';
 import * as defaults from './defaults.js';
-import { escapeRegExp, shouldHideCommand, splitOutsideParens } from './utils.js';
+import { shouldHideCommand, splitOutsideParens } from './utils.js';
 
 const defaultChalk = chalk;
 const noColorChalk = new Chalk({ level: 0 });
@@ -201,10 +201,11 @@ export class Logger {
             return { type: 'default', value: prefixes[prefix] };
         }
 
-        const value = Object.entries(prefixes).reduce((prev, [key, val]) => {
-            const keyRegex = new RegExp(escapeRegExp(`{${key}}`), 'g');
-            return prev.replace(keyRegex, String(val));
-        }, prefix);
+        // Replace all placeholders in a single pass, and with a function, so that the replaced values
+        // are used as is, even if they contain placeholders or replacement patterns such as `$$`.
+        const value = prefix.replace(/\{(\w+)\}/g, (placeholder, key: string) =>
+            Object.hasOwn(prefixes, key) ? prefixes[key] : placeholder,
+        );
         return { type: 'template', value };
     }
 
