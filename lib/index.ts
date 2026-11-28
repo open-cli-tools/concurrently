@@ -89,6 +89,14 @@ export type ConcurrentlyOptions = Omit<
      */
     restartTries?: number;
 
+    /**
+     * How many restarts are allowed across all commands together, on top of
+     * `restartTries` for each of them. Negative means no limit.
+     *
+     * @see RestartProcess
+     */
+    totalRestartTries?: number;
+
     // Process killing options
     /**
      * Once the first command exits with one of these statuses, kill other commands.
@@ -202,6 +210,7 @@ export function concurrently(
                 logger,
                 delay: options.restartDelay,
                 tries: options.restartTries,
+                totalTries: options.totalRestartTries,
             }),
             new KillOthers({
                 logger,
