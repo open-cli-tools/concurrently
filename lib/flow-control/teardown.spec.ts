@@ -46,6 +46,16 @@ describe('onFinish callback', () => {
         expect(spawn).toHaveBeenCalledWith(teardown, getSpawnOpts({ stdio: 'raw' }));
     });
 
+    it('runs teardown command with env vars', () => {
+        new Teardown({ spawn, logger, commands: [teardown], env: { foo: 'bar' } })
+            .handle(commands)
+            .onFinish();
+        expect(spawn).toHaveBeenCalledWith(
+            teardown,
+            getSpawnOpts({ stdio: 'raw', env: { foo: 'bar' } }),
+        );
+    });
+
     it('waits for teardown command to close', async () => {
         const child = createFakeProcess(1);
         spawn.mockReturnValue(child);

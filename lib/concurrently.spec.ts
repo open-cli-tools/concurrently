@@ -2,7 +2,7 @@ import type { CpuInfo } from 'node:os';
 import os from 'node:os';
 import { Writable } from 'node:stream';
 
-import { beforeEach, expect, it, Mock, MockedObject, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, Mock, MockedObject, vi } from 'vitest';
 
 import { createMockInstance } from './__fixtures__/create-mock-instance.js';
 import { createFakeProcess, FakeCommand } from './__fixtures__/fake-command.js';
@@ -35,6 +35,10 @@ beforeEach(() => {
         { handle: vi.fn((commands) => ({ commands, onFinish: onFinishHooks[0] })) },
         { handle: vi.fn((commands) => ({ commands, onFinish: onFinishHooks[1] })) },
     ];
+});
+
+afterEach(() => {
+    vi.unstubAllEnvs();
 });
 
 it('fails if commands is not an array', () => {
@@ -327,6 +331,64 @@ it('uses overridden cwd option for each command if specified', () => {
         expect.objectContaining({
             env: expect.objectContaining({ foo: 'baz' }),
             cwd: 'foobar',
+        }),
+    );
+});
+
+it('uses env from options for each command', () => {
+    create(['echo', 'npm:watch'], {
+        env: { foo: 'bar' },
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'bar' }),
+        }),
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'npm run watch',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'bar' }),
+        }),
+    );
+});
+
+it('merges env from options with the env of each command, which takes precedence', () => {
+    create([{ command: 'echo', env: { foo: 'baz', qux: 'quux' } }, 'kill'], {
+        env: { foo: 'bar', hello: 'world' },
+    });
+
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'baz', qux: 'quux', hello: 'world' }),
+        }),
+    );
+    expect(spawn).toHaveBeenCalledWith(
+        'kill',
+        expect.objectContaining({
+            env: expect.objectContaining({ foo: 'bar', hello: 'world' }),
+        }),
+    );
+});
+
+it('uses env from options over the env of the current process', () => {
+    vi.stubEnv('CONCURRENTLY_TEST_FOO', 'from-process');
+    vi.stubEnv('CONCURRENTLY_TEST_BAR', 'from-process');
+    create(['echo'], {
+        env: { CONCURRENTLY_TEST_FOO: 'from-options' },
+    });
+
+    expect(spawn).toHaveBeenCalledWith(
+        'echo',
+        expect.objectContaining({
+            env: expect.objectContaining({
+                CONCURRENTLY_TEST_FOO: 'from-options',
+                CONCURRENTLY_TEST_BAR: 'from-process',
+            }),
         }),
     );
 });

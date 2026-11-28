@@ -18,4 +18,5 @@ These articles cover using concurrently through CLI:
 - [Restarting Commands](./cli/restarting.md)
 - [Input Handling](./cli/input-handling.md)
 - [Passthrough Arguments](./cli/passthrough-arguments.md)
+- [Environment Variables](./cli/environment-variables.md)
 - [Configuration](./cli/configuration.md)

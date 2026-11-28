@@ -6,7 +6,7 @@ import { hideBin } from 'yargs/helpers';
 
 import * as defaults from '../lib/defaults.js';
 import { concurrently } from '../lib/index.js';
-import { castArray, splitOutsideParens } from '../lib/utils.js';
+import { castArray, parseEnvVars, splitOutsideParens } from '../lib/utils.js';
 import { ensureUtf8Codepage } from './console-codepage.js';
 import { normalizeCliCommand } from './normalize-cli-command.js';
 import { readPackageJson } from './read-package-json.js';
@@ -120,6 +120,14 @@ const program = yargs(hideBin(process.argv))
             type: 'string',
             array: true,
         },
+        env: {
+            describe:
+                'Environment variable to set for every command, in KEY=VALUE format. ' +
+                'Might be specified multiple times.',
+            type: 'string',
+            array: true,
+            coerce: parseEnvVars,
+        },
 
         // Kill others
         'kill-others': {
@@ -218,7 +226,21 @@ const program = yargs(hideBin(process.argv))
         },
     })
     .group(
-        ['m', 'n', 's', 'r', 'no-color', 'hide', 'show', 'g', 'timings', 'shell', 'P', 'teardown'],
+        [
+            'm',
+            'n',
+            's',
+            'r',
+            'no-color',
+            'hide',
+            'show',
+            'g',
+            'timings',
+            'shell',
+            'P',
+            'teardown',
+            'env',
+        ],
         'General',
     )
     .group(['p', 'c', 'l', 't', 'pad-prefix'], 'Prefix styling')
@@ -281,6 +303,7 @@ try {
             timings: args.timings,
             shell: args.shell,
             teardown: args.teardown,
+            env: args.env,
             additionalArguments: args.passthroughArguments ? additionalArguments : undefined,
         },
     ).result.then(

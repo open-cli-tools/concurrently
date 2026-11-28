@@ -122,6 +122,12 @@ export interface ConcurrentlyOptions {
     cwd?: string;
 
     /**
+     * Environment variables to set for every command, on top of the current process' ones.
+     * A command's own `env` takes precedence over these.
+     */
+    env?: Record<string, unknown>;
+
+    /**
      * @see CompletionListener
      */
     successCondition?: SuccessCondition;
@@ -197,7 +203,7 @@ export function concurrently(
                 getSpawnOpts({
                     ipc: command.ipc,
                     stdio: hidden ? 'hidden' : (command.raw ?? options.raw) ? 'raw' : 'normal',
-                    env: command.env,
+                    env: { ...options.env, ...command.env },
                     cwd: command.cwd || options.cwd,
                 }),
                 options.spawn,
