@@ -311,6 +311,25 @@ describe(`with a 'deno task' prefix`, () => {
         ]);
     });
 
+    it('expands only once to a task that has the same name as a script', () => {
+        readDeno.mockReturnValue({
+            tasks: {
+                'build-js': '',
+            },
+        });
+        readPackage.mockReturnValue({
+            scripts: {
+                'build-js': '',
+                'build-css': '',
+            },
+        });
+
+        expect(parser.parse(createCommandInfo(`deno task build-*`))).toEqual([
+            { name: 'js', command: `deno task build-js` },
+            { name: 'css', command: `deno task build-css` },
+        ]);
+    });
+
     it('uses wildcard match of script as command name', () => {
         readDeno.mockReturnValue({
             tasks: {

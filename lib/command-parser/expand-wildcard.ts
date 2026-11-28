@@ -65,8 +65,10 @@ export class ExpandWildcard implements CommandParser {
                 // it can fall back to running a script with the same name.
                 // Therefore, the actual list of tasks is the union of the tasks and scripts.
                 this.denoTasks = [
-                    ...Object.keys(this.readDeno().tasks || {}),
-                    ...this.packageScripts,
+                    ...new Set([
+                        ...Object.keys(this.readDeno().tasks || {}),
+                        ...this.packageScripts,
+                    ]),
                 ];
             }
 
